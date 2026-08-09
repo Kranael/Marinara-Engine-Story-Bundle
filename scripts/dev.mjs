@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from "node:child_process";
-import { basename } from "node:path";
 import { getWorkspaceInstallProblems } from "./check-workspace-install.mjs";
 import { resolveDevSharedBuildScript } from "./dev-shared-build.mjs";
+import { buildPnpmSpawnArgs, resolvePnpmInvocation } from "./pnpm-invocation.mjs";
 
 function parseIntegerEnv(name, fallback) {
   const raw = process.env[name];
@@ -15,18 +15,17 @@ const SERVER_HEALTH_URL = `http://127.0.0.1:${SERVER_PORT}/api/health`;
 const HEALTH_TIMEOUT_MS = parseIntegerEnv("DEV_SERVER_READY_TIMEOUT_MS", 120_000);
 const SHARED_BUILD_SCRIPT = resolveDevSharedBuildScript();
 
-const pnpmCliPath = process.env.npm_execpath;
-const npmUserAgent = process.env.npm_config_user_agent ?? "";
-const useCurrentPnpm =
-  Boolean(pnpmCliPath) && (npmUserAgent.startsWith("pnpm/") || basename(pnpmCliPath ?? "").startsWith("pnpm"));
-const pnpmCommand = useCurrentPnpm ? process.execPath : "pnpm";
-const pnpmBaseArgs = useCurrentPnpm && pnpmCliPath ? [pnpmCliPath] : [];
+const pnpmInvocation = resolvePnpmInvocation();
 const children = new Set();
 let shuttingDown = false;
 
 function spawnPnpm(args, options = {}) {
-  const child = spawn(pnpmCommand, [...pnpmBaseArgs, ...args], {
-    stdio: "inherit",
+  const child = spawn(pnpmInvocation.command, buildPnpmSpawnArgs(pnpmInvocation, args), {
+    // Never hand a live non-TTY stdin pipe to pnpm/Vite/tsx: Playwright's
+    // webServer launcher spawns with an open stdin pipe, and on Windows the
+    // second concurrent pnpm spawn (the Vite client) hangs waiting on it.
+    // Interactive TTY sessions keep inherited stdin.
+    stdio: [process.stdin.isTTY ? "inherit" : "ignore", "inherit", "inherit"],
     windowsHide: true,
     ...options,
   });
@@ -38,6 +37,7 @@ function spawnPnpm(args, options = {}) {
 function runPnpm(args) {
   return new Promise((resolve, reject) => {
     const child = spawnPnpm(args);
+    child.once("error", reject);
     child.once("exit", (code, signal) => {
       if (code === 0) {
         resolve();
@@ -106,6 +106,11 @@ try {
   }
 
   const server = spawnPnpm(["--filter", "@marinara-engine/server", "dev"]);
+  server.once("error", (error) => {
+    console.error(`[dev] Failed to start server process: ${error.message}`);
+    stopChildren();
+    process.exitCode = 1;
+  });
   server.once("exit", (code, signal) => {
     if (!shuttingDown) {
       stopChildren();
@@ -118,6 +123,11 @@ try {
   console.log(`[dev] Server ready in ${readyMs}ms; starting client.`);
 
   const client = spawnPnpm(["--filter", "@marinara-engine/client", "dev"]);
+  client.once("error", (error) => {
+    console.error(`[dev] Failed to start client process: ${error.message}`);
+    stopChildren();
+    process.exitCode = 1;
+  });
   client.once("exit", (code, signal) => {
     if (!shuttingDown) {
       stopChildren();

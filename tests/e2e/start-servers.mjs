@@ -1,10 +1,11 @@
 import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
-import { basename, dirname, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildPnpmSpawnArgs, resolvePnpmInvocation } from "../../scripts/pnpm-invocation.mjs";
 import { resetPlaywrightData } from "./global-setup.mjs";
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const dataRoot = resolve(repoRoot, ".tmp/playwright-data");
 const children = new Set();
 let shuttingDown = false;
@@ -21,18 +22,16 @@ const desktopServerPort = parsePort("PLAYWRIGHT_SERVER_PORT", 7971);
 const mobileClientPort = parsePort("PLAYWRIGHT_MOBILE_CLIENT_PORT", 5179);
 const mobileServerPort = parsePort("PLAYWRIGHT_MOBILE_SERVER_PORT", 7972);
 
-const pnpmCliPath = process.env.npm_execpath;
-const npmUserAgent = process.env.npm_config_user_agent ?? "";
-const useCurrentPnpm =
-  Boolean(pnpmCliPath) && (npmUserAgent.startsWith("pnpm/") || basename(pnpmCliPath ?? "").startsWith("pnpm"));
-const pnpmCommand = useCurrentPnpm ? process.execPath : "pnpm";
-const pnpmBaseArgs = useCurrentPnpm && pnpmCliPath ? [pnpmCliPath] : [];
+const pnpmInvocation = resolvePnpmInvocation();
 
 function spawnChild(command, args, env = process.env) {
   const child = spawn(command, args, {
     cwd: repoRoot,
     env,
-    stdio: "inherit",
+    // Playwright's webServer launcher hands us an open stdin pipe; forwarding
+    // it to pnpm/Vite/tsx hangs the second concurrent spawn on Windows.
+    // Interactive TTY sessions keep inherited stdin.
+    stdio: [process.stdin.isTTY ? "inherit" : "ignore", "inherit", "inherit"],
     windowsHide: true,
   });
   children.add(child);
@@ -42,7 +41,8 @@ function spawnChild(command, args, env = process.env) {
 
 function runPnpm(args) {
   return new Promise((resolvePromise, reject) => {
-    const child = spawnChild(pnpmCommand, [...pnpmBaseArgs, ...args]);
+    const child = spawnChild(pnpmInvocation.command, buildPnpmSpawnArgs(pnpmInvocation, args));
+    child.once("error", reject);
     child.once("exit", (code, signal) => {
       if (code === 0) {
         resolvePromise();

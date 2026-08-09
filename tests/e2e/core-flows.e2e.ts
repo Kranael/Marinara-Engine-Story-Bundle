@@ -6,7 +6,7 @@ const TRANSPARENT_GIF_BASE64 = "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==
 const WHATS_NEW_SEEN_VERSION_KEY = "marinara:whats-new:seen-version";
 const WHATS_NEW_E2E_BYPASS_KEY = "marinara:e2e:show-whats-new";
 const APP_VERSION = (
-  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string }
+  JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as { version: string }
 ).version;
 
 function createDeferred() {
@@ -6405,6 +6405,7 @@ test("home shell and primary topbar panels open without client errors", async ({
     "panel-presets",
     "panel-connections",
     "panel-agents",
+    "panel-story-bundles",
     "panel-settings",
   ]);
 
@@ -6417,6 +6418,7 @@ test("home shell and primary topbar panels open without client errors", async ({
     '[data-tour="panel-presets"]',
     '[data-tour="panel-connections"]',
     '[data-tour="panel-agents"]',
+    '[data-tour="panel-story-bundles"]',
     '[data-tour="panel-settings"]',
   ]) {
     await page.locator(selector).click();

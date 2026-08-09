@@ -15,15 +15,15 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${clientPor
 const mobileBaseURL = process.env.PLAYWRIGHT_MOBILE_BASE_URL ?? `http://127.0.0.1:${mobileClientPort}`;
 
 export default defineConfig({
-  testDir: "./e2e",
-  testMatch: "**/*.e2e.ts",
+  testDir: "./tests",
+  testMatch: ["**/*.e2e.ts", "**/*.test.ts"],
   timeout: 60_000,
   expect: {
     timeout: 10_000,
   },
   fullyParallel: false,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
-  globalSetup: "./e2e/global-setup.mjs",
+  globalSetup: "./tests/e2e/global-setup.mjs",
   use: {
     baseURL,
     trace: "retain-on-failure",
@@ -34,7 +34,7 @@ export default defineConfig({
     process.env.PLAYWRIGHT_SKIP_WEBSERVER === "true"
       ? undefined
       : {
-          command: "node ./e2e/start-servers.mjs",
+          command: "node ./tests/e2e/start-servers.mjs",
           url: baseURL,
           reuseExistingServer: false,
           timeout: 180_000,
