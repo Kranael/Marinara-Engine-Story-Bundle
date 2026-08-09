@@ -893,6 +893,12 @@
   --mari-panel-gradient-text: #ecfdf5;
 }
 
+.mari-panel-gradient--story-bundles {
+  --mari-panel-gradient-start: #f472b6;
+  --mari-panel-gradient-end: #a855f7;
+  --mari-panel-gradient-text: #fdf4ff;
+}
+
 .mari-panel-gradient--settings {
   --mari-panel-gradient-start: #9ca3af;
   --mari-panel-gradient-end: #6b7280;
