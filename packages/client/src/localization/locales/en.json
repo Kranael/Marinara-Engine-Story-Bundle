@@ -911,6 +911,7 @@
   "storyBundles.cancel": "Cancel",
   "storyBundles.count": "{{count}} bundles",
   "storyBundles.create": "Create",
+  "storyBundles.createDialogTitle": "Create Story Bundle",
   "storyBundles.createFailed": "Failed to create the story bundle.",
   "storyBundles.createPromptMessage": "Enter a title for the new story bundle.",
   "storyBundles.delete": "Delete",

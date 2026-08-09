@@ -25,7 +25,7 @@ export function StoryBundlesPanel() {
   const handleCreate = useCallback(async () => {
     if (creating) return;
     const title = await showPromptDialog({
-      title: t("storyBundles.newBundle", "New Bundle"),
+      title: t("storyBundles.createDialogTitle", "Create Story Bundle"),
       message: t("storyBundles.createPromptMessage", "Enter a title for the new story bundle."),
       placeholder: t("storyBundles.namePlaceholder", "Title of this story bundle…"),
       confirmLabel: t("storyBundles.create", "Create"),

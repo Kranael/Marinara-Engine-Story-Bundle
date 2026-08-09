@@ -114,15 +114,16 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 
 **Workflow im UI:**
 1. TopBar-Button „Story Bundles" öffnet das rechte Panel.
-2. „New Bundle" öffnet einen Prompt-Dialog mit genau einem Feld (Titel).
-   Nach Bestätigung wird das Bundle angelegt und der Editor geöffnet.
+2. „New Bundle" öffnet einen Prompt-Dialog (Titel „Create Story Bundle")
+   mit genau einem Feld (Titel). Nach Bestätigung wird das Bundle angelegt
+   und der Editor geöffnet.
 3. Der Editor zeigt ein einzelnes Namensfeld; speichern per Button oder `Enter`.
 4. Löschen läuft über einen destruktiven Bestätigungsdialog.
 
 ### Lokalisierung (`src/localization/locales/en.json`)
 
 Neue semantische Schlüssel: `navigation.topbar.storyBundles` sowie der Block
-`storyBundles.*` (back, cancel, count, create, createFailed, createPromptMessage,
+`storyBundles.*` (back, cancel, count, create, createDialogTitle, createFailed, createPromptMessage,
 delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed, editorTitle, empty,
 nameLabel, namePlaceholder, newBundle, save, saveFailed, saveSuccess).
 Community-Lokalen bleiben bewusst partiell (Fallback auf Englisch).
@@ -160,7 +161,7 @@ smoke-/Regressionstests:
 ### App-Dialoge (`Modal` / `AppDialogRenderer`)
 | testid | Element |
 |---|---|
-| `story-bundle-create-dialog` | Modal-Panel des „New Bundle"-Prompt-Dialogs |
+| `story-bundle-create-dialog` | Modal-Panel des „Create Story Bundle"-Prompt-Dialogs |
 | `story-bundle-delete-dialog` | Modal-Panel des Lösch-Bestätigungsdialogs |
 | `app-dialog-prompt-input` | Texteingabefeld des Prompt-Dialogs |
 | `app-dialog-cancel-button` | Abbrechen-Button (Prompt- und Confirm-Dialoge) |
