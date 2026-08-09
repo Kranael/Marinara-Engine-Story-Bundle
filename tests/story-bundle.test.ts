@@ -6,8 +6,22 @@ const APP_VERSION = (
   JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
 ).version;
 
+// The persisted UI store version changes whenever a migration is added to
+// ui.store.ts. Seed localStorage with the store's *current* version so
+// hydration skips the migration chain entirely; a hardcoded version would
+// silently drift with every update and eventually run migrations against a
+// minimal state they were never designed for.
+const UI_STORE_VERSION = Number(
+  readFileSync(new URL('../packages/client/src/stores/ui.store.ts', import.meta.url), 'utf8').match(
+    /name:\s*"marinara-engine-ui",\s*version:\s*(\d+)/u,
+  )?.[1],
+);
+if (!Number.isInteger(UI_STORE_VERSION)) {
+  throw new Error('Could not read the persisted UI store version from ui.store.ts');
+}
+
 async function prepareFreshClient(page: Page) {
-  await page.addInitScript((appVersion) => {
+  await page.addInitScript(({ appVersion, uiStoreVersion }) => {
     if (sessionStorage.getItem('marinara:e2e:show-whats-new') !== 'true') {
       localStorage.setItem('marinara:whats-new:seen-version', appVersion);
     }
@@ -20,10 +34,10 @@ async function prepareFreshClient(page: Page) {
           rightPanelOpen: false,
           sidebarOpen: false,
         },
-        version: 65,
+        version: uiStoreVersion,
       }),
     );
-  }, APP_VERSION);
+  }, { appVersion: APP_VERSION, uiStoreVersion: UI_STORE_VERSION });
 }
 
 test.beforeEach(async ({ page }) => {
