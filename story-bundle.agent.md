@@ -25,6 +25,7 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `createStoryBundleSchema` (name trim min1 max200), `updateStoryBundleSchema` |
 | `packages/shared/src/index.ts` | Barrel — beide Exportzeilen müssen drin bleiben |
 | `packages/server/src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` |
+| `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` (Registrierung, sonst `Unsupported table`) |
 | `packages/server/src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)`: list/getById/create/update/remove |
 | `packages/server/src/routes/story-bundles.routes.ts` | REST unter `/api/story-bundles` (GET/POST/PATCH/DELETE) |
 | `packages/client/src/hooks/use-story-bundles.ts` | `storyBundleKeys` + Query-/Mutations-Hooks |
@@ -75,6 +76,7 @@ Bei Erweiterungen am besten diese Nachbarn als Vorlage lesen:
 - **i18n:** Neue UI-Texte → semantische Keys in `en.json` (alphabetisch einsortieren). Nur Englisch pflegen; andere Lokalen bleiben partiell (Fallback). Vor dem Shippen: `pnpm localization:check`.
 - **TopBar-Labels** laufen über `useLocalizedUiText()` — der englische Label-Text braucht daher einen en.json-Key (hier: `navigation.topbar.storyBundles`).
 - **Detail-Surfaces sind mutual exclusive:** Jede neue `open*Detail`-Aktion muss in `ui.store.ts` alle anderen Detail-IDs auf `null` setzen (und umgekehrt) + in `hasAnyDetailOpen`, `closeAllDetails`, `requestChatModeShortcut` aufgenommen werden.
+- **Neue Tabellen registrieren:** Jede neue `fileTable` muss in `FILE_BACKED_TABLES` (`packages/server/src/db/file-backed-store.ts`) eingetragen werden, sonst wirft der File-Store `Unsupported table: <name>` bei jedem Insert/Select (genau so passiert beim ersten Story-Bundle-Create).
 - **Styling:** nur CSS-Variablen (`var(--border)`, `var(--card)`, `var(--destructive)` …) + `mari-panel-gradient-surface mari-panel-gradient--<name>`; keine hartkodierten Hex-Farben außerhalb von `globals.css`.
 - **data-testid:** jede neue Komponente/interaktives Element bekommt eine; Katalog siehe `story-bundle.md` § 5.
 - **Keine `.test.ts`-Dateien ins Repo** — Beweise über Regression-/Smoke-Lanes (`pnpm regression:prompt`, `pnpm smoke:ui`).
@@ -95,7 +97,7 @@ PowerShell: Befehle mit `;` verketten, nie mit `&&`.
 ## 8. Erweiterung-Checkliste (nächste Iteration, z. B. neue Felder)
 
 1. `packages/shared`: Interface + Zod-Schema erweitern (update-Schema optional halten).
-2. `packages/server`: Spalten in `fileTable` ergänzen, Storage-Methoden anpassen.
+2. `packages/server`: Spalten in `fileTable` ergänzen, Storage-Methoden anpassen (neue Tabellen zusätzlich in `FILE_BACKED_TABLES` eintragen).
 3. `packages/client`: Editor-Felder + Hooks; ggf. Panel-Spalten.
 4. `en.json`-Keys ergänzen.
 5. `pnpm check` grün, neue `data-testid`s vergeben, `story-bundle.md` + diese Datei nachziehen.

@@ -51,6 +51,7 @@ Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 |---|---|
 | `src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` — Tabellendefinition |
 | `src/db/schema/index.ts` | Barrel-Export ergänzt |
+| `src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` registriert |
 | `src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)` — CRUD-Zugriff |
 | `src/routes/story-bundles.routes.ts` | REST-Endpunkte unter `/api/story-bundles` |
 | `src/routes/index.ts` | Routenregistrierung ergänzt |
@@ -58,6 +59,10 @@ Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 Die Tabelle `story_bundles` ist eine File-Native-JSON-Table wie alle anderen
 Entitäten (Lorebooks, Presets, Personas …). IDs werden über `newId()` (nanoid),
 Zeitstempel über `now()` (ISO) aus `utils/id-generator.ts` erzeugt.
+
+> **Wichtig:** Jede neue `fileTable` muss zusätzlich in `FILE_BACKED_TABLES`
+> (`src/db/file-backed-store.ts`) eingetragen werden, sonst wirft der Store
+> `Unsupported table: <name>` bei jedem Zugriff.
 
 ### REST-API
 
@@ -109,22 +114,28 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 
 **Workflow im UI:**
 1. TopBar-Button „Story Bundles" öffnet das rechte Panel.
-2. „New Bundle" legt ein Bundle mit Default-Titel an und öffnet direkt den Editor.
+2. „New Bundle" öffnet einen Prompt-Dialog mit genau einem Feld (Titel).
+   Nach Bestätigung wird das Bundle angelegt und der Editor geöffnet.
 3. Der Editor zeigt ein einzelnes Namensfeld; speichern per Button oder `Enter`.
 4. Löschen läuft über einen destruktiven Bestätigungsdialog.
 
 ### Lokalisierung (`src/localization/locales/en.json`)
 
 Neue semantische Schlüssel: `navigation.topbar.storyBundles` sowie der Block
-`storyBundles.*` (back, count, createFailed, delete, deleteConfirmBody,
-deleteConfirmTitle, deleteFailed, editorTitle, empty, nameLabel, namePlaceholder,
-newBundle, newBundleDefaultTitle, save, saveFailed, saveSuccess).
+`storyBundles.*` (back, cancel, count, create, createFailed, createPromptMessage,
+delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed, editorTitle, empty,
+nameLabel, namePlaceholder, newBundle, save, saveFailed, saveSuccess).
 Community-Lokalen bleiben bewusst partiell (Fallback auf Englisch).
 
 ## 5. data-testid-Katalog
 
 Jede React-Komponente des Features trägt `data-testid`-Attribute für
 smoke-/Regressionstests:
+
+### TopBar
+| testid | Element |
+|---|---|
+| `topbar-panel-button-story-bundles` | TopBar-Button „Story Bundles" |
 
 ### `StoryBundlesPanel`
 | testid | Element |
