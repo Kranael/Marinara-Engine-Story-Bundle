@@ -440,6 +440,7 @@ export function TopBar() {
               key={panel}
               onClick={() => handleRightPanelClick(panel)}
               data-tour={`panel-${panel}`}
+              data-testid={`topbar-panel-button-${panel}`}
               data-topbar-hover-key={panel}
               className={cn(
                 TOPBAR_PANEL_BUTTON_CLASS,
