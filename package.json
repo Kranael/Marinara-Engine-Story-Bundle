@@ -64,6 +64,7 @@
     "regression:static-cache": "pnpm --filter @marinara-engine/server exec tsx scripts/static-cache-headers.regression.ts",
     "regression:localization": "pnpm --filter @marinara-engine/server exec tsx ../../scripts/regressions/localization-key-references.regression.ts",
     "regression:docs": "pnpm build:shared && pnpm --filter @marinara-engine/server exec tsx ../../scripts/regressions/docs-language.regression.ts",
+    "regression:story-bundle": "playwright test -c playwright.config.ts tests/e2e/story-bundle.test.ts",
     "smoke:ui": "playwright test -c playwright.config.ts",
     "test": "node ./scripts/check-windows-installer-layout.mjs && pnpm regression",
     "version:sync": "node ./scripts/sync-version.mjs",
