@@ -183,6 +183,32 @@ pnpm localization:check
 Aktueller Stand: `pnpm check` läuft vollständig grün durch
 (einzige Ausgabe ist die präexistente Vite-Chunk-Size-Warnung).
 
+### 6.1 Playwright-e2e-Tests (Story Bundle)
+
+Die Spezifikation liegt in `tests/e2e/story-bundle.test.ts` und wird über das
+dedizierte pnpm-Skript ausgeführt:
+
+```bash
+pnpm regression:story-bundle   # alle 4 Story-Bundle-Tests (Desktop + Mobile)
+```
+
+Das Skript ruft `playwright test -c playwright.config.ts tests/e2e/story-bundle.test.ts`
+auf und startet die Webserver (Desktop 5178/7971, Mobile 5179/7972) automatisch
+über `config.webServer`. Aktueller Stand: **4 passed**.
+
+Hinweise zur Ausführung:
+
+- Playwright läuft standardmäßig **headless** – es öffnet sich kein sichtbares
+  Browserfenster. Das ist das erwartete Verhalten (auch in der VS-Code-
+  Playwright-Extension). Für ein sichtbares Fenster `--headed` anhängen:
+  `pnpm exec playwright test -c playwright.config.ts tests/e2e/story-bundle.test.ts --headed`
+- Die Tests schreiben bewusst nichts auf stdout; ein „The test case did not
+  report any output" in der Extension ist daher normal. Das Ergebnis steht im
+  Test-Explorer bzw. in der Zusammenfassung (`2 passed`).
+- Die Datei heißt `*.test.ts` (Konvention der Playwright-Extension). Damit sie
+  trotz der „Temporary tests"-Muster in `.gitignore` versioniert wird, gibt es
+  dort die Ausnahmen `!tests/**/*.test.ts` und `!tests/**/*.spec.ts`.
+
 ## 7. Ausblick (nächste Iterationen)
 
 Mögliche Erweiterungen, die die jetzige Struktur bereits vorbereitet:
