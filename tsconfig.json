@@ -10,5 +10,5 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
   },
-  "include": ["tests/e2e/**/*.ts", "playwright.config.ts"]
+  "include": ["tests/e2e/**/*.ts", "playwright.config.ts", "tests/story-bundle.test.ts"]
 }

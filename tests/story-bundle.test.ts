@@ -1,9 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { HomePage } from '../pages/home-page';
+import { HomePage } from './pages/home-page';
 
 const APP_VERSION = (
-  JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string }
+  JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
 ).version;
 
 async function prepareFreshClient(page: Page) {
