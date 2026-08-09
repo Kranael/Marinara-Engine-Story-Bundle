@@ -31,6 +31,7 @@ export function StoryBundlesPanel() {
       confirmLabel: t("storyBundles.create", "Create"),
       cancelLabel: t("storyBundles.cancel", "Cancel"),
       tone: "accent",
+      testId: "story-bundle-create-dialog",
     });
     if (title === null) return;
     const name = title.trim();
@@ -56,6 +57,7 @@ export function StoryBundlesPanel() {
         }),
         confirmLabel: t("storyBundles.delete", "Delete"),
         tone: "destructive",
+        testId: "story-bundle-delete-dialog",
       });
       if (!confirmed) return;
       try {

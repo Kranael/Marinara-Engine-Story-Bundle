@@ -8,6 +8,8 @@ type AppDialogCommon = {
   confirmLabel?: string;
   cancelLabel?: string;
   tone?: AppDialogTone;
+  /** Optional data-testid applied to the modal panel rendering this dialog. */
+  testId?: string;
 };
 
 export type AlertDialogState = AppDialogCommon & {
