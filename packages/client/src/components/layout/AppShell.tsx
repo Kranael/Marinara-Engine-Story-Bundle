@@ -83,6 +83,9 @@ const ToolEditor = lazy(() => import("../agents/ToolEditor").then((module) => ({
 const PersonaEditor = lazy(() =>
   import("../personas/PersonaEditor").then((module) => ({ default: module.PersonaEditor })),
 );
+const StoryBundleEditor = lazy(() =>
+  import("../story-bundles/StoryBundleEditor").then((module) => ({ default: module.StoryBundleEditor })),
+);
 const RegexScriptEditor = lazy(() =>
   import("../agents/RegexScriptEditor").then((module) => ({ default: module.RegexScriptEditor })),
 );
@@ -537,6 +540,7 @@ export function AppShell() {
   const toolDetailId = useUIStore((s) => s.toolDetailId);
   const personaDetailId = useUIStore((s) => s.personaDetailId);
   const regexDetailId = useUIStore((s) => s.regexDetailId);
+  const storyBundleDetailId = useUIStore((s) => s.storyBundleDetailId);
   const botBrowserOpen = useUIStore((s) => s.botBrowserOpen);
   const gameAssetsBrowserOpen = useUIStore((s) => s.gameAssetsBrowserOpen);
   const noodleOpen = useUIStore((s) => s.noodleOpen);
@@ -786,6 +790,8 @@ export function AppShell() {
     <AgentCatalogView />
   ) : lorebookDetailId ? (
     <LorebookEditor />
+  ) : storyBundleDetailId ? (
+    <StoryBundleEditor />
   ) : null;
 
   const showAmbientDecor =

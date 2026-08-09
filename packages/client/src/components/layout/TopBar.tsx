@@ -13,6 +13,7 @@ import {
   VenetianMask,
   Bot,
   AtSign,
+  BookMarked,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
@@ -30,7 +31,7 @@ import {
   PersonalExtensionTopbarButtons,
 } from "./PersonalExtensionContributionsMenu";
 
-type RightPanelButtonPanel = "lorebooks" | "presets" | "connections" | "agents" | "personas";
+type RightPanelButtonPanel = "lorebooks" | "presets" | "connections" | "agents" | "personas" | "story-bundles";
 
 type RightPanelButtonConfig = {
   panel: RightPanelButtonPanel;
@@ -72,6 +73,12 @@ const RIGHT_PANEL_BUTTONS: readonly RightPanelButtonConfig[] = [
     label: "Agents",
     gradientClass: "mari-panel-gradient--agents",
   },
+  {
+    panel: "story-bundles" as const,
+    icon: BookMarked,
+    label: "Story Bundles",
+    gradientClass: "mari-panel-gradient--story-bundles",
+  },
 ] as const;
 
 const SPOTIFY_TOPBAR_MIN_WIDTH = 320;
@@ -109,6 +116,7 @@ export function TopBar() {
   const toolDetailId = useUIStore((s) => s.toolDetailId);
   const personaDetailId = useUIStore((s) => s.personaDetailId);
   const regexDetailId = useUIStore((s) => s.regexDetailId);
+  const storyBundleDetailId = useUIStore((s) => s.storyBundleDetailId);
   const botBrowserOpen = useUIStore((s) => s.botBrowserOpen);
   const gameAssetsBrowserOpen = useUIStore((s) => s.gameAssetsBrowserOpen);
   const noodleOpen = useUIStore((s) => s.noodleOpen);
@@ -147,6 +155,7 @@ export function TopBar() {
       (rightPanelOpen && rightPanel === "personas") ||
       Boolean(personaDetailId) ||
       (characterLibraryOpen && cardLibraryKind === "personas"),
+    "story-bundles": (rightPanelOpen && rightPanel === "story-bundles") || Boolean(storyBundleDetailId),
   };
   const isHomeActive =
     !activeChatId &&
@@ -158,6 +167,7 @@ export function TopBar() {
     !toolDetailId &&
     !personaDetailId &&
     !regexDetailId &&
+    !storyBundleDetailId &&
     !botBrowserOpen &&
     !gameAssetsBrowserOpen &&
     !noodleOpen &&
