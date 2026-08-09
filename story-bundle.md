@@ -157,6 +157,20 @@ smoke-/Regressionstests:
 | `story-bundle-editor-name-label` | Label des Namensfelds |
 | `story-bundle-editor-name-input` | Namenseingabefeld |
 
+### App-Dialoge (`Modal` / `AppDialogRenderer`)
+| testid | Element |
+|---|---|
+| `story-bundle-create-dialog` | Modal-Panel des „New Bundle"-Prompt-Dialogs |
+| `story-bundle-delete-dialog` | Modal-Panel des Lösch-Bestätigungsdialogs |
+| `app-dialog-prompt-input` | Texteingabefeld des Prompt-Dialogs |
+| `app-dialog-cancel-button` | Abbrechen-Button (Prompt- und Confirm-Dialoge) |
+| `app-dialog-confirm-button` | Bestätigen-Button (Prompt- und Confirm-Dialoge) |
+| `${testId}-close-button` | X-Schließen-Button des Modal-Panels (falls `testId` gesetzt) |
+
+> Hinweis: `Modal` akzeptiert eine optionale `testId`-Prop; das
+> `AppDialog`-State-Feld `testId` wird vom `AppDialogRenderer` an die
+> `Modal`-Komponente durchgereicht.
+
 ## 6. Validierung
 
 ```bash
