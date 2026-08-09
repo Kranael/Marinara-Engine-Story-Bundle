@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { BookMarked, Loader2, Plus, Trash2 } from "lucide-react";
 import { useStoryBundles, useCreateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useUIStore } from "../../stores/ui.store";
-import { showConfirmDialog } from "../../lib/app-dialogs";
+import { showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 
 export function StoryBundlesPanel() {
@@ -24,11 +24,20 @@ export function StoryBundlesPanel() {
 
   const handleCreate = useCallback(async () => {
     if (creating) return;
+    const title = await showPromptDialog({
+      title: t("storyBundles.newBundle", "New Bundle"),
+      message: t("storyBundles.createPromptMessage", "Enter a title for the new story bundle."),
+      placeholder: t("storyBundles.namePlaceholder", "Title of this story bundle…"),
+      confirmLabel: t("storyBundles.create", "Create"),
+      cancelLabel: t("storyBundles.cancel", "Cancel"),
+      tone: "accent",
+    });
+    if (title === null) return;
+    const name = title.trim();
+    if (!name) return;
     setCreating(true);
     try {
-      const bundle = await createMutation.mutateAsync({
-        name: t("storyBundles.newBundleDefaultTitle", "New Story Bundle"),
-      });
+      const bundle = await createMutation.mutateAsync({ name });
       openStoryBundleDetail(bundle.id);
     } catch {
       toast.error(t("storyBundles.createFailed", "Failed to create the story bundle."));
