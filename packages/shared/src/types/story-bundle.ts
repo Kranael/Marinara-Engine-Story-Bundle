@@ -11,6 +11,8 @@ export interface StoryBundle {
   id: string;
   /** The bundle's title. */
   name: string;
+  /** Optional HTML description. Rendered safely via DOMPurify on the client. */
+  description: string | null;
   createdAt: string;
   updatedAt: string;
 }

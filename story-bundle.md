@@ -1,12 +1,12 @@
 # Story Bundle
 
 > Entwicklungs-Dokumentation für das neue **Story-Bundle**-Objekt in Marinara Engine.
-> Branch: `story-bundle-dev` · Stand: erste Iteration (nur Titel).
+> Branch: `story-bundle-dev` · Stand: zweite Iteration (Titel + HTML-Description).
 
 ## 1. Überblick & Scope
 
 Ein **Story Bundle** ist ein neues, eigenständiges Datenobjekt in Marinara Engine.
-In dieser ersten Iteration trägt es **ausschließlich einen Titel** (`name`).
+Es trägt einen **Titel** (`name`) und eine optionale **HTML-Beschreibung** (`description`).
 Alle weiteren Felder (Kapitel, Szenen, Lorebook-Verknüpfungen, Charakter-Zuordnungen …)
 sind bewusst noch nicht implementiert — die Architektur ist aber so angelegt,
 dass sie in späteren Iterationen erweitert werden kann, ohne bestehende Schichten
@@ -14,10 +14,11 @@ umbauen zu müssen.
 
 ```ts
 interface StoryBundle {
-  id: string;        // nanoid, serverseitig erzeugt
-  name: string;      // Titel des Bundles (1–200 Zeichen, getrimmt)
-  createdAt: string; // ISO-8601 Zeitstempel
-  updatedAt: string; // ISO-8601 Zeitstempel
+  id: string;             // nanoid, serverseitig erzeugt
+  name: string;           // Titel des Bundles (1–200 Zeichen, getrimmt)
+  description: string | null; // Optionale HTML-Beschreibung (clientseitig via DOMPurify gesäubert)
+  createdAt: string;      // ISO-8601 Zeitstempel
+  updatedAt: string;      // ISO-8601 Zeitstempel
 }
 ```
 
@@ -40,8 +41,8 @@ Shared (Types + Zod) → Server (DB-Schema + Storage + REST-Routen) → Client (
 | Schema | Regel |
 |---|---|
 | `storyBundleIdParamsSchema` | `{ id: string, min 1 }` — URL-Parameter |
-| `createStoryBundleSchema` | `{ name: string }` — getrimmt, min 1, max 200 |
-| `updateStoryBundleSchema` | `{ name?: string }` — optional, gleiche Regeln |
+| `createStoryBundleSchema` | `{ name: string, description?: string \| null }` — name getrimmt, min 1, max 200 |
+| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null }` — beide optional |
 
 Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 
@@ -117,15 +118,23 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 2. „New Bundle" öffnet einen Prompt-Dialog (Titel „Create Story Bundle")
    mit genau einem Feld (Titel). Nach Bestätigung wird das Bundle angelegt
    und der Editor geöffnet.
-3. Der Editor zeigt ein einzelnes Namensfeld; speichern per Button oder `Enter`.
-4. Löschen läuft über einen destruktiven Bestätigungsdialog.
+3. Der Editor zeigt ein Namensfeld und eine HTML-Description-Textarea.
+   Speichern per Button oder `Enter` im Namensfeld.
+4. Die Description unterstützt einen **Preview-Toggle**: Im Edit-Modus wird
+   HTML eingegeben, im Preview-Modus wird das gesäuberte HTML (via DOMPurify)
+   live gerendert. Erlaubte Tags: `a`, `b`, `blockquote`, `br`, `code`, `del`,
+   `em`, `h1`–`h6`, `hr`, `i`, `img`, `ins`, `li`, `mark`, `ol`, `p`, `pre`,
+   `s`, `small`, `span`, `strong`, `sub`, `sup`, `table`, `tbody`, `td`, `th`,
+   `thead`, `tr`, `u`, `ul`.
+5. Löschen läuft über einen destruktiven Bestätigungsdialog.
 
 ### Lokalisierung (`src/localization/locales/en.json`)
 
 Neue semantische Schlüssel: `navigation.topbar.storyBundles` sowie der Block
 `storyBundles.*` (back, cancel, count, create, createDialogTitle, createFailed, createPromptMessage,
-delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed, editorTitle, empty,
-nameLabel, namePlaceholder, newBundle, save, saveFailed, saveSuccess).
+delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed, descriptionEdit, descriptionEmpty,
+descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview,
+editorTitle, empty, nameLabel, namePlaceholder, newBundle, save, saveFailed, saveSuccess).
 Community-Lokalen bleiben bewusst partiell (Fallback auf Englisch).
 
 ## 5. data-testid-Katalog
@@ -157,6 +166,10 @@ smoke-/Regressionstests:
 | `story-bundle-editor-delete-button` | Löschen-Button |
 | `story-bundle-editor-name-label` | Label des Namensfelds |
 | `story-bundle-editor-name-input` | Namenseingabefeld |
+| `story-bundle-editor-description-label` | Label des Description-Felds |
+| `story-bundle-editor-description-input` | HTML-Textarea für die Description |
+| `story-bundle-editor-description-preview-toggle` | Preview/Edit-Toggle-Button |
+| `story-bundle-editor-description-preview` | Gerenderte HTML-Vorschau |
 
 ### App-Dialoge (`Modal` / `AppDialogRenderer`)
 | testid | Element |
