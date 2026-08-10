@@ -12,10 +12,12 @@ export const storyBundleIdParamsSchema = z.object({
 
 export const createStoryBundleSchema = z.object({
   name: storyBundleNameSchema,
+  description: z.string().nullable().optional(),
 });
 
 export const updateStoryBundleSchema = z.object({
   name: storyBundleNameSchema.optional(),
+  description: z.string().nullable().optional(),
 });
 
 export type CreateStoryBundleInput = z.infer<typeof createStoryBundleSchema>;

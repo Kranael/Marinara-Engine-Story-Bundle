@@ -29,6 +29,9 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    launchOptions: {
+      slowMo: 3000,
+    },
   },
   webServer:
     process.env.PLAYWRIGHT_SKIP_WEBSERVER === "true"

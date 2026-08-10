@@ -57,6 +57,9 @@ pr-evidence/
 !tests/**/*.test.ts
 !tests/**/*.spec.ts
 
+# Test Data
+tests/data/
+
 # Custom agents (personal)
 .github/agents/qa.agent.md
 

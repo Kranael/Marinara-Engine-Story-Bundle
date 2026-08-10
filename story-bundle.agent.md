@@ -21,8 +21,8 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 
 | Datei | Rolle |
 |---|---|
-| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, createdAt, updatedAt }` |
-| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `createStoryBundleSchema` (name trim min1 max200), `updateStoryBundleSchema` |
+| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, description, createdAt, updatedAt }` |
+| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `createStoryBundleSchema` (name trim min1 max200, description optional), `updateStoryBundleSchema` (name + description optional) |
 | `packages/shared/src/index.ts` | Barrel — beide Exportzeilen müssen drin bleiben |
 | `packages/server/src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` |
 | `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` (Registrierung, sonst `Unsupported table`) |
@@ -42,8 +42,8 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/client/src/components/layout/AppShell.tsx` | Lazy-Import `StoryBundleEditor` + `detailView`-Kette (`storyBundleDetailId ? <StoryBundleEditor />`) |
 | `packages/client/src/components/layout/RightPanel.tsx` | Lazy-Import `StoryBundlesPanel` + `PANEL_CONFIG["story-bundles"]` + `PANELS["story-bundles"]` |
 | `packages/client/src/components/layout/TopBar.tsx` | `RightPanelButtonPanel`-Union, `RIGHT_PANEL_BUTTONS`-Eintrag, `panelContextActive["story-bundles"]`, `!storyBundleDetailId` in `isHomeActive` |
-| `packages/client/src/styles/globals.css` | `.mari-panel-gradient--story-bundles` (Pink `#f472b6` → Violett `#a855f7`) |
-| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` |
+| `packages/client/src/styles/globals.css` | `.mari-panel-gradient--story-bundles` (Pink `#f472b6` → Violett `#a855f7`) + `.mari-description-preview` (HTML-Vorschau-Styling) |
+| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview) |
 
 ## 4. Referenz-Dateien: So machen es die anderen Entitäten
 

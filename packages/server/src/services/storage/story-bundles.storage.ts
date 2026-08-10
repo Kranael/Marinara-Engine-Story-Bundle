@@ -24,6 +24,7 @@ export function createStoryBundlesStorage(db: DB) {
       await db.insert(storyBundles).values({
         id,
         name: input.name,
+        description: input.description ?? null,
         createdAt: timestamp,
         updatedAt: timestamp,
       });
@@ -35,6 +36,7 @@ export function createStoryBundlesStorage(db: DB) {
         .update(storyBundles)
         .set({
           ...(data.name !== undefined && { name: data.name }),
+          ...(data.description !== undefined && { description: data.description }),
           updatedAt: now(),
         })
         .where(eq(storyBundles.id, id));
