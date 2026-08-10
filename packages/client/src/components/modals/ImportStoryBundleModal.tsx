@@ -1,9 +1,12 @@
 // ──────────────────────────────────────────────
 // Modal: Import Story Bundle (JSON)
 // ──────────────────────────────────────────────
+// Detects embedded characters, personas, and lorebooks in the export and
+// offers to import them — same pattern as character → embedded lorebook.
+// ──────────────────────────────────────────────
 import { useState, useRef } from "react";
 import { Modal } from "../ui/Modal";
-import { Download, FileJson, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { BookMarked, BookOpen, Download, FileJson, CheckCircle, UserRound, Users, XCircle, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api-client";
 import { useTranslation } from "react-i18next";
@@ -13,18 +16,48 @@ interface Props {
   onClose: () => void;
 }
 
+interface EmbeddedPreview {
+  filename: string;
+  bundleName: string;
+  characterCount: number;
+  personaCount: number;
+  lorebookCount: number;
+}
+
 export function ImportStoryBundleModal({ open, onClose }: Props) {
   const { t } = useTranslation();
   const fileRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
   const [results, setResults] = useState<Array<{ filename: string; success: boolean; message: string }>>([]);
   const [dragOver, setDragOver] = useState(false);
+  const [pendingEmbeddedChoice, setPendingEmbeddedChoice] = useState<{
+    files: File[];
+    previews: EmbeddedPreview[];
+  } | null>(null);
   const qc = useQueryClient();
 
-  const handleFiles = async (files: File[]) => {
+  const inspectEnvelopeForEmbedded = (envelope: Record<string, unknown>): EmbeddedPreview | null => {
+    const data = envelope.data as Record<string, unknown> | undefined;
+    if (!data) return null;
+    const embeddedCharacters = Array.isArray(data.embeddedCharacters) ? data.embeddedCharacters : [];
+    const embeddedPersonas = Array.isArray(data.embeddedPersonas) ? data.embeddedPersonas : [];
+    const embeddedLorebooks = Array.isArray(data.embeddedLorebooks) ? data.embeddedLorebooks : [];
+    const total = embeddedCharacters.length + embeddedPersonas.length + embeddedLorebooks.length;
+    if (total === 0) return null;
+    return {
+      filename: "",
+      bundleName: typeof data.name === "string" ? data.name : "Story Bundle",
+      characterCount: embeddedCharacters.length,
+      personaCount: embeddedPersonas.length,
+      lorebookCount: embeddedLorebooks.length,
+    };
+  };
+
+  const handleFiles = async (files: File[], importEmbedded?: boolean) => {
     if (files.length === 0) return;
     setStatus("loading");
     setResults([]);
+    setPendingEmbeddedChoice(null);
 
     const nextResults: Array<{ filename: string; success: boolean; message: string }> = [];
 
@@ -38,7 +71,6 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
         if (json && typeof json === "object" && !Array.isArray(json) && (json as Record<string, unknown>).type === "marinara_story_bundle") {
           envelopes.push(json as Record<string, unknown>);
         } else if (Array.isArray((json as Record<string, unknown>).entries)) {
-          // Folder manifest — extract story bundle entries
           const entries = (json as Record<string, unknown>).entries as Array<Record<string, unknown>>;
           for (const entry of entries) {
             if (entry && typeof entry === "object" && entry.type === "marinara_story_bundle") {
@@ -56,13 +88,36 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
           continue;
         }
 
+        // Check for embedded entities before importing
+        if (importEmbedded === undefined) {
+          const previews: EmbeddedPreview[] = [];
+          for (const envelope of envelopes) {
+            const preview = inspectEnvelopeForEmbedded(envelope);
+            if (preview) {
+              preview.filename = file.name;
+              previews.push(preview);
+            }
+          }
+          if (previews.length > 0) {
+            setPendingEmbeddedChoice({ files, previews });
+            setStatus("idle");
+            return;
+          }
+        }
+
         for (const envelope of envelopes) {
-          const data = await api.post<{ success: boolean; id?: string; name?: string; error?: string }>("/import/marinara", envelope);
+          const payload = importEmbedded === false
+            ? { ...envelope, data: { ...(envelope.data as Record<string, unknown>), importEmbedded: false } }
+            : envelope;
+          const data = await api.post<{ success: boolean; id?: string; name?: string; embeddedImported?: number; error?: string }>("/import/marinara", payload);
+          const embeddedInfo = data.embeddedImported
+            ? t("storyBundles.importedWithEmbedded", { count: data.embeddedImported, defaultValue: " with {{count}} embedded entities" })
+            : "";
           nextResults.push({
             filename: file.name,
             success: data.success,
             message: data.success
-              ? t("storyBundles.importedAs", { name: data.name ?? "Story Bundle", defaultValue: "Imported “{{name}}”" })
+              ? t("storyBundles.importedAs", { name: data.name ?? "Story Bundle", defaultValue: "Imported “{{name}}”" }) + embeddedInfo
               : (data.error ?? t("storyBundles.importFailed", "Import failed")),
           });
         }
@@ -91,6 +146,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
   const reset = () => {
     setStatus("idle");
     setResults([]);
+    setPendingEmbeddedChoice(null);
   };
 
   return (
@@ -103,26 +159,77 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
       title={t("storyBundles.importTitle", "Import Story Bundle")}
     >
       <div className="flex flex-col gap-4">
-        <div
-          onDrop={handleDrop}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onClick={() => fileRef.current?.click()}
-          className={`flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 transition-all ${
-            dragOver
-              ? "border-[var(--primary)] bg-[var(--primary)]/10"
-              : "border-[var(--border)] hover:border-[var(--muted-foreground)] hover:bg-[var(--secondary)]/50"
-          }`}
-        >
-          <Download size="2rem" className={dragOver ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"} />
-          <p className="text-sm font-medium">{t("storyBundles.importDropHint", "Drop one or more story bundle files here or click to browse")}</p>
-          <span className="flex items-center gap-1 rounded-full bg-[var(--secondary)] px-2.5 py-1 text-xs text-[var(--muted-foreground)]">
-            <FileJson size="0.75rem" /> {t("storyBundles.importFormat", ".marinara.json")}
-          </span>
-        </div>
+        {/* Embedded entity prompt — shown before import proceeds */}
+        {pendingEmbeddedChoice && (
+          <div className="rounded-xl border border-[var(--border)] bg-[var(--secondary)]/30 p-4">
+            <p className="text-sm font-semibold text-[var(--foreground)]">
+              {t("storyBundles.embeddedFound", "This bundle includes embedded content")}
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">
+              {t("storyBundles.embeddedFoundHint", "The exported file contains full character, persona, and lorebook data. Import them into your library?")}
+            </p>
+            <div className="mt-3 flex flex-col gap-1.5">
+              {pendingEmbeddedChoice.previews.map((preview, idx) => (
+                <div key={idx} className="flex flex-wrap items-center gap-2 rounded-lg bg-[var(--sidebar)] px-3 py-2 text-xs">
+                  <BookMarked size="0.8125rem" className="text-[var(--primary)]" />
+                  <span className="font-medium">{preview.bundleName}</span>
+                  {preview.characterCount > 0 && (
+                    <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                      <Users size="0.6875rem" />{preview.characterCount}
+                    </span>
+                  )}
+                  {preview.personaCount > 0 && (
+                    <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                      <UserRound size="0.6875rem" />{preview.personaCount}
+                    </span>
+                  )}
+                  {preview.lorebookCount > 0 && (
+                    <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                      <BookOpen size="0.6875rem" />{preview.lorebookCount}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => void handleFiles(pendingEmbeddedChoice.files, false)}
+                className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium transition-colors hover:bg-[var(--secondary)]"
+              >
+                {t("storyBundles.skipEmbedded", "Skip embedded content")}
+              </button>
+              <button
+                onClick={() => void handleFiles(pendingEmbeddedChoice.files, true)}
+                className="mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex-1 rounded-lg px-3 py-2 text-xs font-medium"
+              >
+                {t("storyBundles.importEmbedded", "Import everything")}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!pendingEmbeddedChoice && (
+          <div
+            onDrop={handleDrop}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onClick={() => fileRef.current?.click()}
+            className={`flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 transition-all ${
+              dragOver
+                ? "border-[var(--primary)] bg-[var(--primary)]/10"
+                : "border-[var(--border)] hover:border-[var(--muted-foreground)] hover:bg-[var(--secondary)]/50"
+            }`}
+          >
+            <Download size="2rem" className={dragOver ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"} />
+            <p className="text-sm font-medium">{t("storyBundles.importDropHint", "Drop one or more story bundle files here or click to browse")}</p>
+            <span className="flex items-center gap-1 rounded-full bg-[var(--secondary)] px-2.5 py-1 text-xs text-[var(--muted-foreground)]">
+              <FileJson size="0.75rem" /> {t("storyBundles.importFormat", ".marinara.json")}
+            </span>
+          </div>
+        )}
 
         <input
           ref={fileRef}

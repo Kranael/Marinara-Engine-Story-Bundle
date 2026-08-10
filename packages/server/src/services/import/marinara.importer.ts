@@ -785,6 +785,10 @@ async function importStoryBundle(data: unknown, db: DB) {
     characterIds?: unknown;
     personaIds?: unknown;
     lorebookIds?: unknown;
+    embeddedCharacters?: unknown;
+    embeddedPersonas?: unknown;
+    embeddedLorebooks?: unknown;
+    importEmbedded?: unknown;
   };
   if (!d || typeof d !== "object") {
     return { success: false, type: "marinara_story_bundle" as const, error: "Invalid story bundle data" };
@@ -795,12 +799,89 @@ async function importStoryBundle(data: unknown, db: DB) {
   }
   const stringArray = (value: unknown): string[] =>
     Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
+
+  const shouldImportEmbedded = d.importEmbedded !== false;
+
+  // ID remapping: old exported IDs → new imported IDs
+  const characterIdMap = new Map<string, string>();
+  const personaIdMap = new Map<string, string>();
+  const lorebookIdMap = new Map<string, string>();
+
+  let embeddedImported = 0;
+
+  // Import embedded characters
+  if (shouldImportEmbedded && Array.isArray(d.embeddedCharacters)) {
+    for (const embedded of d.embeddedCharacters) {
+      if (!embedded || typeof embedded !== "object") continue;
+      const ec = embedded as Record<string, unknown>;
+      const oldId = typeof ec.id === "string" ? ec.id : "";
+      const charData = ec.data;
+      if (!charData || typeof charData !== "object") continue;
+      try {
+        const result = await importCharacter({ data: charData, metadata: { comment: `[Story Bundle: ${name}]` } }, db);
+        if (result.success && result.id) {
+          characterIdMap.set(oldId, result.id);
+          embeddedImported++;
+        }
+      } catch {
+        // Skip failed imports
+      }
+    }
+  }
+
+  // Import embedded personas
+  if (shouldImportEmbedded && Array.isArray(d.embeddedPersonas)) {
+    for (const embedded of d.embeddedPersonas) {
+      if (!embedded || typeof embedded !== "object") continue;
+      const ep = embedded as Record<string, unknown>;
+      const oldId = typeof ep.id === "string" ? ep.id : "";
+      try {
+        const { id: _id, ...personaData } = ep;
+        void _id;
+        const result = await importPersona(personaData, db);
+        if (result.success && result.id) {
+          personaIdMap.set(oldId, result.id);
+          embeddedImported++;
+        }
+      } catch {
+        // Skip failed imports
+      }
+    }
+  }
+
+  // Import embedded lorebooks
+  if (shouldImportEmbedded && Array.isArray(d.embeddedLorebooks)) {
+    for (const embedded of d.embeddedLorebooks) {
+      if (!embedded || typeof embedded !== "object") continue;
+      const el = embedded as Record<string, unknown>;
+      const oldId = typeof el.id === "string" ? el.id : "";
+      try {
+        const result = await importLorebookPayload(el, db);
+        if (result.success && result.id) {
+          lorebookIdMap.set(oldId, result.id);
+          embeddedImported++;
+        }
+      } catch {
+        // Skip failed imports
+      }
+    }
+  }
+
+  // Remap IDs: use new IDs for entities that were imported, keep old IDs for
+  // entities that already exist in this database.
+  const remapIds = (ids: string[], map: Map<string, string>): string[] =>
+    ids.map((id) => map.get(id) ?? id);
+
+  const finalCharacterIds = remapIds(stringArray(d.characterIds), characterIdMap);
+  const finalPersonaIds = remapIds(stringArray(d.personaIds), personaIdMap);
+  const finalLorebookIds = remapIds(stringArray(d.lorebookIds), lorebookIdMap);
+
   const result = await storage.create({
     name,
     description: typeof d.description === "string" ? d.description : null,
-    characterIds: stringArray(d.characterIds),
-    personaIds: stringArray(d.personaIds),
-    lorebookIds: stringArray(d.lorebookIds),
+    characterIds: finalCharacterIds,
+    personaIds: finalPersonaIds,
+    lorebookIds: finalLorebookIds,
   });
   if (!result) {
     return { success: false, type: "marinara_story_bundle" as const, error: "Failed to create story bundle" };
@@ -810,6 +891,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     type: "marinara_story_bundle" as const,
     id: result.id as string,
     name,
+    embeddedImported,
   };
 }
 
