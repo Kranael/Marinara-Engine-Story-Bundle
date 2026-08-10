@@ -7,8 +7,30 @@ import {
   storyBundleIdParamsSchema,
   updateStoryBundleSchema,
 } from "@marinara-engine/shared";
+import type { StoryBundle } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
 import { logger } from "../lib/logger.js";
+
+/** Parse the JSON `characterIds` column into a string array for the API response. */
+function serializeBundle(row: Record<string, unknown>): StoryBundle {
+  let characterIds: string[] = [];
+  if (typeof row.characterIds === "string") {
+    try {
+      const parsed = JSON.parse(row.characterIds);
+      if (Array.isArray(parsed)) {
+        characterIds = parsed.filter((entry): entry is string => typeof entry === "string");
+      }
+    } catch { /* keep empty array */ }
+  }
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    description: (row.description as string) ?? null,
+    characterIds,
+    createdAt: row.createdAt as string,
+    updatedAt: row.updatedAt as string,
+  };
+}
 
 export async function storyBundlesRoutes(app: FastifyInstance) {
   const storage = createStoryBundlesStorage(app.db);
@@ -16,7 +38,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
   // ── List all story bundles ──
   app.get("/", async (_req, reply) => {
     const bundles = await storage.list();
-    return reply.send(bundles);
+    return reply.send(bundles.map(serializeBundle));
   });
 
   // ── Get a single story bundle ──
@@ -24,7 +46,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     const { id } = storyBundleIdParamsSchema.parse(req.params);
     const bundle = await storage.getById(id);
     if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
-    return reply.send(bundle);
+    return reply.send(serializeBundle(bundle));
   });
 
   // ── Create a story bundle ──
@@ -35,7 +57,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       logger.error("Story bundle storage.create returned no bundle");
       return reply.status(500).send({ error: "Failed to create story bundle" });
     }
-    return reply.status(201).send(bundle);
+    return reply.status(201).send(serializeBundle(bundle));
   });
 
   // ── Update a story bundle ──
@@ -49,7 +71,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       logger.error("Story bundle storage.update returned no bundle for %s", id);
       return reply.status(500).send({ error: "Failed to update story bundle" });
     }
-    return reply.send(bundle);
+    return reply.send(serializeBundle(bundle));
   });
 
   // ── Delete a story bundle ──
