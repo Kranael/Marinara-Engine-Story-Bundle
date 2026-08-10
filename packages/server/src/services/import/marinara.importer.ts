@@ -21,6 +21,7 @@ import { createCharactersStorage } from "../storage/characters.storage.js";
 import { createCharacterGalleryStorage } from "../storage/character-gallery.storage.js";
 import { createLorebooksStorage } from "../storage/lorebooks.storage.js";
 import { createPromptsStorage } from "../storage/prompts.storage.js";
+import { createStoryBundlesStorage } from "../storage/story-bundles.storage.js";
 import { normalizeTimestampOverrides, type TimestampOverrides } from "./import-timestamps.js";
 import { resolveLorebookEntryRole } from "./lorebook-role.js";
 import { access, mkdir, writeFile } from "fs/promises";
@@ -290,6 +291,8 @@ export async function importMarinara(
       return importLorebook(normalizedEnvelope.data, db);
     case "marinara_preset":
       return importPreset(normalizedEnvelope.data, db);
+    case "marinara_story_bundle":
+      return importStoryBundle(normalizedEnvelope.data, db);
     default:
       return {
         success: false,
@@ -769,6 +772,44 @@ async function importPreset(data: unknown, db: DB) {
     type: "marinara_preset" as const,
     id: newPreset.id,
     name: String(p.name ?? "Imported Preset"),
+  };
+}
+
+// ── Story Bundle ────────────────────────────
+
+async function importStoryBundle(data: unknown, db: DB) {
+  const storage = createStoryBundlesStorage(db);
+  const d = data as {
+    name?: unknown;
+    description?: unknown;
+    characterIds?: unknown;
+    personaIds?: unknown;
+    lorebookIds?: unknown;
+  };
+  if (!d || typeof d !== "object") {
+    return { success: false, type: "marinara_story_bundle" as const, error: "Invalid story bundle data" };
+  }
+  const name = typeof d.name === "string" ? d.name.trim() : "";
+  if (!name) {
+    return { success: false, type: "marinara_story_bundle" as const, error: "Story bundle name is required" };
+  }
+  const stringArray = (value: unknown): string[] =>
+    Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
+  const result = await storage.create({
+    name,
+    description: typeof d.description === "string" ? d.description : null,
+    characterIds: stringArray(d.characterIds),
+    personaIds: stringArray(d.personaIds),
+    lorebookIds: stringArray(d.lorebookIds),
+  });
+  if (!result) {
+    return { success: false, type: "marinara_story_bundle" as const, error: "Failed to create story bundle" };
+  }
+  return {
+    success: true,
+    type: "marinara_story_bundle" as const,
+    id: result.id as string,
+    name,
   };
 }
 
