@@ -30,7 +30,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     launchOptions: {
-      slowMo: 3000,
+      slowMo: 200,
     },
   },
   webServer:

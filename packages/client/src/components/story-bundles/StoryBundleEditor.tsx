@@ -229,6 +229,7 @@ export function StoryBundleEditor() {
       }),
       confirmLabel: t("storyBundles.delete", "Delete"),
       tone: "destructive",
+      testId: "story-bundle-delete-dialog",
     });
     if (!confirmed) return;
     try {
@@ -310,7 +311,7 @@ export function StoryBundleEditor() {
 
       {/* Body */}
       <div className="mari-editor-body @max-5xl:flex-col min-h-0 flex-1">
-        <EditorTabRail tabs={TABS} activeId={activeTab} onChange={setActiveTab} />
+        <EditorTabRail tabs={TABS} activeId={activeTab} onChange={setActiveTab} tabTestId="story-bundle-editor-tab" />
 
         <div className="mari-editor-content @max-5xl:p-4">
           <div className="mari-editor-content-inner">

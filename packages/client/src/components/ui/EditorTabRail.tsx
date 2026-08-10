@@ -15,12 +15,15 @@ export function EditorTabRail<T extends string>({
   onChange,
   getBadge,
   className,
+  tabTestId,
 }: {
   tabs: readonly EditorTabItem<T>[];
   activeId: T;
   onChange: (id: T) => void;
   getBadge?: (id: T) => ReactNode;
   className?: string;
+  /** Prefix for data-testid on each tab button: `${tabTestId}-${tab.id}` */
+  tabTestId?: string;
 }) {
   const localize = useLocalizedUiText();
 
@@ -42,6 +45,7 @@ export function EditorTabRail<T extends string>({
             type="button"
             aria-current={active ? "page" : undefined}
             data-active={active ? "true" : undefined}
+            data-testid={tabTestId ? `${tabTestId}-${tab.id}` : undefined}
             key={tab.id}
             onClick={() => onChange(tab.id)}
             className="mari-editor-tab flex items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium transition-all @max-5xl:whitespace-nowrap @max-5xl:px-2.5 @max-5xl:py-1.5"
