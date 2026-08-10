@@ -221,6 +221,7 @@ export const FILE_BACKED_TABLES = [
   "prompt_overrides",
   "installed_extensions",
   "library_folders",
+  "story_bundles",
 ] as const;
 
 type FileBackedTable = (typeof FILE_BACKED_TABLES)[number];

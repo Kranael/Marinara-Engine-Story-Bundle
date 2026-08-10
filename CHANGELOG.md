@@ -4,6 +4,10 @@ This file is the release-notes source of truth for Marinara Engine. Reuse these 
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed the Windows launcher failing its pre-update data snapshot with `EPERM: operation not permitted, symlink` once the capability package runtime had created its `data/capability-packages/node_modules` junction: launcher data protection now skips symbolic links when snapshotting and restoring user data, since those links point at runtime artifacts the server recreates on every startup. The snapshot no longer aborts, so auto-update is no longer skipped on affected Windows installs.
+
 ## [2.4.1]
 
 ### Added

@@ -54,6 +54,7 @@ export function AppDialogRenderer() {
       title={getDialogTitle(dialog.kind, dialog.title)}
       width="max-w-sm"
       chatFloatingPanel
+      testId={dialog.testId}
     >
       <div className="space-y-4">
         <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--foreground)]">
@@ -79,6 +80,7 @@ export function AppDialogRenderer() {
             )}
             <input
               ref={promptInputRef}
+              data-testid="app-dialog-prompt-input"
               value={promptValue}
               onChange={(event) => setPromptValue(event.target.value)}
               placeholder={dialog.placeholder}
@@ -87,6 +89,7 @@ export function AppDialogRenderer() {
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
+                data-testid="app-dialog-cancel-button"
                 onClick={dismissActiveDialog}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               >
@@ -94,6 +97,7 @@ export function AppDialogRenderer() {
               </button>
               <button
                 type="submit"
+                data-testid="app-dialog-confirm-button"
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${confirmToneClass}`}
               >
                 {dialog.confirmLabel ?? "Confirm"}
@@ -107,6 +111,7 @@ export function AppDialogRenderer() {
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
+                data-testid="app-dialog-cancel-button"
                 onClick={dismissActiveDialog}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               >
@@ -114,6 +119,7 @@ export function AppDialogRenderer() {
               </button>
               <button
                 type="button"
+                data-testid="app-dialog-confirm-button"
                 onClick={() => resolveActiveDialog(true)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${confirmToneClass}`}
               >

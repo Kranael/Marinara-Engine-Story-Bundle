@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -286,6 +286,17 @@ try {
   mkdirSync(defaultDataDir, { recursive: true });
   writeFileSync(join(defaultDataDir, "characters.json"), '{"name":"Preserved"}\n');
 
+  // The server links the capability package runtime into the host dependency
+  // tree with a junction (data/capability-packages/node_modules). Recreating
+  // links via fs.cp requires elevated privileges on Windows (EPERM) and used
+  // to abort the whole update snapshot, so snapshots must skip them.
+  const capabilityPackagesDir = join(defaultDataDir, "capability-packages");
+  mkdirSync(capabilityPackagesDir, { recursive: true });
+  const junctionTarget = join(fixtureRoot, "node_modules-target");
+  mkdirSync(junctionTarget, { recursive: true });
+  writeFileSync(join(junctionTarget, "dependency.json"), '{"name":"Host deps"}\n');
+  symlinkSync(junctionTarget, join(capabilityPackagesDir, "node_modules"), process.platform === "win32" ? "junction" : "dir");
+
   const snapshot = await snapshotLauncherData({
     root: fixtureRoot,
     backupRoot: fixtureBackupRoot,
@@ -293,6 +304,16 @@ try {
     now: new Date("2026-07-23T12:00:00.000Z"),
   });
   assert.equal(snapshot.created, true);
+  assert.equal(
+    existsSync(join(snapshot.backupDir, "data", "capability-packages", "node_modules")),
+    false,
+    "Update snapshots must skip symbolic links instead of failing or copying their targets",
+  );
+  assert.equal(
+    readFileSync(join(snapshot.backupDir, "data", "characters.json"), "utf8"),
+    '{"name":"Preserved"}\n',
+    "Update snapshots must keep preserving user data alongside skipped links",
+  );
 
   rmSync(defaultDataDir, { recursive: true, force: true });
   const restore = await restoreLauncherDataIfMissing({ root: fixtureRoot, backupRoot: fixtureBackupRoot, env: {} });

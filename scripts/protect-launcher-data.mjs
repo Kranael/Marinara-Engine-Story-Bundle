@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { chmod, cp, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, cp, lstat, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { parseEnv } from "node:util";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -17,6 +17,16 @@ async function directoryHasEntries(directory) {
     if (error?.code === "ENOENT") return false;
     throw error;
   }
+}
+
+// The data directory can contain symbolic links, e.g. the capability-packages
+// node_modules junction that the server recreates on every startup. fs.cp
+// would try to recreate them via fs.symlink, which fails on Windows without
+// elevated privileges (EPERM) and aborted the whole update snapshot;
+// dereferencing them instead would bloat every backup with node_modules.
+// Links point at runtime artifacts, not user data, so snapshots skip them.
+async function skipSymbolicLinks(sourcePath) {
+  return !(await lstat(sourcePath)).isSymbolicLink();
 }
 
 async function readEnvDataDir(root, ambientEnv) {
@@ -88,6 +98,7 @@ export async function snapshotLauncherData({
       recursive: true,
       preserveTimestamps: true,
       errorOnExist: true,
+      filter: skipSymbolicLinks,
     });
     await writeFile(
       resolve(incompleteDir, "manifest.json"),
@@ -128,7 +139,12 @@ export async function restoreLauncherDataIfMissing({
 
     await rm(dataDir, { recursive: true, force: true });
     await mkdir(dirname(dataDir), { recursive: true });
-    await cp(backupDataDir, dataDir, { recursive: true, preserveTimestamps: true, errorOnExist: true });
+    await cp(backupDataDir, dataDir, {
+      recursive: true,
+      preserveTimestamps: true,
+      errorOnExist: true,
+      filter: skipSymbolicLinks,
+    });
     return { restored: true, dataDir, backupDir };
   }
 
