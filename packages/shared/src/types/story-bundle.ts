@@ -15,6 +15,10 @@ export interface StoryBundle {
   description: string | null;
   /** IDs of characters assigned to this story bundle. */
   characterIds: string[];
+  /** IDs of personas assigned to this story bundle. */
+  personaIds: string[];
+  /** IDs of lorebooks assigned to this story bundle. */
+  lorebookIds: string[];
   createdAt: string;
   updatedAt: string;
 }

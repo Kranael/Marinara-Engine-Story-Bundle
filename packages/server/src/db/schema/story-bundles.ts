@@ -8,6 +8,8 @@ export const storyBundles = fileTable("story_bundles", {
   name: text("name").notNull(),
   description: text("description"),
   characterIds: text("character_ids"),
+  personaIds: text("persona_ids"),
+  lorebookIds: text("lorebook_ids"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

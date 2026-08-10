@@ -11,22 +11,26 @@ import type { StoryBundle } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
 import { logger } from "../lib/logger.js";
 
-/** Parse the JSON `characterIds` column into a string array for the API response. */
+/** Parse a JSON text column into a string array. */
+function parseJsonArray(value: unknown): string[] {
+  if (typeof value !== "string") return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((entry): entry is string => typeof entry === "string")
+      : [];
+  } catch { return []; }
+}
+
+/** Parse the JSON columns into typed arrays for the API response. */
 function serializeBundle(row: Record<string, unknown>): StoryBundle {
-  let characterIds: string[] = [];
-  if (typeof row.characterIds === "string") {
-    try {
-      const parsed = JSON.parse(row.characterIds);
-      if (Array.isArray(parsed)) {
-        characterIds = parsed.filter((entry): entry is string => typeof entry === "string");
-      }
-    } catch { /* keep empty array */ }
-  }
   return {
     id: row.id as string,
     name: row.name as string,
     description: (row.description as string) ?? null,
-    characterIds,
+    characterIds: parseJsonArray(row.characterIds),
+    personaIds: parseJsonArray(row.personaIds),
+    lorebookIds: parseJsonArray(row.lorebookIds),
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
   };
