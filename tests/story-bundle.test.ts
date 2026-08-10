@@ -88,6 +88,29 @@ test.describe('Story Bundles with Precondition Object:Story Bundle', () => {
         });
     })
 
+    test('Export a story bundle and re-import it (round-trip)', async ({ page }) => {
+        // 1. Export the bundle via API
+        const exported = await api.export(storyBundle.id);
+        expect(exported.type).toBe('marinara_story_bundle');
+        expect(exported.version).toBe(1);
+        expect(typeof exported.exportedAt).toBe('string');
+        const data = exported.data as Record<string, unknown>;
+        expect(data.name).toBe('E2E Test Bundle');
+        expect(data.embeddedCharacters).toEqual([]);
+        expect(data.embeddedPersonas).toEqual([]);
+        expect(data.embeddedLorebooks).toEqual([]);
+
+        // 2. Delete the original so the import creates a fresh row
+        await api.delete(storyBundle.id);
+
+        // 3. Re-import from the exported envelope
+        const imported = await api.importFromEnvelope(exported);
+        expect(imported.name).toBe('E2E Test Bundle');
+
+        // 4. Update the reference so afterEach cleans up the imported bundle
+        storyBundle = imported;
+    });
+
     test.afterEach(async () => {
         await api.delete(storyBundle.id);
     })
