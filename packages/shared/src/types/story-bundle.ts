@@ -13,6 +13,8 @@ export interface StoryBundle {
   name: string;
   /** Optional HTML description. Rendered safely via DOMPurify on the client. */
   description: string | null;
+  /** IDs of characters assigned to this story bundle. */
+  characterIds: string[];
   createdAt: string;
   updatedAt: string;
 }

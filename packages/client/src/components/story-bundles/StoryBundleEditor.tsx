@@ -1,19 +1,19 @@
 // ──────────────────────────────────────────────
 // Story Bundle Editor — Full-page detail view
 // ──────────────────────────────────────────────
-// Replaces the chat area while a story bundle is being edited. Supports a
-// title field and an optional HTML description with a live preview toggle.
-// ──────────────────────────────────────────────
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, Eye, EyeOff, FileText, Loader2, Save, Trash2, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, FileText, Loader2, Save, Trash2, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
+import { useCharacters, useCharacterGroups } from "../../hooks/use-characters";
 import { useUIStore } from "../../stores/ui.store";
 import { showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 import { EditorTabRail } from "../ui/EditorTabRail";
+import { StoryBundleDescription } from "./StoryBundleDescription";
+import { StoryBundleCharacters } from "./StoryBundleCharacters";
 
 /** Allowed HTML tags for the description preview. */
 const ALLOWED_DESCRIPTION_TAGS = [
@@ -32,6 +32,22 @@ function sanitizeDescription(html: string): string {
   });
 }
 
+/** Parse a JSON string or array into a string[] of character IDs. */
+function parseCharacterFolderIds(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0);
+  }
+  if (typeof value !== "string") return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 const TABS = [
   { id: "description", label: "Description", icon: FileText },
   { id: "characters", label: "Characters", icon: Users },
@@ -48,8 +64,32 @@ export function StoryBundleEditor() {
   const updateMutation = useUpdateStoryBundle();
   const deleteMutation = useDeleteStoryBundle();
 
+  const { data: allCharacters } = useCharacters();
+  const { data: allCharacterGroups } = useCharacterGroups();
+
+  const characters = useMemo(
+    () =>
+      (allCharacters ?? []) as Array<{ id: string; data: unknown; comment?: string | null; avatarPath: string | null }>,
+    [allCharacters],
+  );
+
+  const characterFolders = useMemo(
+    () =>
+      ((allCharacterGroups ?? []) as Array<{ id: string; name: string; characterIds: unknown }>).map((group) => ({
+        ...group,
+        characterIds: parseCharacterFolderIds(group.characterIds),
+      })),
+    [allCharacterGroups],
+  );
+
+  const validCharacterIds = useMemo(
+    () => new Set((characters ?? []).map((c) => c.id)),
+    [characters],
+  );
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [characterIds, setCharacterIds] = useState<string[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("description");
   const [saving, setSaving] = useState(false);
@@ -59,12 +99,16 @@ export function StoryBundleEditor() {
     if (bundle) {
       setName(bundle.name);
       setDescription(bundle.description ?? "");
+      setCharacterIds(bundle.characterIds ?? []);
     }
   }, [bundle]);
 
   const nameDirty = bundle ? name.trim() !== bundle.name && name.trim().length > 0 : false;
   const descriptionDirty = bundle ? description !== (bundle.description ?? "") : false;
-  const isDirty = nameDirty || descriptionDirty;
+  const characterIdsDirty = bundle
+    ? JSON.stringify([...(characterIds ?? [])].sort()) !== JSON.stringify([...(bundle.characterIds ?? [])].sort())
+    : false;
+  const isDirty = nameDirty || descriptionDirty || characterIdsDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeDescription(description) : ""),
@@ -75,9 +119,10 @@ export function StoryBundleEditor() {
     if (!storyBundleDetailId || !isDirty || saving) return;
     setSaving(true);
     try {
-      const payload: { name?: string; description?: string | null } = {};
+      const payload: { name?: string; description?: string | null; characterIds?: string[] } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
+      if (characterIdsDirty) payload.characterIds = characterIds;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
@@ -85,7 +130,7 @@ export function StoryBundleEditor() {
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, updateMutation, name, description, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, updateMutation, name, description, characterIds, t]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;
@@ -170,105 +215,26 @@ export function StoryBundleEditor() {
         <div className="mari-editor-content @max-5xl:p-4">
           <div className="mari-editor-content-inner">
             {activeTab === "description" && (
-              <div className="space-y-6">
-                {/* Name field */}
-                <div>
-                  <label
-                    data-testid="story-bundle-editor-name-label"
-                    htmlFor="story-bundle-name"
-                    className="mari-chrome-text-muted mb-1.5 block text-xs font-medium"
-                  >
-                    {t("storyBundles.nameLabel", "Name")}
-                  </label>
-                  <input
-                    id="story-bundle-name"
-                    data-testid="story-bundle-editor-name-input"
-                    type="text"
-                    value={name}
-                    maxLength={200}
-                    onChange={(event) => setName(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") void handleSave();
-                    }}
-                    placeholder={t("storyBundles.namePlaceholder", "Title of this story bundle…")}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--input)]/60 px-3.5 py-2.5 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/60 focus:ring-2 focus:ring-[var(--primary)]/20"
-                  />
-                </div>
-
-                {/* Description field */}
-                <div>
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <label
-                      data-testid="story-bundle-editor-description-label"
-                      htmlFor="story-bundle-description"
-                      className="mari-chrome-text-muted text-xs font-medium"
-                    >
-                      {t("storyBundles.descriptionLabel", "Description")}
-                    </label>
-                    <button
-                      data-testid="story-bundle-editor-description-preview-toggle"
-                      onClick={() => setPreviewDescription((prev) => !prev)}
-                      className={cn(
-                        "flex items-center gap-1 rounded-md px-2 py-0.5 text-xs transition-colors",
-                        previewDescription
-                          ? "bg-[var(--primary)]/15 text-[var(--primary)]"
-                          : "text-[var(--muted-foreground)] hover:bg-[var(--accent)]",
-                      )}
-                      title={previewDescription
-                        ? t("storyBundles.descriptionEdit", "Edit HTML")
-                        : t("storyBundles.descriptionPreview", "Preview")}
-                    >
-                      {previewDescription ? <EyeOff size="0.75rem" /> : <Eye size="0.75rem" />}
-                      {previewDescription
-                        ? t("storyBundles.descriptionEdit", "Edit")
-                        : t("storyBundles.descriptionPreview", "Preview")}
-                    </button>
-                  </div>
-
-                  {previewDescription ? (
-                    sanitizedDescription ? (
-                      <div
-                        data-testid="story-bundle-editor-description-preview"
-                        className="mari-description-preview min-h-[8rem] w-full rounded-xl border border-[var(--border)] bg-[var(--card)]/60 px-3.5 py-2.5 text-sm text-[var(--foreground)]"
-                        dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-                      />
-                    ) : (
-                      <div
-                        data-testid="story-bundle-editor-description-preview"
-                        className="mari-description-preview flex min-h-[8rem] w-full items-center rounded-xl border border-[var(--border)] bg-[var(--card)]/60 px-3.5 py-2.5 text-sm"
-                      >
-                        <span className="text-[var(--muted-foreground)] italic">
-                          {t("storyBundles.descriptionEmpty", "No description yet.")}
-                        </span>
-                      </div>
-                    )
-                  ) : (
-                    <textarea
-                      id="story-bundle-description"
-                      data-testid="story-bundle-editor-description-input"
-                      value={description}
-                      onChange={(event) => setDescription(event.target.value)}
-                      placeholder={t("storyBundles.descriptionPlaceholder", "Write an HTML description for this story bundle…")}
-                      rows={8}
-                      className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--input)]/60 px-3.5 py-2.5 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/60 focus:ring-2 focus:ring-[var(--primary)]/20"
-                    />
-                  )}
-                  <p className="mt-1 text-right text-[0.625rem] text-[var(--muted-foreground)]">
-                    {t("storyBundles.descriptionHint", "HTML is supported — tags are sanitized for safety.")}
-                  </p>
-                </div>
-              </div>
+              <StoryBundleDescription
+                name={name}
+                onNameChange={setName}
+                description={description}
+                onDescriptionChange={setDescription}
+                previewDescription={previewDescription}
+                onPreviewToggle={() => setPreviewDescription((prev) => !prev)}
+                sanitizedDescription={sanitizedDescription}
+                onSave={handleSave}
+              />
             )}
 
             {activeTab === "characters" && (
-              <div
-                data-testid="story-bundle-editor-characters"
-                className="flex min-h-[16rem] items-center justify-center"
-              >
-                <span className="text-sm text-[var(--muted-foreground)]">
-                  {t("storyBundles.charactersEmpty", "No characters assigned yet.")}
-                </span>
-              </div>
+              <StoryBundleCharacters
+                characterIds={characterIds}
+                onCharacterIdsChange={setCharacterIds}
+                characters={characters}
+                characterFolders={characterFolders}
+                validCharacterIds={validCharacterIds}
+              />
             )}
           </div>
         </div>

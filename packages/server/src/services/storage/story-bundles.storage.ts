@@ -25,6 +25,7 @@ export function createStoryBundlesStorage(db: DB) {
         id,
         name: input.name,
         description: input.description ?? null,
+        characterIds: JSON.stringify(input.characterIds ?? []),
         createdAt: timestamp,
         updatedAt: timestamp,
       });
@@ -37,6 +38,7 @@ export function createStoryBundlesStorage(db: DB) {
         .set({
           ...(data.name !== undefined && { name: data.name }),
           ...(data.description !== undefined && { description: data.description }),
+          ...(data.characterIds !== undefined && { characterIds: JSON.stringify(data.characterIds) }),
           updatedAt: now(),
         })
         .where(eq(storyBundles.id, id));

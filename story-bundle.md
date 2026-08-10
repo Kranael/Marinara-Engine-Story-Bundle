@@ -17,6 +17,7 @@ interface StoryBundle {
   id: string;             // nanoid, serverseitig erzeugt
   name: string;           // Titel des Bundles (1–200 Zeichen, getrimmt)
   description: string | null; // Optionale HTML-Beschreibung (clientseitig via DOMPurify gesäubert)
+  characterIds: string[]; // Zugewiesene Charakter-IDs (JSON-Array in der DB)
   createdAt: string;      // ISO-8601 Zeitstempel
   updatedAt: string;      // ISO-8601 Zeitstempel
 }
@@ -41,8 +42,8 @@ Shared (Types + Zod) → Server (DB-Schema + Storage + REST-Routen) → Client (
 | Schema | Regel |
 |---|---|
 | `storyBundleIdParamsSchema` | `{ id: string, min 1 }` — URL-Parameter |
-| `createStoryBundleSchema` | `{ name: string, description?: string \| null }` — name getrimmt, min 1, max 200 |
-| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null }` — beide optional |
+| `createStoryBundleSchema` | `{ name: string, description?: string \| null, characterIds?: string[] }` — name getrimmt, min 1, max 200 |
+| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null, characterIds?: string[] }` — alle optional |
 
 Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 
@@ -60,6 +61,10 @@ Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 Die Tabelle `story_bundles` ist eine File-Native-JSON-Table wie alle anderen
 Entitäten (Lorebooks, Presets, Personas …). IDs werden über `newId()` (nanoid),
 Zeitstempel über `now()` (ISO) aus `utils/id-generator.ts` erzeugt.
+
+`characterIds` wird als JSON-String in der `character_ids`-Textspalte gespeichert
+und beim Lesen/Schreiben via `JSON.stringify`/`JSON.parse` serialisiert
+(gleiches Muster wie Character Groups).
 
 > **Wichtig:** Jede neue `fileTable` muss zusätzlich in `FILE_BACKED_TABLES`
 > (`src/db/file-backed-store.ts`) eingetragen werden, sonst wirft der Store
@@ -118,23 +123,39 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 2. „New Bundle" öffnet einen Prompt-Dialog (Titel „Create Story Bundle")
    mit genau einem Feld (Titel). Nach Bestätigung wird das Bundle angelegt
    und der Editor geöffnet.
-3. Der Editor zeigt ein Namensfeld und eine HTML-Description-Textarea.
+3. Der Editor hat drei Tabs (via `EditorTabRail`): **General** (Name + Description),
+   **Characters** (Charakter-Zuweisung), und Platzhalter für zukünftige Tabs.
+4. Der **General**-Tab zeigt ein Namensfeld und eine HTML-Description-Textarea.
    Speichern per Button oder `Enter` im Namensfeld.
-4. Die Description unterstützt einen **Preview-Toggle**: Im Edit-Modus wird
+5. Die Description unterstützt einen **Preview-Toggle**: Im Edit-Modus wird
    HTML eingegeben, im Preview-Modus wird das gesäuberte HTML (via DOMPurify)
    live gerendert. Erlaubte Tags: `a`, `b`, `blockquote`, `br`, `code`, `del`,
    `em`, `h1`–`h6`, `hr`, `i`, `img`, `ins`, `li`, `mark`, `ol`, `p`, `pre`,
    `s`, `small`, `span`, `strong`, `sub`, `sup`, `table`, `tbody`, `td`, `th`,
    `thead`, `tr`, `u`, `ul`.
-5. Löschen läuft über einen destruktiven Bestätigungsdialog.
+6. Der **Characters**-Tab hat drei Sektionen:
+   - **Selected Characters**: Zeigt alle zugewiesenen Charaktere mit Avatar,
+     Name, Titel und einem Remove-Button (Trash2-Icon). Leerer Zustand zeigt
+     eine gestrichelte Placeholder-Box.
+   - **Groups**: Dropdown aller Character Groups. Ein Klick auf „Add" fügt
+     alle Charaktere der gewählten Group hinzu (Duplikate werden ignoriert).
+     Zeigt pro Group an, wie viele neue Charaktere hinzugefügt würden.
+   - **Add Characters**: Suchfeld mit Lupe-Icon, „Random"-Button (würfelt
+     einen zufälligen Charakter), Liste aller verfügbaren Charaktere mit
+     Avatar/Name/Titel und Plus-Button zum Hinzufügen. „Load more"-Button
+     für Paginierung. Leerer Zustand zeigt passende Meldungen.
+7. Löschen läuft über einen destruktiven Bestätigungsdialog.
 
 ### Lokalisierung (`src/localization/locales/en.json`)
 
 Neue semantische Schlüssel: `navigation.topbar.storyBundles` sowie der Block
-`storyBundles.*` (back, cancel, count, create, createDialogTitle, createFailed, createPromptMessage,
-delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed, descriptionEdit, descriptionEmpty,
+`storyBundles.*` (add, addCharacters, addFromGroup, allAdded, allCharactersAdded, back, cancel,
+charactersEmpty, count, create, createDialogTitle, createFailed, createPromptMessage, delete,
+deleteConfirmBody, deleteConfirmTitle, deleteFailed, descriptionEdit, descriptionEmpty,
 descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview,
-editorTitle, empty, nameLabel, namePlaceholder, newBundle, save, saveFailed, saveSuccess).
+editorTitle, empty, groups, loadMore, nameLabel, namePlaceholder, newBundle, noCharactersMatch,
+of, random, randomHint, removeCharacter, save, saveFailed, saveSuccess, searchCharacters,
+selectedCharacters).
 Community-Lokalen bleiben bewusst partiell (Fallback auf Englisch).
 
 ## 5. data-testid-Katalog
@@ -170,6 +191,13 @@ smoke-/Regressionstests:
 | `story-bundle-editor-description-input` | HTML-Textarea für die Description |
 | `story-bundle-editor-description-preview-toggle` | Preview/Edit-Toggle-Button |
 | `story-bundle-editor-description-preview` | Gerenderte HTML-Vorschau |
+| `story-bundle-editor-characters` | Characters-Tab-Container |
+| `story-bundle-editor-characters-search` | Suchfeld im Add-Characters-Bereich |
+| `story-bundle-editor-characters-group-select` | Group-Dropdown |
+| `story-bundle-editor-characters-add-group` | „Add"-Button für Groups |
+| `story-bundle-editor-characters-random` | „Random"-Button |
+| `story-bundle-editor-characters-load-more` | „Load more"-Button |
+| `story-bundle-editor-characters-empty` | Leerer-Zustand-Text |
 
 ### App-Dialoge (`Modal` / `AppDialogRenderer`)
 | testid | Element |
