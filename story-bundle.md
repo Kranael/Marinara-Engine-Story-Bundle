@@ -1,7 +1,7 @@
 # Story Bundle
 
 > Entwicklungs-Dokumentation für das neue **Story-Bundle**-Objekt in Marinara Engine.
-> Branch: `story-bundle-dev` · Stand: zweite Iteration (Titel + HTML-Description).
+> Branch: `story-bundle-dev` · Stand: fünfte Iteration (Titel + HTML-Description + Characters + Personas + Lorebooks).
 
 ## 1. Überblick & Scope
 
@@ -18,6 +18,8 @@ interface StoryBundle {
   name: string;           // Titel des Bundles (1–200 Zeichen, getrimmt)
   description: string | null; // Optionale HTML-Beschreibung (clientseitig via DOMPurify gesäubert)
   characterIds: string[]; // Zugewiesene Charakter-IDs (JSON-Array in der DB)
+  personaIds: string[];   // Zugewiesene Persona-IDs (JSON-Array in der DB)
+  lorebookIds: string[];  // Zugewiesene Lorebook-IDs (JSON-Array in der DB)
   createdAt: string;      // ISO-8601 Zeitstempel
   updatedAt: string;      // ISO-8601 Zeitstempel
 }
@@ -42,8 +44,8 @@ Shared (Types + Zod) → Server (DB-Schema + Storage + REST-Routen) → Client (
 | Schema | Regel |
 |---|---|
 | `storyBundleIdParamsSchema` | `{ id: string, min 1 }` — URL-Parameter |
-| `createStoryBundleSchema` | `{ name: string, description?: string \| null, characterIds?: string[] }` — name getrimmt, min 1, max 200 |
-| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null, characterIds?: string[] }` — alle optional |
+| `createStoryBundleSchema` | `{ name: string, description?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[] }` — name getrimmt, min 1, max 200 |
+| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[] }` — alle optional |
 
 Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 
@@ -62,9 +64,9 @@ Die Tabelle `story_bundles` ist eine File-Native-JSON-Table wie alle anderen
 Entitäten (Lorebooks, Presets, Personas …). IDs werden über `newId()` (nanoid),
 Zeitstempel über `now()` (ISO) aus `utils/id-generator.ts` erzeugt.
 
-`characterIds` wird als JSON-String in der `character_ids`-Textspalte gespeichert
-und beim Lesen/Schreiben via `JSON.stringify`/`JSON.parse` serialisiert
-(gleiches Muster wie Character Groups).
+`characterIds`, `personaIds` und `lorebookIds` werden als JSON-Strings in den Textspalten
+`character_ids`, `persona_ids` und `lorebook_ids` gespeichert und beim Lesen/Schreiben via
+`JSON.stringify`/`JSON.parse` serialisiert (gleiches Muster wie Character Groups).
 
 > **Wichtig:** Jede neue `fileTable` muss zusätzlich in `FILE_BACKED_TABLES`
 > (`src/db/file-backed-store.ts`) eingetragen werden, sonst wirft der Store
@@ -112,7 +114,11 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 | Datei | Zweck |
 |---|---|
 | `src/components/panels/StoryBundlesPanel.tsx` | Listen-Panel im rechten Panel |
-| `src/components/story-bundles/StoryBundleEditor.tsx` | Vollseiten-Editor (Detailansicht) |
+| `src/components/story-bundles/StoryBundleEditor.tsx` | Vollseiten-Editor (Detailansicht) — Shell mit Tab-Rail |
+| `src/components/story-bundles/StoryBundleDescription.tsx` | Description-Tab (Name + HTML-Description mit Preview-Toggle) |
+| `src/components/story-bundles/StoryBundleCharacters.tsx` | Characters-Tab (Suche/Random/Load-More, Groups-Dropdown, Selected-Liste) |
+| `src/components/story-bundles/StoryBundlePersonas.tsx` | Personas-Tab (gleiches Muster wie Characters, mit Avatar-Crop-Support) |
+| `src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
 | `src/components/layout/RightPanel.tsx` | Panel registriert (`PANEL_CONFIG` + `PANELS`) |
 | `src/components/layout/TopBar.tsx` | TopBar-Button (`BookMarked`-Icon, Gradient) |
 | `src/components/layout/AppShell.tsx` | Lazy-Import + `detailView`-Kette |
@@ -123,8 +129,11 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 2. „New Bundle" öffnet einen Prompt-Dialog (Titel „Create Story Bundle")
    mit genau einem Feld (Titel). Nach Bestätigung wird das Bundle angelegt
    und der Editor geöffnet.
-3. Der Editor hat drei Tabs (via `EditorTabRail`): **General** (Name + Description),
-   **Characters** (Charakter-Zuweisung), und Platzhalter für zukünftige Tabs.
+3. Der Editor hat vier Tabs (via `EditorTabRail`): **Description** (Name + HTML-Description),
+   **Characters** (Charakter-Zuweisung), **Personas** (Persona-Zuweisung),
+   **Lorebooks** (Lorebook-Zuweisung).
+   Jeder Tab ist in eine eigene Komponente unter `src/components/story-bundles/`
+   ausgelagert.
 4. Der **General**-Tab zeigt ein Namensfeld und eine HTML-Description-Textarea.
    Speichern per Button oder `Enter` im Namensfeld.
 5. Die Description unterstützt einen **Preview-Toggle**: Im Edit-Modus wird
@@ -144,18 +153,32 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
      einen zufälligen Charakter), Liste aller verfügbaren Charaktere mit
      Avatar/Name/Titel und Plus-Button zum Hinzufügen. „Load more"-Button
      für Paginierung. Leerer Zustand zeigt passende Meldungen.
-7. Löschen läuft über einen destruktiven Bestätigungsdialog.
+7. Der **Personas**-Tab folgt dem gleichen Muster wie Characters:
+   - **Selected Personas**: Zugewiesene Personas mit Avatar (inkl. Crop),
+     Name, Titel und Remove-Button.
+   - **Groups**: Dropdown aller Persona Groups. Persona-IDs werden aus dem
+     JSON-String `personaIds` der Group geparst.
+   - **Add Personas**: Suchfeld, Random-Button, paginierte Liste mit
+     Avatar/Name/Titel und Plus-Button.
+8. Der **Lorebooks**-Tab hat zwei Sektionen (keine Groups, da Lorebooks keine
+   Folder-Groups haben):
+   - **Selected Lorebooks**: Zugewiesene Lorebooks mit BookOpen-Icon, Name,
+     Kategorie und Remove-Button.
+   - **Add Lorebooks**: Suchfeld, Random-Button, paginierte Liste mit
+     BookOpen-Icon/Name/Kategorie und Plus-Button.
+9. Löschen läuft über einen destruktiven Bestätigungsdialog.
 
 ### Lokalisierung (`src/localization/locales/en.json`)
 
 Neue semantische Schlüssel: `navigation.topbar.storyBundles` sowie der Block
-`storyBundles.*` (add, addCharacters, addFromGroup, allAdded, allCharactersAdded, back, cancel,
-charactersEmpty, count, create, createDialogTitle, createFailed, createPromptMessage, delete,
-deleteConfirmBody, deleteConfirmTitle, deleteFailed, descriptionEdit, descriptionEmpty,
-descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview,
-editorTitle, empty, groups, loadMore, nameLabel, namePlaceholder, newBundle, noCharactersMatch,
-of, random, randomHint, removeCharacter, save, saveFailed, saveSuccess, searchCharacters,
-selectedCharacters).
+`storyBundles.*` (add, addCharacters, addFromGroup, addLorebooks, addPersonas, allAdded, allCharactersAdded,
+allLorebooksAdded, allPersonasAdded, back, cancel, charactersEmpty, count, create, createDialogTitle, createFailed,
+createPromptMessage, delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed,
+descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder,
+descriptionPreview, editorTitle, empty, groups, loadMore, lorebookRandomHint, lorebooksEmpty, nameLabel, namePlaceholder, newBundle,
+noCharactersMatch, noLorebooksMatch, noPersonasMatch, of, personaRandomHint, personasEmpty, random, randomHint,
+removeCharacter, removeLorebook, removePersona, save, saveFailed, saveSuccess, searchCharacters, searchLorebooks, searchPersonas,
+selectedCharacters, selectedLorebooks, selectedPersonas).
 Community-Lokalen bleiben bewusst partiell (Fallback auf Englisch).
 
 ## 5. data-testid-Katalog
@@ -198,6 +221,26 @@ smoke-/Regressionstests:
 | `story-bundle-editor-characters-random` | „Random"-Button |
 | `story-bundle-editor-characters-load-more` | „Load more"-Button |
 | `story-bundle-editor-characters-empty` | Leerer-Zustand-Text |
+
+### `StoryBundlePersonas`
+| testid | Element |
+|---|---|
+| `story-bundle-editor-personas` | Personas-Tab-Container |
+| `story-bundle-editor-personas-search` | Suchfeld im Add-Personas-Bereich |
+| `story-bundle-editor-personas-group-select` | Group-Dropdown |
+| `story-bundle-editor-personas-add-group` | „Add"-Button für Groups |
+| `story-bundle-editor-personas-random` | „Random"-Button |
+| `story-bundle-editor-personas-load-more` | „Load more"-Button |
+| `story-bundle-editor-personas-empty` | Leerer-Zustand-Text |
+
+### `StoryBundleLorebooks`
+| testid | Element |
+|---|---|
+| `story-bundle-editor-lorebooks` | Lorebooks-Tab-Container |
+| `story-bundle-editor-lorebooks-search` | Suchfeld im Add-Lorebooks-Bereich |
+| `story-bundle-editor-lorebooks-random` | „Random"-Button |
+| `story-bundle-editor-lorebooks-load-more` | „Load more"-Button |
+| `story-bundle-editor-lorebooks-empty` | Leerer-Zustand-Text |
 
 ### App-Dialoge (`Modal` / `AppDialogRenderer`)
 | testid | Element |
@@ -254,8 +297,8 @@ Hinweise zur Ausführung:
 
 Mögliche Erweiterungen, die die jetzige Struktur bereits vorbereitet:
 
-- Felder: `description`, `coverImage`, Kapitel-/Szenenliste.
-- Verknüpfungen zu Lorebooks, Charakteren und Personas.
+- Felder: `coverImage`, Kapitel-/Szenenliste.
+- ~~Verknüpfungen zu Lorebooks.~~ ✅ Erledigt (fünfte Iteration).
 - Export/Import als JSON.
 - Panel-Suche und Sortierung.
 

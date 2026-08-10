@@ -27,6 +27,7 @@ export function createStoryBundlesStorage(db: DB) {
         description: input.description ?? null,
         characterIds: JSON.stringify(input.characterIds ?? []),
         personaIds: JSON.stringify(input.personaIds ?? []),
+        lorebookIds: JSON.stringify(input.lorebookIds ?? []),
         createdAt: timestamp,
         updatedAt: timestamp,
       });
@@ -41,6 +42,7 @@ export function createStoryBundlesStorage(db: DB) {
           ...(data.description !== undefined && { description: data.description }),
           ...(data.characterIds !== undefined && { characterIds: JSON.stringify(data.characterIds) }),
           ...(data.personaIds !== undefined && { personaIds: JSON.stringify(data.personaIds) }),
+          ...(data.lorebookIds !== undefined && { lorebookIds: JSON.stringify(data.lorebookIds) }),
           updatedAt: now(),
         })
         .where(eq(storyBundles.id, id));

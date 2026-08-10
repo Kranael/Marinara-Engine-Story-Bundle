@@ -21,8 +21,8 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 
 | Datei | Rolle |
 |---|---|
-| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, description, characterIds, createdAt, updatedAt }` |
-| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `createStoryBundleSchema` (name trim min1 max200, description + characterIds optional), `updateStoryBundleSchema` (name + description + characterIds optional) |
+| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, description, characterIds, personaIds, lorebookIds, createdAt, updatedAt }` |
+| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `createStoryBundleSchema` (name trim min1 max200, description + characterIds + personaIds + lorebookIds optional), `updateStoryBundleSchema` (name + description + characterIds + personaIds + lorebookIds optional) |
 | `packages/shared/src/index.ts` | Barrel — beide Exportzeilen müssen drin bleiben |
 | `packages/server/src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` |
 | `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` (Registrierung, sonst `Unsupported table`) |
@@ -30,7 +30,11 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/server/src/routes/story-bundles.routes.ts` | REST unter `/api/story-bundles` (GET/POST/PATCH/DELETE) |
 | `packages/client/src/hooks/use-story-bundles.ts` | `storyBundleKeys` + Query-/Mutations-Hooks |
 | `packages/client/src/components/panels/StoryBundlesPanel.tsx` | Listen-Panel (rechts) |
-| `packages/client/src/components/story-bundles/StoryBundleEditor.tsx` | Vollseiten-Editor (Detailansicht) |
+| `packages/client/src/components/story-bundles/StoryBundleEditor.tsx` | Vollseiten-Editor (Detailansicht) — Shell mit Tab-Rail |
+| `packages/client/src/components/story-bundles/StoryBundleDescription.tsx` | Description-Tab (Name + HTML-Description mit Preview-Toggle) |
+| `packages/client/src/components/story-bundles/StoryBundleCharacters.tsx` | Characters-Tab (Suche/Random/Load-More, Groups-Dropdown, Selected-Liste) |
+| `packages/client/src/components/story-bundles/StoryBundlePersonas.tsx` | Personas-Tab (gleiches Muster wie Characters, mit Avatar-Crop-Support) |
+| `packages/client/src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
 
 ## 3. Angefasste Infrastruktur-Dateien (Wiring)
 
@@ -43,7 +47,7 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/client/src/components/layout/RightPanel.tsx` | Lazy-Import `StoryBundlesPanel` + `PANEL_CONFIG["story-bundles"]` + `PANELS["story-bundles"]` |
 | `packages/client/src/components/layout/TopBar.tsx` | `RightPanelButtonPanel`-Union, `RIGHT_PANEL_BUTTONS`-Eintrag, `panelContextActive["story-bundles"]`, `!storyBundleDetailId` in `isHomeActive` |
 | `packages/client/src/styles/globals.css` | `.mari-panel-gradient--story-bundles` (Pink `#f472b6` → Violett `#a855f7`) + `.mari-description-preview` (HTML-Vorschau-Styling) |
-| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. add, addCharacters, addFromGroup, allAdded, allCharactersAdded, charactersEmpty, descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview, groups, loadMore, noCharactersMatch, of, random, randomHint, removeCharacter, searchCharacters, selectedCharacters) |
+| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. add, addCharacters, addFromGroup, addLorebooks, addPersonas, allAdded, allCharactersAdded, allLorebooksAdded, allPersonasAdded, charactersEmpty, descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview, groups, loadMore, lorebookRandomHint, lorebooksEmpty, noCharactersMatch, noLorebooksMatch, noPersonasMatch, of, personaRandomHint, personasEmpty, random, randomHint, removeCharacter, removeLorebook, removePersona, searchCharacters, searchLorebooks, searchPersonas, selectedCharacters, selectedLorebooks, selectedPersonas) |
 
 ## 4. Referenz-Dateien: So machen es die anderen Entitäten
 
@@ -98,7 +102,18 @@ PowerShell: Befehle mit `;` verketten, nie mit `&&`.
 
 1. `packages/shared`: Interface + Zod-Schema erweitern (update-Schema optional halten).
 2. `packages/server`: Spalten in `fileTable` ergänzen, Storage-Methoden anpassen (neue Tabellen zusätzlich in `FILE_BACKED_TABLES` eintragen).
-3. `packages/client`: Editor-Felder + Hooks; ggf. Panel-Spalten.
-4. `en.json`-Keys ergänzen.
+3. `packages/client`: Neues Tab-Component erstellen (Muster: `StoryBundleCharacters.tsx` / `StoryBundlePersonas.tsx`), in `StoryBundleEditor.tsx` importieren und TABS-Array + Rendering ergänzen, Hooks für Daten laden.
+4. `en.json`-Keys ergänzen (alphabetisch einsortieren).
 5. `pnpm check` grün, neue `data-testid`s vergeben, `story-bundle.md` + diese Datei nachziehen.
 6. Commit auf dem Feature-Branch.
+
+## 9. Tab-Component-Muster
+
+Jeder neue Tab im StoryBundleEditor folgt diesem Pattern (siehe `StoryBundleCharacters.tsx` / `StoryBundlePersonas.tsx`):
+
+- **Props-Interface**: `ids: string[]`, `onIdsChange: (ids: string[]) => void`, `items: T[]`, `folders: Folder[]`, `validIds: Set<string>`
+- **Drei Sektionen**: (1) Add Items — Suchfeld + Random-Button + paginierte Liste mit Plus-Buttons, (2) Groups — Dropdown + Add-Button, (3) Selected Items — Liste mit Remove-Buttons
+- **Leere Zustände**: Gestrichelte Border-Box mit i18n-Text
+- **Paginierung**: `ITEM_PICKER_PAGE_SIZE = 20`, lokaler `useState`-Limit, "Load more"-Button
+- **data-testid**: `story-bundle-editor-<tabname>`, `story-bundle-editor-<tabname>-search`, `story-bundle-editor-<tabname>-random`, `story-bundle-editor-<tabname>-load-more`, `story-bundle-editor-<tabname>-empty`, `story-bundle-editor-<tabname>-group-select`, `story-bundle-editor-<tabname>-add-group`
+- **Lorebooks-Tab**: Hat keine Groups-Sektion (Lorebooks haben keine Folder-Groups). Nur zwei Sektionen: Add Lorebooks + Selected Lorebooks.

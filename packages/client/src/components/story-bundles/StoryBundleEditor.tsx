@@ -4,10 +4,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, FileText, Loader2, Save, Trash2, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, Save, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
+import { useLorebooks } from "../../hooks/use-lorebooks";
+import type { Lorebook } from "@marinara-engine/shared";
 import { useUIStore } from "../../stores/ui.store";
 import { showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
@@ -15,6 +17,7 @@ import { EditorTabRail } from "../ui/EditorTabRail";
 import { StoryBundleDescription } from "./StoryBundleDescription";
 import { StoryBundleCharacters } from "./StoryBundleCharacters";
 import { StoryBundlePersonas } from "./StoryBundlePersonas";
+import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
 
 /** Allowed HTML tags for the description preview. */
 const ALLOWED_DESCRIPTION_TAGS = [
@@ -53,6 +56,7 @@ const TABS = [
   { id: "description", label: "Description", icon: FileText },
   { id: "characters", label: "Characters", icon: Users },
   { id: "personas", label: "Personas", icon: UserRound },
+  { id: "lorebooks", label: "Lorebooks", icon: BookOpen },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -70,6 +74,7 @@ export function StoryBundleEditor() {
   const { data: allCharacterGroups } = useCharacterGroups();
   const { data: allPersonas } = usePersonas();
   const { data: allPersonaGroups } = usePersonaGroups();
+  const { data: allLorebooks } = useLorebooks();
 
   const characters = useMemo(
     () =>
@@ -111,10 +116,21 @@ export function StoryBundleEditor() {
     [personas],
   );
 
+  const lorebooks = useMemo(
+    () => (allLorebooks ?? []) as Lorebook[],
+    [allLorebooks],
+  );
+
+  const validLorebookIds = useMemo(
+    () => new Set((lorebooks ?? []).map((lb) => lb.id)),
+    [lorebooks],
+  );
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [characterIds, setCharacterIds] = useState<string[]>([]);
   const [personaIds, setPersonaIds] = useState<string[]>([]);
+  const [lorebookIds, setLorebookIds] = useState<string[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("description");
   const [saving, setSaving] = useState(false);
@@ -126,6 +142,7 @@ export function StoryBundleEditor() {
       setDescription(bundle.description ?? "");
       setCharacterIds(bundle.characterIds ?? []);
       setPersonaIds(bundle.personaIds ?? []);
+      setLorebookIds(bundle.lorebookIds ?? []);
     }
   }, [bundle]);
 
@@ -137,7 +154,10 @@ export function StoryBundleEditor() {
   const personaIdsDirty = bundle
     ? JSON.stringify([...(personaIds ?? [])].sort()) !== JSON.stringify([...(bundle.personaIds ?? [])].sort())
     : false;
-  const isDirty = nameDirty || descriptionDirty || characterIdsDirty || personaIdsDirty;
+  const lorebookIdsDirty = bundle
+    ? JSON.stringify([...(lorebookIds ?? [])].sort()) !== JSON.stringify([...(bundle.lorebookIds ?? [])].sort())
+    : false;
+  const isDirty = nameDirty || descriptionDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeDescription(description) : ""),
@@ -148,11 +168,12 @@ export function StoryBundleEditor() {
     if (!storyBundleDetailId || !isDirty || saving) return;
     setSaving(true);
     try {
-      const payload: { name?: string; description?: string | null; characterIds?: string[]; personaIds?: string[] } = {};
+      const payload: { name?: string; description?: string | null; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[] } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
       if (characterIdsDirty) payload.characterIds = characterIds;
       if (personaIdsDirty) payload.personaIds = personaIds;
+      if (lorebookIdsDirty) payload.lorebookIds = lorebookIds;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
@@ -160,7 +181,7 @@ export function StoryBundleEditor() {
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, updateMutation, name, description, characterIds, personaIds, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, t]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;
@@ -274,6 +295,15 @@ export function StoryBundleEditor() {
                 personas={personas}
                 personaFolders={personaFolders}
                 validPersonaIds={validPersonaIds}
+              />
+            )}
+
+            {activeTab === "lorebooks" && (
+              <StoryBundleLorebooks
+                lorebookIds={lorebookIds}
+                onLorebookIdsChange={setLorebookIds}
+                lorebooks={lorebooks}
+                validLorebookIds={validLorebookIds}
               />
             )}
           </div>

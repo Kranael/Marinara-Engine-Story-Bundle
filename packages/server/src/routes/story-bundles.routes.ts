@@ -30,6 +30,7 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
     description: (row.description as string) ?? null,
     characterIds: parseJsonArray(row.characterIds),
     personaIds: parseJsonArray(row.personaIds),
+    lorebookIds: parseJsonArray(row.lorebookIds),
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
   };

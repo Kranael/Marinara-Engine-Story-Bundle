@@ -15,12 +15,14 @@ export const createStoryBundleSchema = z.object({
   description: z.string().nullable().optional(),
   characterIds: z.array(z.string()).optional(),
   personaIds: z.array(z.string()).optional(),
+  lorebookIds: z.array(z.string()).optional(),
 });
 
 export const updateStoryBundleSchema = z.object({
   name: storyBundleNameSchema.optional(),
   description: z.string().nullable().optional(),
   characterIds: z.array(z.string()).optional(),
+  lorebookIds: z.array(z.string()).optional(),
   personaIds: z.array(z.string()).optional(),
 });
 
