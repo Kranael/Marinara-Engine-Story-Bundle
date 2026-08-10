@@ -1,7 +1,7 @@
 # Story Bundle
 
 > Entwicklungs-Dokumentation für das neue **Story-Bundle**-Objekt in Marinara Engine.
-> Branch: `story-bundle-dev` · Stand: fünfte Iteration (Titel + HTML-Description + Characters + Personas + Lorebooks).
+> Branch: `story-bundle-dev` · Stand: sechste Iteration (Titel + HTML-Description + Characters + Personas + Lorebooks + Import/Export).
 
 ## 1. Überblick & Scope
 
@@ -81,6 +81,10 @@ Zeitstempel über `now()` (ISO) aus `utils/id-generator.ts` erzeugt.
 | `POST` | `/api/story-bundles` | Anlegen (Zod-validiert), `201` + Objekt |
 | `PATCH` | `/api/story-bundles/:id` | Titel aktualisieren, `404` wenn unbekannt |
 | `DELETE` | `/api/story-bundles/:id` | Löschen, `404` wenn unbekannt |
+| `GET` | `/api/story-bundles/:id/export` | Export als `.marinara.json` (Download) |
+
+Zusätzlich wird der Import über den bestehenden `/api/import/marinara`-Endpunkt
+abgewickelt (POST mit `ExportEnvelope`, `type: "marinara_story_bundle"`).
 
 Fehlerbehandlung: Zod-Fehler → `400`, fehlende Datensätze → `404`,
 interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
@@ -123,6 +127,10 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 | `src/components/layout/TopBar.tsx` | TopBar-Button (`BookMarked`-Icon, Gradient) |
 | `src/components/layout/AppShell.tsx` | Lazy-Import + `detailView`-Kette |
 | `src/styles/globals.css` | Gradient `.mari-panel-gradient--story-bundles` (Pink → Violett) |
+| `packages/shared/src/types/export.ts` | `ExportType` um `"marinara_story_bundle"` erweitert |
+| `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — Import-Handler für Story-Bundle-Envelopes |
+| `tests/helpers/story-bundle-fixture.ts` | Test-Helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
+| `tests/data/story-bundles/*.json` | Fixture-Dateien in verschiedenen Zuständen (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
 
 **Workflow im UI:**
 1. TopBar-Button „Story Bundles" öffnet das rechte Panel.
@@ -167,6 +175,15 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
    - **Add Lorebooks**: Suchfeld, Random-Button, paginierte Liste mit
      BookOpen-Icon/Name/Kategorie und Plus-Button.
 9. Löschen läuft über einen destruktiven Bestätigungsdialog.
+10. **Export**: `GET /api/story-bundles/:id/export` liefert einen
+    `ExportEnvelope` mit `type: "marinara_story_bundle"` als JSON-Download
+    (`.marinara.json`). Der Envelope enthält `name`, `description`,
+    `characterIds`, `personaIds`, `lorebookIds`.
+11. **Import**: `POST /api/import/marinara` mit einem Story-Bundle-Envelope
+    erstellt ein neues Bundle. Der Import-Handler (`importStoryBundle`)
+    validiert den Namen (Pflichtfeld) und filtert ID-Arrays auf Strings.
+    Für Tests gibt es den Helper `importStoryBundleFixture(page, filePath)`
+    und `buildStoryBundleEnvelope(input)` in `tests/helpers/story-bundle-fixture.ts`.
 
 ### Lokalisierung (`src/localization/locales/en.json`)
 
@@ -269,14 +286,14 @@ Aktueller Stand: `pnpm check` läuft vollständig grün durch
 
 ### 6.1 Playwright-e2e-Tests (Story Bundle)
 
-Die Spezifikation liegt in `tests/e2e/story-bundle.test.ts` und wird über das
+Die Spezifikation liegt in `tests/story-bundle.test.ts` und wird über das
 dedizierte pnpm-Skript ausgeführt:
 
 ```bash
-pnpm regression:story-bundle   # alle 4 Story-Bundle-Tests (Desktop + Mobile)
+pnpm regression:story-bundle   # alle Story-Bundle-Tests (Desktop + Mobile)
 ```
 
-Das Skript ruft `playwright test -c playwright.config.ts tests/e2e/story-bundle.test.ts`
+Das Skript ruft `playwright test -c playwright.config.ts tests/story-bundle.test.ts`
 auf und startet die Webserver (Desktop 5178/7971, Mobile 5179/7972) automatisch
 über `config.webServer`. Aktueller Stand: **4 passed**.
 
@@ -293,13 +310,32 @@ Hinweise zur Ausführung:
   trotz der „Temporary tests"-Muster in `.gitignore` versioniert wird, gibt es
   dort die Ausnahmen `!tests/**/*.test.ts` und `!tests/**/*.spec.ts`.
 
+### 6.2 Test-Fixtures & Helper
+
+Für Tests, die ein Story Bundle in einem bestimmten Zustand benötigen, gibt es:
+
+- **`tests/helpers/story-bundle-fixture.ts`**: `importStoryBundleFixture(page, filePath)`
+  importiert eine `.marinara.json`-Fixture-Datei via `POST /api/import/marinara`
+  und gibt das erstellte `StoryBundle` zurück. `buildStoryBundleEnvelope(input)`
+  baut einen Envelope inline für programmatische Tests.
+- **`tests/data/story-bundles/`**: Fixture-JSONs in verschiedenen Zuständen:
+  `empty.json`, `with-description.json`, `with-characters.json`,
+  `with-personas.json`, `with-lorebooks.json`, `full.json`.
+
+```ts
+// Beispiel: Bundle mit Description importieren
+import { importStoryBundleFixture } from './helpers/story-bundle-fixture';
+const bundle = await importStoryBundleFixture(page, './tests/data/story-bundles/with-description.json');
+// bundle.description === "<h1>Chapter One</h1>..."
+```
+
 ## 7. Ausblick (nächste Iterationen)
 
 Mögliche Erweiterungen, die die jetzige Struktur bereits vorbereitet:
 
 - Felder: `coverImage`, Kapitel-/Szenenliste.
 - ~~Verknüpfungen zu Lorebooks.~~ ✅ Erledigt (fünfte Iteration).
-- Export/Import als JSON.
+- ~~Export/Import als JSON.~~ ✅ Erledigt (sechste Iteration).
 - Panel-Suche und Sortierung.
 
 Dafür jeweils erweitern: Shared-Type + Schema → Server-Spalten + Storage →

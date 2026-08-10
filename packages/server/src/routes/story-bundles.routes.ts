@@ -7,7 +7,7 @@ import {
   storyBundleIdParamsSchema,
   updateStoryBundleSchema,
 } from "@marinara-engine/shared";
-import type { StoryBundle } from "@marinara-engine/shared";
+import type { ExportEnvelope, StoryBundle } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
 import { logger } from "../lib/logger.js";
 
@@ -85,5 +85,29 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     if (!existing) return reply.status(404).send({ error: "Story bundle not found" });
     await storage.remove(id);
     return reply.send({ ok: true });
+  });
+
+  // ── Export a story bundle as .marinara.json ──
+  app.get("/:id/export", async (req, reply) => {
+    const { id } = storyBundleIdParamsSchema.parse(req.params);
+    const bundle = await storage.getById(id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+    const serialized = serializeBundle(bundle);
+    const envelope: ExportEnvelope = {
+      type: "marinara_story_bundle",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: {
+        name: serialized.name,
+        description: serialized.description,
+        characterIds: serialized.characterIds,
+        personaIds: serialized.personaIds,
+        lorebookIds: serialized.lorebookIds,
+      },
+    };
+    return reply
+      .header("Content-Type", "application/json")
+      .header("Content-Disposition", `attachment; filename="${serialized.name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json"`)
+      .send(envelope);
   });
 }
