@@ -13,6 +13,9 @@ interface ImportResult {
   error?: string;
 }
 
+/** Monotonic counter for unique bundle names across parallel workers. */
+let _importCounter = 0;
+
 /**
  * Helper to import a story bundle from a .marinara.json fixture file.
  *
@@ -31,9 +34,18 @@ interface ImportResult {
 export async function importStoryBundleFixture(
   page: Page,
   filePath: string,
+  nameSuffix?: string,
 ): Promise<StoryBundle> {
   const raw = await readFile(filePath, 'utf-8');
   const envelope = JSON.parse(raw);
+
+  // Append a unique suffix so parallel tests don't collide on the same name.
+  // Uses a monotonic counter + process-specific prefix for cross-worker uniqueness.
+  if (envelope.data?.name) {
+    const label = nameSuffix ? ` ${nameSuffix}` : "";
+    const pid = process.pid.toString(36).slice(-4);
+    envelope.data.name = `${envelope.data.name}${label} #${pid}-${++_importCounter}`;
+  }
 
   const response = await page.request.post('/api/import/marinara', {
     data: envelope,

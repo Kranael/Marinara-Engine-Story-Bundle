@@ -157,6 +157,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
         onClose();
       }}
       title={t("storyBundles.importTitle", "Import Story Bundle")}
+      testId="story-bundle-import-modal"
     >
       <div className="flex flex-col gap-4">
         {/* Embedded entity prompt — shown before import proceeds */}
@@ -193,12 +194,14 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
             </div>
             <div className="mt-3 flex gap-2">
               <button
+                data-testid="story-bundle-import-skip-embedded"
                 onClick={() => void handleFiles(pendingEmbeddedChoice.files, false)}
                 className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium transition-colors hover:bg-[var(--secondary)]"
               >
                 {t("storyBundles.skipEmbedded", "Skip embedded content")}
               </button>
               <button
+                data-testid="story-bundle-import-import-all"
                 onClick={() => void handleFiles(pendingEmbeddedChoice.files, true)}
                 className="mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex-1 rounded-lg px-3 py-2 text-xs font-medium"
               >
@@ -210,6 +213,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
 
         {!pendingEmbeddedChoice && (
           <div
+            data-testid="story-bundle-import-drop-zone"
             onDrop={handleDrop}
             onDragOver={(e) => {
               e.preventDefault();
@@ -237,6 +241,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
           accept=".json"
           multiple
           className="hidden"
+          data-testid="story-bundle-import-file-input"
           onChange={(e) => {
             handleFiles(Array.from(e.target.files ?? []));
             e.target.value = "";
@@ -244,12 +249,12 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
         />
 
         {status === "loading" && (
-          <div className="flex items-center gap-2 rounded-lg bg-[var(--secondary)] p-3 text-xs">
+          <div data-testid="story-bundle-import-loading" className="flex items-center gap-2 rounded-lg bg-[var(--secondary)] p-3 text-xs">
             <Loader2 size="0.875rem" className="animate-spin text-[var(--primary)]" /> {t("storyBundles.importing", "Importing…")}
           </div>
         )}
         {status === "done" && results.length > 0 && (
-          <div className="flex flex-col gap-2">
+          <div data-testid="story-bundle-import-results" className="flex flex-col gap-2">
             <div
               className={`flex items-center gap-2 rounded-lg p-3 text-xs ${
                 results.some((result) => result.success)
@@ -284,6 +289,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
 
         <div className="flex justify-end border-t border-[var(--border)] pt-3">
           <button
+            data-testid="story-bundle-import-close-button"
             onClick={() => {
               reset();
               onClose();
