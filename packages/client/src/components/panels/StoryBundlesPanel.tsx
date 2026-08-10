@@ -8,19 +8,30 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { BookMarked, Loader2, Plus, Trash2 } from "lucide-react";
+import { BookMarked, Download, Loader2, Play, Plus, Trash2, Upload } from "lucide-react";
 import { useStoryBundles, useCreateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
+import { useCreateChat } from "../../hooks/use-chats";
+import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
+import { useChatStore } from "../../stores/chat.store";
 import { showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
+import { api } from "../../lib/api-client";
 import { cn } from "../../lib/utils";
 
 export function StoryBundlesPanel() {
   const { t } = useTranslation();
   const openStoryBundleDetail = useUIStore((s) => s.openStoryBundleDetail);
+  const openModal = useUIStore((s) => s.openModal);
   const { data: bundles, isLoading } = useStoryBundles();
   const createMutation = useCreateStoryBundle();
   const deleteMutation = useDeleteStoryBundle();
   const [creating, setCreating] = useState(false);
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+
+  // RP chat creation hook for the Play button
+  const createChat = useCreateChat();
+  const { data: connections } = useConnections();
 
   const handleCreate = useCallback(async () => {
     if (creating) return;
@@ -69,6 +80,61 @@ export function StoryBundlesPanel() {
     [deleteMutation, t],
   );
 
+  const handlePlay = useCallback(
+    async (id: string, _name: string) => {
+      if (playingId) return;
+      setPlayingId(id);
+      try {
+        // Fetch the full bundle to get character/persona IDs
+        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[] }>(`/story-bundles/${id}`);
+        const conns = (connections ?? []) as Array<{ id: string }>;
+
+        createChat.mutate(
+          {
+            name: bundle.name,
+            mode: "roleplay",
+            characterIds: bundle.characterIds ?? [],
+            personaId: bundle.personaIds?.[0] ?? null,
+            connectionId: conns[0]?.id,
+          },
+          {
+            onSuccess: (chat) => {
+              useChatStore.getState().setActiveChatId(chat.id);
+              toast.success(t("storyBundles.playStarted", "Roleplay started!"));
+              setPlayingId(null);
+            },
+            onError: (err) => {
+              console.error("[playStoryBundle]", err);
+              toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
+              setPlayingId(null);
+            },
+          },
+        );
+      } catch (err) {
+        console.error("[playStoryBundle]", err);
+        toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
+        setPlayingId(null);
+      }
+    },
+    [playingId, connections, createChat, t],
+  );
+
+  const handleExport = useCallback(
+    async (id: string, name: string) => {
+      if (exportingId) return;
+      setExportingId(id);
+      try {
+        await api.download(`/story-bundles/${id}/export`, `${name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json`);
+        toast.success(t("storyBundles.exportSuccess", "Story bundle exported."));
+      } catch {
+        toast.error(t("storyBundles.exportFailed", "Failed to export the story bundle."));
+      } finally {
+        setExportingId(null);
+      }
+    },
+    [exportingId, t],
+  );
+
   return (
     <div data-testid="story-bundles-panel" className="flex h-full min-h-0 flex-col">
       {/* Toolbar */}
@@ -76,15 +142,25 @@ export function StoryBundlesPanel() {
         <span className="mari-chrome-text-muted text-xs">
           {t("storyBundles.count", { count: bundles?.length ?? 0, defaultValue: "{{count}} bundles" })}
         </span>
-        <button
-          data-testid="story-bundles-create-button"
-          onClick={handleCreate}
-          disabled={creating}
-          className="mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
-        >
-          {creating ? <Loader2 size="0.75rem" className="animate-spin" /> : <Plus size="0.75rem" />}
-          {t("storyBundles.newBundle", "New Bundle")}
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            data-testid="story-bundles-import-button"
+            onClick={() => openModal("import-story-bundle")}
+            className="mari-chrome-control mari-chrome-control--primary text-xs"
+            title={t("storyBundles.import", "Import")}
+          >
+            <Download size="0.8125rem" />
+          </button>
+          <button
+            data-testid="story-bundles-create-button"
+            onClick={handleCreate}
+            disabled={creating}
+            className="mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+          >
+            {creating ? <Loader2 size="0.75rem" className="animate-spin" /> : <Plus size="0.75rem" />}
+            {t("storyBundles.newBundle", "New Bundle")}
+          </button>
+        </div>
       </div>
 
       {/* List */}
@@ -126,6 +202,38 @@ export function StoryBundlesPanel() {
                   </div>
                   {/* Row action pill (visible on hover / always on mobile) */}
                   <div className="absolute right-2 top-1/2 flex shrink-0 -translate-y-1/2 items-center gap-0.5 rounded-lg bg-[var(--sidebar)] px-1 py-0.5 opacity-0 shadow-sm ring-1 ring-[var(--border)] transition-opacity group-hover:opacity-100 max-md:opacity-100">
+                    <button
+                      data-testid={`story-bundle-play-button-${bundle.id}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void handlePlay(bundle.id, bundle.name);
+                      }}
+                      disabled={playingId === bundle.id}
+                      className="rounded-md p-1 transition-transform hover:bg-[var(--sidebar-accent)] active:scale-90"
+                      title={t("storyBundles.playTitle", "Start game from this story bundle")}
+                    >
+                      {playingId === bundle.id ? (
+                        <Loader2 size="0.75rem" className="animate-spin" />
+                      ) : (
+                        <Play size="0.75rem" />
+                      )}
+                    </button>
+                    <button
+                      data-testid={`story-bundle-export-button-${bundle.id}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void handleExport(bundle.id, bundle.name);
+                      }}
+                      disabled={exportingId === bundle.id}
+                      className="rounded-md p-1 transition-transform hover:bg-[var(--sidebar-accent)] active:scale-90"
+                      title={t("storyBundles.export", "Export")}
+                    >
+                      {exportingId === bundle.id ? (
+                        <Loader2 size="0.75rem" className="animate-spin" />
+                      ) : (
+                        <Upload size="0.75rem" />
+                      )}
+                    </button>
                     <button
                       data-testid={`story-bundle-delete-button-${bundle.id}`}
                       onClick={(event) => {

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { prepareFreshClient } from './helpers/fresh-client';
-import { StoryBundle, StoryBundleAPI } from './helpers/story-bundle-api';
-import { HomePage } from './pages/home-page';
+import { prepareFreshClient } from '../helpers/fresh-client';
+import { StoryBundle, StoryBundleAPI } from '../helpers/story-bundle-api';
+import { HomePage } from '../../pages/home-page';
 import { readFile } from 'fs/promises';
 
 test.describe('Story Bundles without Precondition Object:Story Bundle', () => {
@@ -62,7 +62,7 @@ test.describe('Story Bundles with Precondition Object:Story Bundle', () => {
     test('Create a new Story Bundle, edit its description, and delete it', async ({ page }) => {
 
         // Read Test Data HTML and save it to variable for filling the description input field
-        const testDataHtml = await readFile('./tests/data/test-data.html', 'utf-8');
+        const testDataHtml = await readFile('./tests/story-bundle/data/test-data.html', 'utf-8');
 
         const homePage = new HomePage(page);
         await homePage.clickOnStoryBundles();
@@ -87,6 +87,29 @@ test.describe('Story Bundles with Precondition Object:Story Bundle', () => {
             await expect(page.getByText('⚑ Monthly Audit — Standing Order Conduct is recorded continuously. No subject')).toBeVisible();
         });
     })
+
+    test('Export a story bundle and re-import it (round-trip)', async ({ page }) => {
+        // 1. Export the bundle via API
+        const exported = await api.export(storyBundle.id);
+        expect(exported.type).toBe('marinara_story_bundle');
+        expect(exported.version).toBe(1);
+        expect(typeof exported.exportedAt).toBe('string');
+        const data = exported.data as Record<string, unknown>;
+        expect(data.name).toBe('E2E Test Bundle');
+        expect(data.embeddedCharacters).toEqual([]);
+        expect(data.embeddedPersonas).toEqual([]);
+        expect(data.embeddedLorebooks).toEqual([]);
+
+        // 2. Delete the original so the import creates a fresh row
+        await api.delete(storyBundle.id);
+
+        // 3. Re-import from the exported envelope
+        const imported = await api.importFromEnvelope(exported);
+        expect(imported.name).toBe('E2E Test Bundle');
+
+        // 4. Update the reference so afterEach cleans up the imported bundle
+        storyBundle = imported;
+    });
 
     test.afterEach(async () => {
         await api.delete(storyBundle.id);

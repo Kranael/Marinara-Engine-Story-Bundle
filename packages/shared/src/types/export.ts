@@ -13,7 +13,8 @@ export type ExportType =
   | "marinara_chat_preset"
   | "marinara_chat_settings_profile"
   | "marinara_memory_recall"
-  | "marinara_profile";
+  | "marinara_profile"
+  | "marinara_story_bundle";
 
 /** Wrapper envelope for exported data. */
 export interface ExportEnvelope<T = unknown> {

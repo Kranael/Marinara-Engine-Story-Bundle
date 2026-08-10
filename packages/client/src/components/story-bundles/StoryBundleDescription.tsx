@@ -34,6 +34,7 @@ export function StoryBundleDescription({
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="story-bundle-name"
+          data-testid="story-bundle-editor-name-label"
           className="mari-chrome-text-strong text-xs font-medium"
         >
           {t("storyBundles.nameLabel", "Name")}
@@ -52,7 +53,10 @@ export function StoryBundleDescription({
       {/* Description */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <label className="mari-chrome-text-strong text-xs font-medium">
+          <label
+            data-testid="story-bundle-editor-description-label"
+            className="mari-chrome-text-strong text-xs font-medium"
+          >
             {t("storyBundles.descriptionLabel", "Description")}
           </label>
           <button

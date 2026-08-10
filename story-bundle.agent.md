@@ -27,7 +27,7 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/server/src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` |
 | `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` (Registrierung, sonst `Unsupported table`) |
 | `packages/server/src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)`: list/getById/create/update/remove |
-| `packages/server/src/routes/story-bundles.routes.ts` | REST unter `/api/story-bundles` (GET/POST/PATCH/DELETE) |
+| `packages/server/src/routes/story-bundles.routes.ts` | REST unter `/api/story-bundles` (GET/POST/PATCH/DELETE) + `GET /:id/export` |
 | `packages/client/src/hooks/use-story-bundles.ts` | `storyBundleKeys` + Query-/Mutations-Hooks |
 | `packages/client/src/components/panels/StoryBundlesPanel.tsx` | Listen-Panel (rechts) |
 | `packages/client/src/components/story-bundles/StoryBundleEditor.tsx` | Vollseiten-Editor (Detailansicht) — Shell mit Tab-Rail |
@@ -35,6 +35,15 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/client/src/components/story-bundles/StoryBundleCharacters.tsx` | Characters-Tab (Suche/Random/Load-More, Groups-Dropdown, Selected-Liste) |
 | `packages/client/src/components/story-bundles/StoryBundlePersonas.tsx` | Personas-Tab (gleiches Muster wie Characters, mit Avatar-Crop-Support) |
 | `packages/client/src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
+| `packages/shared/src/types/export.ts` | `ExportType` um `"marinara_story_bundle"` erweitert |
+| `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — Import-Handler + `case` im Switch |
+| `packages/server/src/services/export/export-image-helpers.ts` | Shared Image-Helper: `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` |
+| `tests/story-bundle/helpers/story-bundle-fixture.ts` | Test-Helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
+| `tests/story-bundle/helpers/story-bundle-api.ts` | Test-Helper: `StoryBundleAPI`-Klasse (create/delete/import/export) |
+| `tests/story-bundle/helpers/fresh-client.ts` | Test-Helper: `prepareFreshClient()` (Client-State vor Test) |
+| `tests/story-bundle/data/*.json` | Fixture-Dateien (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
+| `tests/story-bundle/data/test-data.html` | HTML-Testdaten für Description-Preview |
+| `tests/story-bundle/tests/story-bundle.test.ts` | Playwright-e2e-Tests |
 
 ## 3. Angefasste Infrastruktur-Dateien (Wiring)
 
@@ -106,6 +115,16 @@ PowerShell: Befehle mit `;` verketten, nie mit `&&`.
 4. `en.json`-Keys ergänzen (alphabetisch einsortieren).
 5. `pnpm check` grün, neue `data-testid`s vergeben, `story-bundle.md` + diese Datei nachziehen.
 6. Commit auf dem Feature-Branch.
+
+## 10. Import/Export-Muster
+
+Story Bundles folgen dem etablierten Marinara-Export/Import-Pattern:
+
+- **Export**: `GET /api/story-bundles/:id/export` → `ExportEnvelope` mit `type: "marinara_story_bundle"`, `version: 1`, `data: { name, description, characterIds, personaIds, lorebookIds, embeddedCharacters, embeddedPersonas, embeddedLorebooks }`. Characters und Personas werden mit Avataren, Sprites und Gallery als base64-Daten-URLs embedded — das JSON ist komplett self-contained für PC-zu-PC-Transfer. Wird als `.marinara.json`-Download ausgeliefert.
+- **Import**: `POST /api/import/marinara` mit dem Envelope → dispatcher in `importMarinara()` routed an `importStoryBundle()`. Validiert `name` (Pflicht), filtert ID-Arrays auf Strings, erstellt Bundle via `createStoryBundlesStorage`. Import dedupliziert per Name (case-insensitive): existierende Characters/Personas/Lorebooks werden übersprungen, nur neue werden angelegt. Binärdaten (Avatare, Sprites, Gallery) werden aus den base64-Daten-URLs wiederhergestellt.
+- **Image-Helper**: `packages/server/src/services/export/export-image-helpers.ts` — `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` lesen Binärdaten von Disk und geben base64-Daten-URLs zurück. Wird von Character-Export und Story-Bundle-Export gemeinsam genutzt.
+- **Test-Helper**: `importStoryBundleFixture(page, filePath)` in `tests/story-bundle/helpers/story-bundle-fixture.ts` liest eine Fixture-JSON, POSTet sie an `/api/import/marinara` und gibt das erstellte `StoryBundle` zurück. `buildStoryBundleEnvelope(input)` baut einen Envelope inline (für programmatische Tests). `StoryBundleAPI` in `tests/story-bundle/helpers/story-bundle-api.ts` bietet create/delete/import/export.
+- **Fixtures**: `tests/story-bundle/data/` enthält JSON-Dateien in verschiedenen Zuständen (empty, with-description, with-characters, with-personas, with-lorebooks, full).
 
 ## 9. Tab-Component-Muster
 

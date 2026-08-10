@@ -7,9 +7,17 @@ import {
   storyBundleIdParamsSchema,
   updateStoryBundleSchema,
 } from "@marinara-engine/shared";
-import type { StoryBundle } from "@marinara-engine/shared";
+import type { ExportEnvelope, StoryBundle } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
+import { createCharactersStorage } from "../services/storage/characters.storage.js";
+import { createCharacterGalleryStorage } from "../services/storage/character-gallery.storage.js";
+import { createLorebooksStorage } from "../services/storage/lorebooks.storage.js";
 import { logger } from "../lib/logger.js";
+import {
+  readAvatarDataUrl,
+  readGalleryForCharacter,
+  readSpritesForId,
+} from "../services/export/export-image-helpers.js";
 
 /** Parse a JSON text column into a string array. */
 function parseJsonArray(value: unknown): string[] {
@@ -38,6 +46,9 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
 
 export async function storyBundlesRoutes(app: FastifyInstance) {
   const storage = createStoryBundlesStorage(app.db);
+  const charactersStorage = createCharactersStorage(app.db);
+  const characterGalleryStorage = createCharacterGalleryStorage(app.db);
+  const lorebooksStorage = createLorebooksStorage(app.db);
 
   // ── List all story bundles ──
   app.get("/", async (_req, reply) => {
@@ -85,5 +96,93 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     if (!existing) return reply.status(404).send({ error: "Story bundle not found" });
     await storage.remove(id);
     return reply.send({ ok: true });
+  });
+
+  // ── Export a story bundle as .marinara.json ──
+  // Embeds full character, persona, and lorebook data so the exported JSON is
+  // self-contained. On import, missing entities are detected and offered for
+  // creation — same pattern as character → embedded lorebook.
+  app.get("/:id/export", async (req, reply) => {
+    const { id } = storyBundleIdParamsSchema.parse(req.params);
+    const bundle = await storage.getById(id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+    const serialized = serializeBundle(bundle);
+
+    // Fetch full data for all referenced entities, including binary assets
+    // (avatars, sprites, gallery) as base64 so the export is truly
+    // self-contained for PC-to-PC transfer.
+    const embeddedCharacters: Record<string, unknown>[] = [];
+    for (const charId of serialized.characterIds) {
+      const char = await charactersStorage.getById(charId);
+      if (char) {
+        const charRow = char as Record<string, unknown>;
+        const charData = JSON.parse(charRow.data as string);
+        const [avatar, sprites, gallery] = await Promise.all([
+          readAvatarDataUrl(charRow.avatarPath as string | null | undefined),
+          readSpritesForId(charId),
+          readGalleryForCharacter(charId, characterGalleryStorage),
+        ]);
+        embeddedCharacters.push({
+          id: charId,
+          name: charRow.name,
+          data: charData,
+          ...(avatar ? { avatar } : {}),
+          ...(sprites.length > 0 ? { sprites } : {}),
+          ...(gallery.length > 0 ? { gallery } : {}),
+        });
+      }
+    }
+
+    const embeddedPersonas: Record<string, unknown>[] = [];
+    for (const personaId of serialized.personaIds) {
+      const persona = await charactersStorage.getPersona(personaId);
+      if (persona) {
+        const personaRow = persona as Record<string, unknown>;
+        const [avatar, sprites] = await Promise.all([
+          readAvatarDataUrl(personaRow.avatarPath as string | null | undefined),
+          readSpritesForId(personaId),
+        ]);
+        embeddedPersonas.push({
+          ...personaRow,
+          ...(avatar ? { avatar } : {}),
+          ...(sprites.length > 0 ? { sprites } : {}),
+        });
+      }
+    }
+
+    const embeddedLorebooks: Record<string, unknown>[] = [];
+    for (const lorebookId of serialized.lorebookIds) {
+      const lb = await lorebooksStorage.getById(lorebookId);
+      if (lb) {
+        const entries = await lorebooksStorage.listEntries(lorebookId);
+        const folders = await lorebooksStorage.listFolders(lorebookId);
+        embeddedLorebooks.push({
+          id: lorebookId,
+          lorebook: lb,
+          entries,
+          folders,
+        });
+      }
+    }
+
+    const envelope: ExportEnvelope = {
+      type: "marinara_story_bundle",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      data: {
+        name: serialized.name,
+        description: serialized.description,
+        characterIds: serialized.characterIds,
+        personaIds: serialized.personaIds,
+        lorebookIds: serialized.lorebookIds,
+        embeddedCharacters,
+        embeddedPersonas,
+        embeddedLorebooks,
+      },
+    };
+    return reply
+      .header("Content-Type", "application/json")
+      .header("Content-Disposition", `attachment; filename="${serialized.name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json"`)
+      .send(envelope);
   });
 }

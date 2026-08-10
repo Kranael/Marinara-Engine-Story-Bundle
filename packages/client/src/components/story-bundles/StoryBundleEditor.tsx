@@ -4,13 +4,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, Save, Trash2, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, Play, Save, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
 import type { Lorebook } from "@marinara-engine/shared";
+import { useCreateChat } from "../../hooks/use-chats";
+import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
+import { useChatStore } from "../../stores/chat.store";
 import { showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 import { EditorTabRail } from "../ui/EditorTabRail";
@@ -134,6 +137,11 @@ export function StoryBundleEditor() {
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("description");
   const [saving, setSaving] = useState(false);
+  const [playing, setPlaying] = useState(false);
+
+  // RP chat creation hook for the Play button
+  const createChat = useCreateChat();
+  const { data: connections } = useConnections();
 
   // Keep the local draft in sync with the loaded bundle.
   useEffect(() => {
@@ -182,6 +190,34 @@ export function StoryBundleEditor() {
       setSaving(false);
     }
   }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, t]);
+
+  const handlePlay = useCallback(() => {
+    if (!bundle || playing) return;
+    setPlaying(true);
+    const conns = (connections ?? []) as Array<{ id: string }>;
+    createChat.mutate(
+      {
+        name: bundle.name,
+        mode: "roleplay",
+        characterIds: bundle.characterIds ?? [],
+        personaId: bundle.personaIds?.[0] ?? null,
+        connectionId: conns[0]?.id,
+      },
+      {
+        onSuccess: (chat) => {
+          useChatStore.getState().setActiveChatId(chat.id);
+          closeStoryBundleDetail();
+          toast.success(t("storyBundles.playStarted", "Roleplay started!"));
+          setPlaying(false);
+        },
+        onError: (err) => {
+          console.error("[playStoryBundle]", err);
+          toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
+          setPlaying(false);
+        },
+      },
+    );
+  }, [bundle, playing, connections, createChat, closeStoryBundleDetail, t]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;
@@ -236,6 +272,19 @@ export function StoryBundleEditor() {
           </h2>
         </div>
         <div className="flex items-center gap-1.5">
+          <button
+            data-testid="story-bundle-editor-play-button"
+            onClick={handlePlay}
+            disabled={playing}
+            className={cn(
+              "mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium",
+              playing && "cursor-not-allowed opacity-45",
+            )}
+            title={t("storyBundles.playTitle", "Start game from this story bundle")}
+          >
+            {playing ? <Loader2 size="0.75rem" className="animate-spin" /> : <Play size="0.75rem" />}
+            {t("storyBundles.play", "Play")}
+          </button>
           <button
             data-testid="story-bundle-editor-save-button"
             onClick={handleSave}
