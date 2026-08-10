@@ -9,8 +9,8 @@ import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
-import type { GameSetupConfig, Lorebook } from "@marinara-engine/shared";
-import { useCreateGame, useGameSetup, useStartGame } from "../../hooks/use-game";
+import type { Lorebook } from "@marinara-engine/shared";
+import { useCreateChat } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
@@ -139,10 +139,8 @@ export function StoryBundleEditor() {
   const [saving, setSaving] = useState(false);
   const [playing, setPlaying] = useState(false);
 
-  // Game creation hooks for the Play button
-  const createGame = useCreateGame();
-  const gameSetup = useGameSetup();
-  const startGame = useStartGame();
+  // RP chat creation hook for the Play button
+  const createChat = useCreateChat();
   const { data: connections } = useConnections();
 
   // Keep the local draft in sync with the loaded bundle.
@@ -193,58 +191,33 @@ export function StoryBundleEditor() {
     }
   }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, t]);
 
-  /** Strip HTML tags from a string, returning plain text. */
-  const stripHtml = useCallback((html: string | null): string => {
-    if (!html) return "";
-    return html.replace(/<[^>]*>/g, "").trim();
-  }, []);
-
-  const handlePlay = useCallback(async () => {
+  const handlePlay = useCallback(() => {
     if (!bundle || playing) return;
     setPlaying(true);
-    try {
-      const conns = (connections ?? []) as Array<{ id: string }>;
-      const config: GameSetupConfig = {
-        genre: "Fantasy",
-        setting: stripHtml(bundle.description) || "A mysterious world",
-        tone: "Heroic",
-        difficulty: "Normal",
-        playerGoals: "Have an adventure",
-        gmMode: "standalone",
-        rating: "sfw",
-        partyCharacterIds: bundle.characterIds ?? [],
-        personaId: bundle.personaIds?.[0] ?? null,
-        enableAgents: true,
-      };
-
-      const result = await createGame.mutateAsync({
+    const conns = (connections ?? []) as Array<{ id: string }>;
+    createChat.mutate(
+      {
         name: bundle.name,
-        setupConfig: config,
+        mode: "roleplay",
+        characterIds: bundle.characterIds ?? [],
+        personaId: bundle.personaIds?.[0] ?? null,
         connectionId: conns[0]?.id,
-      });
-
-      await gameSetup.mutateAsync({
-        chatId: result.sessionChat.id,
-        connectionId: conns[0]?.id,
-        preferences: "",
-        keepSetupActive: false,
-      });
-
-      await startGame.mutateAsync({
-        chatId: result.sessionChat.id,
-      });
-
-      // Navigate to the game chat
-      useChatStore.getState().setActiveChatId(result.sessionChat.id);
-      closeStoryBundleDetail();
-      toast.success(t("storyBundles.playStarted", "Game started!"));
-    } catch (err) {
-      console.error("[playStoryBundle]", err);
-      toast.error(t("storyBundles.playFailed", "Failed to start game."));
-    } finally {
-      setPlaying(false);
-    }
-  }, [bundle, playing, connections, createGame, gameSetup, startGame, closeStoryBundleDetail, stripHtml, t]);
+      },
+      {
+        onSuccess: (chat) => {
+          useChatStore.getState().setActiveChatId(chat.id);
+          closeStoryBundleDetail();
+          toast.success(t("storyBundles.playStarted", "Roleplay started!"));
+          setPlaying(false);
+        },
+        onError: (err) => {
+          console.error("[playStoryBundle]", err);
+          toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
+          setPlaying(false);
+        },
+      },
+    );
+  }, [bundle, playing, connections, createChat, closeStoryBundleDetail, t]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;

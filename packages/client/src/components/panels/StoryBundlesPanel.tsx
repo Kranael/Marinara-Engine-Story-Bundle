@@ -10,14 +10,13 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { BookMarked, Download, Loader2, Play, Plus, Trash2, Upload } from "lucide-react";
 import { useStoryBundles, useCreateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
-import { useCreateGame, useGameSetup, useStartGame } from "../../hooks/use-game";
+import { useCreateChat } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
 import { showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
 import { api } from "../../lib/api-client";
 import { cn } from "../../lib/utils";
-import type { GameSetupConfig } from "@marinara-engine/shared";
 
 export function StoryBundlesPanel() {
   const { t } = useTranslation();
@@ -30,10 +29,8 @@ export function StoryBundlesPanel() {
   const [exportingId, setExportingId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  // Game creation hooks for the Play button
-  const createGame = useCreateGame();
-  const gameSetup = useGameSetup();
-  const startGame = useStartGame();
+  // RP chat creation hook for the Play button
+  const createChat = useCreateChat();
   const { data: connections } = useConnections();
 
   const handleCreate = useCallback(async () => {
@@ -83,61 +80,43 @@ export function StoryBundlesPanel() {
     [deleteMutation, t],
   );
 
-  /** Strip HTML tags from a string, returning plain text. */
-  const stripHtml = (html: string | null): string => {
-    if (!html) return "";
-    return html.replace(/<[^>]*>/g, "").trim();
-  };
-
   const handlePlay = useCallback(
     async (id: string, _name: string) => {
       if (playingId) return;
       setPlayingId(id);
       try {
-        // Fetch the full bundle to get character/persona/lorebook IDs
-        const bundle = await api.get<{ id: string; name: string; description: string | null; characterIds: string[]; personaIds: string[]; lorebookIds: string[] }>(`/story-bundles/${id}`);
+        // Fetch the full bundle to get character/persona IDs
+        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[] }>(`/story-bundles/${id}`);
         const conns = (connections ?? []) as Array<{ id: string }>;
-        const config: GameSetupConfig = {
-          genre: "Fantasy",
-          setting: stripHtml(bundle.description) || "A mysterious world",
-          tone: "Heroic",
-          difficulty: "Normal",
-          playerGoals: "Have an adventure",
-          gmMode: "standalone",
-          rating: "sfw",
-          partyCharacterIds: bundle.characterIds ?? [],
-          personaId: bundle.personaIds?.[0] ?? null,
-          enableAgents: true,
-        };
 
-        const result = await createGame.mutateAsync({
-          name: bundle.name,
-          setupConfig: config,
-          connectionId: conns[0]?.id,
-        });
-
-        await gameSetup.mutateAsync({
-          chatId: result.sessionChat.id,
-          connectionId: conns[0]?.id,
-          preferences: "",
-          keepSetupActive: false,
-        });
-
-        await startGame.mutateAsync({
-          chatId: result.sessionChat.id,
-        });
-
-        // Navigate to the game chat
-        useChatStore.getState().setActiveChatId(result.sessionChat.id);
-        toast.success(t("storyBundles.playStarted", "Game started!"));
+        createChat.mutate(
+          {
+            name: bundle.name,
+            mode: "roleplay",
+            characterIds: bundle.characterIds ?? [],
+            personaId: bundle.personaIds?.[0] ?? null,
+            connectionId: conns[0]?.id,
+          },
+          {
+            onSuccess: (chat) => {
+              useChatStore.getState().setActiveChatId(chat.id);
+              toast.success(t("storyBundles.playStarted", "Roleplay started!"));
+              setPlayingId(null);
+            },
+            onError: (err) => {
+              console.error("[playStoryBundle]", err);
+              toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
+              setPlayingId(null);
+            },
+          },
+        );
       } catch (err) {
         console.error("[playStoryBundle]", err);
-        toast.error(t("storyBundles.playFailed", "Failed to start game."));
-      } finally {
+        toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
         setPlayingId(null);
       }
     },
-    [playingId, connections, createGame, gameSetup, startGame, t],
+    [playingId, connections, createChat, t],
   );
 
   const handleExport = useCallback(
