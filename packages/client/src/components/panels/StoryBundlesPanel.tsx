@@ -8,12 +8,16 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { BookMarked, Download, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { BookMarked, Download, Loader2, Play, Plus, Trash2, Upload } from "lucide-react";
 import { useStoryBundles, useCreateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
+import { useCreateGame, useGameSetup, useStartGame } from "../../hooks/use-game";
+import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
+import { useChatStore } from "../../stores/chat.store";
 import { showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
 import { api } from "../../lib/api-client";
 import { cn } from "../../lib/utils";
+import type { GameSetupConfig } from "@marinara-engine/shared";
 
 export function StoryBundlesPanel() {
   const { t } = useTranslation();
@@ -24,6 +28,13 @@ export function StoryBundlesPanel() {
   const deleteMutation = useDeleteStoryBundle();
   const [creating, setCreating] = useState(false);
   const [exportingId, setExportingId] = useState<string | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+
+  // Game creation hooks for the Play button
+  const createGame = useCreateGame();
+  const gameSetup = useGameSetup();
+  const startGame = useStartGame();
+  const { data: connections } = useConnections();
 
   const handleCreate = useCallback(async () => {
     if (creating) return;
@@ -70,6 +81,63 @@ export function StoryBundlesPanel() {
       }
     },
     [deleteMutation, t],
+  );
+
+  /** Strip HTML tags from a string, returning plain text. */
+  const stripHtml = (html: string | null): string => {
+    if (!html) return "";
+    return html.replace(/<[^>]*>/g, "").trim();
+  };
+
+  const handlePlay = useCallback(
+    async (id: string, _name: string) => {
+      if (playingId) return;
+      setPlayingId(id);
+      try {
+        // Fetch the full bundle to get character/persona/lorebook IDs
+        const bundle = await api.get<{ id: string; name: string; description: string | null; characterIds: string[]; personaIds: string[]; lorebookIds: string[] }>(`/story-bundles/${id}`);
+        const conns = (connections ?? []) as Array<{ id: string }>;
+        const config: GameSetupConfig = {
+          genre: "Fantasy",
+          setting: stripHtml(bundle.description) || "A mysterious world",
+          tone: "Heroic",
+          difficulty: "Normal",
+          playerGoals: "Have an adventure",
+          gmMode: "standalone",
+          rating: "sfw",
+          partyCharacterIds: bundle.characterIds ?? [],
+          personaId: bundle.personaIds?.[0] ?? null,
+          enableAgents: true,
+        };
+
+        const result = await createGame.mutateAsync({
+          name: bundle.name,
+          setupConfig: config,
+          connectionId: conns[0]?.id,
+        });
+
+        await gameSetup.mutateAsync({
+          chatId: result.sessionChat.id,
+          connectionId: conns[0]?.id,
+          preferences: "",
+          keepSetupActive: false,
+        });
+
+        await startGame.mutateAsync({
+          chatId: result.sessionChat.id,
+        });
+
+        // Navigate to the game chat
+        useChatStore.getState().setActiveChatId(result.sessionChat.id);
+        toast.success(t("storyBundles.playStarted", "Game started!"));
+      } catch (err) {
+        console.error("[playStoryBundle]", err);
+        toast.error(t("storyBundles.playFailed", "Failed to start game."));
+      } finally {
+        setPlayingId(null);
+      }
+    },
+    [playingId, connections, createGame, gameSetup, startGame, t],
   );
 
   const handleExport = useCallback(
@@ -155,6 +223,22 @@ export function StoryBundlesPanel() {
                   </div>
                   {/* Row action pill (visible on hover / always on mobile) */}
                   <div className="absolute right-2 top-1/2 flex shrink-0 -translate-y-1/2 items-center gap-0.5 rounded-lg bg-[var(--sidebar)] px-1 py-0.5 opacity-0 shadow-sm ring-1 ring-[var(--border)] transition-opacity group-hover:opacity-100 max-md:opacity-100">
+                    <button
+                      data-testid={`story-bundle-play-button-${bundle.id}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        void handlePlay(bundle.id, bundle.name);
+                      }}
+                      disabled={playingId === bundle.id}
+                      className="rounded-md p-1 transition-transform hover:bg-[var(--sidebar-accent)] active:scale-90"
+                      title={t("storyBundles.playTitle", "Start game from this story bundle")}
+                    >
+                      {playingId === bundle.id ? (
+                        <Loader2 size="0.75rem" className="animate-spin" />
+                      ) : (
+                        <Play size="0.75rem" />
+                      )}
+                    </button>
                     <button
                       data-testid={`story-bundle-export-button-${bundle.id}`}
                       onClick={(event) => {

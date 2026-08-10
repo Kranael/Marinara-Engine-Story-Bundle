@@ -4,13 +4,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, Save, Trash2, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, Play, Save, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
-import type { Lorebook } from "@marinara-engine/shared";
+import type { GameSetupConfig, Lorebook } from "@marinara-engine/shared";
+import { useCreateGame, useGameSetup, useStartGame } from "../../hooks/use-game";
+import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
+import { useChatStore } from "../../stores/chat.store";
 import { showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 import { EditorTabRail } from "../ui/EditorTabRail";
@@ -134,6 +137,13 @@ export function StoryBundleEditor() {
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("description");
   const [saving, setSaving] = useState(false);
+  const [playing, setPlaying] = useState(false);
+
+  // Game creation hooks for the Play button
+  const createGame = useCreateGame();
+  const gameSetup = useGameSetup();
+  const startGame = useStartGame();
+  const { data: connections } = useConnections();
 
   // Keep the local draft in sync with the loaded bundle.
   useEffect(() => {
@@ -182,6 +192,59 @@ export function StoryBundleEditor() {
       setSaving(false);
     }
   }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, t]);
+
+  /** Strip HTML tags from a string, returning plain text. */
+  const stripHtml = useCallback((html: string | null): string => {
+    if (!html) return "";
+    return html.replace(/<[^>]*>/g, "").trim();
+  }, []);
+
+  const handlePlay = useCallback(async () => {
+    if (!bundle || playing) return;
+    setPlaying(true);
+    try {
+      const conns = (connections ?? []) as Array<{ id: string }>;
+      const config: GameSetupConfig = {
+        genre: "Fantasy",
+        setting: stripHtml(bundle.description) || "A mysterious world",
+        tone: "Heroic",
+        difficulty: "Normal",
+        playerGoals: "Have an adventure",
+        gmMode: "standalone",
+        rating: "sfw",
+        partyCharacterIds: bundle.characterIds ?? [],
+        personaId: bundle.personaIds?.[0] ?? null,
+        enableAgents: true,
+      };
+
+      const result = await createGame.mutateAsync({
+        name: bundle.name,
+        setupConfig: config,
+        connectionId: conns[0]?.id,
+      });
+
+      await gameSetup.mutateAsync({
+        chatId: result.sessionChat.id,
+        connectionId: conns[0]?.id,
+        preferences: "",
+        keepSetupActive: false,
+      });
+
+      await startGame.mutateAsync({
+        chatId: result.sessionChat.id,
+      });
+
+      // Navigate to the game chat
+      useChatStore.getState().setActiveChatId(result.sessionChat.id);
+      closeStoryBundleDetail();
+      toast.success(t("storyBundles.playStarted", "Game started!"));
+    } catch (err) {
+      console.error("[playStoryBundle]", err);
+      toast.error(t("storyBundles.playFailed", "Failed to start game."));
+    } finally {
+      setPlaying(false);
+    }
+  }, [bundle, playing, connections, createGame, gameSetup, startGame, closeStoryBundleDetail, stripHtml, t]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;
@@ -236,6 +299,19 @@ export function StoryBundleEditor() {
           </h2>
         </div>
         <div className="flex items-center gap-1.5">
+          <button
+            data-testid="story-bundle-editor-play-button"
+            onClick={handlePlay}
+            disabled={playing}
+            className={cn(
+              "mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium",
+              playing && "cursor-not-allowed opacity-45",
+            )}
+            title={t("storyBundles.playTitle", "Start game from this story bundle")}
+          >
+            {playing ? <Loader2 size="0.75rem" className="animate-spin" /> : <Play size="0.75rem" />}
+            {t("storyBundles.play", "Play")}
+          </button>
           <button
             data-testid="story-bundle-editor-save-button"
             onClick={handleSave}

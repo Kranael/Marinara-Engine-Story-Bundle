@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { prepareFreshClient } from './helpers/fresh-client';
-import { StoryBundle, StoryBundleAPI } from './helpers/story-bundle-api';
-import { HomePage } from './pages/home-page';
+import { prepareFreshClient } from '../helpers/fresh-client';
+import { StoryBundle, StoryBundleAPI } from '../helpers/story-bundle-api';
+import { HomePage } from '../../pages/home-page';
 import { readFile } from 'fs/promises';
 
 test.describe('Story Bundles without Precondition Object:Story Bundle', () => {
@@ -62,7 +62,7 @@ test.describe('Story Bundles with Precondition Object:Story Bundle', () => {
     test('Create a new Story Bundle, edit its description, and delete it', async ({ page }) => {
 
         // Read Test Data HTML and save it to variable for filling the description input field
-        const testDataHtml = await readFile('./tests/data/test-data.html', 'utf-8');
+        const testDataHtml = await readFile('./tests/story-bundle/data/test-data.html', 'utf-8');
 
         const homePage = new HomePage(page);
         await homePage.clickOnStoryBundles();

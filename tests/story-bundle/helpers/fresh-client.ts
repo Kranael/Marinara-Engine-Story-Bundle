@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 
 const APP_VERSION = (
-  JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string }
+  JSON.parse(readFileSync(new URL('../../../package.json', import.meta.url), 'utf8')) as { version: string }
 ).version;
 
 // The persisted UI store version changes whenever a migration is added to
@@ -11,7 +11,7 @@ const APP_VERSION = (
 // silently drift with every update and eventually run migrations against a
 // minimal state they were never designed for.
 const UI_STORE_VERSION = Number(
-  readFileSync(new URL('../../packages/client/src/stores/ui.store.ts', import.meta.url), 'utf8').match(
+  readFileSync(new URL('../../../packages/client/src/stores/ui.store.ts', import.meta.url), 'utf8').match(
     /name:\s*"marinara-engine-ui",\s*version:\s*(\d+)/u,
   )?.[1],
 );

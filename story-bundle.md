@@ -58,6 +58,7 @@ Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 | `src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` registriert |
 | `src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)` — CRUD-Zugriff |
 | `src/routes/story-bundles.routes.ts` | REST-Endpunkte unter `/api/story-bundles` |
+| `src/services/export/export-image-helpers.ts` | Shared Image-Helper: `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` |
 | `src/routes/index.ts` | Routenregistrierung ergänzt |
 
 Die Tabelle `story_bundles` ist eine File-Native-JSON-Table wie alle anderen
@@ -129,8 +130,12 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 | `src/styles/globals.css` | Gradient `.mari-panel-gradient--story-bundles` (Pink → Violett) |
 | `packages/shared/src/types/export.ts` | `ExportType` um `"marinara_story_bundle"` erweitert |
 | `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — Import-Handler für Story-Bundle-Envelopes |
-| `tests/helpers/story-bundle-fixture.ts` | Test-Helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
-| `tests/data/story-bundles/*.json` | Fixture-Dateien in verschiedenen Zuständen (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
+| `tests/story-bundle/helpers/story-bundle-fixture.ts` | Test-Helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
+| `tests/story-bundle/helpers/story-bundle-api.ts` | Test-Helper: `StoryBundleAPI`-Klasse (create/delete/import/export) |
+| `tests/story-bundle/helpers/fresh-client.ts` | Test-Helper: `prepareFreshClient()` (Client-State vor Test) |
+| `tests/story-bundle/data/*.json` | Fixture-Dateien in verschiedenen Zuständen (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
+| `tests/story-bundle/data/test-data.html` | HTML-Testdaten für Description-Preview |
+| `tests/story-bundle/tests/story-bundle.test.ts` | Playwright-e2e-Tests |
 
 **Workflow im UI:**
 1. TopBar-Button „Story Bundles" öffnet das rechte Panel.
@@ -178,12 +183,20 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 10. **Export**: `GET /api/story-bundles/:id/export` liefert einen
     `ExportEnvelope` mit `type: "marinara_story_bundle"` als JSON-Download
     (`.marinara.json`). Der Envelope enthält `name`, `description`,
-    `characterIds`, `personaIds`, `lorebookIds`.
+    `characterIds`, `personaIds`, `lorebookIds` sowie `embeddedCharacters`,
+    `embeddedPersonas`, `embeddedLorebooks` mit vollständigen Entitätsdaten.
+    Characters und Personas werden mit Avataren, Sprites und Gallery als
+    base64-Daten-URLs embedded — das JSON ist komplett self-contained für
+    PC-zu-PC-Transfer.
 11. **Import**: `POST /api/import/marinara` mit einem Story-Bundle-Envelope
     erstellt ein neues Bundle. Der Import-Handler (`importStoryBundle`)
-    validiert den Namen (Pflichtfeld) und filtert ID-Arrays auf Strings.
+    validiert den Namen (Pflichtfeld), filtert ID-Arrays auf Strings und
+    importiert embedded Characters/Personas/Lorebooks. Import dedupliziert
+    per Name (case-insensitive): existierende Entitäten werden übersprungen,
+    nur neue werden angelegt. Binärdaten (Avatare, Sprites, Gallery) werden
+    aus den base64-Daten-URLs wiederhergestellt.
     Für Tests gibt es den Helper `importStoryBundleFixture(page, filePath)`
-    und `buildStoryBundleEnvelope(input)` in `tests/helpers/story-bundle-fixture.ts`.
+    und `buildStoryBundleEnvelope(input)` in `tests/story-bundle/helpers/story-bundle-fixture.ts`.
 
 ### Lokalisierung (`src/localization/locales/en.json`)
 
@@ -212,8 +225,10 @@ smoke-/Regressionstests:
 | testid | Element |
 |---|---|
 | `story-bundles-panel` | Panel-Wurzel |
+| `story-bundles-import-button` | Import-Button |
 | `story-bundles-create-button` | „New Bundle"-Button |
 | `story-bundle-row-${bundle.id}` | Listenzeile eines Bundles |
+| `story-bundle-export-button-${bundle.id}` | Export-Button in der Zeile |
 | `story-bundle-delete-button-${bundle.id}` | Löschen-Button in der Zeile |
 
 ### `StoryBundleEditor`
@@ -225,6 +240,7 @@ smoke-/Regressionstests:
 | `story-bundle-editor-back-button` | Zurück-Button |
 | `story-bundle-editor-save-button` | Speichern-Button |
 | `story-bundle-editor-delete-button` | Löschen-Button |
+| `story-bundle-editor-description` | Description-Tab-Container |
 | `story-bundle-editor-name-label` | Label des Namensfelds |
 | `story-bundle-editor-name-input` | Namenseingabefeld |
 | `story-bundle-editor-description-label` | Label des Description-Felds |
@@ -286,16 +302,16 @@ Aktueller Stand: `pnpm check` läuft vollständig grün durch
 
 ### 6.1 Playwright-e2e-Tests (Story Bundle)
 
-Die Spezifikation liegt in `tests/story-bundle.test.ts` und wird über das
+Die Spezifikation liegt in `tests/story-bundle/tests/story-bundle.test.ts` und wird über das
 dedizierte pnpm-Skript ausgeführt:
 
 ```bash
 pnpm regression:story-bundle   # alle Story-Bundle-Tests (Desktop + Mobile)
 ```
 
-Das Skript ruft `playwright test -c playwright.config.ts tests/story-bundle.test.ts`
+Das Skript ruft `playwright test -c playwright.config.ts tests/story-bundle/tests/story-bundle.test.ts`
 auf und startet die Webserver (Desktop 5178/7971, Mobile 5179/7972) automatisch
-über `config.webServer`. Aktueller Stand: **4 passed**.
+über `config.webServer`. Aktueller Stand: **12 passed**.
 
 Hinweise zur Ausführung:
 
@@ -314,18 +330,24 @@ Hinweise zur Ausführung:
 
 Für Tests, die ein Story Bundle in einem bestimmten Zustand benötigen, gibt es:
 
-- **`tests/helpers/story-bundle-fixture.ts`**: `importStoryBundleFixture(page, filePath)`
+- **`tests/story-bundle/helpers/story-bundle-fixture.ts`**: `importStoryBundleFixture(page, filePath)`
   importiert eine `.marinara.json`-Fixture-Datei via `POST /api/import/marinara`
   und gibt das erstellte `StoryBundle` zurück. `buildStoryBundleEnvelope(input)`
   baut einen Envelope inline für programmatische Tests.
-- **`tests/data/story-bundles/`**: Fixture-JSONs in verschiedenen Zuständen:
+- **`tests/story-bundle/helpers/story-bundle-api.ts`**: `StoryBundleAPI`-Klasse
+  mit `create()`, `delete()`, `importFromEnvelope()`, `export()` — nutzt
+  `page.request` für API-Calls mit Cookie/Auth-State.
+- **`tests/story-bundle/helpers/fresh-client.ts`**: `prepareFreshClient(page)`
+  seeded den Client-State (Onboarding abgeschlossen, UI-Store-Version) vor
+  jedem Test.
+- **`tests/story-bundle/data/`**: Fixture-JSONs in verschiedenen Zuständen:
   `empty.json`, `with-description.json`, `with-characters.json`,
   `with-personas.json`, `with-lorebooks.json`, `full.json`.
 
 ```ts
 // Beispiel: Bundle mit Description importieren
-import { importStoryBundleFixture } from './helpers/story-bundle-fixture';
-const bundle = await importStoryBundleFixture(page, './tests/data/story-bundles/with-description.json');
+import { importStoryBundleFixture } from './tests/story-bundle/helpers/story-bundle-fixture';
+const bundle = await importStoryBundleFixture(page, './tests/story-bundle/data/with-description.json');
 // bundle.description === "<h1>Chapter One</h1>..."
 ```
 
