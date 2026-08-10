@@ -4,16 +4,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, FileText, Loader2, Save, Trash2, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, FileText, Loader2, Save, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
-import { useCharacters, useCharacterGroups } from "../../hooks/use-characters";
+import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
 import { useUIStore } from "../../stores/ui.store";
 import { showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 import { EditorTabRail } from "../ui/EditorTabRail";
 import { StoryBundleDescription } from "./StoryBundleDescription";
 import { StoryBundleCharacters } from "./StoryBundleCharacters";
+import { StoryBundlePersonas } from "./StoryBundlePersonas";
 
 /** Allowed HTML tags for the description preview. */
 const ALLOWED_DESCRIPTION_TAGS = [
@@ -51,6 +52,7 @@ function parseCharacterFolderIds(value: unknown): string[] {
 const TABS = [
   { id: "description", label: "Description", icon: FileText },
   { id: "characters", label: "Characters", icon: Users },
+  { id: "personas", label: "Personas", icon: UserRound },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -66,6 +68,8 @@ export function StoryBundleEditor() {
 
   const { data: allCharacters } = useCharacters();
   const { data: allCharacterGroups } = useCharacterGroups();
+  const { data: allPersonas } = usePersonas();
+  const { data: allPersonaGroups } = usePersonaGroups();
 
   const characters = useMemo(
     () =>
@@ -87,9 +91,30 @@ export function StoryBundleEditor() {
     [characters],
   );
 
+  const personas = useMemo(
+    () =>
+      (allPersonas ?? []) as Array<{ id: string; name: string; avatarPath?: string | null; avatarCrop?: string; comment?: string | null; description?: string | null }>,
+    [allPersonas],
+  );
+
+  const personaFolders = useMemo(
+    () =>
+      ((allPersonaGroups ?? []) as Array<{ id: string; name: string; personaIds: unknown }>).map((group) => ({
+        ...group,
+        personaIds: parseCharacterFolderIds(group.personaIds),
+      })),
+    [allPersonaGroups],
+  );
+
+  const validPersonaIds = useMemo(
+    () => new Set((personas ?? []).map((p) => p.id)),
+    [personas],
+  );
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [characterIds, setCharacterIds] = useState<string[]>([]);
+  const [personaIds, setPersonaIds] = useState<string[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("description");
   const [saving, setSaving] = useState(false);
@@ -100,6 +125,7 @@ export function StoryBundleEditor() {
       setName(bundle.name);
       setDescription(bundle.description ?? "");
       setCharacterIds(bundle.characterIds ?? []);
+      setPersonaIds(bundle.personaIds ?? []);
     }
   }, [bundle]);
 
@@ -108,7 +134,10 @@ export function StoryBundleEditor() {
   const characterIdsDirty = bundle
     ? JSON.stringify([...(characterIds ?? [])].sort()) !== JSON.stringify([...(bundle.characterIds ?? [])].sort())
     : false;
-  const isDirty = nameDirty || descriptionDirty || characterIdsDirty;
+  const personaIdsDirty = bundle
+    ? JSON.stringify([...(personaIds ?? [])].sort()) !== JSON.stringify([...(bundle.personaIds ?? [])].sort())
+    : false;
+  const isDirty = nameDirty || descriptionDirty || characterIdsDirty || personaIdsDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeDescription(description) : ""),
@@ -119,10 +148,11 @@ export function StoryBundleEditor() {
     if (!storyBundleDetailId || !isDirty || saving) return;
     setSaving(true);
     try {
-      const payload: { name?: string; description?: string | null; characterIds?: string[] } = {};
+      const payload: { name?: string; description?: string | null; characterIds?: string[]; personaIds?: string[] } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
       if (characterIdsDirty) payload.characterIds = characterIds;
+      if (personaIdsDirty) payload.personaIds = personaIds;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
@@ -130,7 +160,7 @@ export function StoryBundleEditor() {
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, updateMutation, name, description, characterIds, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, updateMutation, name, description, characterIds, personaIds, t]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;
@@ -234,6 +264,16 @@ export function StoryBundleEditor() {
                 characters={characters}
                 characterFolders={characterFolders}
                 validCharacterIds={validCharacterIds}
+              />
+            )}
+
+            {activeTab === "personas" && (
+              <StoryBundlePersonas
+                personaIds={personaIds}
+                onPersonaIdsChange={setPersonaIds}
+                personas={personas}
+                personaFolders={personaFolders}
+                validPersonaIds={validPersonaIds}
               />
             )}
           </div>

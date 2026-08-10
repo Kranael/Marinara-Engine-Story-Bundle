@@ -14,12 +14,14 @@ export const createStoryBundleSchema = z.object({
   name: storyBundleNameSchema,
   description: z.string().nullable().optional(),
   characterIds: z.array(z.string()).optional(),
+  personaIds: z.array(z.string()).optional(),
 });
 
 export const updateStoryBundleSchema = z.object({
   name: storyBundleNameSchema.optional(),
   description: z.string().nullable().optional(),
   characterIds: z.array(z.string()).optional(),
+  personaIds: z.array(z.string()).optional(),
 });
 
 export type CreateStoryBundleInput = z.infer<typeof createStoryBundleSchema>;
