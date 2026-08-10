@@ -10,8 +10,14 @@ import {
 import type { ExportEnvelope, StoryBundle } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
 import { createCharactersStorage } from "../services/storage/characters.storage.js";
+import { createCharacterGalleryStorage } from "../services/storage/character-gallery.storage.js";
 import { createLorebooksStorage } from "../services/storage/lorebooks.storage.js";
 import { logger } from "../lib/logger.js";
+import {
+  readAvatarDataUrl,
+  readGalleryForCharacter,
+  readSpritesForId,
+} from "../services/export/export-image-helpers.js";
 
 /** Parse a JSON text column into a string array. */
 function parseJsonArray(value: unknown): string[] {
@@ -41,6 +47,7 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
 export async function storyBundlesRoutes(app: FastifyInstance) {
   const storage = createStoryBundlesStorage(app.db);
   const charactersStorage = createCharactersStorage(app.db);
+  const characterGalleryStorage = createCharacterGalleryStorage(app.db);
   const lorebooksStorage = createLorebooksStorage(app.db);
 
   // ── List all story bundles ──
@@ -101,16 +108,27 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
     const serialized = serializeBundle(bundle);
 
-    // Fetch full data for all referenced entities
+    // Fetch full data for all referenced entities, including binary assets
+    // (avatars, sprites, gallery) as base64 so the export is truly
+    // self-contained for PC-to-PC transfer.
     const embeddedCharacters: Record<string, unknown>[] = [];
     for (const charId of serialized.characterIds) {
       const char = await charactersStorage.getById(charId);
       if (char) {
-        const charData = JSON.parse((char as Record<string, unknown>).data as string);
+        const charRow = char as Record<string, unknown>;
+        const charData = JSON.parse(charRow.data as string);
+        const [avatar, sprites, gallery] = await Promise.all([
+          readAvatarDataUrl(charRow.avatarPath as string | null | undefined),
+          readSpritesForId(charId),
+          readGalleryForCharacter(charId, characterGalleryStorage),
+        ]);
         embeddedCharacters.push({
           id: charId,
-          name: (char as Record<string, unknown>).name,
+          name: charRow.name,
           data: charData,
+          ...(avatar ? { avatar } : {}),
+          ...(sprites.length > 0 ? { sprites } : {}),
+          ...(gallery.length > 0 ? { gallery } : {}),
         });
       }
     }
@@ -119,7 +137,16 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     for (const personaId of serialized.personaIds) {
       const persona = await charactersStorage.getPersona(personaId);
       if (persona) {
-        embeddedPersonas.push({ id: personaId, ...(persona as Record<string, unknown>) });
+        const personaRow = persona as Record<string, unknown>;
+        const [avatar, sprites] = await Promise.all([
+          readAvatarDataUrl(personaRow.avatarPath as string | null | undefined),
+          readSpritesForId(personaId),
+        ]);
+        embeddedPersonas.push({
+          ...personaRow,
+          ...(avatar ? { avatar } : {}),
+          ...(sprites.length > 0 ? { sprites } : {}),
+        });
       }
     }
 
