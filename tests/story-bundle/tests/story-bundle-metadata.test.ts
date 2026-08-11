@@ -194,9 +194,8 @@ test.describe("Story Bundle Metadata — Positive", () => {
     // Reset all versions
     await metadataTab.versionReset.click();
 
-    // Confirm the dialog
-    const confirmButton = page.getByRole("button", { name: /delete all/i });
-    await confirmButton.click();
+    // Confirm the dialog via the shared app-dialog confirm button
+    await page.getByTestId("app-dialog-confirm-button").click();
 
     // Version history should be empty again
     await expect(metadataTab.versionEmpty).toBeVisible({ timeout: 5_000 });

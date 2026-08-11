@@ -101,8 +101,8 @@ test.describe("Story Bundles Panel — Positive", () => {
 
     const editor = new StoryBundleEditorPage(page);
     await editor.waitFor();
-    await editor.switchToDescription();
-    await expect(page.getByTestId("story-bundle-editor-name-input")).toHaveValue(bundle.name);
+    await editor.switchToMetadata();
+    await expect(page.getByTestId("story-bundle-editor-metadata-name-input")).toHaveValue(bundle.name);
 
     await api.delete(bundle.id);
   });

@@ -139,3 +139,18 @@ test.describe("Story Bundle Intros — Positive", () => {
     await api.delete(bundle.id);
   });
 });
+
+test.describe("Story Bundle Intros — Negative", () => {
+  test("empty intros tab shows empty state", async ({ page }) => {
+    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
+    const introsTab = new StoryBundleIntrosTabPage(page);
+    const api = new StoryBundleAPI(page);
+
+    await editor.switchToIntros();
+    await introsTab.waitFor();
+
+    await expect(introsTab.emptyState).toBeVisible();
+
+    await api.delete(bundle.id);
+  });
+});

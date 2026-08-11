@@ -101,14 +101,16 @@ test.describe("Story Bundle Presets — Positive", () => {
 
     // Click Play — this creates a chat with promptPresetId set.
     // Since the preset has variables, the ChoiceSelectionModal opens directly
-    // (no full wizard).
+    // (no full wizard). The modal uses a generic role="dialog" since
+    // ChoiceSelectionModal does not expose dedicated data-testid attributes.
     await editor.playButton.click();
 
     // The "Configure Preset Variables" dialog should appear directly
     const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
     await expect(choiceDialog).toBeVisible({ timeout: 10_000 });
 
-    // Skip the dialog
+    // Skip the dialog — uses role-based locator because ChoiceSelectionModal
+    // is a shared component without story-bundle-specific data-testid attributes.
     await choiceDialog.getByRole("button", { name: "Skip", exact: true }).click();
     await expect(choiceDialog).toBeHidden({ timeout: 5_000 });
 

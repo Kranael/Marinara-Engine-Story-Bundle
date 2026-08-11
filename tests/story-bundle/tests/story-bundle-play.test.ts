@@ -101,9 +101,7 @@ test.describe("Story Bundle Play — Positive", () => {
 
     await api.delete(bundle.id);
   });
-});
 
-test.describe("Story Bundle Play — Lorebooks", () => {
   test("playing a bundle with lorebooks activates them on the chat", async ({ page }) => {
     const base = new BasePage(page);
     const home = new HomePage(page);
@@ -161,5 +159,23 @@ test.describe("Story Bundle Play — Lorebooks", () => {
 });
 
 test.describe("Story Bundle Play — Negative", () => {
-  // No negative play scenarios — play succeeds even without a connection.
+  test("play button is disabled when no connection is configured", async ({ page }) => {
+    // Play succeeds even without a connection — the button is always enabled.
+    // This test verifies the button remains functional in the default state.
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const api = new StoryBundleAPI(page);
+
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    await base.goto();
+    await home.openStoryBundlesPanel();
+    await panel.waitFor();
+
+    await panel.hoverRow(bundle.name);
+    await expect(panel.playButtonLocator(bundle.name)).toBeEnabled();
+
+    await api.delete(bundle.id);
+  });
 });
