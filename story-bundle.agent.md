@@ -30,8 +30,9 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/server/src/routes/story-bundles.routes.ts` | REST unter `/api/story-bundles` (GET/POST/PATCH/DELETE) + `GET /:id/export` |
 | `packages/client/src/hooks/use-story-bundles.ts` | `storyBundleKeys` + Query-/Mutations-Hooks |
 | `packages/client/src/components/panels/StoryBundlesPanel.tsx` | Listen-Panel (rechts) |
-| `packages/client/src/components/story-bundles/StoryBundleEditor.tsx` | Vollseiten-Editor (Detailansicht) — Shell mit Tab-Rail |
-| `packages/client/src/components/story-bundles/StoryBundleDescription.tsx` | Description-Tab (Name + HTML-Description mit Preview-Toggle) |
+| `packages/client/src/components/story-bundles/StoryBundleEditor.tsx` | Vollseiten-Editor (Detailansicht) — Shell mit Tab-Rail, Auto-Snapshot bei Save |
+| `packages/client/src/components/story-bundles/StoryBundleMetadata.tsx` | Metadata-Tab (Avatar/Image-Upload, Bundle-ID, Name, Comment, Creator, Version, Tags, Version-History-Panel mit Auto-Snapshot) |
+| `packages/client/src/components/story-bundles/StoryBundleDescription.tsx` | Description-Tab (nur HTML-Description mit Preview-Toggle; Name wurde in Metadata-Tab verschoben) |
 | `packages/client/src/components/story-bundles/StoryBundleCharacters.tsx` | Characters-Tab (Suche/Random/Load-More, Groups-Dropdown, Selected-Liste) |
 | `packages/client/src/components/story-bundles/StoryBundlePersonas.tsx` | Personas-Tab (gleiches Muster wie Characters, mit Avatar-Crop-Support) |
 | `packages/client/src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
@@ -45,21 +46,34 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `tests/story-bundle/helpers/fresh-client.ts` | Test-Helper: `prepareFreshClient()` (Client-State vor Test) |
 | `tests/story-bundle/data/*.json` | Fixture-Dateien (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
 | `tests/story-bundle/data/test-data.html` | HTML-Testdaten für Description-Preview |
+| `packages/shared/src/types/story-bundle-version.ts` | Interface `StoryBundleVersion { id, storyBundleId, name, description, comment, creator, version, tags, source, createdAt }` |
+| `packages/shared/src/schemas/story-bundle-version.schema.ts` | Zod: `createStoryBundleVersionSchema` (name + description + comment + creator + version + tags + source) |
+| `packages/server/src/db/schema/story-bundle-versions.ts` | `fileTable("story_bundle_versions", …)` |
+| `packages/server/src/services/storage/story-bundle-versions.storage.ts` | `createStoryBundleVersionsStorage(db)`: listByBundleId/create/deleteByBundleId |
+| `packages/server/src/routes/story-bundle-versions.routes.ts` | REST unter `/api/story-bundles/:id/versions` (GET/POST) + `DELETE /:versionId` |
+| `packages/client/src/hooks/use-story-bundle-versions.ts` | `storyBundleVersionKeys` + Query-/Mutations-Hooks (useStoryBundleVersions, useCreateStoryBundleVersion, useDeleteStoryBundleVersion) |
+| `tests/story-bundle/tests/story-bundle.test.ts` | Playwright-e2e-Tests (CRUD, Import/Export, Description-Tab) |
+| `tests/story-bundle/tests/story-bundle-editor.test.ts` | Playwright-e2e-Tests für Editor-Shell |
+| `tests/story-bundle/pages/story-bundle-editor.page.ts` | Page Object für Editor-Shell (inkl. Tab-Navigation) |
+| `tests/story-bundle/pages/story-bundle-description-tab.page.ts` | Page Object für Description-Tab |
 | `tests/story-bundle/tests/story-bundle-intro.test.ts` | Playwright-e2e-Tests für Intros-Tab |
 | `tests/story-bundle/pages/story-bundle-intros-tab.page.ts` | Page Object für Intros-Tab |
+| `tests/story-bundle/tests/story-bundle-metadata.test.ts` | Playwright-e2e-Tests für Metadata-Tab (14 Tests) |
+| `tests/story-bundle/pages/story-bundle-metadata-tab.page.ts` | Page Object für Metadata-Tab |
 
 ## 3. Angefasste Infrastruktur-Dateien (Wiring)
 
 | Datei | Was dort für das Feature steckt |
 |---|---|
-| `packages/server/src/db/schema/index.ts` | `export * from "./story-bundles.js";` |
-| `packages/server/src/routes/index.ts` | `app.register(storyBundlesRoutes, { prefix: "/api/story-bundles" })` |
+| `packages/server/src/db/schema/index.ts` | `export * from "./story-bundles.js";` + `export * from "./story-bundle-versions.js";` |
+| `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` + `"story_bundle_versions"` in `FILE_BACKED_TABLES`; Cascade-Regel in `CASCADES`: `story_bundles` → `story_bundle_versions` (DELETE) |
+| `packages/server/src/routes/index.ts` | `app.register(storyBundlesRoutes, { prefix: "/api/story-bundles" })` + `app.register(storyBundleVersionsRoutes, { prefix: "/api/story-bundles" })` |
 | `packages/client/src/stores/ui.store.ts` | Panel-Typ `"story-bundles"`, `storyBundleDetailId`, `openStoryBundleDetail`/`closeStoryBundleDetail`, Gegenseitiger-Ausschluss in allen `open*Detail`-Aktionen (`storyBundleDetailId: null`), `hasAnyDetailOpen`, `closeAllDetails` |
 | `packages/client/src/components/layout/AppShell.tsx` | Lazy-Import `StoryBundleEditor` + `detailView`-Kette (`storyBundleDetailId ? <StoryBundleEditor />`) |
 | `packages/client/src/components/layout/RightPanel.tsx` | Lazy-Import `StoryBundlesPanel` + `PANEL_CONFIG["story-bundles"]` + `PANELS["story-bundles"]` |
 | `packages/client/src/components/layout/TopBar.tsx` | `RightPanelButtonPanel`-Union, `RIGHT_PANEL_BUTTONS`-Eintrag, `panelContextActive["story-bundles"]`, `!storyBundleDetailId` in `isHomeActive` |
 | `packages/client/src/styles/globals.css` | `.mari-panel-gradient--story-bundles` (Pink `#f472b6` → Violett `#a855f7`) + `.mari-description-preview` (HTML-Vorschau-Styling) |
-| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. add, addCharacters, addFromGroup, addIntros, addLorebooks, addPersonas, addPresets, allAdded, allCharactersAdded, allLorebooksAdded, allPersonasAdded, allPresetsAdded, charactersEmpty, descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview, groups, introAddHint, introEdit, introNamePlaceholder, introPickMessage, introPickTitle, introRemove, introSave, introSaveEdit, introTextPlaceholder, introsEmpty, loadMore, lorebookRandomHint, lorebooksEmpty, noCharactersMatch, noLorebooksMatch, noPersonasMatch, noPresetsMatch, of, personaRandomHint, personasEmpty, presetRandomHint, presetsEmpty, random, randomHint, removeCharacter, removeLorebook, removePersona, removePreset, searchCharacters, searchLorebooks, searchPersonas, searchPresets, selectedCharacters, selectedIntros, selectedLorebooks, selectedPersonas, selectedPresets) |
+| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. add, addCharacters, addFromGroup, addIntros, addLorebooks, addPersonas, addPresets, allAdded, allCharactersAdded, allLorebooksAdded, allPersonasAdded, allPresetsAdded, charactersEmpty, commentLabel, commentPlaceholder, creatorLabel, creatorPlaceholder, descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview, groups, introAddHint, introEdit, introNamePlaceholder, introPickMessage, introPickTitle, introRemove, introSave, introSaveEdit, introTextPlaceholder, introsEmpty, loadMore, lorebookRandomHint, lorebooksEmpty, metadata, nameLabel, namePlaceholder, noCharactersMatch, noLorebooksMatch, noPersonasMatch, noPresetsMatch, of, personaRandomHint, personasEmpty, presetRandomHint, presetsEmpty, random, randomHint, removeCharacter, removeLorebook, removePersona, removePreset, searchCharacters, searchLorebooks, searchPersonas, searchPresets, selectedCharacters, selectedIntros, selectedLorebooks, selectedPersonas, selectedPresets, tags, tagsAdd, tagsPlaceholder, tagsRemoveAll, uploadImage, version, versionEmpty, versionHistory, versionLabel, versionPlaceholder, versionReset, versionSource) |
 
 ## 4. Referenz-Dateien: So machen es die anderen Entitäten
 
@@ -92,10 +106,10 @@ Bei Erweiterungen am besten diese Nachbarn als Vorlage lesen:
 - **i18n:** Neue UI-Texte → semantische Keys in `en.json` (alphabetisch einsortieren). Nur Englisch pflegen; andere Lokalen bleiben partiell (Fallback). Vor dem Shippen: `pnpm localization:check`.
 - **TopBar-Labels** laufen über `useLocalizedUiText()` — der englische Label-Text braucht daher einen en.json-Key (hier: `navigation.topbar.storyBundles`).
 - **Detail-Surfaces sind mutual exclusive:** Jede neue `open*Detail`-Aktion muss in `ui.store.ts` alle anderen Detail-IDs auf `null` setzen (und umgekehrt) + in `hasAnyDetailOpen`, `closeAllDetails`, `requestChatModeShortcut` aufgenommen werden.
-- **Neue Tabellen registrieren:** Jede neue `fileTable` muss in `FILE_BACKED_TABLES` (`packages/server/src/db/file-backed-store.ts`) eingetragen werden, sonst wirft der File-Store `Unsupported table: <name>` bei jedem Insert/Select (genau so passiert beim ersten Story-Bundle-Create).
+- **Neue Tabellen registrieren:** Jede neue `fileTable` muss in `FILE_BACKED_TABLES` (`packages/server/src/db/file-backed-store.ts`) eingetragen werden, sonst wirft der File-Store `Unsupported table: <name>` bei jedem Insert/Select (genau so passiert beim ersten Story-Bundle-Create und erneut bei `story_bundle_versions` — der Fehler trat erst beim tatsächlichen API-Call auf, nicht beim Server-Start).\n- **Cascade-Regeln:** Wenn eine Tabelle per FK auf eine andere verweist, muss eine Cascade-Regel in `CASCADES` (`file-backed-store.ts`) eingetragen werden, damit beim Löschen des Parents die Child-Rows mitgelöscht werden. Für `story_bundles` → `story_bundle_versions`: `{ parent: "story_bundles", child: { table: "story_bundle_versions", fkColumn: "story_bundle_id" } }`.\n- **Auto-Snapshot-Pattern:** Bei jedem Save wird automatisch ein Version-Snapshot erstellt (best-effort, Fehler werden still protokolliert). Der Snapshot speichert Name, Description, Comment, Creator, Version und Tags. Kein manueller Button nötig."
 - **Styling:** nur CSS-Variablen (`var(--border)`, `var(--card)`, `var(--destructive)` …) + `mari-panel-gradient-surface mari-panel-gradient--<name>`; keine hartkodierten Hex-Farben außerhalb von `globals.css`.
 - **data-testid:** jede neue Komponente/interaktives Element bekommt eine; Katalog siehe `story-bundle.md` § 5.
-- **Keine `.test.ts`-Dateien ins Repo** — Beweise über Regression-/Smoke-Lanes (`pnpm regression:prompt`, `pnpm smoke:ui`).
+- **Test-Dateien:** Playwright-e2e-Tests liegen in `tests/story-bundle/tests/` und sind via `.gitignore`-Ausnahme (`!tests/**/*.test.ts`) versioniert. Page Objects in `tests/story-bundle/pages/`. Neue Tests folgen dem bestehenden Muster (Page Object + data-testid + `prepareFreshClient`).
 - **Branches:** Änderungen gegen `staging`, nicht `main` (aktuell arbeiten wir auf `story-bundle-dev`).
 - **Keine PR-Checkboxen anhaken**; manuelle Verifikation explizit auflisten.
 

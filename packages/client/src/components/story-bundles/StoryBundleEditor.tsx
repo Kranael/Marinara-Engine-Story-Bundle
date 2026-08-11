@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { ArrowLeft, BookMarked, BookOpen, FileText, Info, Loader2, MessageSquare, Play, Save, SlidersHorizontal, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
-import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
+import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle, useCreateStoryBundleVersion } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
@@ -80,6 +80,7 @@ export function StoryBundleEditor() {
   const { data: bundle, isLoading } = useStoryBundle(storyBundleDetailId);
   const updateMutation = useUpdateStoryBundle();
   const deleteMutation = useDeleteStoryBundle();
+  const createVersion = useCreateStoryBundleVersion();
 
   const { data: allCharacters } = useCharacters();
   const { data: allCharacterGroups } = useCharacterGroups();
@@ -234,13 +235,19 @@ export function StoryBundleEditor() {
       if (presetIdsDirty) payload.presetIds = presetIds;
       if (introsDirty) payload.intros = intros;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
+      // Auto-create a version snapshot on every save
+      try {
+        await createVersion.mutateAsync({ id: storyBundleDetailId, source: "save" });
+      } catch {
+        // Version creation is best-effort; don't block save success
+      }
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
       toast.error(t("storyBundles.saveFailed", "Failed to save the story bundle."));
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, commentDirty, creatorDirty, versionDirty, tagsDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, introsDirty, updateMutation, name, description, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, intros, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, commentDirty, creatorDirty, versionDirty, tagsDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, introsDirty, updateMutation, createVersion, name, description, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, intros, t]);
 
   const handlePlay = useCallback(async () => {
     if (!bundle || playing) return;
@@ -448,14 +455,11 @@ export function StoryBundleEditor() {
 
             {activeTab === "description" && (
               <StoryBundleDescription
-                name={name}
-                onNameChange={setName}
                 description={description}
                 onDescriptionChange={setDescription}
                 previewDescription={previewDescription}
                 onPreviewToggle={() => setPreviewDescription((prev) => !prev)}
                 sanitizedDescription={sanitizedDescription}
-                onSave={handleSave}
               />
             )}
 

@@ -76,32 +76,17 @@ test.describe("Story Bundle Editor — Positive", () => {
     await api.delete(bundle.id);
   });
 
-  test("description tab shows name input and description textarea", async ({ page }) => {
+  test("description tab shows description textarea", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
     const descTab = new StoryBundleDescriptionTabPage(page);
     const api = new StoryBundleAPI(page);
 
     await editor.switchToDescription();
     await expect(descTab.section).toBeVisible();
-    await expect(descTab.nameLabel).toBeVisible();
-    await expect(descTab.nameInput).toBeVisible();
-    await expect(descTab.nameInput).toHaveValue(bundle.name);
     await expect(descTab.descriptionLabel).toBeVisible();
 
     await descTab.togglePreview();
     await expect(descTab.descriptionInput).toBeVisible();
-
-    await api.delete(bundle.id);
-  });
-
-  test("changing the name enables the save button", async ({ page }) => {
-    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const descTab = new StoryBundleDescriptionTabPage(page);
-    const api = new StoryBundleAPI(page);
-
-    await editor.switchToDescription();
-    await descTab.nameInput.fill("Renamed Bundle");
-    await expect(editor.saveButton).toBeEnabled();
 
     await api.delete(bundle.id);
   });

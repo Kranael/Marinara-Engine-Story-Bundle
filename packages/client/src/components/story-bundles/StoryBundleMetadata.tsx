@@ -5,7 +5,7 @@ import { useCallback, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Image, Tag, Upload, X } from "lucide-react";
-import { useUploadStoryBundleImage, useStoryBundleVersions, useCreateStoryBundleVersion, useDeleteStoryBundleVersion, useDeleteAllStoryBundleVersions } from "../../hooks/use-story-bundles";
+import { useUploadStoryBundleImage, useStoryBundleVersions, useDeleteStoryBundleVersion, useDeleteAllStoryBundleVersions } from "../../hooks/use-story-bundles";
 import { showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 
@@ -105,12 +105,13 @@ export function StoryBundleMetadata({
   return (
     <div data-testid="story-bundle-editor-metadata" className="flex flex-col gap-5">
       {/* Avatar / Image */}
-      <div className="space-y-1.5">
+      <div data-testid="story-bundle-editor-metadata-avatar" className="space-y-1.5">
         <span className="text-xs font-medium text-[var(--muted-foreground)]">
           {t("storyBundles.metadata.avatar", "Avatar")}
         </span>
         <div className="flex items-center gap-3">
           <div
+            data-testid="story-bundle-editor-metadata-avatar-preview"
             className={cn(
               "relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-sm",
               imagePath ? "bg-[var(--muted)]" : "bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/5",
@@ -125,6 +126,7 @@ export function StoryBundleMetadata({
           <div className="flex flex-col gap-1.5">
             <button
               type="button"
+              data-testid="story-bundle-editor-metadata-upload-button"
               onClick={handlePickImage}
               disabled={uploadImage.isPending}
               className="mari-chrome-control inline-flex items-center gap-1.5 px-3 py-1.5 text-xs"
@@ -151,7 +153,7 @@ export function StoryBundleMetadata({
       </div>
 
       {/* Bundle ID (read-only) */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--secondary)]/70 px-3 py-2">
+      <div data-testid="story-bundle-editor-metadata-bundle-id" className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--secondary)]/70 px-3 py-2">
         <span className="text-[0.625rem] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
           {t("storyBundles.metadata.bundleId", "Bundle ID")}
         </span>
@@ -166,6 +168,7 @@ export function StoryBundleMetadata({
           {t("storyBundles.metadata.name", "Name")}
         </span>
         <input
+          data-testid="story-bundle-editor-metadata-name-input"
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
           className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
@@ -178,6 +181,7 @@ export function StoryBundleMetadata({
           {t("storyBundles.metadata.comment", "Title / Comment")}
         </span>
         <input
+          data-testid="story-bundle-editor-metadata-comment-input"
           value={comment}
           onChange={(e) => onCommentChange(e.target.value)}
           className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
@@ -191,6 +195,7 @@ export function StoryBundleMetadata({
           {t("storyBundles.metadata.creator", "Creator")}
         </span>
         <input
+          data-testid="story-bundle-editor-metadata-creator-input"
           value={creator}
           onChange={(e) => onCreatorChange(e.target.value)}
           className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
@@ -204,6 +209,7 @@ export function StoryBundleMetadata({
           {t("storyBundles.metadata.version", "Version")}
         </span>
         <input
+          data-testid="story-bundle-editor-metadata-version-input"
           value={version}
           onChange={(e) => onVersionChange(e.target.value)}
           className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
@@ -213,7 +219,7 @@ export function StoryBundleMetadata({
       </div>
 
       {/* Tags */}
-      <div className="space-y-2">
+      <div data-testid="story-bundle-editor-metadata-tags" className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs font-medium text-[var(--muted-foreground)]">
             {t("storyBundles.metadata.tags", "Tags")}
@@ -221,6 +227,7 @@ export function StoryBundleMetadata({
           {tags.length > 0 && (
             <button
               type="button"
+              data-testid="story-bundle-editor-metadata-tags-remove-all"
               onClick={removeAllTags}
               className="mari-chrome-accent-surface mari-accent-animated rounded-lg border px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
             >
@@ -228,9 +235,9 @@ export function StoryBundleMetadata({
             </button>
           )}
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div data-testid="story-bundle-editor-metadata-tags-list" className="flex flex-wrap gap-1.5">
           {tags.map((tag) => (
-            <span key={tag} className="mari-chrome-control mari-chrome-control--compact group/tag">
+            <span key={tag} data-testid={`story-bundle-editor-metadata-tag-${tag}`} className="mari-chrome-control mari-chrome-control--compact group/tag">
               <Tag size="0.625rem" />
               {tag}
               <button
@@ -246,6 +253,7 @@ export function StoryBundleMetadata({
         </div>
         <div className="flex gap-1.5">
           <input
+            data-testid="story-bundle-editor-metadata-tag-input"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
             onKeyDown={(e) => {
@@ -259,6 +267,7 @@ export function StoryBundleMetadata({
           />
           <button
             type="button"
+            data-testid="story-bundle-editor-metadata-tag-add-button"
             onClick={addTag}
             className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected px-3 py-1.5"
           >
@@ -277,18 +286,8 @@ export function StoryBundleMetadata({
 function StoryBundleVersionHistoryPanel({ bundleId }: { bundleId: string }) {
   const { t } = useTranslation();
   const { data: versions, isLoading } = useStoryBundleVersions(bundleId);
-  const createVersion = useCreateStoryBundleVersion();
   const deleteVersion = useDeleteStoryBundleVersion();
   const deleteAllVersions = useDeleteAllStoryBundleVersions();
-
-  const handleCreateVersion = useCallback(async () => {
-    try {
-      await createVersion.mutateAsync({ id: bundleId, source: "manual" });
-      toast.success(t("storyBundles.metadata.versionCreated", "Version snapshot created."));
-    } catch {
-      toast.error(t("storyBundles.metadata.versionCreateFailed", "Failed to create version snapshot."));
-    }
-  }, [bundleId, createVersion, t]);
 
   const handleDeleteVersion = useCallback(
     async (versionId: string) => {
@@ -325,23 +324,16 @@ function StoryBundleVersionHistoryPanel({ bundleId }: { bundleId: string }) {
   }, [bundleId, deleteAllVersions, t]);
 
   return (
-    <div className="mt-2 space-y-2">
+    <div data-testid="story-bundle-editor-metadata-version-history" className="mt-2 space-y-2">
       <div className="flex items-center justify-between gap-2">
         <span className="text-[0.625rem] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
           {t("storyBundles.metadata.versionHistory", "Version History")}
         </span>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={handleCreateVersion}
-            disabled={createVersion.isPending}
-            className="mari-chrome-control mari-chrome-control--compact px-2 py-0.5 text-[0.625rem]"
-          >
-            {t("storyBundles.metadata.snapshot", "Snapshot")}
-          </button>
           {(versions?.length ?? 0) > 0 && (
             <button
               type="button"
+              data-testid="story-bundle-editor-metadata-version-reset"
               onClick={handleDeleteAll}
               className="mari-chrome-control mari-chrome-control--compact px-2 py-0.5 text-[0.625rem] text-[var(--destructive)]"
             >
@@ -352,22 +344,23 @@ function StoryBundleVersionHistoryPanel({ bundleId }: { bundleId: string }) {
       </div>
 
       {isLoading && (
-        <p className="text-[0.625rem] text-[var(--muted-foreground)]">
+        <p data-testid="story-bundle-editor-metadata-version-loading" className="text-[0.625rem] text-[var(--muted-foreground)]">
           {t("storyBundles.metadata.loading", "Loading…")}
         </p>
       )}
 
       {!isLoading && (versions?.length ?? 0) === 0 && (
-        <p className="text-[0.625rem] text-[var(--muted-foreground)]">
-          {t("storyBundles.metadata.noVersions", "No version history yet. Click Snapshot to save the current state.")}
+        <p data-testid="story-bundle-editor-metadata-version-empty" className="text-[0.625rem] text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.noVersions", "No version history yet. A snapshot is created automatically when you save.")}
         </p>
       )}
 
       {!isLoading && (versions?.length ?? 0) > 0 && (
-        <div className="max-h-48 space-y-1 overflow-y-auto">
+        <div data-testid="story-bundle-editor-metadata-version-list" className="max-h-48 space-y-1 overflow-y-auto">
           {(versions ?? []).map((v) => (
             <div
               key={v.id}
+              data-testid={`story-bundle-editor-metadata-version-${v.id}`}
               className="flex items-center justify-between gap-2 rounded-lg border border-[var(--border)] bg-[var(--secondary)]/50 px-2.5 py-1.5"
             >
               <div className="min-w-0 flex-1">
