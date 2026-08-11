@@ -259,6 +259,16 @@ export function StoryBundleEditor() {
         onSuccess: async (chat) => {
           useChatStore.getState().setActiveChatId(chat.id);
 
+          // Activate the bundle's lorebooks on the new chat.
+          const lorebookIds = bundle.lorebookIds ?? [];
+          if (lorebookIds.length > 0) {
+            try {
+              await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
+            } catch (err) {
+              console.error("[playStoryBundle] Failed to activate lorebooks:", err);
+            }
+          }
+
           // If an intro was selected, insert it as the first assistant message.
           if (selectedIntroText) {
             try {

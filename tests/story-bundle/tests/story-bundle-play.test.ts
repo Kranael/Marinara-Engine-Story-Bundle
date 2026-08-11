@@ -103,6 +103,63 @@ test.describe("Story Bundle Play — Positive", () => {
   });
 });
 
+test.describe("Story Bundle Play — Lorebooks", () => {
+  test("playing a bundle with lorebooks activates them on the chat", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
+    const api = new StoryBundleAPI(page);
+
+    // Create two lorebooks via API.
+    const lore1 = await page.request.post("/api/lorebooks", {
+      data: { name: `Lorebook Alpha ${test.info().title}` },
+    });
+    const lore2 = await page.request.post("/api/lorebooks", {
+      data: { name: `Lorebook Beta ${test.info().title}` },
+    });
+    const lore1Data = (await lore1.json()) as { id: string };
+    const lore2Data = (await lore2.json()) as { id: string };
+
+    // Create a bundle with both lorebook IDs.
+    const bundle = await api.create({
+      name: `Lorebook Play Test ${test.info().title}`,
+    });
+    await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+      data: { lorebookIds: [lore1Data.id, lore2Data.id] },
+    });
+
+    await base.goto();
+    await home.openStoryBundlesPanel();
+    await panel.waitFor();
+
+    await panel.clickRow(bundle.name);
+    await editor.waitFor();
+
+    await editor.playButton.click();
+    await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
+
+    // Find the chat that was just created (matches the bundle name).
+    const chatsResp = await page.request.get("/api/chats");
+    const chats = (await chatsResp.json()) as Array<{ id: string; name: string; metadata: Record<string, unknown> }>;
+    const chat = chats.find((c) => c.name === bundle.name);
+    expect(chat).toBeDefined();
+
+    // Verify both lorebooks are active on the chat.
+    const meta = (chat!.metadata ?? {}) as Record<string, unknown>;
+    const activeIds: string[] = Array.isArray(meta.activeLorebookIds)
+      ? (meta.activeLorebookIds as string[])
+      : [];
+    expect(activeIds).toContain(lore1Data.id);
+    expect(activeIds).toContain(lore2Data.id);
+
+    // Cleanup.
+    await api.delete(bundle.id);
+    await page.request.delete(`/api/lorebooks/${lore1Data.id}`);
+    await page.request.delete(`/api/lorebooks/${lore2Data.id}`);
+  });
+});
+
 test.describe("Story Bundle Play — Negative", () => {
   // No negative play scenarios — play succeeds even without a connection.
 });

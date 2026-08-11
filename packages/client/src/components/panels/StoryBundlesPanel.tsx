@@ -86,7 +86,7 @@ export function StoryBundlesPanel() {
       setPlayingId(id);
       try {
         // Fetch the full bundle to get character/persona/preset/intro IDs
-        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[]; presetIds: string[]; intros?: Array<{ id: string; name: string; text: string }> }>(`/story-bundles/${id}`);
+        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[]; lorebookIds: string[]; presetIds: string[]; intros?: Array<{ id: string; name: string; text: string }> }>(`/story-bundles/${id}`);
 
         // If the bundle has intros, let the user pick one first.
         let selectedIntroText: string | null = null;
@@ -122,6 +122,16 @@ export function StoryBundlesPanel() {
           {
             onSuccess: async (chat) => {
               useChatStore.getState().setActiveChatId(chat.id);
+
+              // Activate the bundle's lorebooks on the new chat.
+              const lorebookIds = bundle.lorebookIds ?? [];
+              if (lorebookIds.length > 0) {
+                try {
+                  await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
+                } catch (err) {
+                  console.error("[playStoryBundle] Failed to activate lorebooks:", err);
+                }
+              }
 
               // If an intro was selected, insert it as the first assistant message.
               if (selectedIntroText) {
