@@ -458,6 +458,7 @@ export function StoryBundleEditor() {
                 imagePath={imagePath}
                 avatarCrop={avatarCrop}
                 onAvatarCropChange={setAvatarCrop}
+                hasUnsavedChanges={isDirty}
               />
             )}
 

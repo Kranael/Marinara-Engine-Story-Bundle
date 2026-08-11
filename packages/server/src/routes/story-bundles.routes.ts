@@ -279,6 +279,14 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     return reply.send({ ok: true });
   });
 
+  // POST /:id/versions/reset — Reset versioning (delete all versions, set version to 0.0)
+  app.post("/:id/versions/reset", async (req, reply) => {
+    const { id } = storyBundleIdParamsSchema.parse(req.params);
+    const reset = await storage.resetVersions(id);
+    if (!reset) return reply.status(404).send({ error: "Story bundle not found" });
+    return reply.send(serializeBundle(reset));
+  });
+
   // ── Export a story bundle as .marinara.json ──
   // Embeds full character, persona, and lorebook data so the exported JSON is
   // self-contained. On import, missing entities are detected and offered for

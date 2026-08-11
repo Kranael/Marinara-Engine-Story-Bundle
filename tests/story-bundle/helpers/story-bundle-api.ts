@@ -70,4 +70,13 @@ export class StoryBundleAPI {
     }
     return (await response.json()) as Record<string, unknown>;
   }
+
+  /** Get version history for a story bundle via GET /api/story-bundles/:id/versions. */
+  async getVersions(id: string): Promise<Array<{ id: string; revision: number; version: string; source: string; isCurrent?: boolean }>> {
+    const response = await this.page.request.get(`/api/story-bundles/${id}/versions`);
+    if (!response.ok()) {
+      throw new Error(`Failed to get versions for ${id}: ${response.status()} ${await response.text()}`);
+    }
+    return (await response.json()) as Array<{ id: string; revision: number; version: string; source: string; isCurrent?: boolean }>;
+  }
 }

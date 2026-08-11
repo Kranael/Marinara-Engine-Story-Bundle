@@ -82,12 +82,13 @@ export function createStoryBundlesStorage(db: DB) {
     // ── Version history ──
 
     async listVersions(bundleId: string): Promise<StoryBundleVersion[]> {
+      const bundle = await this.getById(bundleId);
       const rows = await db
         .select()
         .from(storyBundleVersions)
         .where(eq(storyBundleVersions.bundleId, bundleId))
         .orderBy(desc(storyBundleVersions.revision));
-      return rows.map((row: Record<string, unknown>) => ({
+      const saved: StoryBundleVersion[] = rows.map((row: Record<string, unknown>) => ({
         id: row.id as string,
         bundleId: row.bundleId as string,
         name: row.name as string,
@@ -100,7 +101,26 @@ export function createStoryBundlesStorage(db: DB) {
         reason: (row.reason as string) ?? "",
         createdAt: row.createdAt as string,
         revision: (row.revision as number) ?? 1,
+        isCurrent: false,
       }));
+      if (!bundle) return saved;
+      const bundleRow = bundle as Record<string, unknown>;
+      const current: StoryBundleVersion = {
+        id: bundleId,
+        bundleId,
+        name: (bundleRow.name as string) ?? "",
+        description: (bundleRow.description as string) ?? null,
+        comment: (bundleRow.comment as string) ?? "",
+        creator: (bundleRow.creator as string) ?? "",
+        version: (bundleRow.version as string) ?? "",
+        tags: parseTags(bundleRow.tags),
+        source: "current",
+        reason: "",
+        createdAt: (bundleRow.updatedAt as string) ?? (bundleRow.createdAt as string) ?? "",
+        revision: saved.length > 0 ? Math.max(...saved.map((v) => v.revision)) + 1 : 1,
+        isCurrent: true,
+      };
+      return [current, ...saved];
     },
 
     async createVersion(
@@ -217,6 +237,14 @@ export function createStoryBundlesStorage(db: DB) {
 
     async deleteAllVersions(bundleId: string): Promise<void> {
       await db.delete(storyBundleVersions).where(eq(storyBundleVersions.bundleId, bundleId));
+    },
+
+    async resetVersions(bundleId: string) {
+      const bundle = await this.getById(bundleId);
+      if (!bundle) return null;
+      await db.delete(storyBundleVersions).where(eq(storyBundleVersions.bundleId, bundleId));
+      await this.update(bundleId, { version: "0.0" });
+      return this.getById(bundleId);
     },
   };
 }

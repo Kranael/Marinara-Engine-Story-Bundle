@@ -132,3 +132,15 @@ export function useRenameStoryBundleVersion() {
     },
   });
 }
+
+export function useResetStoryBundleVersions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (bundleId: string) => api.post(`/story-bundles/${bundleId}/versions/reset`, {}),
+    onSuccess: (_data, bundleId) => {
+      qc.invalidateQueries({ queryKey: storyBundleKeys.all });
+      qc.invalidateQueries({ queryKey: storyBundleKeys.detail(bundleId) });
+      qc.invalidateQueries({ queryKey: storyBundleKeys.versions(bundleId) });
+    },
+  });
+}

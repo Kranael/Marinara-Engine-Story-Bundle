@@ -94,4 +94,19 @@ export class StoryBundleMetadataTabPage {
   versionEntry(versionId: string): Locator {
     return this.page.getByTestId(`story-bundle-editor-metadata-version-${versionId}`);
   }
+
+  /** Get the rename button for a version entry. */
+  versionRename(versionId: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-metadata-version-rename-${versionId}`);
+  }
+
+  /** Get the restore button for a version entry. */
+  versionRestore(versionId: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-metadata-version-restore-${versionId}`);
+  }
+
+  /** Get the delete button for a version entry. */
+  versionDelete(versionId: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-metadata-version-delete-${versionId}`);
+  }
 }
