@@ -12,6 +12,7 @@ import { createStoryBundlesStorage } from "../services/storage/story-bundles.sto
 import { createCharactersStorage } from "../services/storage/characters.storage.js";
 import { createCharacterGalleryStorage } from "../services/storage/character-gallery.storage.js";
 import { createLorebooksStorage } from "../services/storage/lorebooks.storage.js";
+import { createPromptsStorage } from "../services/storage/prompts.storage.js";
 import { logger } from "../lib/logger.js";
 import {
   readAvatarDataUrl,
@@ -39,6 +40,7 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
     characterIds: parseJsonArray(row.characterIds),
     personaIds: parseJsonArray(row.personaIds),
     lorebookIds: parseJsonArray(row.lorebookIds),
+    presetIds: parseJsonArray(row.presetIds),
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
   };
@@ -49,6 +51,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
   const charactersStorage = createCharactersStorage(app.db);
   const characterGalleryStorage = createCharacterGalleryStorage(app.db);
   const lorebooksStorage = createLorebooksStorage(app.db);
+  const promptsStorage = createPromptsStorage(app.db);
 
   // ── List all story bundles ──
   app.get("/", async (_req, reply) => {
@@ -165,6 +168,23 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       }
     }
 
+    const embeddedPresets: Record<string, unknown>[] = [];
+    for (const presetId of serialized.presetIds) {
+      const preset = await promptsStorage.getById(presetId);
+      if (preset) {
+        const sections = await promptsStorage.listSections(presetId);
+        const groups = await promptsStorage.listGroups(presetId);
+        const choiceBlocks = await promptsStorage.listChoiceBlocksForPreset(presetId);
+        embeddedPresets.push({
+          id: presetId,
+          preset,
+          sections,
+          groups,
+          choiceBlocks,
+        });
+      }
+    }
+
     const envelope: ExportEnvelope = {
       type: "marinara_story_bundle",
       version: 1,
@@ -175,9 +195,11 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
         characterIds: serialized.characterIds,
         personaIds: serialized.personaIds,
         lorebookIds: serialized.lorebookIds,
+        presetIds: serialized.presetIds,
         embeddedCharacters,
         embeddedPersonas,
         embeddedLorebooks,
+        embeddedPresets,
       },
     };
     return reply

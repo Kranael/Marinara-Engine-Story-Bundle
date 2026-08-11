@@ -16,6 +16,7 @@ export const createStoryBundleSchema = z.object({
   characterIds: z.array(z.string()).optional(),
   personaIds: z.array(z.string()).optional(),
   lorebookIds: z.array(z.string()).optional(),
+  presetIds: z.array(z.string()).optional(),
 });
 
 export const updateStoryBundleSchema = z.object({
@@ -24,6 +25,7 @@ export const updateStoryBundleSchema = z.object({
   characterIds: z.array(z.string()).optional(),
   lorebookIds: z.array(z.string()).optional(),
   personaIds: z.array(z.string()).optional(),
+  presetIds: z.array(z.string()).optional(),
 });
 
 export type CreateStoryBundleInput = z.infer<typeof createStoryBundleSchema>;

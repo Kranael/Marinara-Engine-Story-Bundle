@@ -12,6 +12,7 @@
  *   story-bundle-editor-tab-characters
  *   story-bundle-editor-tab-personas
  *   story-bundle-editor-tab-lorebooks
+ *   story-bundle-editor-tab-presets
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -27,6 +28,7 @@ export class StoryBundleEditorPage {
   readonly charactersTab: Locator;
   readonly personasTab: Locator;
   readonly lorebooksTab: Locator;
+  readonly presetsTab: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -40,6 +42,7 @@ export class StoryBundleEditorPage {
     this.charactersTab = page.getByTestId("story-bundle-editor-tab-characters");
     this.personasTab = page.getByTestId("story-bundle-editor-tab-personas");
     this.lorebooksTab = page.getByTestId("story-bundle-editor-tab-lorebooks");
+    this.presetsTab = page.getByTestId("story-bundle-editor-tab-presets");
   }
 
   // ── Actions ───────────────────────────────────────────────
@@ -67,5 +70,10 @@ export class StoryBundleEditorPage {
   /** Switch to the Lorebooks tab. */
   async switchToLorebooks(): Promise<void> {
     await this.lorebooksTab.click();
+  }
+
+  /** Switch to the Presets tab. */
+  async switchToPresets(): Promise<void> {
+    await this.presetsTab.click();
   }
 }

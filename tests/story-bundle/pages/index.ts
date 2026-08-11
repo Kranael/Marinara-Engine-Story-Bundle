@@ -10,3 +10,4 @@ export { StoryBundleDescriptionTabPage } from "./story-bundle-description-tab.pa
 export { StoryBundleCharactersTabPage } from "./story-bundle-characters-tab.page.js";
 export { StoryBundlePersonasTabPage } from "./story-bundle-personas-tab.page.js";
 export { StoryBundleLorebooksTabPage } from "./story-bundle-lorebooks-tab.page.js";
+export { StoryBundlePresetsTabPage } from "./story-bundle-presets-tab.page.js";

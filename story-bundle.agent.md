@@ -21,8 +21,8 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 
 | Datei | Rolle |
 |---|---|
-| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, description, characterIds, personaIds, lorebookIds, createdAt, updatedAt }` |
-| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `createStoryBundleSchema` (name trim min1 max200, description + characterIds + personaIds + lorebookIds optional), `updateStoryBundleSchema` (name + description + characterIds + personaIds + lorebookIds optional) |
+| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, description, characterIds, personaIds, lorebookIds, presetIds, createdAt, updatedAt }` |
+| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `createStoryBundleSchema` (name trim min1 max200, description + characterIds + personaIds + lorebookIds + presetIds optional), `updateStoryBundleSchema` (name + description + characterIds + personaIds + lorebookIds + presetIds optional) |
 | `packages/shared/src/index.ts` | Barrel — beide Exportzeilen müssen drin bleiben |
 | `packages/server/src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` |
 | `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` (Registrierung, sonst `Unsupported table`) |
@@ -35,6 +35,7 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/client/src/components/story-bundles/StoryBundleCharacters.tsx` | Characters-Tab (Suche/Random/Load-More, Groups-Dropdown, Selected-Liste) |
 | `packages/client/src/components/story-bundles/StoryBundlePersonas.tsx` | Personas-Tab (gleiches Muster wie Characters, mit Avatar-Crop-Support) |
 | `packages/client/src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
+| `packages/client/src/components/story-bundles/StoryBundlePresets.tsx` | Presets-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
 | `packages/shared/src/types/export.ts` | `ExportType` um `"marinara_story_bundle"` erweitert |
 | `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — Import-Handler + `case` im Switch |
 | `packages/server/src/services/export/export-image-helpers.ts` | Shared Image-Helper: `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` |
@@ -56,7 +57,7 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/client/src/components/layout/RightPanel.tsx` | Lazy-Import `StoryBundlesPanel` + `PANEL_CONFIG["story-bundles"]` + `PANELS["story-bundles"]` |
 | `packages/client/src/components/layout/TopBar.tsx` | `RightPanelButtonPanel`-Union, `RIGHT_PANEL_BUTTONS`-Eintrag, `panelContextActive["story-bundles"]`, `!storyBundleDetailId` in `isHomeActive` |
 | `packages/client/src/styles/globals.css` | `.mari-panel-gradient--story-bundles` (Pink `#f472b6` → Violett `#a855f7`) + `.mari-description-preview` (HTML-Vorschau-Styling) |
-| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. add, addCharacters, addFromGroup, addLorebooks, addPersonas, allAdded, allCharactersAdded, allLorebooksAdded, allPersonasAdded, charactersEmpty, descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview, groups, loadMore, lorebookRandomHint, lorebooksEmpty, noCharactersMatch, noLorebooksMatch, noPersonasMatch, of, personaRandomHint, personasEmpty, random, randomHint, removeCharacter, removeLorebook, removePersona, searchCharacters, searchLorebooks, searchPersonas, selectedCharacters, selectedLorebooks, selectedPersonas) |
+| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. add, addCharacters, addFromGroup, addLorebooks, addPersonas, addPresets, allAdded, allCharactersAdded, allLorebooksAdded, allPersonasAdded, allPresetsAdded, charactersEmpty, descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview, groups, loadMore, lorebookRandomHint, lorebooksEmpty, noCharactersMatch, noLorebooksMatch, noPersonasMatch, noPresetsMatch, of, personaRandomHint, personasEmpty, presetRandomHint, presetsEmpty, random, randomHint, removeCharacter, removeLorebook, removePersona, removePreset, searchCharacters, searchLorebooks, searchPersonas, searchPresets, selectedCharacters, selectedLorebooks, selectedPersonas, selectedPresets) |
 
 ## 4. Referenz-Dateien: So machen es die anderen Entitäten
 

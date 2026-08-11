@@ -781,15 +781,18 @@ async function importStoryBundle(data: unknown, db: DB) {
   const storage = createStoryBundlesStorage(db);
   const charactersStorage = createCharactersStorage(db);
   const lorebooksStorage = createLorebooksStorage(db);
+  const promptsStorage = createPromptsStorage(db);
   const d = data as {
     name?: unknown;
     description?: unknown;
     characterIds?: unknown;
     personaIds?: unknown;
     lorebookIds?: unknown;
+    presetIds?: unknown;
     embeddedCharacters?: unknown;
     embeddedPersonas?: unknown;
     embeddedLorebooks?: unknown;
+    embeddedPresets?: unknown;
     importEmbedded?: unknown;
   };
   if (!d || typeof d !== "object") {
@@ -832,11 +835,20 @@ async function importStoryBundle(data: unknown, db: DB) {
       : "";
     if (lbName) existingLorebookNameMap.set(lbName, (lb as Record<string, unknown>).id as string);
   }
+  const existingPresets = await promptsStorage.list();
+  const existingPresetNameMap = new Map<string, string>();
+  for (const preset of existingPresets) {
+    const pName = typeof (preset as Record<string, unknown>).name === "string"
+      ? ((preset as Record<string, unknown>).name as string).trim().toLowerCase()
+      : "";
+    if (pName) existingPresetNameMap.set(pName, (preset as Record<string, unknown>).id as string);
+  }
 
   // ID remapping: old exported IDs → new imported IDs
   const characterIdMap = new Map<string, string>();
   const personaIdMap = new Map<string, string>();
   const lorebookIdMap = new Map<string, string>();
+  const presetIdMap = new Map<string, string>();
 
   let embeddedImported = 0;
   let embeddedSkipped = 0;
@@ -948,6 +960,37 @@ async function importStoryBundle(data: unknown, db: DB) {
     }
   }
 
+  // Import embedded presets (skip if one with the same name already exists)
+  if (shouldImportEmbedded && Array.isArray(d.embeddedPresets)) {
+    for (const embedded of d.embeddedPresets) {
+      if (!embedded || typeof embedded !== "object") continue;
+      const ep = embedded as Record<string, unknown>;
+      const oldId = typeof ep.id === "string" ? ep.id : "";
+
+      // Dedup: check if a preset with the same name already exists
+      const presetName = typeof (ep.preset as Record<string, unknown> | null)?.name === "string"
+        ? ((ep.preset as Record<string, unknown>).name as string).trim().toLowerCase()
+        : "";
+      if (presetName && existingPresetNameMap.has(presetName)) {
+        const existingId = existingPresetNameMap.get(presetName)!;
+        presetIdMap.set(oldId, existingId);
+        embeddedSkipped++;
+        continue;
+      }
+
+      try {
+        const result = await importPreset(ep, db);
+        if (result.success && result.id) {
+          presetIdMap.set(oldId, result.id);
+          embeddedImported++;
+          if (presetName) existingPresetNameMap.set(presetName, result.id);
+        }
+      } catch {
+        // Skip failed imports
+      }
+    }
+  }
+
   // Remap IDs: use new IDs for entities that were imported, keep old IDs for
   // entities that already exist in this database.
   const remapIds = (ids: string[], map: Map<string, string>): string[] =>
@@ -956,6 +999,7 @@ async function importStoryBundle(data: unknown, db: DB) {
   const finalCharacterIds = remapIds(stringArray(d.characterIds), characterIdMap);
   const finalPersonaIds = remapIds(stringArray(d.personaIds), personaIdMap);
   const finalLorebookIds = remapIds(stringArray(d.lorebookIds), lorebookIdMap);
+  const finalPresetIds = remapIds(stringArray(d.presetIds), presetIdMap);
 
   const result = await storage.create({
     name,
@@ -963,6 +1007,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     characterIds: finalCharacterIds,
     personaIds: finalPersonaIds,
     lorebookIds: finalLorebookIds,
+    presetIds: finalPresetIds,
   });
   if (!result) {
     return { success: false, type: "marinara_story_bundle" as const, error: "Failed to create story bundle" };

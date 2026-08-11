@@ -19,6 +19,8 @@ export interface StoryBundle {
   personaIds: string[];
   /** IDs of lorebooks assigned to this story bundle. */
   lorebookIds: string[];
+  /** IDs of presets assigned to this story bundle. */
+  presetIds: string[];
   createdAt: string;
   updatedAt: string;
 }

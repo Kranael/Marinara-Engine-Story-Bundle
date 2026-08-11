@@ -4,12 +4,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, Play, Save, Trash2, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, Play, Save, SlidersHorizontal, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
-import type { Lorebook } from "@marinara-engine/shared";
+import { usePresets } from "../../hooks/use-presets";
+import type { Lorebook, PromptPreset } from "@marinara-engine/shared";
 import { useCreateChat } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
@@ -21,6 +22,7 @@ import { StoryBundleDescription } from "./StoryBundleDescription";
 import { StoryBundleCharacters } from "./StoryBundleCharacters";
 import { StoryBundlePersonas } from "./StoryBundlePersonas";
 import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
+import { StoryBundlePresets } from "./StoryBundlePresets";
 
 /** Allowed HTML tags for the description preview. */
 const ALLOWED_DESCRIPTION_TAGS = [
@@ -60,6 +62,7 @@ const TABS = [
   { id: "characters", label: "Characters", icon: Users },
   { id: "personas", label: "Personas", icon: UserRound },
   { id: "lorebooks", label: "Lorebooks", icon: BookOpen },
+  { id: "presets", label: "Presets", icon: SlidersHorizontal },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -78,6 +81,7 @@ export function StoryBundleEditor() {
   const { data: allPersonas } = usePersonas();
   const { data: allPersonaGroups } = usePersonaGroups();
   const { data: allLorebooks } = useLorebooks();
+  const { data: allPresets } = usePresets();
 
   const characters = useMemo(
     () =>
@@ -129,11 +133,22 @@ export function StoryBundleEditor() {
     [lorebooks],
   );
 
+  const presets = useMemo(
+    () => (allPresets ?? []) as PromptPreset[],
+    [allPresets],
+  );
+
+  const validPresetIds = useMemo(
+    () => new Set((presets ?? []).map((p) => p.id)),
+    [presets],
+  );
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [characterIds, setCharacterIds] = useState<string[]>([]);
   const [personaIds, setPersonaIds] = useState<string[]>([]);
   const [lorebookIds, setLorebookIds] = useState<string[]>([]);
+  const [presetIds, setPresetIds] = useState<string[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("description");
   const [saving, setSaving] = useState(false);
@@ -151,6 +166,7 @@ export function StoryBundleEditor() {
       setCharacterIds(bundle.characterIds ?? []);
       setPersonaIds(bundle.personaIds ?? []);
       setLorebookIds(bundle.lorebookIds ?? []);
+      setPresetIds(bundle.presetIds ?? []);
     }
   }, [bundle]);
 
@@ -165,7 +181,10 @@ export function StoryBundleEditor() {
   const lorebookIdsDirty = bundle
     ? JSON.stringify([...(lorebookIds ?? [])].sort()) !== JSON.stringify([...(bundle.lorebookIds ?? [])].sort())
     : false;
-  const isDirty = nameDirty || descriptionDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty;
+  const presetIdsDirty = bundle
+    ? JSON.stringify([...(presetIds ?? [])].sort()) !== JSON.stringify([...(bundle.presetIds ?? [])].sort())
+    : false;
+  const isDirty = nameDirty || descriptionDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeDescription(description) : ""),
@@ -176,12 +195,13 @@ export function StoryBundleEditor() {
     if (!storyBundleDetailId || !isDirty || saving) return;
     setSaving(true);
     try {
-      const payload: { name?: string; description?: string | null; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[] } = {};
+      const payload: { name?: string; description?: string | null; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[] } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
       if (characterIdsDirty) payload.characterIds = characterIds;
       if (personaIdsDirty) payload.personaIds = personaIds;
       if (lorebookIdsDirty) payload.lorebookIds = lorebookIds;
+      if (presetIdsDirty) payload.presetIds = presetIds;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
@@ -189,7 +209,7 @@ export function StoryBundleEditor() {
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, presetIds, t]);
 
   const handlePlay = useCallback(() => {
     if (!bundle || playing) return;
@@ -354,6 +374,15 @@ export function StoryBundleEditor() {
                 onLorebookIdsChange={setLorebookIds}
                 lorebooks={lorebooks}
                 validLorebookIds={validLorebookIds}
+              />
+            )}
+
+            {activeTab === "presets" && (
+              <StoryBundlePresets
+                presetIds={presetIds}
+                onPresetIdsChange={setPresetIds}
+                presets={presets}
+                validPresetIds={validPresetIds}
               />
             )}
           </div>
