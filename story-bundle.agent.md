@@ -21,8 +21,8 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 
 | Datei | Rolle |
 |---|---|
-| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, description, characterIds, personaIds, lorebookIds, presetIds, createdAt, updatedAt }` |
-| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `createStoryBundleSchema` (name trim min1 max200, description + characterIds + personaIds + lorebookIds + presetIds optional), `updateStoryBundleSchema` (name + description + characterIds + personaIds + lorebookIds + presetIds optional) |
+| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, description, characterIds, personaIds, lorebookIds, presetIds, intros, createdAt, updatedAt }` + `StoryBundleIntro { id, name, text }` |
+| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `storyBundleIntroSchema`, `createStoryBundleSchema` (name trim min1 max200, description + characterIds + personaIds + lorebookIds + presetIds + intros optional), `updateStoryBundleSchema` (name + description + characterIds + personaIds + lorebookIds + presetIds + intros optional) |
 | `packages/shared/src/index.ts` | Barrel — beide Exportzeilen müssen drin bleiben |
 | `packages/server/src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` |
 | `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` (Registrierung, sonst `Unsupported table`) |
@@ -36,6 +36,7 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/client/src/components/story-bundles/StoryBundlePersonas.tsx` | Personas-Tab (gleiches Muster wie Characters, mit Avatar-Crop-Support) |
 | `packages/client/src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
 | `packages/client/src/components/story-bundles/StoryBundlePresets.tsx` | Presets-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
+| `packages/client/src/components/story-bundles/StoryBundleIntros.tsx` | Intros-Tab (Inline-Intros: Name + Text, Add/Edit/Delete) |
 | `packages/shared/src/types/export.ts` | `ExportType` um `"marinara_story_bundle"` erweitert |
 | `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — Import-Handler + `case` im Switch |
 | `packages/server/src/services/export/export-image-helpers.ts` | Shared Image-Helper: `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` |
@@ -44,7 +45,8 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `tests/story-bundle/helpers/fresh-client.ts` | Test-Helper: `prepareFreshClient()` (Client-State vor Test) |
 | `tests/story-bundle/data/*.json` | Fixture-Dateien (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
 | `tests/story-bundle/data/test-data.html` | HTML-Testdaten für Description-Preview |
-| `tests/story-bundle/tests/story-bundle.test.ts` | Playwright-e2e-Tests |
+| `tests/story-bundle/tests/story-bundle-intro.test.ts` | Playwright-e2e-Tests für Intros-Tab |
+| `tests/story-bundle/pages/story-bundle-intros-tab.page.ts` | Page Object für Intros-Tab |
 
 ## 3. Angefasste Infrastruktur-Dateien (Wiring)
 
@@ -57,7 +59,7 @@ Neues Feld/Feature = immer alle drei Schichten + Barrel-Exports + en.json anfass
 | `packages/client/src/components/layout/RightPanel.tsx` | Lazy-Import `StoryBundlesPanel` + `PANEL_CONFIG["story-bundles"]` + `PANELS["story-bundles"]` |
 | `packages/client/src/components/layout/TopBar.tsx` | `RightPanelButtonPanel`-Union, `RIGHT_PANEL_BUTTONS`-Eintrag, `panelContextActive["story-bundles"]`, `!storyBundleDetailId` in `isHomeActive` |
 | `packages/client/src/styles/globals.css` | `.mari-panel-gradient--story-bundles` (Pink `#f472b6` → Violett `#a855f7`) + `.mari-description-preview` (HTML-Vorschau-Styling) |
-| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. add, addCharacters, addFromGroup, addLorebooks, addPersonas, addPresets, allAdded, allCharactersAdded, allLorebooksAdded, allPersonasAdded, allPresetsAdded, charactersEmpty, descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview, groups, loadMore, lorebookRandomHint, lorebooksEmpty, noCharactersMatch, noLorebooksMatch, noPersonasMatch, noPresetsMatch, of, personaRandomHint, personasEmpty, presetRandomHint, presetsEmpty, random, randomHint, removeCharacter, removeLorebook, removePersona, removePreset, searchCharacters, searchLorebooks, searchPersonas, searchPresets, selectedCharacters, selectedLorebooks, selectedPersonas, selectedPresets) |
+| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + Block `storyBundles.*` (inkl. add, addCharacters, addFromGroup, addIntros, addLorebooks, addPersonas, addPresets, allAdded, allCharactersAdded, allLorebooksAdded, allPersonasAdded, allPresetsAdded, charactersEmpty, descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview, groups, introAddHint, introEdit, introNamePlaceholder, introPickMessage, introPickTitle, introRemove, introSave, introSaveEdit, introTextPlaceholder, introsEmpty, loadMore, lorebookRandomHint, lorebooksEmpty, noCharactersMatch, noLorebooksMatch, noPersonasMatch, noPresetsMatch, of, personaRandomHint, personasEmpty, presetRandomHint, presetsEmpty, random, randomHint, removeCharacter, removeLorebook, removePersona, removePreset, searchCharacters, searchLorebooks, searchPersonas, searchPresets, selectedCharacters, selectedIntros, selectedLorebooks, selectedPersonas, selectedPresets) |
 
 ## 4. Referenz-Dateien: So machen es die anderen Entitäten
 

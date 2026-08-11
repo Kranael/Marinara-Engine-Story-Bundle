@@ -4,18 +4,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, Play, Save, SlidersHorizontal, Trash2, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, MessageSquare, Play, Save, SlidersHorizontal, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
-import type { Lorebook, PromptPreset } from "@marinara-engine/shared";
+import type { Lorebook, PromptPreset, StoryBundleIntro } from "@marinara-engine/shared";
 import { useCreateChat } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
-import { showConfirmDialog } from "../../lib/app-dialogs";
+import { api } from "../../lib/api-client";
+import { showChoiceDialog, showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 import { EditorTabRail } from "../ui/EditorTabRail";
 import { StoryBundleDescription } from "./StoryBundleDescription";
@@ -23,6 +24,7 @@ import { StoryBundleCharacters } from "./StoryBundleCharacters";
 import { StoryBundlePersonas } from "./StoryBundlePersonas";
 import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
 import { StoryBundlePresets } from "./StoryBundlePresets";
+import { StoryBundleIntros } from "./StoryBundleIntros";
 
 /** Allowed HTML tags for the description preview. */
 const ALLOWED_DESCRIPTION_TAGS = [
@@ -63,6 +65,7 @@ const TABS = [
   { id: "personas", label: "Personas", icon: UserRound },
   { id: "lorebooks", label: "Lorebooks", icon: BookOpen },
   { id: "presets", label: "Presets", icon: SlidersHorizontal },
+  { id: "intros", label: "Intros", icon: MessageSquare },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -149,6 +152,7 @@ export function StoryBundleEditor() {
   const [personaIds, setPersonaIds] = useState<string[]>([]);
   const [lorebookIds, setLorebookIds] = useState<string[]>([]);
   const [presetIds, setPresetIds] = useState<string[]>([]);
+  const [intros, setIntros] = useState<StoryBundleIntro[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("description");
   const [saving, setSaving] = useState(false);
@@ -167,6 +171,7 @@ export function StoryBundleEditor() {
       setPersonaIds(bundle.personaIds ?? []);
       setLorebookIds(bundle.lorebookIds ?? []);
       setPresetIds(bundle.presetIds ?? []);
+      setIntros(bundle.intros ?? []);
     }
   }, [bundle]);
 
@@ -184,7 +189,10 @@ export function StoryBundleEditor() {
   const presetIdsDirty = bundle
     ? JSON.stringify([...(presetIds ?? [])].sort()) !== JSON.stringify([...(bundle.presetIds ?? [])].sort())
     : false;
-  const isDirty = nameDirty || descriptionDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty;
+  const introsDirty = bundle
+    ? JSON.stringify(intros) !== JSON.stringify(bundle.intros ?? [])
+    : false;
+  const isDirty = nameDirty || descriptionDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty || introsDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeDescription(description) : ""),
@@ -195,13 +203,14 @@ export function StoryBundleEditor() {
     if (!storyBundleDetailId || !isDirty || saving) return;
     setSaving(true);
     try {
-      const payload: { name?: string; description?: string | null; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[] } = {};
+      const payload: { name?: string; description?: string | null; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[]; intros?: StoryBundleIntro[] } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
       if (characterIdsDirty) payload.characterIds = characterIds;
       if (personaIdsDirty) payload.personaIds = personaIds;
       if (lorebookIdsDirty) payload.lorebookIds = lorebookIds;
       if (presetIdsDirty) payload.presetIds = presetIds;
+      if (introsDirty) payload.intros = intros;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
@@ -209,11 +218,33 @@ export function StoryBundleEditor() {
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, presetIds, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, introsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, presetIds, intros, t]);
 
-  const handlePlay = useCallback(() => {
+  const handlePlay = useCallback(async () => {
     if (!bundle || playing) return;
     setPlaying(true);
+
+    // If the bundle has intros, let the user pick one first.
+    let selectedIntroText: string | null = null;
+    const bundleIntros = bundle.intros ?? [];
+    if (bundleIntros.length > 0) {
+      const choice = await showChoiceDialog({
+        title: t("storyBundles.introPickTitle", "Choose an Intro"),
+        message: t("storyBundles.introPickMessage", "Select an intro to use as the first message."),
+        choices: bundleIntros.map((intro) => ({
+          key: intro.id,
+          label: intro.name,
+        })),
+        cancelLabel: t("storyBundles.cancel", "Cancel"),
+      });
+      if (!choice) {
+        setPlaying(false);
+        return;
+      }
+      const picked = bundleIntros.find((i) => i.id === choice);
+      selectedIntroText = picked?.text ?? null;
+    }
+
     const conns = (connections ?? []) as Array<{ id: string }>;
     createChat.mutate(
       {
@@ -222,10 +253,26 @@ export function StoryBundleEditor() {
         characterIds: bundle.characterIds ?? [],
         personaId: bundle.personaIds?.[0] ?? null,
         connectionId: conns[0]?.id,
+        promptPresetId: bundle.presetIds?.[0] ?? null,
       },
       {
-        onSuccess: (chat) => {
+        onSuccess: async (chat) => {
           useChatStore.getState().setActiveChatId(chat.id);
+
+          // If an intro was selected, insert it as the first assistant message.
+          if (selectedIntroText) {
+            try {
+              await api.post(`/chats/${chat.id}/messages`, {
+                role: "assistant",
+                content: selectedIntroText,
+              });
+            } catch (err) {
+              console.error("[playStoryBundle] Failed to insert intro message:", err);
+            }
+          }
+
+          useChatStore.getState().setShouldOpenSettings(true);
+          useChatStore.getState().setShouldOpenWizard(true);
           closeStoryBundleDetail();
           toast.success(t("storyBundles.playStarted", "Roleplay started!"));
           setPlaying(false);
@@ -383,6 +430,13 @@ export function StoryBundleEditor() {
                 onPresetIdsChange={setPresetIds}
                 presets={presets}
                 validPresetIds={validPresetIds}
+              />
+            )}
+
+            {activeTab === "intros" && (
+              <StoryBundleIntros
+                intros={intros}
+                onIntrosChange={setIntros}
               />
             )}
           </div>

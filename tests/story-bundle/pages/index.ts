@@ -11,3 +11,4 @@ export { StoryBundleCharactersTabPage } from "./story-bundle-characters-tab.page
 export { StoryBundlePersonasTabPage } from "./story-bundle-personas-tab.page.js";
 export { StoryBundleLorebooksTabPage } from "./story-bundle-lorebooks-tab.page.js";
 export { StoryBundlePresetsTabPage } from "./story-bundle-presets-tab.page.js";
+export { StoryBundleIntrosTabPage } from "./story-bundle-intros-tab.page.js";

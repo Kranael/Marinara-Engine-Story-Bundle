@@ -2,6 +2,13 @@
 // Story Bundle Types
 // ──────────────────────────────────────────────
 
+/** An intro is a named first message that can be selected when starting a roleplay from a story bundle. */
+export interface StoryBundleIntro {
+  id: string;
+  name: string;
+  text: string;
+}
+
 /**
  * A Story Bundle is a lightweight named container for future story content.
  * The first iteration intentionally carries only a title so the object,
@@ -21,6 +28,8 @@ export interface StoryBundle {
   lorebookIds: string[];
   /** IDs of presets assigned to this story bundle. */
   presetIds: string[];
+  /** Inline intro messages that can be selected as the first RP message. */
+  intros: StoryBundleIntro[];
   createdAt: string;
   updatedAt: string;
 }

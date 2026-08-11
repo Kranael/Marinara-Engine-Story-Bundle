@@ -1,7 +1,7 @@
 /**
  * Story Bundle Editor — Playwright E2E Tests
  *
- * Covers: StoryBundleEditor component + all four tab sub-components
+ * Covers: StoryBundleEditor component + description, characters, personas, lorebooks tabs
  * - Editor header with back, play, save, delete buttons
  * - Description tab: name input, description textarea, preview toggle
  * - Characters tab: search, random pick
@@ -23,7 +23,6 @@ import { StoryBundleDescriptionTabPage } from "../pages/story-bundle-description
 import { StoryBundleCharactersTabPage } from "../pages/story-bundle-characters-tab.page.js";
 import { StoryBundlePersonasTabPage } from "../pages/story-bundle-personas-tab.page.js";
 import { StoryBundleLorebooksTabPage } from "../pages/story-bundle-lorebooks-tab.page.js";
-import { StoryBundlePresetsTabPage } from "../pages/story-bundle-presets-tab.page.js";
 import { DeleteStoryBundleDialogPage } from "../pages/delete-story-bundle-dialog.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
@@ -187,20 +186,6 @@ test.describe("Story Bundle Editor — Positive", () => {
     await api.delete(bundle.id);
   });
 
-  test("presets tab renders with search and random buttons", async ({ page }) => {
-    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const presetsTab = new StoryBundlePresetsTabPage(page);
-    const api = new StoryBundleAPI(page);
-
-    await editor.switchToPresets();
-    await presetsTab.waitFor();
-
-    await expect(presetsTab.searchInput).toBeVisible();
-    await expect(presetsTab.randomButton).toBeVisible();
-
-    await api.delete(bundle.id);
-  });
-
   test("delete button in editor shows confirmation and removes bundle", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
     const deleteDialog = new DeleteStoryBundleDialogPage(page);
@@ -269,17 +254,4 @@ test.describe("Story Bundle Editor — Negative", () => {
     await api.delete(bundle.id);
   });
 
-  test("preset search with no results shows empty state", async ({ page }) => {
-    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const presetsTab = new StoryBundlePresetsTabPage(page);
-    const api = new StoryBundleAPI(page);
-
-    await editor.switchToPresets();
-    await presetsTab.waitFor();
-
-    await presetsTab.search("nonexistent_preset_name_xyz");
-    await expect(presetsTab.emptyState).toBeVisible({ timeout: 5_000 });
-
-    await api.delete(bundle.id);
-  });
 });

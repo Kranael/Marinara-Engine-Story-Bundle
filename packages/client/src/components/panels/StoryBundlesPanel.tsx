@@ -14,7 +14,7 @@ import { useCreateChat } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
-import { showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
+import { showChoiceDialog, showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
 import { api } from "../../lib/api-client";
 import { cn } from "../../lib/utils";
 
@@ -85,8 +85,29 @@ export function StoryBundlesPanel() {
       if (playingId) return;
       setPlayingId(id);
       try {
-        // Fetch the full bundle to get character/persona IDs
-        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[] }>(`/story-bundles/${id}`);
+        // Fetch the full bundle to get character/persona/preset/intro IDs
+        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[]; presetIds: string[]; intros?: Array<{ id: string; name: string; text: string }> }>(`/story-bundles/${id}`);
+
+        // If the bundle has intros, let the user pick one first.
+        let selectedIntroText: string | null = null;
+        const bundleIntros = bundle.intros ?? [];
+        if (bundleIntros.length > 0) {
+          const choice = await showChoiceDialog({
+            title: t("storyBundles.introPickTitle", "Choose an Intro"),
+            message: t("storyBundles.introPickMessage", "Select an intro to use as the first message."),
+            choices: bundleIntros.map((intro) => ({
+              key: intro.id,
+              label: intro.name,
+            })),
+          });
+          if (!choice) {
+            setPlayingId(null);
+            return;
+          }
+          const picked = bundleIntros.find((i) => i.id === choice);
+          selectedIntroText = picked?.text ?? null;
+        }
+
         const conns = (connections ?? []) as Array<{ id: string }>;
 
         createChat.mutate(
@@ -96,10 +117,26 @@ export function StoryBundlesPanel() {
             characterIds: bundle.characterIds ?? [],
             personaId: bundle.personaIds?.[0] ?? null,
             connectionId: conns[0]?.id,
+            promptPresetId: bundle.presetIds?.[0] ?? null,
           },
           {
-            onSuccess: (chat) => {
+            onSuccess: async (chat) => {
               useChatStore.getState().setActiveChatId(chat.id);
+
+              // If an intro was selected, insert it as the first assistant message.
+              if (selectedIntroText) {
+                try {
+                  await api.post(`/chats/${chat.id}/messages`, {
+                    role: "assistant",
+                    content: selectedIntroText,
+                  });
+                } catch (err) {
+                  console.error("[playStoryBundle] Failed to insert intro message:", err);
+                }
+              }
+
+              useChatStore.getState().setShouldOpenSettings(true);
+              useChatStore.getState().setShouldOpenWizard(true);
               toast.success(t("storyBundles.playStarted", "Roleplay started!"));
               setPlayingId(null);
             },

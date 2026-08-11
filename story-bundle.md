@@ -1,7 +1,7 @@
 # Story Bundle
 
 > Entwicklungs-Dokumentation für das neue **Story-Bundle**-Objekt in Marinara Engine.
-> Branch: `story-bundle-dev` · Stand: sechste Iteration (Titel + HTML-Description + Characters + Personas + Lorebooks + Import/Export).
+> Branch: `story-bundle-dev` · Stand: siebte Iteration (Titel + HTML-Description + Characters + Personas + Lorebooks + Presets + Intros + Import/Export).
 
 ## 1. Überblick & Scope
 
@@ -21,8 +21,15 @@ interface StoryBundle {
   personaIds: string[];   // Zugewiesene Persona-IDs (JSON-Array in der DB)
   lorebookIds: string[];  // Zugewiesene Lorebook-IDs (JSON-Array in der DB)
   presetIds: string[];    // Zugewiesene Preset-IDs (JSON-Array in der DB)
+  intros: StoryBundleIntro[]; // Inline-Intros (Name + Text), als JSON-Array in der DB
   createdAt: string;      // ISO-8601 Zeitstempel
   updatedAt: string;      // ISO-8601 Zeitstempel
+}
+
+interface StoryBundleIntro {
+  id: string;   // clientseitig via crypto.randomUUID() erzeugt
+  name: string; // Name des Intros (1–200 Zeichen)
+  text: string; // Nachrichtentext (min 1 Zeichen)
 }
 ```
 
@@ -45,8 +52,8 @@ Shared (Types + Zod) → Server (DB-Schema + Storage + REST-Routen) → Client (
 | Schema | Regel |
 |---|---|
 | `storyBundleIdParamsSchema` | `{ id: string, min 1 }` — URL-Parameter |
-| `createStoryBundleSchema` | `{ name: string, description?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[], presetIds?: string[] }` — name getrimmt, min 1, max 200 |
-| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[], presetIds?: string[] }` — alle optional |
+| `createStoryBundleSchema` | `{ name: string, description?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[], presetIds?: string[], intros?: StoryBundleIntro[] }` — name getrimmt, min 1, max 200 |
+| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[], presetIds?: string[], intros?: StoryBundleIntro[] }` — alle optional |
 
 Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 
@@ -126,6 +133,7 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 | `src/components/story-bundles/StoryBundlePersonas.tsx` | Personas-Tab (gleiches Muster wie Characters, mit Avatar-Crop-Support) |
 | `src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
 | `src/components/story-bundles/StoryBundlePresets.tsx` | Presets-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
+| `src/components/story-bundles/StoryBundleIntros.tsx` | Intros-Tab (Inline-Intros: Name + Text, Add/Edit/Delete) |
 | `src/components/layout/RightPanel.tsx` | Panel registriert (`PANEL_CONFIG` + `PANELS`) |
 | `src/components/layout/TopBar.tsx` | TopBar-Button (`BookMarked`-Icon, Gradient) |
 | `src/components/layout/AppShell.tsx` | Lazy-Import + `detailView`-Kette |
@@ -144,9 +152,10 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 2. „New Bundle" öffnet einen Prompt-Dialog (Titel „Create Story Bundle")
    mit genau einem Feld (Titel). Nach Bestätigung wird das Bundle angelegt
    und der Editor geöffnet.
-3. Der Editor hat fünf Tabs (via `EditorTabRail`): **Description** (Name + HTML-Description),
+3. Der Editor hat sechs Tabs (via `EditorTabRail`): **Description** (Name + HTML-Description),
    **Characters** (Charakter-Zuweisung), **Personas** (Persona-Zuweisung),
-   **Lorebooks** (Lorebook-Zuweisung), **Presets** (Preset-Zuweisung).
+   **Lorebooks** (Lorebook-Zuweisung), **Presets** (Preset-Zuweisung),
+   **Intros** (Inline-Intros: Name + Text).
    Jeder Tab ist in eine eigene Komponente unter `src/components/story-bundles/`
    ausgelagert.
 4. Der **General**-Tab zeigt ein Namensfeld und eine HTML-Description-Textarea.
@@ -186,11 +195,26 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
      Description und Remove-Button.
    - **Add Presets**: Suchfeld, Random-Button, paginierte Liste mit
      SlidersHorizontal-Icon/Name/Description und Plus-Button.
-10. Löschen läuft über einen destruktiven Bestätigungsdialog.
+10. Der **Intros**-Tab verwaltet 1:n Inline-Intros (keine Referenzen auf externe
+    Entitäten):
+    - **Add Intro**: Button öffnet ein Inline-Formular mit Name-Input und
+      Text-Textarea. Speichern erzeugt ein neues Intro mit `crypto.randomUUID()`.
+    - **Selected Intros**: Liste aller Intros mit MessageSquare-Icon, Name,
+      Text-Vorschau, Edit-Button (Pencil) und Delete-Button (X).
+    - **Edit**: Öffnet das Formular mit den vorhandenen Werten, speichern
+      aktualisiert das Intro in-place.
+    - **Delete**: Entfernt das Intro sofort aus der Liste.
+    - **Empty State**: Gestrichelte Placeholder-Box wenn keine Intros vorhanden.
+    - **Play Flow**: Beim Klick auf „Play" wird, falls Intros vorhanden sind,
+      ein Choice-Dialog (`showChoiceDialog`) mit den Intro-Namen angezeigt.
+      Das gewählte Intro wird als erste Assistant-Message in den Chat eingefügt
+      (`POST /api/chats/:id/messages` mit `role: "assistant"`).
+      Bei Abbruch wird der Play-Vorgang gestoppt.
+11. Löschen läuft über einen destruktiven Bestätigungsdialog.
 11. **Export**: `GET /api/story-bundles/:id/export` liefert einen
     `ExportEnvelope` mit `type: "marinara_story_bundle"` als JSON-Download
     (`.marinara.json`). Der Envelope enthält `name`, `description`,
-    `characterIds`, `personaIds`, `lorebookIds`, `presetIds` sowie `embeddedCharacters`,
+    `characterIds`, `personaIds`, `lorebookIds`, `presetIds`, `intros` sowie `embeddedCharacters`,
     `embeddedPersonas`, `embeddedLorebooks`, `embeddedPresets` mit vollständigen Entitätsdaten.
     Characters und Personas werden mit Avataren, Sprites und Gallery als
     base64-Daten-URLs embedded — das JSON ist komplett self-contained für
@@ -208,14 +232,14 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 ### Lokalisierung (`src/localization/locales/en.json`)
 
 Neue semantische Schlüssel: `navigation.topbar.storyBundles` sowie der Block
-`storyBundles.*` (add, addCharacters, addFromGroup, addLorebooks, addPersonas, addPresets, allAdded, allCharactersAdded,
+`storyBundles.*` (add, addCharacters, addFromGroup, addIntros, addLorebooks, addPersonas, addPresets, allAdded, allCharactersAdded,
 allLorebooksAdded, allPersonasAdded, allPresetsAdded, back, cancel, charactersEmpty, count, create, createDialogTitle, createFailed,
 createPromptMessage, delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed,
 descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder,
-descriptionPreview, editorTitle, empty, groups, loadMore, lorebookRandomHint, lorebooksEmpty, nameLabel, namePlaceholder, newBundle,
+descriptionPreview, editorTitle, empty, groups, introAddHint, introEdit, introNamePlaceholder, introPickMessage, introPickTitle, introRemove, introSave, introSaveEdit, introTextPlaceholder, introsEmpty, loadMore, lorebookRandomHint, lorebooksEmpty, nameLabel, namePlaceholder, newBundle,
 noCharactersMatch, noLorebooksMatch, noPersonasMatch, noPresetsMatch, of, personaRandomHint, personasEmpty, presetRandomHint, presetsEmpty, random, randomHint,
 removeCharacter, removeLorebook, removePersona, removePreset, save, saveFailed, saveSuccess, searchCharacters, searchLorebooks, searchPersonas, searchPresets,
-selectedCharacters, selectedLorebooks, selectedPersonas, selectedPresets).
+selectedCharacters, selectedIntros, selectedLorebooks, selectedPersonas, selectedPresets).
 Community-Lokalen bleiben bewusst partiell (Fallback auf Englisch).
 
 ## 5. data-testid-Katalog
@@ -291,6 +315,19 @@ smoke-/Regressionstests:
 | `story-bundle-editor-presets-load-more` | „Load more"-Button |
 | `story-bundle-editor-presets-empty` | Leerer-Zustand-Text |
 
+### `StoryBundleIntros`
+| testid | Element |
+|---|---|
+| `story-bundle-editor-intros` | Intros-Tab-Container |
+| `story-bundle-editor-intros-add-button` | „Add Intro"-Button |
+| `story-bundle-editor-intros-name-input` | Name-Eingabefeld |
+| `story-bundle-editor-intros-text-input` | Text-Textarea |
+| `story-bundle-editor-intros-save-button` | Speichern-Button |
+| `story-bundle-editor-intros-cancel-button` | Abbrechen-Button |
+| `story-bundle-editor-intros-edit-button` | Edit-Button (Pencil) |
+| `story-bundle-editor-intros-delete-button` | Delete-Button (X) |
+| `story-bundle-editor-intros-empty` | Leerer-Zustand-Text |
+
 ### App-Dialoge (`Modal` / `AppDialogRenderer`)
 | testid | Element |
 |---|---|
@@ -318,16 +355,16 @@ Aktueller Stand: `pnpm check` läuft vollständig grün durch
 
 ### 6.1 Playwright-e2e-Tests (Story Bundle)
 
-Die Spezifikation liegt in `tests/story-bundle/tests/story-bundle.test.ts` und wird über das
+Die Spezifikation liegt in `tests/story-bundle/tests/` und wird über das
 dedizierte pnpm-Skript ausgeführt:
 
 ```bash
 pnpm regression:story-bundle   # alle Story-Bundle-Tests (Desktop + Mobile)
 ```
 
-Das Skript ruft `playwright test -c playwright.config.ts tests/story-bundle/tests/story-bundle.test.ts`
+Das Skript ruft `playwright test -c playwright.config.ts tests/story-bundle/tests/`
 auf und startet die Webserver (Desktop 5178/7971, Mobile 5179/7972) automatisch
-über `config.webServer`. Aktueller Stand: **12 passed**.
+über `config.webServer`. Aktueller Stand: **76 passed** (38 Tests × 2 Projekte).
 
 Hinweise zur Ausführung:
 

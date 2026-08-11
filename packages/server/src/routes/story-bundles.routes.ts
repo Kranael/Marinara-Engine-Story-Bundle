@@ -7,7 +7,7 @@ import {
   storyBundleIdParamsSchema,
   updateStoryBundleSchema,
 } from "@marinara-engine/shared";
-import type { ExportEnvelope, StoryBundle } from "@marinara-engine/shared";
+import type { ExportEnvelope, StoryBundle, StoryBundleIntro } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
 import { createCharactersStorage } from "../services/storage/characters.storage.js";
 import { createCharacterGalleryStorage } from "../services/storage/character-gallery.storage.js";
@@ -31,6 +31,26 @@ function parseJsonArray(value: unknown): string[] {
   } catch { return []; }
 }
 
+/** Parse a JSON text column into a typed intro array. */
+function parseIntroArray(value: unknown): StoryBundleIntro[] {
+  if (typeof value !== "string") return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? parsed.filter(
+          (entry): entry is StoryBundleIntro =>
+            typeof entry === "object" &&
+            entry !== null &&
+            typeof entry.id === "string" &&
+            typeof entry.name === "string" &&
+            typeof entry.text === "string",
+        )
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Parse the JSON columns into typed arrays for the API response. */
 function serializeBundle(row: Record<string, unknown>): StoryBundle {
   return {
@@ -41,6 +61,7 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
     personaIds: parseJsonArray(row.personaIds),
     lorebookIds: parseJsonArray(row.lorebookIds),
     presetIds: parseJsonArray(row.presetIds),
+    intros: parseIntroArray(row.intros),
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
   };
@@ -196,6 +217,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
         personaIds: serialized.personaIds,
         lorebookIds: serialized.lorebookIds,
         presetIds: serialized.presetIds,
+        intros: serialized.intros,
         embeddedCharacters,
         embeddedPersonas,
         embeddedLorebooks,

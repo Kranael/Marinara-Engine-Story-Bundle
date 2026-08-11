@@ -23,6 +23,7 @@ import { createLorebooksStorage } from "../storage/lorebooks.storage.js";
 import { createPromptsStorage } from "../storage/prompts.storage.js";
 import { createStoryBundlesStorage } from "../storage/story-bundles.storage.js";
 import { normalizeTimestampOverrides, type TimestampOverrides } from "./import-timestamps.js";
+import { newId } from "../../utils/id-generator.js";
 import { resolveLorebookEntryRole } from "./lorebook-role.js";
 import { access, mkdir, writeFile } from "fs/promises";
 import { join } from "path";
@@ -789,6 +790,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     personaIds?: unknown;
     lorebookIds?: unknown;
     presetIds?: unknown;
+    intros?: unknown;
     embeddedCharacters?: unknown;
     embeddedPersonas?: unknown;
     embeddedLorebooks?: unknown;
@@ -1001,6 +1003,21 @@ async function importStoryBundle(data: unknown, db: DB) {
   const finalLorebookIds = remapIds(stringArray(d.lorebookIds), lorebookIdMap);
   const finalPresetIds = remapIds(stringArray(d.presetIds), presetIdMap);
 
+  // Intros are inline data — parse and validate, generating new IDs for each.
+  const finalIntros = Array.isArray(d.intros)
+    ? d.intros
+        .filter(
+          (entry): entry is Record<string, unknown> =>
+            typeof entry === "object" && entry !== null,
+        )
+        .map((entry) => ({
+          id: typeof entry.id === "string" && entry.id.length > 0 ? entry.id : newId(),
+          name: typeof entry.name === "string" ? entry.name : "",
+          text: typeof entry.text === "string" ? entry.text : "",
+        }))
+        .filter((entry) => entry.name.length > 0 && entry.text.length > 0)
+    : [];
+
   const result = await storage.create({
     name,
     description: typeof d.description === "string" ? d.description : null,
@@ -1008,6 +1025,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     personaIds: finalPersonaIds,
     lorebookIds: finalLorebookIds,
     presetIds: finalPresetIds,
+    intros: finalIntros,
   });
   if (!result) {
     return { success: false, type: "marinara_story_bundle" as const, error: "Failed to create story bundle" };
