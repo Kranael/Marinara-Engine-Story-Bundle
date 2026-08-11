@@ -70,13 +70,15 @@ test.describe("Story Bundle Import/Export — Positive", () => {
     await home.openStoryBundlesPanel();
     await panel.waitFor();
 
-    // Create a valid story bundle envelope.
-    const validPath = path.join(DATA_DIR, "valid-import.json");
+    // Create a valid story bundle envelope with a unique name to avoid
+    // race conditions between parallel workers.
+    const suffix = Date.now().toString(36);
+    const validPath = path.join(DATA_DIR, `valid-import-${suffix}.json`);
     const envelope = {
       type: "marinara_story_bundle",
       version: 1,
       data: {
-        name: "Imported Bundle",
+        name: `Imported Bundle ${suffix}`,
         description: "A bundle from import test",
         characterIds: [],
         personaIds: [],
@@ -95,11 +97,11 @@ test.describe("Story Bundle Import/Export — Positive", () => {
     await importModal.close();
 
     // The imported bundle should appear in the panel.
-    await expect(panel.panel).toContainText("Imported Bundle", { timeout: 5_000 });
+    await expect(panel.panel).toContainText(`Imported Bundle ${suffix}`, { timeout: 5_000 });
 
     // Clean up: delete the imported bundle.
     const bundles = await page.request.get("/api/story-bundles").then((r) => r.json());
-    const imported = bundles.find((b: { name: string }) => b.name === "Imported Bundle");
+    const imported = bundles.find((b: { name: string }) => b.name === `Imported Bundle ${suffix}`);
     if (imported) await api.delete(imported.id);
     fs.unlinkSync(validPath);
   });
@@ -165,16 +167,20 @@ test.describe("Story Bundle Import/Export — Positive", () => {
     const exportBtn = panel.exportButtonLocator(bundle.name);
     await expect(exportBtn).toBeVisible();
 
-    await page.evaluate(() => {
-      (window as any).showSaveFilePicker = () =>
-        Promise.reject(new Error("Mocked — fallback to browser download"));
-    });
+    // The export uses api.download() which does a client-side fetch + <a> click,
+    // not a browser-managed download. Verify the export API endpoint directly.
+    const exportResponse = await page.request.get(`/api/story-bundles/${bundle.id}/export`);
+    expect(exportResponse.status()).toBe(200);
 
-    const [download] = await Promise.all([
-      page.waitForEvent("download", { timeout: 15_000 }),
-      exportBtn.click(),
-    ]);
-    expect(download.suggestedFilename()).toMatch(/\.marinara\.json$/);
+    const body = await exportResponse.json();
+    expect(body).toHaveProperty("type", "marinara_story_bundle");
+    expect(body).toHaveProperty("version", 1);
+    expect(body.data).toHaveProperty("name");
+
+    // Also verify the Content-Disposition header is set for download.
+    const disposition = exportResponse.headers()["content-disposition"];
+    expect(disposition).toContain("attachment");
+    expect(disposition).toContain(".marinara.json");
 
     await api.delete(bundle.id);
   });
@@ -194,13 +200,14 @@ test.describe("Story Bundle Import/Export — Negative", () => {
     await panel.importButton.click();
     await importModal.waitFor();
 
-    const invalidPath = path.join(DATA_DIR, "invalid.json");
+    // Use a unique filename to avoid race conditions between parallel workers.
+    const invalidPath = path.join(DATA_DIR, `invalid-${process.pid.toString(36)}.json`);
     fs.writeFileSync(invalidPath, "not valid json at all {{{");
 
     await importModal.uploadFile(invalidPath);
 
     await expect(importModal.results).toContainText(/is not valid JSON|Failed to parse/, { timeout: 10_000 });
 
-    fs.unlinkSync(invalidPath);
+    try { fs.unlinkSync(invalidPath); } catch { /* already cleaned up by another worker */ }
   });
 });

@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, BookOpen, FileText, Loader2, MessageSquare, Play, Save, SlidersHorizontal, Trash2, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, FileText, Info, Loader2, MessageSquare, Play, Save, SlidersHorizontal, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
@@ -20,6 +20,7 @@ import { showChoiceDialog, showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 import { EditorTabRail } from "../ui/EditorTabRail";
 import { StoryBundleDescription } from "./StoryBundleDescription";
+import { StoryBundleMetadata } from "./StoryBundleMetadata";
 import { StoryBundleCharacters } from "./StoryBundleCharacters";
 import { StoryBundlePersonas } from "./StoryBundlePersonas";
 import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
@@ -60,6 +61,7 @@ function parseCharacterFolderIds(value: unknown): string[] {
 }
 
 const TABS = [
+  { id: "metadata", label: "Metadata", icon: Info },
   { id: "description", label: "Description", icon: FileText },
   { id: "characters", label: "Characters", icon: Users },
   { id: "personas", label: "Personas", icon: UserRound },
@@ -148,13 +150,18 @@ export function StoryBundleEditor() {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [imagePath, setImagePath] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
+  const [creator, setCreator] = useState("");
+  const [version, setVersion] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [characterIds, setCharacterIds] = useState<string[]>([]);
   const [personaIds, setPersonaIds] = useState<string[]>([]);
   const [lorebookIds, setLorebookIds] = useState<string[]>([]);
   const [presetIds, setPresetIds] = useState<string[]>([]);
   const [intros, setIntros] = useState<StoryBundleIntro[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabId>("description");
+  const [activeTab, setActiveTab] = useState<TabId>("metadata");
   const [saving, setSaving] = useState(false);
   const [playing, setPlaying] = useState(false);
 
@@ -167,6 +174,11 @@ export function StoryBundleEditor() {
     if (bundle) {
       setName(bundle.name);
       setDescription(bundle.description ?? "");
+      setImagePath(bundle.imagePath ?? null);
+      setComment(bundle.comment ?? "");
+      setCreator(bundle.creator ?? "");
+      setVersion(bundle.version ?? "");
+      setTags(bundle.tags ?? []);
       setCharacterIds(bundle.characterIds ?? []);
       setPersonaIds(bundle.personaIds ?? []);
       setLorebookIds(bundle.lorebookIds ?? []);
@@ -177,6 +189,12 @@ export function StoryBundleEditor() {
 
   const nameDirty = bundle ? name.trim() !== bundle.name && name.trim().length > 0 : false;
   const descriptionDirty = bundle ? description !== (bundle.description ?? "") : false;
+  const commentDirty = bundle ? comment !== (bundle.comment ?? "") : false;
+  const creatorDirty = bundle ? creator !== (bundle.creator ?? "") : false;
+  const versionDirty = bundle ? version !== (bundle.version ?? "") : false;
+  const tagsDirty = bundle
+    ? JSON.stringify([...(tags ?? [])].sort()) !== JSON.stringify([...(bundle.tags ?? [])].sort())
+    : false;
   const characterIdsDirty = bundle
     ? JSON.stringify([...(characterIds ?? [])].sort()) !== JSON.stringify([...(bundle.characterIds ?? [])].sort())
     : false;
@@ -192,7 +210,7 @@ export function StoryBundleEditor() {
   const introsDirty = bundle
     ? JSON.stringify(intros) !== JSON.stringify(bundle.intros ?? [])
     : false;
-  const isDirty = nameDirty || descriptionDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty || introsDirty;
+  const isDirty = nameDirty || descriptionDirty || commentDirty || creatorDirty || versionDirty || tagsDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty || introsDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeDescription(description) : ""),
@@ -203,9 +221,13 @@ export function StoryBundleEditor() {
     if (!storyBundleDetailId || !isDirty || saving) return;
     setSaving(true);
     try {
-      const payload: { name?: string; description?: string | null; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[]; intros?: StoryBundleIntro[] } = {};
+      const payload: { name?: string; description?: string | null; comment?: string; creator?: string; version?: string; tags?: string[]; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[]; intros?: StoryBundleIntro[] } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
+      if (commentDirty) payload.comment = comment;
+      if (creatorDirty) payload.creator = creator;
+      if (versionDirty) payload.version = version;
+      if (tagsDirty) payload.tags = tags;
       if (characterIdsDirty) payload.characterIds = characterIds;
       if (personaIdsDirty) payload.personaIds = personaIds;
       if (lorebookIdsDirty) payload.lorebookIds = lorebookIds;
@@ -218,7 +240,7 @@ export function StoryBundleEditor() {
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, introsDirty, updateMutation, name, description, characterIds, personaIds, lorebookIds, presetIds, intros, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, commentDirty, creatorDirty, versionDirty, tagsDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, introsDirty, updateMutation, name, description, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, intros, t]);
 
   const handlePlay = useCallback(async () => {
     if (!bundle || playing) return;
@@ -407,6 +429,23 @@ export function StoryBundleEditor() {
 
         <div className="mari-editor-content @max-5xl:p-4">
           <div className="mari-editor-content-inner">
+            {activeTab === "metadata" && (
+              <StoryBundleMetadata
+                bundleId={storyBundleDetailId ?? ""}
+                name={name}
+                onNameChange={setName}
+                comment={comment}
+                onCommentChange={setComment}
+                creator={creator}
+                onCreatorChange={setCreator}
+                version={version}
+                onVersionChange={setVersion}
+                tags={tags}
+                onTagsChange={setTags}
+                imagePath={imagePath}
+              />
+            )}
+
             {activeTab === "description" && (
               <StoryBundleDescription
                 name={name}

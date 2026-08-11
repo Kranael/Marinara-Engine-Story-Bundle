@@ -2,6 +2,9 @@
 // Routes: Story Bundles
 // ──────────────────────────────────────────────
 import type { FastifyInstance } from "fastify";
+import { existsSync } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { extname, join } from "node:path";
 import {
   createStoryBundleSchema,
   storyBundleIdParamsSchema,
@@ -14,11 +17,38 @@ import { createCharacterGalleryStorage } from "../services/storage/character-gal
 import { createLorebooksStorage } from "../services/storage/lorebooks.storage.js";
 import { createPromptsStorage } from "../services/storage/prompts.storage.js";
 import { logger } from "../lib/logger.js";
+import { DATA_DIR } from "../utils/data-dir.js";
+import { assertInsideDir, extensionFromImageMime, isAllowedImageBuffer } from "../utils/security.js";
 import {
   readAvatarDataUrl,
   readGalleryForCharacter,
+  readImageAsDataUrl,
   readSpritesForId,
 } from "../services/export/export-image-helpers.js";
+
+const STORY_BUNDLE_IMAGES_DIR = join(DATA_DIR, "story-bundles", "images");
+
+function parseImageUpload(image: string): { buffer: Buffer; hintedExt: string } {
+  let base64 = image;
+  let hintedExt = "png";
+  if (base64.startsWith("data:")) {
+    const match = base64.match(/^data:image\/([\w.+-]+);base64,/i);
+    if (match?.[1]) {
+      hintedExt = match[1].replace("+xml", "");
+      base64 = base64.slice(base64.indexOf(",") + 1);
+    }
+  }
+  return { buffer: Buffer.from(base64, "base64"), hintedExt };
+}
+
+function getSafeStoryBundleImagePath(filename: string): string | null {
+  if (!filename || filename.includes("..") || filename.includes("/") || filename.includes("\\")) return null;
+  try {
+    return assertInsideDir(STORY_BUNDLE_IMAGES_DIR, join(STORY_BUNDLE_IMAGES_DIR, filename));
+  } catch {
+    return null;
+  }
+}
 
 /** Parse a JSON text column into a string array. */
 function parseJsonArray(value: unknown): string[] {
@@ -57,6 +87,11 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
     id: row.id as string,
     name: row.name as string,
     description: (row.description as string) ?? null,
+    imagePath: (row.imagePath as string) ?? null,
+    comment: (row.comment as string) ?? "",
+    creator: (row.creator as string) ?? "",
+    version: (row.version as string) ?? "",
+    tags: parseJsonArray(row.tags),
     characterIds: parseJsonArray(row.characterIds),
     personaIds: parseJsonArray(row.personaIds),
     lorebookIds: parseJsonArray(row.lorebookIds),
@@ -119,6 +154,94 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     const existing = await storage.getById(id);
     if (!existing) return reply.status(404).send({ error: "Story bundle not found" });
     await storage.remove(id);
+    return reply.send({ ok: true });
+  });
+
+  // ── Upload a story bundle image ──
+  app.post<{ Params: { id: string } }>("/:id/image", async (req, reply) => {
+    const bundle = await storage.getById(req.params.id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+
+    const body = req.body as { image?: string };
+    if (!body.image) return reply.status(400).send({ error: "No image data provided" });
+
+    const { buffer, hintedExt } = parseImageUpload(body.image);
+    const imageInfo = isAllowedImageBuffer(buffer, `.${hintedExt}`);
+    if (!imageInfo) return reply.status(400).send({ error: "Unsupported or invalid story bundle image" });
+
+    const ext = extensionFromImageMime(imageInfo.mimeType);
+    await mkdir(STORY_BUNDLE_IMAGES_DIR, { recursive: true });
+    const filename = `story-bundle-${req.params.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const filepath = assertInsideDir(STORY_BUNDLE_IMAGES_DIR, join(STORY_BUNDLE_IMAGES_DIR, filename));
+    await writeFile(filepath, buffer);
+
+    const updated = await storage.update(req.params.id, { imagePath: `/api/story-bundles/images/file/${filename}` });
+    if (!updated) return reply.status(404).send({ error: "Story bundle not found" });
+    return reply.send(serializeBundle(updated));
+  });
+
+  // ── Serve a story bundle image file ──
+  app.get<{ Params: { filename: string } }>("/images/file/:filename", async (req, reply) => {
+    const filepath = getSafeStoryBundleImagePath(req.params.filename);
+    if (!filepath || !existsSync(filepath)) return reply.status(404).send({ error: "Image not found" });
+
+    const buffer = await readFile(filepath);
+    const imageInfo = isAllowedImageBuffer(buffer, extname(req.params.filename));
+    if (!imageInfo) return reply.status(404).send({ error: "Image not found" });
+
+    return reply
+      .header("Content-Type", imageInfo.mimeType)
+      .header("Cache-Control", "public, max-age=31536000, immutable")
+      .send(buffer);
+  });
+
+  // ── Version history ──
+
+  // GET /:id/versions — List all versions for a story bundle
+  app.get("/:id/versions", async (req, reply) => {
+    const { id } = storyBundleIdParamsSchema.parse(req.params);
+    const bundle = await storage.getById(id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+    const versions = await storage.listVersions(id);
+    return reply.send(versions);
+  });
+
+  // POST /:id/versions — Create a version snapshot from current bundle state
+  app.post("/:id/versions", async (req, reply) => {
+    const { id } = storyBundleIdParamsSchema.parse(req.params);
+    const bundle = await storage.getById(id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+
+    const body = req.body as { source?: string; reason?: string };
+    const serialized = serializeBundle(bundle);
+    const version = await storage.createVersion(id, {
+      name: serialized.name,
+      description: serialized.description,
+      comment: serialized.comment,
+      creator: serialized.creator,
+      version: serialized.version,
+      tags: serialized.tags,
+      source: body.source ?? "manual",
+      reason: body.reason ?? "",
+    });
+    return reply.status(201).send(version);
+  });
+
+  // DELETE /:id/versions/:versionId — Delete a specific version
+  app.delete<{ Params: { id: string; versionId: string } }>("/:id/versions/:versionId", async (req, reply) => {
+    const { id, versionId } = req.params;
+    const bundle = await storage.getById(id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+    await storage.deleteVersion(versionId);
+    return reply.send({ ok: true });
+  });
+
+  // DELETE /:id/versions — Delete all versions for a story bundle
+  app.delete("/:id/versions", async (req, reply) => {
+    const { id } = storyBundleIdParamsSchema.parse(req.params);
+    const bundle = await storage.getById(id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+    await storage.deleteAllVersions(id);
     return reply.send({ ok: true });
   });
 
@@ -206,6 +329,18 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       }
     }
 
+    // Read the bundle image as a base64 data URL for self-contained export.
+    let bundleImage: string | null = null;
+    if (serialized.imagePath) {
+      const imageFilename = serialized.imagePath.split("?")[0]!.split("/").pop();
+      if (imageFilename) {
+        bundleImage = await readImageAsDataUrl(STORY_BUNDLE_IMAGES_DIR, imageFilename);
+      }
+    }
+
+    // Include version history in the export.
+    const versionHistory = await storage.listVersions(id);
+
     const envelope: ExportEnvelope = {
       type: "marinara_story_bundle",
       version: 1,
@@ -213,6 +348,11 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       data: {
         name: serialized.name,
         description: serialized.description,
+        imagePath: serialized.imagePath,
+        comment: serialized.comment,
+        creator: serialized.creator,
+        version: serialized.version,
+        tags: serialized.tags,
         characterIds: serialized.characterIds,
         personaIds: serialized.personaIds,
         lorebookIds: serialized.lorebookIds,
@@ -222,6 +362,8 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
         embeddedPersonas,
         embeddedLorebooks,
         embeddedPresets,
+        ...(bundleImage ? { bundleImage } : {}),
+        ...(versionHistory.length > 0 ? { versionHistory } : {}),
       },
     };
     return reply

@@ -19,6 +19,11 @@ export const storyBundleIdParamsSchema = z.object({
 export const createStoryBundleSchema = z.object({
   name: storyBundleNameSchema,
   description: z.string().nullable().optional(),
+  imagePath: z.string().nullable().default(null),
+  comment: z.string().default(""),
+  creator: z.string().default(""),
+  version: z.string().default(""),
+  tags: z.array(z.string()).default([]),
   characterIds: z.array(z.string()).optional(),
   personaIds: z.array(z.string()).optional(),
   lorebookIds: z.array(z.string()).optional(),
@@ -29,6 +34,11 @@ export const createStoryBundleSchema = z.object({
 export const updateStoryBundleSchema = z.object({
   name: storyBundleNameSchema.optional(),
   description: z.string().nullable().optional(),
+  imagePath: z.string().nullable().optional(),
+  comment: z.string().optional(),
+  creator: z.string().optional(),
+  version: z.string().optional(),
+  tags: z.array(z.string()).optional(),
   characterIds: z.array(z.string()).optional(),
   lorebookIds: z.array(z.string()).optional(),
   personaIds: z.array(z.string()).optional(),
@@ -36,5 +46,5 @@ export const updateStoryBundleSchema = z.object({
   intros: z.array(storyBundleIntroSchema).optional(),
 });
 
-export type CreateStoryBundleInput = z.infer<typeof createStoryBundleSchema>;
+export type CreateStoryBundleInput = z.input<typeof createStoryBundleSchema>;
 export type UpdateStoryBundleInput = z.infer<typeof updateStoryBundleSchema>;

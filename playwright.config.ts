@@ -24,6 +24,7 @@ export default defineConfig({
   fullyParallel: false,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   globalSetup: "./tests/e2e/global-setup.mjs",
+  workers: process.env.CI ? 4 : 8,
   use: {
     baseURL,
     trace: "retain-on-failure",

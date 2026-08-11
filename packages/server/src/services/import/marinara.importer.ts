@@ -786,6 +786,11 @@ async function importStoryBundle(data: unknown, db: DB) {
   const d = data as {
     name?: unknown;
     description?: unknown;
+    imagePath?: unknown;
+    comment?: unknown;
+    creator?: unknown;
+    version?: unknown;
+    tags?: unknown;
     characterIds?: unknown;
     personaIds?: unknown;
     lorebookIds?: unknown;
@@ -1021,6 +1026,11 @@ async function importStoryBundle(data: unknown, db: DB) {
   const result = await storage.create({
     name,
     description: typeof d.description === "string" ? d.description : null,
+    imagePath: typeof d.imagePath === "string" ? d.imagePath : null,
+    comment: typeof d.comment === "string" ? d.comment : "",
+    creator: typeof d.creator === "string" ? d.creator : "",
+    version: typeof d.version === "string" ? d.version : "",
+    tags: Array.isArray(d.tags) ? d.tags.filter((t): t is string => typeof t === "string") : [],
     characterIds: finalCharacterIds,
     personaIds: finalPersonaIds,
     lorebookIds: finalLorebookIds,

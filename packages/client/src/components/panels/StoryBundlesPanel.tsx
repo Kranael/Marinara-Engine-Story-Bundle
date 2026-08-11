@@ -253,13 +253,26 @@ export function StoryBundlesPanel() {
                   }}
                   className="group relative flex cursor-pointer items-center gap-2.5 rounded-xl p-2.5 transition-all hover:bg-[var(--sidebar-accent)]"
                 >
-                  <div className="mari-panel-gradient-surface mari-panel-gradient--story-bundles flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white">
-                    <BookMarked size="0.875rem" />
+                  <div
+                    className={cn(
+                      "relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg text-white shadow-sm",
+                      bundle.imagePath
+                        ? "bg-[var(--muted)]"
+                        : "mari-panel-gradient-surface mari-panel-gradient--story-bundles",
+                    )}
+                  >
+                    {bundle.imagePath ? (
+                      <img src={bundle.imagePath} alt="" className="h-full w-full object-cover" draggable={false} />
+                    ) : (
+                      <BookMarked size="0.875rem" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="mari-chrome-text-strong truncate text-sm font-medium">{bundle.name}</div>
                     <div className="mari-chrome-text-muted truncate text-xs">
-                      {new Date(bundle.createdAt).toLocaleDateString()}
+                      {bundle.comment
+                        ? bundle.comment
+                        : new Date(bundle.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                   {/* Row action pill (visible on hover / always on mobile) */}

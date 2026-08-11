@@ -1,0 +1,400 @@
+// ──────────────────────────────────────────────
+// Story Bundle Metadata Tab
+// ──────────────────────────────────────────────
+import { useCallback, useRef, useState, type ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { Image, Tag, Upload, X } from "lucide-react";
+import { useUploadStoryBundleImage, useStoryBundleVersions, useCreateStoryBundleVersion, useDeleteStoryBundleVersion, useDeleteAllStoryBundleVersions } from "../../hooks/use-story-bundles";
+import { showConfirmDialog } from "../../lib/app-dialogs";
+import { cn } from "../../lib/utils";
+
+export interface StoryBundleMetadataProps {
+  bundleId: string;
+  name: string;
+  onNameChange: (value: string) => void;
+  comment: string;
+  onCommentChange: (value: string) => void;
+  creator: string;
+  onCreatorChange: (value: string) => void;
+  version: string;
+  onVersionChange: (value: string) => void;
+  tags: string[];
+  onTagsChange: (tags: string[]) => void;
+  imagePath: string | null;
+}
+
+export function StoryBundleMetadata({
+  bundleId,
+  name,
+  onNameChange,
+  comment,
+  onCommentChange,
+  creator,
+  onCreatorChange,
+  version,
+  onVersionChange,
+  tags,
+  onTagsChange,
+  imagePath,
+}: StoryBundleMetadataProps) {
+  const { t } = useTranslation();
+  const uploadImage = useUploadStoryBundleImage();
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [newTag, setNewTag] = useState("");
+
+  const handlePickImage = useCallback(() => {
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+      imageInputRef.current.click();
+    }
+  }, []);
+
+  const handleImageSelected = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        toast.error(t("storyBundles.invalidImageType", "Please choose an image file."));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const image = typeof reader.result === "string" ? reader.result : "";
+        if (!image) {
+          toast.error(t("storyBundles.imageReadFailed", "Failed to read the image."));
+          return;
+        }
+        try {
+          await uploadImage.mutateAsync({ id: bundleId, image });
+          toast.success(t("storyBundles.imageUpdated", "Bundle picture updated."));
+        } catch {
+          toast.error(t("storyBundles.imageUploadFailed", "Failed to upload the bundle picture."));
+        }
+      };
+      reader.onerror = () => {
+        toast.error(t("storyBundles.imageReadFailed", "Failed to read the image."));
+      };
+      reader.readAsDataURL(file);
+    },
+    [bundleId, uploadImage, t],
+  );
+
+  const addTag = useCallback(() => {
+    const trimmed = newTag.trim();
+    if (!trimmed) return;
+    if (tags.includes(trimmed)) {
+      setNewTag("");
+      return;
+    }
+    onTagsChange([...tags, trimmed]);
+    setNewTag("");
+  }, [newTag, tags, onTagsChange]);
+
+  const removeTag = useCallback(
+    (tag: string) => {
+      onTagsChange(tags.filter((t) => t !== tag));
+    },
+    [tags, onTagsChange],
+  );
+
+  const removeAllTags = useCallback(() => {
+    onTagsChange([]);
+  }, [onTagsChange]);
+
+  return (
+    <div data-testid="story-bundle-editor-metadata" className="flex flex-col gap-5">
+      {/* Avatar / Image */}
+      <div className="space-y-1.5">
+        <span className="text-xs font-medium text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.avatar", "Avatar")}
+        </span>
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-sm",
+              imagePath ? "bg-[var(--muted)]" : "bg-gradient-to-br from-[var(--primary)]/20 to-[var(--primary)]/5",
+            )}
+          >
+            {imagePath ? (
+              <img src={imagePath} alt="" className="h-full w-full object-cover" draggable={false} />
+            ) : (
+              <Image size="1.5rem" className="text-[var(--muted-foreground)]" />
+            )}
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <button
+              type="button"
+              onClick={handlePickImage}
+              disabled={uploadImage.isPending}
+              className="mari-chrome-control inline-flex items-center gap-1.5 px-3 py-1.5 text-xs"
+            >
+              <Upload size="0.75rem" />
+              {imagePath
+                ? t("storyBundles.metadata.changeImage", "Change Image")
+                : t("storyBundles.metadata.uploadImage", "Upload Image")}
+            </button>
+            {uploadImage.isPending && (
+              <span className="text-[0.625rem] text-[var(--muted-foreground)]">
+                {t("storyBundles.metadata.uploading", "Uploading…")}
+              </span>
+            )}
+          </div>
+        </div>
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageSelected}
+        />
+      </div>
+
+      {/* Bundle ID (read-only) */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--secondary)]/70 px-3 py-2">
+        <span className="text-[0.625rem] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.bundleId", "Bundle ID")}
+        </span>
+        <code className="min-w-0 flex-1 break-all rounded-lg bg-[var(--background)] px-2 py-1 text-[0.6875rem] text-[var(--foreground)]">
+          {bundleId}
+        </code>
+      </div>
+
+      {/* Name */}
+      <label className="space-y-1.5">
+        <span className="text-xs font-medium text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.name", "Name")}
+        </span>
+        <input
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
+        />
+      </label>
+
+      {/* Title / Comment */}
+      <label className="space-y-1.5">
+        <span className="text-xs font-medium text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.comment", "Title / Comment")}
+        </span>
+        <input
+          value={comment}
+          onChange={(e) => onCommentChange(e.target.value)}
+          className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
+          placeholder={t("storyBundles.metadata.commentPlaceholder", "A short note shown under the bundle name…")}
+        />
+      </label>
+
+      {/* Creator */}
+      <label className="space-y-1.5">
+        <span className="text-xs font-medium text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.creator", "Creator")}
+        </span>
+        <input
+          value={creator}
+          onChange={(e) => onCreatorChange(e.target.value)}
+          className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
+          placeholder={t("storyBundles.metadata.creatorPlaceholder", "Your name or handle…")}
+        />
+      </label>
+
+      {/* Version */}
+      <div className="space-y-1.5">
+        <span className="text-xs font-medium text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.version", "Version")}
+        </span>
+        <input
+          value={version}
+          onChange={(e) => onVersionChange(e.target.value)}
+          className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
+          placeholder={t("storyBundles.metadata.versionPlaceholder", "1.0.0")}
+        />
+        <StoryBundleVersionHistoryPanel bundleId={bundleId} />
+      </div>
+
+      {/* Tags */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-[var(--muted-foreground)]">
+            {t("storyBundles.metadata.tags", "Tags")}
+          </span>
+          {tags.length > 0 && (
+            <button
+              type="button"
+              onClick={removeAllTags}
+              className="mari-chrome-accent-surface mari-accent-animated rounded-lg border px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
+            >
+              {t("storyBundles.metadata.removeAll", "Remove All")}
+            </button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <span key={tag} className="mari-chrome-control mari-chrome-control--compact group/tag">
+              <Tag size="0.625rem" />
+              {tag}
+              <button
+                type="button"
+                onClick={() => removeTag(tag)}
+                className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
+                title={t("storyBundles.metadata.removeTag", "Remove tag")}
+              >
+                <X size="0.625rem" />
+              </button>
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-1.5">
+          <input
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addTag();
+              }
+            }}
+            placeholder={t("storyBundles.metadata.addTag", "Add tag…")}
+            className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5 text-xs outline-none focus:border-[var(--primary)]/40"
+          />
+          <button
+            type="button"
+            onClick={addTag}
+            className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected px-3 py-1.5"
+          >
+            {t("storyBundles.metadata.add", "Add")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────
+// Version History Panel
+// ──────────────────────────────────────────────
+
+function StoryBundleVersionHistoryPanel({ bundleId }: { bundleId: string }) {
+  const { t } = useTranslation();
+  const { data: versions, isLoading } = useStoryBundleVersions(bundleId);
+  const createVersion = useCreateStoryBundleVersion();
+  const deleteVersion = useDeleteStoryBundleVersion();
+  const deleteAllVersions = useDeleteAllStoryBundleVersions();
+
+  const handleCreateVersion = useCallback(async () => {
+    try {
+      await createVersion.mutateAsync({ id: bundleId, source: "manual" });
+      toast.success(t("storyBundles.metadata.versionCreated", "Version snapshot created."));
+    } catch {
+      toast.error(t("storyBundles.metadata.versionCreateFailed", "Failed to create version snapshot."));
+    }
+  }, [bundleId, createVersion, t]);
+
+  const handleDeleteVersion = useCallback(
+    async (versionId: string) => {
+      const confirmed = await showConfirmDialog({
+        title: t("storyBundles.metadata.deleteVersionTitle", "Delete version?"),
+        message: t("storyBundles.metadata.deleteVersionBody", "This version snapshot will be permanently deleted."),
+        confirmLabel: t("storyBundles.metadata.delete", "Delete"),
+        tone: "destructive",
+      });
+      if (!confirmed) return;
+      try {
+        await deleteVersion.mutateAsync({ bundleId, versionId });
+      } catch {
+        toast.error(t("storyBundles.metadata.versionDeleteFailed", "Failed to delete version."));
+      }
+    },
+    [bundleId, deleteVersion, t],
+  );
+
+  const handleDeleteAll = useCallback(async () => {
+    const confirmed = await showConfirmDialog({
+      title: t("storyBundles.metadata.deleteAllVersionsTitle", "Delete all versions?"),
+      message: t("storyBundles.metadata.deleteAllVersionsBody", "All version history for this bundle will be permanently deleted."),
+      confirmLabel: t("storyBundles.metadata.deleteAll", "Delete All"),
+      tone: "destructive",
+    });
+    if (!confirmed) return;
+    try {
+      await deleteAllVersions.mutateAsync(bundleId);
+      toast.success(t("storyBundles.metadata.allVersionsDeleted", "All versions deleted."));
+    } catch {
+      toast.error(t("storyBundles.metadata.allVersionsDeleteFailed", "Failed to delete versions."));
+    }
+  }, [bundleId, deleteAllVersions, t]);
+
+  return (
+    <div className="mt-2 space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[0.625rem] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.versionHistory", "Version History")}
+        </span>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleCreateVersion}
+            disabled={createVersion.isPending}
+            className="mari-chrome-control mari-chrome-control--compact px-2 py-0.5 text-[0.625rem]"
+          >
+            {t("storyBundles.metadata.snapshot", "Snapshot")}
+          </button>
+          {(versions?.length ?? 0) > 0 && (
+            <button
+              type="button"
+              onClick={handleDeleteAll}
+              className="mari-chrome-control mari-chrome-control--compact px-2 py-0.5 text-[0.625rem] text-[var(--destructive)]"
+            >
+              {t("storyBundles.metadata.reset", "Reset")}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isLoading && (
+        <p className="text-[0.625rem] text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.loading", "Loading…")}
+        </p>
+      )}
+
+      {!isLoading && (versions?.length ?? 0) === 0 && (
+        <p className="text-[0.625rem] text-[var(--muted-foreground)]">
+          {t("storyBundles.metadata.noVersions", "No version history yet. Click Snapshot to save the current state.")}
+        </p>
+      )}
+
+      {!isLoading && (versions?.length ?? 0) > 0 && (
+        <div className="max-h-48 space-y-1 overflow-y-auto">
+          {(versions ?? []).map((v) => (
+            <div
+              key={v.id}
+              className="flex items-center justify-between gap-2 rounded-lg border border-[var(--border)] bg-[var(--secondary)]/50 px-2.5 py-1.5"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[0.6875rem] font-medium text-[var(--foreground)]">
+                    {t("storyBundles.metadata.versionLabel", "v{{version}}", { version: v.version || "—" })}
+                  </span>
+                  <span className="text-[0.5625rem] text-[var(--muted-foreground)]">
+                    #{v.revision}
+                  </span>
+                </div>
+                <p className="truncate text-[0.625rem] text-[var(--muted-foreground)]">
+                  {new Date(v.createdAt).toLocaleString()}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDeleteVersion(v.id)}
+                className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--destructive)]"
+                title={t("storyBundles.metadata.deleteVersion", "Delete version")}
+              >
+                <X size="0.625rem" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
