@@ -16,10 +16,6 @@
  *   story-bundle-editor-metadata-tags-remove-all
  *   story-bundle-editor-metadata-tag-input
  *   story-bundle-editor-metadata-tag-add-button
- *   story-bundle-editor-metadata-version-history
- *   story-bundle-editor-metadata-version-empty
- *   story-bundle-editor-metadata-version-list
- *   story-bundle-editor-metadata-version-reset
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -39,10 +35,6 @@ export class StoryBundleMetadataTabPage {
   readonly tagsRemoveAll: Locator;
   readonly tagInput: Locator;
   readonly tagAddButton: Locator;
-  readonly versionHistory: Locator;
-  readonly versionEmpty: Locator;
-  readonly versionList: Locator;
-  readonly versionReset: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -60,10 +52,6 @@ export class StoryBundleMetadataTabPage {
     this.tagsRemoveAll = page.getByTestId("story-bundle-editor-metadata-tags-remove-all");
     this.tagInput = page.getByTestId("story-bundle-editor-metadata-tag-input");
     this.tagAddButton = page.getByTestId("story-bundle-editor-metadata-tag-add-button");
-    this.versionHistory = page.getByTestId("story-bundle-editor-metadata-version-history");
-    this.versionEmpty = page.getByTestId("story-bundle-editor-metadata-version-empty");
-    this.versionList = page.getByTestId("story-bundle-editor-metadata-version-list");
-    this.versionReset = page.getByTestId("story-bundle-editor-metadata-version-reset");
   }
 
   // ── Actions ───────────────────────────────────────────────
@@ -90,23 +78,4 @@ export class StoryBundleMetadataTabPage {
     await chip.getByRole("button").click();
   }
 
-  /** Get a locator for a version entry by its ID. */
-  versionEntry(versionId: string): Locator {
-    return this.page.getByTestId(`story-bundle-editor-metadata-version-${versionId}`);
-  }
-
-  /** Get the rename button for a version entry. */
-  versionRename(versionId: string): Locator {
-    return this.page.getByTestId(`story-bundle-editor-metadata-version-rename-${versionId}`);
-  }
-
-  /** Get the restore button for a version entry. */
-  versionRestore(versionId: string): Locator {
-    return this.page.getByTestId(`story-bundle-editor-metadata-version-restore-${versionId}`);
-  }
-
-  /** Get the delete button for a version entry. */
-  versionDelete(versionId: string): Locator {
-    return this.page.getByTestId(`story-bundle-editor-metadata-version-delete-${versionId}`);
-  }
 }
