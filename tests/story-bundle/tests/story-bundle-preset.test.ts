@@ -99,22 +99,14 @@ test.describe("Story Bundle Presets — Positive", () => {
     await panel.clickRow(bundle.name);
     await editor.waitFor();
 
-    // Click Play — this creates a chat with promptPresetId set
+    // Click Play — this creates a chat with promptPresetId set.
+    // Since the preset has variables, the ChoiceSelectionModal opens directly
+    // (no full wizard).
     await editor.playButton.click();
 
-    // The wizard opens at step 0 (connection). Advance to step 1 (preset).
-    const nextButton = page.getByRole("button", { name: "Next", exact: true });
-    await expect(nextButton).toBeVisible({ timeout: 10_000 });
-    await nextButton.click();
-
-    // Now on the preset step. Click Next again — this triggers the choice modal
-    // because the preset has variables.
-    await expect(page.getByRole("heading", { name: "Pick a Preset", exact: true })).toBeVisible({ timeout: 5_000 });
-    await nextButton.click();
-
-    // The "Configure Preset Variables" dialog should appear
+    // The "Configure Preset Variables" dialog should appear directly
     const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
-    await expect(choiceDialog).toBeVisible({ timeout: 5_000 });
+    await expect(choiceDialog).toBeVisible({ timeout: 10_000 });
 
     // Skip the dialog
     await choiceDialog.getByRole("button", { name: "Skip", exact: true }).click();

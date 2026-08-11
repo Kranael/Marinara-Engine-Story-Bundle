@@ -135,8 +135,23 @@ export function StoryBundlesPanel() {
                 }
               }
 
+              // Check if the preset has configurable variables — if so, show
+              // only the ChoiceSelectionModal instead of the full setup wizard.
+              const presetId = bundle.presetIds?.[0] ?? null;
+              let hasPresetVariables = false;
+              if (presetId) {
+                try {
+                  const presetFull = await api.get<{ choiceBlocks?: Array<{ id: string }> }>(`/prompts/${presetId}/full`);
+                  hasPresetVariables = (presetFull?.choiceBlocks?.length ?? 0) > 0;
+                } catch {
+                  // If we can't fetch the preset, fall through to settings.
+                }
+              }
+
               useChatStore.getState().setShouldOpenSettings(true);
-              useChatStore.getState().setShouldOpenWizard(true);
+              if (hasPresetVariables && presetId) {
+                useChatStore.getState().setPresetVariablesPrompt({ chatId: chat.id, presetId });
+              }
               toast.success(t("storyBundles.playStarted", "Roleplay started!"));
               setPlayingId(null);
             },
