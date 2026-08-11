@@ -108,3 +108,27 @@ export function useDeleteAllStoryBundleVersions() {
     },
   });
 }
+
+export function useRestoreStoryBundleVersion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ bundleId, versionId }: { bundleId: string; versionId: string }) =>
+      api.post(`/story-bundles/${bundleId}/versions/${versionId}/restore`, {}),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: storyBundleKeys.all });
+      qc.invalidateQueries({ queryKey: storyBundleKeys.detail(variables.bundleId) });
+      qc.invalidateQueries({ queryKey: storyBundleKeys.versions(variables.bundleId) });
+    },
+  });
+}
+
+export function useRenameStoryBundleVersion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ bundleId, versionId, version }: { bundleId: string; versionId: string; version: string }) =>
+      api.patch<StoryBundleVersion>(`/story-bundles/${bundleId}/versions/${versionId}`, { version }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: storyBundleKeys.versions(variables.bundleId) });
+    },
+  });
+}

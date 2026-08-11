@@ -4,10 +4,12 @@
 import { useCallback, useRef, useState, type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Image, Tag, Upload, X } from "lucide-react";
-import { useUploadStoryBundleImage, useStoryBundleVersions, useDeleteStoryBundleVersion, useDeleteAllStoryBundleVersions } from "../../hooks/use-story-bundles";
-import { showConfirmDialog } from "../../lib/app-dialogs";
+import { Image, Loader2, Pencil, RotateCcw, Tag, Trash2, Upload, X } from "lucide-react";
+import { normalizeAvatarCrop, type AvatarCrop } from "@marinara-engine/shared";
+import { useUploadStoryBundleImage, useStoryBundleVersions, useDeleteStoryBundleVersion, useDeleteAllStoryBundleVersions, useRestoreStoryBundleVersion, useRenameStoryBundleVersion } from "../../hooks/use-story-bundles";
+import { showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
+import { AvatarCropWidget } from "../ui/AvatarCropWidget";
 
 export interface StoryBundleMetadataProps {
   bundleId: string;
@@ -22,6 +24,8 @@ export interface StoryBundleMetadataProps {
   tags: string[];
   onTagsChange: (tags: string[]) => void;
   imagePath: string | null;
+  avatarCrop: Record<string, unknown> | null;
+  onAvatarCropChange: (crop: Record<string, unknown> | null) => void;
 }
 
 export function StoryBundleMetadata({
@@ -37,6 +41,8 @@ export function StoryBundleMetadata({
   tags,
   onTagsChange,
   imagePath,
+  avatarCrop,
+  onAvatarCropChange,
 }: StoryBundleMetadataProps) {
   const { t } = useTranslation();
   const uploadImage = useUploadStoryBundleImage();
@@ -151,6 +157,17 @@ export function StoryBundleMetadata({
           onChange={handleImageSelected}
         />
       </div>
+
+      {/* Avatar Crop */}
+      {imagePath && (
+        <AvatarCropWidget
+          src={imagePath}
+          alt={name}
+          crop={normalizeAvatarCrop(avatarCrop as unknown as AvatarCrop)}
+          onChange={(next) => onAvatarCropChange(next as unknown as Record<string, unknown>)}
+          onRemove={() => {}}
+        />
+      )}
 
       {/* Bundle ID (read-only) */}
       <div data-testid="story-bundle-editor-metadata-bundle-id" className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--secondary)]/70 px-3 py-2">
@@ -288,6 +305,11 @@ function StoryBundleVersionHistoryPanel({ bundleId }: { bundleId: string }) {
   const { data: versions, isLoading } = useStoryBundleVersions(bundleId);
   const deleteVersion = useDeleteStoryBundleVersion();
   const deleteAllVersions = useDeleteAllStoryBundleVersions();
+  const restoreVersion = useRestoreStoryBundleVersion();
+  const renameVersion = useRenameStoryBundleVersion();
+
+  const versionMutationPending =
+    deleteVersion.isPending || deleteAllVersions.isPending || restoreVersion.isPending || renameVersion.isPending;
 
   const handleDeleteVersion = useCallback(
     async (versionId: string) => {
@@ -323,6 +345,46 @@ function StoryBundleVersionHistoryPanel({ bundleId }: { bundleId: string }) {
     }
   }, [bundleId, deleteAllVersions, t]);
 
+  const handleRestore = useCallback(
+    async (versionId: string, versionLabel: string) => {
+      const confirmed = await showConfirmDialog({
+        title: t("storyBundles.metadata.restoreVersionTitle", "Restore version?"),
+        message: t("storyBundles.metadata.restoreVersionBody", "The bundle will be restored to \"{{version}}\". A snapshot of the current state will be saved first.", { version: versionLabel || "—" }),
+        confirmLabel: t("storyBundles.metadata.restore", "Restore"),
+      });
+      if (!confirmed) return;
+      try {
+        await restoreVersion.mutateAsync({ bundleId, versionId });
+        toast.success(t("storyBundles.metadata.versionRestored", "Bundle restored to \"{{version}}\".", { version: versionLabel || "—" }));
+      } catch {
+        toast.error(t("storyBundles.metadata.versionRestoreFailed", "Failed to restore version."));
+      }
+    },
+    [bundleId, restoreVersion, t],
+  );
+
+  const handleRenameVersion = useCallback(
+    async (versionId: string, currentLabel: string) => {
+      const nextVersion = await showPromptDialog({
+        title: t("storyBundles.metadata.renameVersionTitle", "Rename Version"),
+        message: t("storyBundles.metadata.renameVersionMessage", "Enter a new label for this version."),
+        defaultValue: currentLabel,
+        placeholder: t("storyBundles.metadata.versionPlaceholder", "1.0.0"),
+        confirmLabel: t("storyBundles.metadata.save", "Save"),
+        tone: "accent",
+      });
+      const trimmed = nextVersion?.trim();
+      if (!trimmed || trimmed === currentLabel) return;
+      try {
+        await renameVersion.mutateAsync({ bundleId, versionId, version: trimmed });
+        toast.success(t("storyBundles.metadata.versionRenamed", "Version renamed to \"{{version}}\".", { version: trimmed }));
+      } catch {
+        toast.error(t("storyBundles.metadata.versionRenameFailed", "Failed to rename version."));
+      }
+    },
+    [bundleId, renameVersion, t],
+  );
+
   return (
     <div data-testid="story-bundle-editor-metadata-version-history" className="mt-2 space-y-2">
       <div className="flex items-center justify-between gap-2">
@@ -335,6 +397,7 @@ function StoryBundleVersionHistoryPanel({ bundleId }: { bundleId: string }) {
               type="button"
               data-testid="story-bundle-editor-metadata-version-reset"
               onClick={handleDeleteAll}
+              disabled={versionMutationPending}
               className="mari-chrome-control mari-chrome-control--compact px-2 py-0.5 text-[0.625rem] text-[var(--destructive)]"
             >
               {t("storyBundles.metadata.reset", "Reset")}
@@ -376,14 +439,47 @@ function StoryBundleVersionHistoryPanel({ bundleId }: { bundleId: string }) {
                   {new Date(v.createdAt).toLocaleString()}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => handleDeleteVersion(v.id)}
-                className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--destructive)]"
-                title={t("storyBundles.metadata.deleteVersion", "Delete version")}
-              >
-                <X size="0.625rem" />
-              </button>
+              <div className="flex items-center gap-0.5">
+                <button
+                  type="button"
+                  onClick={() => handleRenameVersion(v.id, v.version)}
+                  disabled={versionMutationPending}
+                  className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+                  title={t("storyBundles.metadata.renameVersion", "Rename version")}
+                >
+                  {renameVersion.isPending && renameVersion.variables?.versionId === v.id ? (
+                    <Loader2 size="0.625rem" className="animate-spin" />
+                  ) : (
+                    <Pencil size="0.625rem" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRestore(v.id, v.version)}
+                  disabled={versionMutationPending}
+                  className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--primary)]"
+                  title={t("storyBundles.metadata.restoreVersion", "Restore this version")}
+                >
+                  {restoreVersion.isPending && restoreVersion.variables?.versionId === v.id ? (
+                    <Loader2 size="0.625rem" className="animate-spin" />
+                  ) : (
+                    <RotateCcw size="0.625rem" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteVersion(v.id)}
+                  disabled={versionMutationPending}
+                  className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--destructive)]"
+                  title={t("storyBundles.metadata.deleteVersion", "Delete version")}
+                >
+                  {deleteVersion.isPending && deleteVersion.variables?.versionId === v.id ? (
+                    <Loader2 size="0.625rem" className="animate-spin" />
+                  ) : (
+                    <Trash2 size="0.625rem" />
+                  )}
+                </button>
+              </div>
             </div>
           ))}
         </div>

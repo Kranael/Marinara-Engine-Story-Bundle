@@ -1,6 +1,7 @@
 // ──────────────────────────────────────────────
 // Story Bundle Types
 // ──────────────────────────────────────────────
+import type { AvatarCrop } from "./avatar-crop.js";
 
 /** An intro is a named first message that can be selected when starting a roleplay from a story bundle. */
 export interface StoryBundleIntro {
@@ -43,6 +44,10 @@ export interface StoryBundle {
   description: string | null;
   /** Optional picture displayed for this bundle in the library UI. */
   imagePath: string | null;
+  /** Avatar crop settings for the bundle image. Accepts both the current
+   *  source-rectangle shape and the legacy zoom+offset shape (kept readable so
+   *  previously saved crops display unchanged until the user re-edits). */
+  avatarCrop?: AvatarCrop | null;
   /** User-only note shown under the bundle name in selectors and editors. */
   comment: string;
   /** Creator/author name for attribution. */

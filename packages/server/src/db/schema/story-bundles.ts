@@ -8,6 +8,7 @@ export const storyBundles = fileTable("story_bundles", {
   name: text("name").notNull(),
   description: text("description"),
   imagePath: text("image_path"),
+  avatarCrop: text("avatar_crop"),
   comment: text("comment").notNull().default(""),
   creator: text("creator").notNull().default(""),
   version: text("version").notNull().default(""),

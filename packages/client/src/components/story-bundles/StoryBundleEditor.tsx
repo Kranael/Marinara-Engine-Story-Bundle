@@ -152,6 +152,7 @@ export function StoryBundleEditor() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [imagePath, setImagePath] = useState<string | null>(null);
+  const [avatarCrop, setAvatarCrop] = useState<Record<string, unknown> | null>(null);
   const [comment, setComment] = useState("");
   const [creator, setCreator] = useState("");
   const [version, setVersion] = useState("");
@@ -176,6 +177,7 @@ export function StoryBundleEditor() {
       setName(bundle.name);
       setDescription(bundle.description ?? "");
       setImagePath(bundle.imagePath ?? null);
+      setAvatarCrop((bundle.avatarCrop as unknown as Record<string, unknown>) ?? null);
       setComment(bundle.comment ?? "");
       setCreator(bundle.creator ?? "");
       setVersion(bundle.version ?? "");
@@ -211,7 +213,10 @@ export function StoryBundleEditor() {
   const introsDirty = bundle
     ? JSON.stringify(intros) !== JSON.stringify(bundle.intros ?? [])
     : false;
-  const isDirty = nameDirty || descriptionDirty || commentDirty || creatorDirty || versionDirty || tagsDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty || introsDirty;
+  const avatarCropDirty = bundle
+    ? JSON.stringify(avatarCrop) !== JSON.stringify(bundle.avatarCrop ?? null)
+    : false;
+  const isDirty = nameDirty || descriptionDirty || commentDirty || creatorDirty || versionDirty || tagsDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty || introsDirty || avatarCropDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeDescription(description) : ""),
@@ -222,9 +227,10 @@ export function StoryBundleEditor() {
     if (!storyBundleDetailId || !isDirty || saving) return;
     setSaving(true);
     try {
-      const payload: { name?: string; description?: string | null; comment?: string; creator?: string; version?: string; tags?: string[]; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[]; intros?: StoryBundleIntro[] } = {};
+      const payload: { name?: string; description?: string | null; avatarCrop?: Record<string, unknown> | null; comment?: string; creator?: string; version?: string; tags?: string[]; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[]; intros?: StoryBundleIntro[] } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
+      if (avatarCropDirty) payload.avatarCrop = avatarCrop;
       if (commentDirty) payload.comment = comment;
       if (creatorDirty) payload.creator = creator;
       if (versionDirty) payload.version = version;
@@ -247,7 +253,7 @@ export function StoryBundleEditor() {
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, commentDirty, creatorDirty, versionDirty, tagsDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, introsDirty, updateMutation, createVersion, name, description, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, intros, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, avatarCropDirty, commentDirty, creatorDirty, versionDirty, tagsDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, introsDirty, updateMutation, createVersion, name, description, avatarCrop, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, intros, t]);
 
   const handlePlay = useCallback(async () => {
     if (!bundle || playing) return;
@@ -450,6 +456,8 @@ export function StoryBundleEditor() {
                 tags={tags}
                 onTagsChange={setTags}
                 imagePath={imagePath}
+                avatarCrop={avatarCrop}
+                onAvatarCropChange={setAvatarCrop}
               />
             )}
 

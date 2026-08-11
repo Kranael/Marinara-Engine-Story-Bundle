@@ -36,6 +36,7 @@ export function createStoryBundlesStorage(db: DB) {
         name: input.name,
         description: input.description ?? null,
         imagePath: input.imagePath ?? null,
+        avatarCrop: input.avatarCrop != null ? JSON.stringify(input.avatarCrop) : null,
         comment: input.comment ?? "",
         creator: input.creator ?? "",
         version: input.version ?? "",
@@ -58,6 +59,7 @@ export function createStoryBundlesStorage(db: DB) {
           ...(data.name !== undefined && { name: data.name }),
           ...(data.description !== undefined && { description: data.description }),
           ...(data.imagePath !== undefined && { imagePath: data.imagePath }),
+          ...(data.avatarCrop !== undefined && { avatarCrop: data.avatarCrop != null ? JSON.stringify(data.avatarCrop) : null }),
           ...(data.comment !== undefined && { comment: data.comment }),
           ...(data.creator !== undefined && { creator: data.creator }),
           ...(data.version !== undefined && { version: data.version }),
@@ -146,6 +148,67 @@ export function createStoryBundlesStorage(db: DB) {
         createdAt: timestamp,
         revision: nextRevision,
       };
+    },
+
+    async getVersionById(bundleId: string, versionId: string): Promise<StoryBundleVersion | null> {
+      const rows = await db
+        .select()
+        .from(storyBundleVersions)
+        .where(eq(storyBundleVersions.id, versionId));
+      const row = rows[0] as Record<string, unknown> | undefined;
+      if (!row || row.bundleId !== bundleId) return null;
+      return {
+        id: row.id as string,
+        bundleId: row.bundleId as string,
+        name: row.name as string,
+        description: (row.description as string) ?? null,
+        comment: (row.comment as string) ?? "",
+        creator: (row.creator as string) ?? "",
+        version: (row.version as string) ?? "",
+        tags: parseTags(row.tags),
+        source: (row.source as string) ?? "manual",
+        reason: (row.reason as string) ?? "",
+        createdAt: row.createdAt as string,
+        revision: (row.revision as number) ?? 1,
+      };
+    },
+
+    async restoreVersion(bundleId: string, versionId: string) {
+      const version = await this.getVersionById(bundleId, versionId);
+      if (!version) return null;
+      // Snapshot the current bundle before restoring, so we never lose history.
+      const existing = await this.getById(bundleId);
+      if (!existing) return null;
+      const existingRow = existing as Record<string, unknown>;
+      await this.createVersion(bundleId, {
+        name: (existingRow.name as string) ?? "",
+        description: (existingRow.description as string) ?? null,
+        comment: (existingRow.comment as string) ?? "",
+        creator: (existingRow.creator as string) ?? "",
+        version: (existingRow.version as string) ?? "",
+        tags: parseTags(existingRow.tags),
+        source: "restore",
+        reason: "Saved before restoring an earlier version",
+      });
+      await this.update(bundleId, {
+        name: version.name,
+        description: version.description,
+        comment: version.comment,
+        creator: version.creator,
+        version: version.version,
+        tags: version.tags,
+      });
+      return this.getById(bundleId);
+    },
+
+    async renameVersion(bundleId: string, versionId: string, versionLabel: string) {
+      const version = await this.getVersionById(bundleId, versionId);
+      if (!version) return null;
+      await db
+        .update(storyBundleVersions)
+        .set({ version: versionLabel })
+        .where(eq(storyBundleVersions.id, versionId));
+      return this.getVersionById(bundleId, versionId);
     },
 
     async deleteVersion(versionId: string): Promise<void> {

@@ -81,6 +81,15 @@ function parseIntroArray(value: unknown): StoryBundleIntro[] {
   }
 }
 
+/** Parse a JSON text column into an object or null. */
+function parseJsonObject(value: unknown): Record<string, unknown> | null {
+  if (typeof value !== "string") return null;
+  try {
+    const parsed = JSON.parse(value);
+    return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed) ? parsed : null;
+  } catch { return null; }
+}
+
 /** Parse the JSON columns into typed arrays for the API response. */
 function serializeBundle(row: Record<string, unknown>): StoryBundle {
   return {
@@ -88,6 +97,7 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
     name: row.name as string,
     description: (row.description as string) ?? null,
     imagePath: (row.imagePath as string) ?? null,
+    avatarCrop: parseJsonObject(row.avatarCrop) as StoryBundle["avatarCrop"],
     comment: (row.comment as string) ?? "",
     creator: (row.creator as string) ?? "",
     version: (row.version as string) ?? "",
@@ -225,6 +235,30 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       reason: body.reason ?? "",
     });
     return reply.status(201).send(version);
+  });
+
+  // POST /:id/versions/:versionId/restore — Restore a bundle to a previous version
+  app.post<{ Params: { id: string; versionId: string } }>("/:id/versions/:versionId/restore", async (req, reply) => {
+    const { id, versionId } = req.params;
+    const bundle = await storage.getById(id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+    const restored = await storage.restoreVersion(id, versionId);
+    if (!restored) return reply.status(404).send({ error: "Story bundle version not found" });
+    return reply.send(serializeBundle(restored));
+  });
+
+  // PATCH /:id/versions/:versionId — Rename a version label
+  app.patch<{ Params: { id: string; versionId: string } }>("/:id/versions/:versionId", async (req, reply) => {
+    const { id, versionId } = req.params;
+    const bundle = await storage.getById(id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+    const body = req.body as { version?: string };
+    if (!body.version || typeof body.version !== "string" || !body.version.trim()) {
+      return reply.status(400).send({ error: "Version label is required" });
+    }
+    const renamed = await storage.renameVersion(id, versionId, body.version.trim());
+    if (!renamed) return reply.status(404).send({ error: "Story bundle version not found" });
+    return reply.send(renamed);
   });
 
   // DELETE /:id/versions/:versionId — Delete a specific version
