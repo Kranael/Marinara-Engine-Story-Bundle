@@ -1,7 +1,7 @@
 # Story Bundle
 
 > Entwicklungs-Dokumentation für das neue **Story-Bundle**-Objekt in Marinara Engine.
-> Branch: `story-bundle-dev` · Stand: sechste Iteration (Titel + HTML-Description + Characters + Personas + Lorebooks + Import/Export).
+> Branch: `story-bundle-dev` · Stand: achte Iteration (Metadata-Tab + Image-Support + Version-History + Auto-Snapshot + Name-in-Metadata-only).
 
 ## 1. Überblick & Scope
 
@@ -17,11 +17,37 @@ interface StoryBundle {
   id: string;             // nanoid, serverseitig erzeugt
   name: string;           // Titel des Bundles (1–200 Zeichen, getrimmt)
   description: string | null; // Optionale HTML-Beschreibung (clientseitig via DOMPurify gesäubert)
+  comment: string | null; // Optionales Freitextfeld für Notizen
+  creator: string | null; // Optionaler Autor/Ersteller
+  version: string | null; // Optionale Versionsnummer (z. B. "1.0.0")
+  tags: string[];         // Freie Tags (JSON-Array in der DB)
+  image: string | null;   // Optionales Bundle-Bild (base64 data URL oder Pfad)
   characterIds: string[]; // Zugewiesene Charakter-IDs (JSON-Array in der DB)
   personaIds: string[];   // Zugewiesene Persona-IDs (JSON-Array in der DB)
   lorebookIds: string[];  // Zugewiesene Lorebook-IDs (JSON-Array in der DB)
+  presetIds: string[];    // Zugewiesene Preset-IDs (JSON-Array in der DB)
+  intros: StoryBundleIntro[]; // Inline-Intros (Name + Text), als JSON-Array in der DB
   createdAt: string;      // ISO-8601 Zeitstempel
   updatedAt: string;      // ISO-8601 Zeitstempel
+}
+
+interface StoryBundleIntro {
+  id: string;   // clientseitig via crypto.randomUUID() erzeugt
+  name: string; // Name des Intros (1–200 Zeichen)
+  text: string; // Nachrichtentext (min 1 Zeichen)
+}
+
+interface StoryBundleVersion {
+  id: string;             // nanoid, serverseitig erzeugt
+  storyBundleId: string;  // FK → story_bundles.id
+  name: string;           // Snapshot des Namens
+  description: string | null; // Snapshot der Description
+  comment: string | null; // Snapshot des Comments
+  creator: string | null; // Snapshot des Creators
+  version: string | null; // Snapshot der Version
+  tags: string[];         // Snapshot der Tags
+  source: "save" | "manual"; // Auslöser: Auto-Save oder manuell
+  createdAt: string;      // ISO-8601 Zeitstempel
 }
 ```
 
@@ -35,8 +61,10 @@ Shared (Types + Zod) → Server (DB-Schema + Storage + REST-Routen) → Client (
 
 | Datei | Zweck |
 |---|---|
-| `src/types/story-bundle.ts` | TypeScript-Interface `StoryBundle` |
+| `src/types/story-bundle.ts` | TypeScript-Interface `StoryBundle` (erweitert um comment, creator, version, tags, image) |
+| `src/types/story-bundle-version.ts` | TypeScript-Interface `StoryBundleVersion { id, storyBundleId, name, description, comment, creator, version, tags, source, createdAt }` |
 | `src/schemas/story-bundle.schema.ts` | Zod-Schemas für API-Eingaben |
+| `src/schemas/story-bundle-version.schema.ts` | Zod: `createStoryBundleVersionSchema` (name + description + comment + creator + version + tags + source) |
 | `src/index.ts` | Barrel-Exports (`export * from ...`) |
 
 ### Zod-Schemas
@@ -44,22 +72,26 @@ Shared (Types + Zod) → Server (DB-Schema + Storage + REST-Routen) → Client (
 | Schema | Regel |
 |---|---|
 | `storyBundleIdParamsSchema` | `{ id: string, min 1 }` — URL-Parameter |
-| `createStoryBundleSchema` | `{ name: string, description?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[] }` — name getrimmt, min 1, max 200 |
-| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[] }` — alle optional |
+| `createStoryBundleSchema` | `{ name: string, description?: string \| null, comment?: string \| null, creator?: string \| null, version?: string \| null, tags?: string[], image?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[], presetIds?: string[], intros?: StoryBundleIntro[] }` — name getrimmt, min 1, max 200 |
+| `updateStoryBundleSchema` | `{ name?: string, description?: string \| null, comment?: string \| null, creator?: string \| null, version?: string \| null, tags?: string[], image?: string \| null, characterIds?: string[], personaIds?: string[], lorebookIds?: string[], presetIds?: string[], intros?: StoryBundleIntro[] }` — alle optional |
+| `createStoryBundleVersionSchema` | `{ name: string, description?: string \| null, comment?: string \| null, creator?: string \| null, version?: string \| null, tags?: string[], source: "save" \| "manual" }` |
 
-Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
+Abgeleitete Typen: `CreateStoryBundleInput`, `UpdateStoryBundleInput`, `CreateStoryBundleVersionInput`.
 
 ## 3. Schicht: Server (`packages/server`)
 
 | Datei | Zweck |
 |---|---|
 | `src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` — Tabellendefinition |
-| `src/db/schema/index.ts` | Barrel-Export ergänzt |
-| `src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` registriert |
+| `src/db/schema/story-bundle-versions.ts` | `fileTable("story_bundle_versions", …)` — Version-Snapshot-Tabelle |
+| `src/db/schema/index.ts` | Barrel-Export ergänzt (beide Tabellen) |
+| `src/db/file-backed-store.ts` | `"story_bundles"` + `"story_bundle_versions"` in `FILE_BACKED_TABLES` registriert; Cascade-Regel in `CASCADES`: `story_bundles` → `story_bundle_versions` (DELETE) |
 | `src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)` — CRUD-Zugriff |
+| `src/services/storage/story-bundle-versions.storage.ts` | `createStoryBundleVersionsStorage(db)` — listByBundleId/create/deleteByBundleId |
 | `src/routes/story-bundles.routes.ts` | REST-Endpunkte unter `/api/story-bundles` |
+| `src/routes/story-bundle-versions.routes.ts` | REST-Endpunkte unter `/api/story-bundles/:id/versions` (GET/POST) + `DELETE /:versionId` |
 | `src/services/export/export-image-helpers.ts` | Shared Image-Helper: `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` |
-| `src/routes/index.ts` | Routenregistrierung ergänzt |
+| `src/routes/index.ts` | Routenregistrierung ergänzt (beide Routen) |
 
 Die Tabelle `story_bundles` ist eine File-Native-JSON-Table wie alle anderen
 Entitäten (Lorebooks, Presets, Personas …). IDs werden über `newId()` (nanoid),
@@ -83,6 +115,9 @@ Zeitstempel über `now()` (ISO) aus `utils/id-generator.ts` erzeugt.
 | `PATCH` | `/api/story-bundles/:id` | Titel aktualisieren, `404` wenn unbekannt |
 | `DELETE` | `/api/story-bundles/:id` | Löschen, `404` wenn unbekannt |
 | `GET` | `/api/story-bundles/:id/export` | Export als `.marinara.json` (Download) |
+| `GET` | `/api/story-bundles/:id/versions` | Alle Version-Snapshots eines Bundles |
+| `POST` | `/api/story-bundles/:id/versions` | Neuen Version-Snapshot anlegen (Zod-validiert), `201` |
+| `DELETE` | `/api/story-bundles/:id/versions/:versionId` | Einzelnen Snapshot löschen |
 
 Zusätzlich wird der Import über den bestehenden `/api/import/marinara`-Endpunkt
 abgewickelt (POST mit `ExportEnvelope`, `type: "marinara_story_bundle"`).
@@ -104,6 +139,12 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 - `useCreateStoryBundle()` / `useUpdateStoryBundle()` / `useDeleteStoryBundle()`
   — Mutationen, invalidieren nach Erfolg `storyBundleKeys.all`
 
+**Version-Hooks** (`src/hooks/use-story-bundle-versions.ts`):
+- `storyBundleVersionKeys` — Query-Key-Fabrik (`all`, `list(bundleId)`)
+- `useStoryBundleVersions(bundleId)` — Liste aller Snapshots eines Bundles
+- `useCreateStoryBundleVersion()` — Snapshot anlegen, invalidieren nach Erfolg
+- `useDeleteStoryBundleVersion()` — Snapshot löschen, invalidieren nach Erfolg
+
 ### Navigation & State (`src/stores/ui.store.ts`)
 
 - Neuer Panel-Typ: `"story-bundles"` im `Panel`-Union.
@@ -120,10 +161,13 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 |---|---|
 | `src/components/panels/StoryBundlesPanel.tsx` | Listen-Panel im rechten Panel |
 | `src/components/story-bundles/StoryBundleEditor.tsx` | Vollseiten-Editor (Detailansicht) — Shell mit Tab-Rail |
-| `src/components/story-bundles/StoryBundleDescription.tsx` | Description-Tab (Name + HTML-Description mit Preview-Toggle) |
+| `src/components/story-bundles/StoryBundleMetadata.tsx` | Metadata-Tab (Avatar/Image-Upload, Bundle-ID, Name, Comment, Creator, Version, Tags, Version-History-Panel) |
+| `src/components/story-bundles/StoryBundleDescription.tsx` | Description-Tab (HTML-Description mit Preview-Toggle; Name wurde in den Metadata-Tab verschoben) |
 | `src/components/story-bundles/StoryBundleCharacters.tsx` | Characters-Tab (Suche/Random/Load-More, Groups-Dropdown, Selected-Liste) |
 | `src/components/story-bundles/StoryBundlePersonas.tsx` | Personas-Tab (gleiches Muster wie Characters, mit Avatar-Crop-Support) |
 | `src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
+| `src/components/story-bundles/StoryBundlePresets.tsx` | Presets-Tab (Suche/Random/Load-More, Selected-Liste; keine Groups) |
+| `src/components/story-bundles/StoryBundleIntros.tsx` | Intros-Tab (Inline-Intros: Name + Text, Add/Edit/Delete) |
 | `src/components/layout/RightPanel.tsx` | Panel registriert (`PANEL_CONFIG` + `PANELS`) |
 | `src/components/layout/TopBar.tsx` | TopBar-Button (`BookMarked`-Icon, Gradient) |
 | `src/components/layout/AppShell.tsx` | Lazy-Import + `detailView`-Kette |
@@ -142,20 +186,36 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 2. „New Bundle" öffnet einen Prompt-Dialog (Titel „Create Story Bundle")
    mit genau einem Feld (Titel). Nach Bestätigung wird das Bundle angelegt
    und der Editor geöffnet.
-3. Der Editor hat vier Tabs (via `EditorTabRail`): **Description** (Name + HTML-Description),
-   **Characters** (Charakter-Zuweisung), **Personas** (Persona-Zuweisung),
-   **Lorebooks** (Lorebook-Zuweisung).
+3. Der Editor hat sieben Tabs (via `EditorTabRail`): **Metadata** (Avatar, Bundle-ID, Name,
+   Comment, Creator, Version, Tags, Version-History), **Description** (HTML-Description
+   mit Preview-Toggle), **Characters** (Charakter-Zuweisung), **Personas**
+   (Persona-Zuweisung), **Lorebooks** (Lorebook-Zuweisung), **Presets**
+   (Preset-Zuweisung), **Intros** (Inline-Intros: Name + Text).
    Jeder Tab ist in eine eigene Komponente unter `src/components/story-bundles/`
    ausgelagert.
-4. Der **General**-Tab zeigt ein Namensfeld und eine HTML-Description-Textarea.
-   Speichern per Button oder `Enter` im Namensfeld.
-5. Die Description unterstützt einen **Preview-Toggle**: Im Edit-Modus wird
+4. Der **Metadata**-Tab enthält:
+   - **Avatar/Image-Upload**: Drag & Drop oder File-Picker für ein Bundle-Bild.
+     Unterstützt JPG, PNG, WebP. Vorschau mit Crop-Funktion.
+   - **Bundle-ID**: Read-only Anzeige der internen ID.
+   - **Name**: Pflichtfeld (1–200 Zeichen, getrimmt). War zuvor im Description-Tab.
+   - **Comment**: Optionales Freitextfeld für Notizen.
+   - **Creator**: Optionales Feld für den Autor/Ersteller.
+   - **Version**: Optionales Versionsfeld (z. B. "1.0.0").
+   - **Tags**: Freie Tags mit Add/Remove. Duplikate werden verhindert.
+   - **Version History Panel**: Zeigt alle gespeicherten Snapshots mit Timestamp,
+     Source (save/manual) und Version-Label. Bei jedem Speichern wird automatisch
+     ein Snapshot erstellt (kein manueller Button nötig). Reset-Button setzt
+     Name, Description, Comment, Creator, Version und Tags auf den letzten
+     Snapshot zurück.
+5. Der **Description**-Tab enthält nur noch die HTML-Description-Textarea
+   mit Preview-Toggle. Das Namensfeld wurde in den Metadata-Tab verschoben.
+6. Die Description unterstützt einen **Preview-Toggle**: Im Edit-Modus wird
    HTML eingegeben, im Preview-Modus wird das gesäuberte HTML (via DOMPurify)
    live gerendert. Erlaubte Tags: `a`, `b`, `blockquote`, `br`, `code`, `del`,
    `em`, `h1`–`h6`, `hr`, `i`, `img`, `ins`, `li`, `mark`, `ol`, `p`, `pre`,
    `s`, `small`, `span`, `strong`, `sub`, `sup`, `table`, `tbody`, `td`, `th`,
    `thead`, `tr`, `u`, `ul`.
-6. Der **Characters**-Tab hat drei Sektionen:
+7. Der **Characters**-Tab hat drei Sektionen:
    - **Selected Characters**: Zeigt alle zugewiesenen Charaktere mit Avatar,
      Name, Titel und einem Remove-Button (Trash2-Icon). Leerer Zustand zeigt
      eine gestrichelte Placeholder-Box.
@@ -166,32 +226,57 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
      einen zufälligen Charakter), Liste aller verfügbaren Charaktere mit
      Avatar/Name/Titel und Plus-Button zum Hinzufügen. „Load more"-Button
      für Paginierung. Leerer Zustand zeigt passende Meldungen.
-7. Der **Personas**-Tab folgt dem gleichen Muster wie Characters:
+8. Der **Personas**-Tab folgt dem gleichen Muster wie Characters:
    - **Selected Personas**: Zugewiesene Personas mit Avatar (inkl. Crop),
      Name, Titel und Remove-Button.
    - **Groups**: Dropdown aller Persona Groups. Persona-IDs werden aus dem
      JSON-String `personaIds` der Group geparst.
    - **Add Personas**: Suchfeld, Random-Button, paginierte Liste mit
      Avatar/Name/Titel und Plus-Button.
-8. Der **Lorebooks**-Tab hat zwei Sektionen (keine Groups, da Lorebooks keine
+9. Der **Lorebooks**-Tab hat zwei Sektionen (keine Groups, da Lorebooks keine
    Folder-Groups haben):
    - **Selected Lorebooks**: Zugewiesene Lorebooks mit BookOpen-Icon, Name,
      Kategorie und Remove-Button.
    - **Add Lorebooks**: Suchfeld, Random-Button, paginierte Liste mit
      BookOpen-Icon/Name/Kategorie und Plus-Button.
-9. Löschen läuft über einen destruktiven Bestätigungsdialog.
-10. **Export**: `GET /api/story-bundles/:id/export` liefert einen
+10. Der **Presets**-Tab folgt dem gleichen Muster wie Lorebooks (keine Groups):
+   - **Selected Presets**: Zugewiesene Presets mit SlidersHorizontal-Icon, Name,
+     Description und Remove-Button.
+   - **Add Presets**: Suchfeld, Random-Button, paginierte Liste mit
+     SlidersHorizontal-Icon/Name/Description und Plus-Button.
+11. Der **Intros**-Tab verwaltet 1:n Inline-Intros (keine Referenzen auf externe
+    Entitäten):
+    - **Add Intro**: Button öffnet ein Inline-Formular mit Name-Input und
+      Text-Textarea. Speichern erzeugt ein neues Intro mit `crypto.randomUUID()`.
+    - **Selected Intros**: Liste aller Intros mit MessageSquare-Icon, Name,
+      Text-Vorschau, Edit-Button (Pencil) und Delete-Button (X).
+    - **Edit**: Öffnet das Formular mit den vorhandenen Werten, speichern
+      aktualisiert das Intro in-place.
+    - **Delete**: Entfernt das Intro sofort aus der Liste.
+    - **Empty State**: Gestrichelte Placeholder-Box wenn keine Intros vorhanden.
+    - **Play Flow**: Beim Klick auf „Play" wird, falls Intros vorhanden sind,
+      ein Choice-Dialog (`showChoiceDialog`) mit den Intro-Namen angezeigt.
+      Das gewählte Intro wird als erste Assistant-Message in den Chat eingefügt
+      (`POST /api/chats/:id/messages` mit `role: "assistant"`).
+      Bei Abbruch wird der Play-Vorgang gestoppt.
+12. Löschen läuft über einen destruktiven Bestätigungsdialog.
+13. **Auto-Snapshot**: Bei jedem Speichern (Save-Button) wird automatisch ein
+    Version-Snapshot via `POST /api/story-bundles/:id/versions` mit `source: "save"`
+    erstellt. Der Snapshot speichert Name, Description, Comment, Creator, Version
+    und Tags. Fehler beim Snapshot werden still protokolliert (best-effort),
+    blockieren aber nicht den Save-Vorgang.
+14. **Export**: `GET /api/story-bundles/:id/export` liefert einen
     `ExportEnvelope` mit `type: "marinara_story_bundle"` als JSON-Download
     (`.marinara.json`). Der Envelope enthält `name`, `description`,
-    `characterIds`, `personaIds`, `lorebookIds` sowie `embeddedCharacters`,
-    `embeddedPersonas`, `embeddedLorebooks` mit vollständigen Entitätsdaten.
+    `characterIds`, `personaIds`, `lorebookIds`, `presetIds`, `intros` sowie `embeddedCharacters`,
+    `embeddedPersonas`, `embeddedLorebooks`, `embeddedPresets` mit vollständigen Entitätsdaten.
     Characters und Personas werden mit Avataren, Sprites und Gallery als
     base64-Daten-URLs embedded — das JSON ist komplett self-contained für
     PC-zu-PC-Transfer.
-11. **Import**: `POST /api/import/marinara` mit einem Story-Bundle-Envelope
+15. **Import**: `POST /api/import/marinara` mit einem Story-Bundle-Envelope
     erstellt ein neues Bundle. Der Import-Handler (`importStoryBundle`)
     validiert den Namen (Pflichtfeld), filtert ID-Arrays auf Strings und
-    importiert embedded Characters/Personas/Lorebooks. Import dedupliziert
+    importiert embedded Characters/Personas/Lorebooks/Presets. Import dedupliziert
     per Name (case-insensitive): existierende Entitäten werden übersprungen,
     nur neue werden angelegt. Binärdaten (Avatare, Sprites, Gallery) werden
     aus den base64-Daten-URLs wiederhergestellt.
@@ -201,14 +286,14 @@ interne Fehler → `500` mit `logger.error(err, …)` (Pino, kein `console.*`).
 ### Lokalisierung (`src/localization/locales/en.json`)
 
 Neue semantische Schlüssel: `navigation.topbar.storyBundles` sowie der Block
-`storyBundles.*` (add, addCharacters, addFromGroup, addLorebooks, addPersonas, allAdded, allCharactersAdded,
-allLorebooksAdded, allPersonasAdded, back, cancel, charactersEmpty, count, create, createDialogTitle, createFailed,
-createPromptMessage, delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed,
+`storyBundles.*` (add, addCharacters, addFromGroup, addIntros, addLorebooks, addPersonas, addPresets, allAdded, allCharactersAdded,
+allLorebooksAdded, allPersonasAdded, allPresetsAdded, back, cancel, charactersEmpty, commentLabel, commentPlaceholder, count, create, createDialogTitle, createFailed,
+createPromptMessage, creatorLabel, creatorPlaceholder, delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed,
 descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel, descriptionPlaceholder,
-descriptionPreview, editorTitle, empty, groups, loadMore, lorebookRandomHint, lorebooksEmpty, nameLabel, namePlaceholder, newBundle,
-noCharactersMatch, noLorebooksMatch, noPersonasMatch, of, personaRandomHint, personasEmpty, random, randomHint,
-removeCharacter, removeLorebook, removePersona, save, saveFailed, saveSuccess, searchCharacters, searchLorebooks, searchPersonas,
-selectedCharacters, selectedLorebooks, selectedPersonas).
+descriptionPreview, editorTitle, empty, groups, introAddHint, introEdit, introNamePlaceholder, introPickMessage, introPickTitle, introRemove, introSave, introSaveEdit, introTextPlaceholder, introsEmpty, loadMore, lorebookRandomHint, lorebooksEmpty, metadata, nameLabel, namePlaceholder, newBundle,
+noCharactersMatch, noLorebooksMatch, noPersonasMatch, noPresetsMatch, of, personaRandomHint, personasEmpty, presetRandomHint, presetsEmpty, random, randomHint,
+removeCharacter, removeLorebook, removePersona, removePreset, save, saveFailed, saveSuccess, searchCharacters, searchLorebooks, searchPersonas, searchPresets,
+selectedCharacters, selectedIntros, selectedLorebooks, selectedPersonas, selectedPresets, tags, tagsAdd, tagsPlaceholder, tagsRemoveAll, uploadImage, version, versionEmpty, versionHistory, versionLabel, versionPlaceholder, versionReset, versionSource).
 Community-Lokalen bleiben bewusst partiell (Fallback auf Englisch).
 
 ## 5. data-testid-Katalog
@@ -241,8 +326,6 @@ smoke-/Regressionstests:
 | `story-bundle-editor-save-button` | Speichern-Button |
 | `story-bundle-editor-delete-button` | Löschen-Button |
 | `story-bundle-editor-description` | Description-Tab-Container |
-| `story-bundle-editor-name-label` | Label des Namensfelds |
-| `story-bundle-editor-name-input` | Namenseingabefeld |
 | `story-bundle-editor-description-label` | Label des Description-Felds |
 | `story-bundle-editor-description-input` | HTML-Textarea für die Description |
 | `story-bundle-editor-description-preview-toggle` | Preview/Edit-Toggle-Button |
@@ -254,6 +337,31 @@ smoke-/Regressionstests:
 | `story-bundle-editor-characters-random` | „Random"-Button |
 | `story-bundle-editor-characters-load-more` | „Load more"-Button |
 | `story-bundle-editor-characters-empty` | Leerer-Zustand-Text |
+
+### `StoryBundleMetadata`
+| testid | Element |
+|---|---|
+| `story-bundle-editor-metadata` | Metadata-Tab-Container |
+| `story-bundle-editor-metadata-avatar` | Avatar/Image-Vorschau |
+| `story-bundle-editor-metadata-avatar-preview` | Avatar-Preview nach Upload |
+| `story-bundle-editor-metadata-upload-button` | Image-Upload-Button |
+| `story-bundle-editor-metadata-bundle-id` | Bundle-ID (read-only) |
+| `story-bundle-editor-metadata-name-input` | Name-Eingabefeld |
+| `story-bundle-editor-metadata-comment-input` | Comment-Textarea |
+| `story-bundle-editor-metadata-creator-input` | Creator-Eingabefeld |
+| `story-bundle-editor-metadata-version-input` | Version-Eingabefeld |
+| `story-bundle-editor-metadata-tags` | Tags-Sektion |
+| `story-bundle-editor-metadata-tags-list` | Tags-Liste |
+| `story-bundle-editor-metadata-tags-remove-all` | „Remove All Tags"-Button |
+| `story-bundle-editor-metadata-tag-input` | Tag-Eingabefeld |
+| `story-bundle-editor-metadata-tag-add-button` | Tag-Hinzufügen-Button |
+| `story-bundle-editor-metadata-tag-${tag}` | Einzelner Tag-Chip (dynamisch) |
+| `story-bundle-editor-metadata-version-history` | Version-History-Panel |
+| `story-bundle-editor-metadata-version-empty` | Leerer-Zustand (keine Snapshots) |
+| `story-bundle-editor-metadata-version-list` | Version-Liste |
+| `story-bundle-editor-metadata-version-reset` | Reset-Button (auf letzten Snapshot) |
+| `story-bundle-editor-metadata-version-loading` | Ladezustand der Version-History |
+| `story-bundle-editor-metadata-version-${id}` | Einzelner Version-Eintrag (dynamisch) |
 
 ### `StoryBundlePersonas`
 | testid | Element |
@@ -274,6 +382,28 @@ smoke-/Regressionstests:
 | `story-bundle-editor-lorebooks-random` | „Random"-Button |
 | `story-bundle-editor-lorebooks-load-more` | „Load more"-Button |
 | `story-bundle-editor-lorebooks-empty` | Leerer-Zustand-Text |
+
+### `StoryBundlePresets`
+| testid | Element |
+|---|---|
+| `story-bundle-editor-presets` | Presets-Tab-Container |
+| `story-bundle-editor-presets-search` | Suchfeld im Add-Presets-Bereich |
+| `story-bundle-editor-presets-random` | „Random"-Button |
+| `story-bundle-editor-presets-load-more` | „Load more"-Button |
+| `story-bundle-editor-presets-empty` | Leerer-Zustand-Text |
+
+### `StoryBundleIntros`
+| testid | Element |
+|---|---|
+| `story-bundle-editor-intros` | Intros-Tab-Container |
+| `story-bundle-editor-intros-add-button` | „Add Intro"-Button |
+| `story-bundle-editor-intros-name-input` | Name-Eingabefeld |
+| `story-bundle-editor-intros-text-input` | Text-Textarea |
+| `story-bundle-editor-intros-save-button` | Speichern-Button |
+| `story-bundle-editor-intros-cancel-button` | Abbrechen-Button |
+| `story-bundle-editor-intros-edit-button` | Edit-Button (Pencil) |
+| `story-bundle-editor-intros-delete-button` | Delete-Button (X) |
+| `story-bundle-editor-intros-empty` | Leerer-Zustand-Text |
 
 ### App-Dialoge (`Modal` / `AppDialogRenderer`)
 | testid | Element |
@@ -302,16 +432,32 @@ Aktueller Stand: `pnpm check` läuft vollständig grün durch
 
 ### 6.1 Playwright-e2e-Tests (Story Bundle)
 
-Die Spezifikation liegt in `tests/story-bundle/tests/story-bundle.test.ts` und wird über das
+Die Spezifikation liegt in `tests/story-bundle/tests/` und wird über das
 dedizierte pnpm-Skript ausgeführt:
 
 ```bash
 pnpm regression:story-bundle   # alle Story-Bundle-Tests (Desktop + Mobile)
 ```
 
-Das Skript ruft `playwright test -c playwright.config.ts tests/story-bundle/tests/story-bundle.test.ts`
+Das Skript ruft `playwright test -c playwright.config.ts tests/story-bundle/tests/`
 auf und startet die Webserver (Desktop 5178/7971, Mobile 5179/7972) automatisch
-über `config.webServer`. Aktueller Stand: **12 passed**.
+über `config.webServer`. Aktueller Stand: **78 passed** (39 Tests × 2 Projekte).
+
+**Test-Dateien:**
+| Datei | Tests | Inhalt |
+|---|---|---|
+| `tests/story-bundle/tests/story-bundle.test.ts` | 12 | CRUD, Import/Export, Description-Tab |
+| `tests/story-bundle/tests/story-bundle-editor.test.ts` | 6 | Editor-Shell (Tab-Navigation, Save-Button, Delete) |
+| `tests/story-bundle/tests/story-bundle-intro.test.ts` | 7 | Intros-Tab (Add/Edit/Delete, Play-Flow) |
+| `tests/story-bundle/tests/story-bundle-metadata.test.ts` | 14 | Metadata-Tab (Felder, Tags, Version-History, Auto-Snapshot, Reset) |
+
+**Page Objects:**
+| Datei | Zweck |
+|---|---|
+| `tests/story-bundle/pages/story-bundle-editor.page.ts` | Editor-Shell (Tab-Navigation, Save/Delete-Buttons) |
+| `tests/story-bundle/pages/story-bundle-description-tab.page.ts` | Description-Tab (Textarea, Preview-Toggle) |
+| `tests/story-bundle/pages/story-bundle-intros-tab.page.ts` | Intros-Tab (Add/Edit/Delete-Formulare) |
+| `tests/story-bundle/pages/story-bundle-metadata-tab.page.ts` | Metadata-Tab (alle Felder, Tags, Version-History) |
 
 Hinweise zur Ausführung:
 
@@ -355,7 +501,10 @@ const bundle = await importStoryBundleFixture(page, './tests/story-bundle/data/w
 
 Mögliche Erweiterungen, die die jetzige Struktur bereits vorbereitet:
 
-- Felder: `coverImage`, Kapitel-/Szenenliste.
+- ~~Felder: `coverImage`~~ ✅ Erledigt (achte Iteration — Metadata-Tab mit Image-Upload).
+- ~~Metadata-Tab (Name, Comment, Creator, Version, Tags, Image)~~ ✅ Erledigt (achte Iteration).
+- ~~Version-History mit Auto-Snapshot~~ ✅ Erledigt (achte Iteration).
+- Felder: Kapitel-/Szenenliste.
 - ~~Verknüpfungen zu Lorebooks.~~ ✅ Erledigt (fünfte Iteration).
 - ~~Export/Import als JSON.~~ ✅ Erledigt (sechste Iteration).
 - Panel-Suche und Sortierung.

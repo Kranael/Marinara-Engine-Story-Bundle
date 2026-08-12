@@ -2456,17 +2456,18 @@ export function ChatArea() {
   // Auto-open settings drawer for newly created chats
   const shouldOpenSettings = useChatStore((s) => s.shouldOpenSettings);
   const shouldOpenWizard = useChatStore((s) => s.shouldOpenWizard);
+  const presetVariablesPrompt = useChatStore((s) => s.presetVariablesPrompt);
   useEffect(() => {
     if (shouldOpenSettings && activeChatId) {
       if (shouldOpenWizard) {
         setWizardOpen(true);
         useChatStore.getState().setShouldOpenWizard(false);
-      } else {
+      } else if (!presetVariablesPrompt) {
         handleOpenSettingsPanel();
       }
       useChatStore.getState().setShouldOpenSettings(false);
     }
-  }, [shouldOpenSettings, shouldOpenWizard, activeChatId, handleOpenSettingsPanel]);
+  }, [shouldOpenSettings, shouldOpenWizard, presetVariablesPrompt, activeChatId, handleOpenSettingsPanel]);
 
   // Auto-scroll on new messages / streaming (but not on "load more")
   // Only scroll if user is already near the bottom (within 150px).
@@ -3196,6 +3197,11 @@ export function ChatArea() {
             galleryOpen={false}
             galleryAnchor={galleryAnchor}
             wizardOpen={wizardOpen}
+            presetVariablesPrompt={presetVariablesPrompt}
+            onClosePresetVariablesPrompt={() => {
+              useChatStore.getState().setPresetVariablesPrompt(null);
+              handleOpenSettingsPanel();
+            }}
             peekPromptData={peekPromptData}
             deleteDialogMessageId={deleteDialogMessageId}
             deleteDialogCanDeleteSwipe={deleteDialogCanDeleteSwipe}

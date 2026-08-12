@@ -14,7 +14,7 @@ import { useCreateChat } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
-import { showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
+import { showChoiceDialog, showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
 import { api } from "../../lib/api-client";
 import { cn } from "../../lib/utils";
 
@@ -85,8 +85,29 @@ export function StoryBundlesPanel() {
       if (playingId) return;
       setPlayingId(id);
       try {
-        // Fetch the full bundle to get character/persona IDs
-        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[] }>(`/story-bundles/${id}`);
+        // Fetch the full bundle to get character/persona/preset/intro IDs
+        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[]; lorebookIds: string[]; presetIds: string[]; agentIds: string[]; intros?: Array<{ id: string; name: string; text: string }> }>(`/story-bundles/${id}`);
+
+        // If the bundle has intros, let the user pick one first.
+        let selectedIntroText: string | null = null;
+        const bundleIntros = bundle.intros ?? [];
+        if (bundleIntros.length > 0) {
+          const choice = await showChoiceDialog({
+            title: t("storyBundles.introPickTitle", "Choose an Intro"),
+            message: t("storyBundles.introPickMessage", "Select an intro to use as the first message."),
+            choices: bundleIntros.map((intro) => ({
+              key: intro.id,
+              label: intro.name,
+            })),
+          });
+          if (!choice) {
+            setPlayingId(null);
+            return;
+          }
+          const picked = bundleIntros.find((i) => i.id === choice);
+          selectedIntroText = picked?.text ?? null;
+        }
+
         const conns = (connections ?? []) as Array<{ id: string }>;
 
         createChat.mutate(
@@ -96,10 +117,64 @@ export function StoryBundlesPanel() {
             characterIds: bundle.characterIds ?? [],
             personaId: bundle.personaIds?.[0] ?? null,
             connectionId: conns[0]?.id,
+            promptPresetId: bundle.presetIds?.[0] ?? null,
           },
           {
-            onSuccess: (chat) => {
+            onSuccess: async (chat) => {
               useChatStore.getState().setActiveChatId(chat.id);
+
+              // Activate the bundle's lorebooks on the new chat.
+              const lorebookIds = bundle.lorebookIds ?? [];
+              if (lorebookIds.length > 0) {
+                try {
+                  await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
+                } catch (err) {
+                  console.error("[playStoryBundle] Failed to activate lorebooks:", err);
+                }
+              }
+
+              // Activate the bundle's pre-configured agents on the new chat.
+              const agentIds = bundle.agentIds ?? [];
+              if (agentIds.length > 0) {
+                try {
+                  await api.patch(`/chats/${chat.id}/metadata`, {
+                    enableAgents: true,
+                    activeAgentIds: agentIds,
+                  });
+                } catch (err) {
+                  console.error("[playStoryBundle] Failed to activate agents:", err);
+                }
+              }
+
+              // If an intro was selected, insert it as the first assistant message.
+              if (selectedIntroText) {
+                try {
+                  await api.post(`/chats/${chat.id}/messages`, {
+                    role: "assistant",
+                    content: selectedIntroText,
+                  });
+                } catch (err) {
+                  console.error("[playStoryBundle] Failed to insert intro message:", err);
+                }
+              }
+
+              // Check if the preset has configurable variables — if so, show
+              // only the ChoiceSelectionModal instead of the full setup wizard.
+              const presetId = bundle.presetIds?.[0] ?? null;
+              let hasPresetVariables = false;
+              if (presetId) {
+                try {
+                  const presetFull = await api.get<{ choiceBlocks?: Array<{ id: string }> }>(`/prompts/${presetId}/full`);
+                  hasPresetVariables = (presetFull?.choiceBlocks?.length ?? 0) > 0;
+                } catch {
+                  // If we can't fetch the preset, fall through to settings.
+                }
+              }
+
+              useChatStore.getState().setShouldOpenSettings(true);
+              if (hasPresetVariables && presetId) {
+                useChatStore.getState().setPresetVariablesPrompt({ chatId: chat.id, presetId });
+              }
               toast.success(t("storyBundles.playStarted", "Roleplay started!"));
               setPlayingId(null);
             },
@@ -191,13 +266,26 @@ export function StoryBundlesPanel() {
                   }}
                   className="group relative flex cursor-pointer items-center gap-2.5 rounded-xl p-2.5 transition-all hover:bg-[var(--sidebar-accent)]"
                 >
-                  <div className="mari-panel-gradient-surface mari-panel-gradient--story-bundles flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white">
-                    <BookMarked size="0.875rem" />
+                  <div
+                    className={cn(
+                      "relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg text-white shadow-sm",
+                      bundle.imagePath
+                        ? "bg-[var(--muted)]"
+                        : "mari-panel-gradient-surface mari-panel-gradient--story-bundles",
+                    )}
+                  >
+                    {bundle.imagePath ? (
+                      <img src={bundle.imagePath} alt="" className="h-full w-full object-cover" draggable={false} />
+                    ) : (
+                      <BookMarked size="0.875rem" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="mari-chrome-text-strong truncate text-sm font-medium">{bundle.name}</div>
                     <div className="mari-chrome-text-muted truncate text-xs">
-                      {new Date(bundle.createdAt).toLocaleDateString()}
+                      {bundle.comment
+                        ? bundle.comment
+                        : new Date(bundle.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                   {/* Row action pill (visible on hover / always on mobile) */}

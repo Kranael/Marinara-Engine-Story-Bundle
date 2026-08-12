@@ -15,6 +15,7 @@ import path from "node:path";
 import { BasePage } from "../pages/base.page.js";
 import { HomePage } from "../../pages/home.page.js";
 import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
+import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { CreateStoryBundleDialogPage } from "../pages/create-story-bundle-dialog.page.js";
 import { DeleteStoryBundleDialogPage } from "../pages/delete-story-bundle-dialog.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
@@ -98,8 +99,10 @@ test.describe("Story Bundles Panel — Positive", () => {
 
     await panel.clickRow(bundle.name);
 
-    await expect(page.getByTestId("story-bundle-editor")).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByTestId("story-bundle-editor-name-input")).toHaveValue(bundle.name);
+    const editor = new StoryBundleEditorPage(page);
+    await editor.waitFor();
+    await editor.switchToMetadata();
+    await expect(page.getByTestId("story-bundle-editor-metadata-name-input")).toHaveValue(bundle.name);
 
     await api.delete(bundle.id);
   });

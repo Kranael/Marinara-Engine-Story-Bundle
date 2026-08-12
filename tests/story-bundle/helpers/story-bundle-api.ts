@@ -7,6 +7,8 @@ export interface StoryBundle {
   characterIds: string[];
   personaIds: string[];
   lorebookIds: string[];
+  presetIds: string[];
+  agentIds: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -69,4 +71,5 @@ export class StoryBundleAPI {
     }
     return (await response.json()) as Record<string, unknown>;
   }
+
 }

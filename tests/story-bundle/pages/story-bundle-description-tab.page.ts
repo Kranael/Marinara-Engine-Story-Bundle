@@ -3,8 +3,6 @@
  *
  * Data test IDs:
  *   story-bundle-editor-description
- *   story-bundle-editor-name-label
- *   story-bundle-editor-name-input
  *   story-bundle-editor-description-label
  *   story-bundle-editor-description-input
  *   story-bundle-editor-description-preview-toggle
@@ -15,8 +13,6 @@ import { type Locator, type Page } from "@playwright/test";
 export class StoryBundleDescriptionTabPage {
   readonly page: Page;
   readonly section: Locator;
-  readonly nameLabel: Locator;
-  readonly nameInput: Locator;
   readonly descriptionLabel: Locator;
   readonly descriptionInput: Locator;
   readonly previewToggle: Locator;
@@ -25,8 +21,6 @@ export class StoryBundleDescriptionTabPage {
   constructor(page: Page) {
     this.page = page;
     this.section = page.getByTestId("story-bundle-editor-description");
-    this.nameLabel = page.getByTestId("story-bundle-editor-name-label");
-    this.nameInput = page.getByTestId("story-bundle-editor-name-input");
     this.descriptionLabel = page.getByTestId("story-bundle-editor-description-label");
     this.descriptionInput = page.getByTestId("story-bundle-editor-description-input");
     this.previewToggle = page.getByTestId("story-bundle-editor-description-preview-toggle");

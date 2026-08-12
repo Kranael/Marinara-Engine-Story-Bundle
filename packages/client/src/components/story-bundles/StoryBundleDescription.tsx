@@ -6,50 +6,24 @@ import { Eye, EyeOff } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 export interface StoryBundleDescriptionProps {
-  name: string;
-  onNameChange: (value: string) => void;
   description: string;
   onDescriptionChange: (value: string) => void;
   previewDescription: boolean;
   onPreviewToggle: () => void;
   sanitizedDescription: string;
-  onSave: () => void;
 }
 
 export function StoryBundleDescription({
-  name,
-  onNameChange,
   description,
   onDescriptionChange,
   previewDescription,
   onPreviewToggle,
   sanitizedDescription,
-  onSave: _onSave,
 }: StoryBundleDescriptionProps) {
   const { t } = useTranslation();
 
   return (
     <div data-testid="story-bundle-editor-description" className="flex flex-col gap-4">
-      {/* Name */}
-      <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="story-bundle-name"
-          data-testid="story-bundle-editor-name-label"
-          className="mari-chrome-text-strong text-xs font-medium"
-        >
-          {t("storyBundles.nameLabel", "Name")}
-        </label>
-        <input
-          id="story-bundle-name"
-          data-testid="story-bundle-editor-name-input"
-          type="text"
-          value={name}
-          onChange={(e) => onNameChange(e.target.value)}
-          placeholder={t("storyBundles.namePlaceholder", "Title of this story bundle…")}
-          className="mari-input w-full rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
-        />
-      </div>
-
       {/* Description */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">

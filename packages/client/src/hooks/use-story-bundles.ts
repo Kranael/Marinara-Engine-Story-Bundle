@@ -53,3 +53,16 @@ export function useDeleteStoryBundle() {
     onSuccess: () => qc.invalidateQueries({ queryKey: storyBundleKeys.all }),
   });
 }
+
+export function useUploadStoryBundleImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, image }: { id: string; image: string }) =>
+      api.post<StoryBundle>(`/story-bundles/${id}/image`, { image }),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: storyBundleKeys.all });
+      qc.invalidateQueries({ queryKey: storyBundleKeys.list() });
+      qc.invalidateQueries({ queryKey: storyBundleKeys.detail(variables.id) });
+    },
+  });
+}

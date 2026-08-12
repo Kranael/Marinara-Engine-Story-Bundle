@@ -13,8 +13,9 @@ A Story Bundle holds:
 - A list of **characters** who appear in the story.
 - A list of **personas** (the roles you can play).
 - A list of **lorebooks** (world facts the AI reads when keywords appear).
+- A list of **agents** that are pre-configured for the story.
 
-Story Bundles do not change your characters, personas, or lorebooks. They only point to them. Deleting a bundle never deletes the items inside it.
+Story Bundles do not change your characters, personas, lorebooks, or agents. They only point to them. Deleting a bundle never deletes the items inside it.
 
 ## Opening the Story Bundles panel
 
@@ -35,7 +36,7 @@ You can also create a bundle from the editor if you already have one open.
 
 ## Editing a Story Bundle
 
-Click any bundle in the list to open the full-page editor. The editor has a header with the bundle name and four tabs on the left rail:
+Click any bundle in the list to open the full-page editor. The editor has a header with the bundle name and tabs on the left rail:
 
 ### Description tab
 
@@ -58,6 +59,10 @@ Works the same way as Characters. Pick which personas belong to this story. The 
 ### Lorebooks tab
 
 Works the same way. Pick which lorebooks the AI should reference. Lorebooks are sets of world facts triggered by keywords during chat.
+
+### Agents tab
+
+Works the same way. Pick which agents should be pre-configured for this story. When you start a roleplay from the bundle, these agents are enabled automatically. You can still add or remove agents later in **Chat Settings** — the bundle only sets the starting agents.
 
 ### Saving
 
@@ -86,7 +91,7 @@ Imported bundles appear in your list. If a referenced character, persona, or lor
 
 ## Starting a roleplay from a Story Bundle
 
-The **Play** button starts a new Roleplay chat from the bundle in one click. It uses the bundle name as the chat name, adds all bundle characters, and sets your persona to the first persona in the bundle.
+The **Play** button starts a new Roleplay chat from the bundle in one click. It uses the bundle name as the chat name, adds all bundle characters, sets your persona to the first persona in the bundle, and enables any agents pre-configured in the bundle.
 
 From the editor:
 
@@ -102,11 +107,11 @@ From the panel:
 
 The Play button uses the first available AI connection. If you have no connection yet, set one up first. See [Connecting to an AI Provider](../connections/connecting-to-a-provider.md).
 
-After the chat opens, you can adjust settings, add agents, or change anything in **Chat Settings** — the bundle only sets the starting characters and persona.
+After the chat opens, you can adjust settings, add agents, or change anything in **Chat Settings** — the bundle only sets the starting characters, persona, and agents.
 
 ## Deleting a Story Bundle
 
-From the panel, hover over a bundle row and click the trash button in the action pill. From the editor, click the trash button in the header. A dialog asks you to confirm. Deleting a bundle is permanent, but it never deletes the characters, personas, or lorebooks inside it.
+From the panel, hover over a bundle row and click the trash button in the action pill. From the editor, click the trash button in the header. A dialog asks you to confirm. Deleting a bundle is permanent, but it never deletes the characters, personas, lorebooks, or agents inside it.
 
 ## Related guides
 

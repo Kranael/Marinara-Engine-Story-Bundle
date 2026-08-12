@@ -1,7 +1,7 @@
 /**
  * Story Bundle Editor — Playwright E2E Tests
  *
- * Covers: StoryBundleEditor component + all four tab sub-components
+ * Covers: StoryBundleEditor component + description, characters, personas, lorebooks tabs
  * - Editor header with back, play, save, delete buttons
  * - Description tab: name input, description textarea, preview toggle
  * - Characters tab: search, random pick
@@ -76,15 +76,13 @@ test.describe("Story Bundle Editor — Positive", () => {
     await api.delete(bundle.id);
   });
 
-  test("description tab shows name input and description textarea", async ({ page }) => {
-    const { bundle } = await openEditorForBundle(page, "empty.json");
+  test("description tab shows description textarea", async ({ page }) => {
+    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
     const descTab = new StoryBundleDescriptionTabPage(page);
     const api = new StoryBundleAPI(page);
 
+    await editor.switchToDescription();
     await expect(descTab.section).toBeVisible();
-    await expect(descTab.nameLabel).toBeVisible();
-    await expect(descTab.nameInput).toBeVisible();
-    await expect(descTab.nameInput).toHaveValue(bundle.name);
     await expect(descTab.descriptionLabel).toBeVisible();
 
     await descTab.togglePreview();
@@ -93,22 +91,12 @@ test.describe("Story Bundle Editor — Positive", () => {
     await api.delete(bundle.id);
   });
 
-  test("changing the name enables the save button", async ({ page }) => {
+  test("description preview toggle switches between edit and preview", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
     const descTab = new StoryBundleDescriptionTabPage(page);
     const api = new StoryBundleAPI(page);
 
-    await descTab.nameInput.fill("Renamed Bundle");
-    await expect(editor.saveButton).toBeEnabled();
-
-    await api.delete(bundle.id);
-  });
-
-  test("description preview toggle switches between edit and preview", async ({ page }) => {
-    const { bundle } = await openEditorForBundle(page, "empty.json");
-    const descTab = new StoryBundleDescriptionTabPage(page);
-    const api = new StoryBundleAPI(page);
-
+    await editor.switchToDescription();
     await expect(descTab.previewToggle).toBeVisible();
 
     await descTab.togglePreview();
@@ -121,10 +109,11 @@ test.describe("Story Bundle Editor — Positive", () => {
   });
 
   test("description textarea accepts HTML input", async ({ page }) => {
-    const { bundle } = await openEditorForBundle(page, "empty.json");
+    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
     const descTab = new StoryBundleDescriptionTabPage(page);
     const api = new StoryBundleAPI(page);
 
+    await editor.switchToDescription();
     await descTab.setDescription("<p>A <strong>bold</strong> description.</p>");
     await descTab.togglePreview();
 
@@ -134,10 +123,11 @@ test.describe("Story Bundle Editor — Positive", () => {
   });
 
   test("description tab shows pre-filled description from imported bundle", async ({ page }) => {
-    const { bundle } = await openEditorForBundle(page, "with-description.json");
+    const { bundle, editor } = await openEditorForBundle(page, "with-description.json");
     const descTab = new StoryBundleDescriptionTabPage(page);
     const api = new StoryBundleAPI(page);
 
+    await editor.switchToDescription();
     await descTab.togglePreview();
     await expect(descTab.descriptionInput).toContainText("Chapter One");
 
@@ -253,4 +243,5 @@ test.describe("Story Bundle Editor — Negative", () => {
 
     await api.delete(bundle.id);
   });
+
 });

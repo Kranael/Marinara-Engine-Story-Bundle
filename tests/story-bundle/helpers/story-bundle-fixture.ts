@@ -87,6 +87,7 @@ export function buildStoryBundleEnvelope(input: {
   characterIds?: string[];
   personaIds?: string[];
   lorebookIds?: string[];
+  presetIds?: string[];
 }) {
   return {
     type: 'marinara_story_bundle',
@@ -98,6 +99,7 @@ export function buildStoryBundleEnvelope(input: {
       characterIds: input.characterIds ?? [],
       personaIds: input.personaIds ?? [],
       lorebookIds: input.lorebookIds ?? [],
+      presetIds: input.presetIds ?? [],
     },
   };
 }
