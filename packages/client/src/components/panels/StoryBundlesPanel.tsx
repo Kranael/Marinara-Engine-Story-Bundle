@@ -86,7 +86,7 @@ export function StoryBundlesPanel() {
       setPlayingId(id);
       try {
         // Fetch the full bundle to get character/persona/preset/intro IDs
-        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[]; lorebookIds: string[]; presetIds: string[]; intros?: Array<{ id: string; name: string; text: string }> }>(`/story-bundles/${id}`);
+        const bundle = await api.get<{ id: string; name: string; characterIds: string[]; personaIds: string[]; lorebookIds: string[]; presetIds: string[]; agentIds: string[]; intros?: Array<{ id: string; name: string; text: string }> }>(`/story-bundles/${id}`);
 
         // If the bundle has intros, let the user pick one first.
         let selectedIntroText: string | null = null;
@@ -130,6 +130,19 @@ export function StoryBundlesPanel() {
                   await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
                 } catch (err) {
                   console.error("[playStoryBundle] Failed to activate lorebooks:", err);
+                }
+              }
+
+              // Activate the bundle's pre-configured agents on the new chat.
+              const agentIds = bundle.agentIds ?? [];
+              if (agentIds.length > 0) {
+                try {
+                  await api.patch(`/chats/${chat.id}/metadata`, {
+                    enableAgents: true,
+                    activeAgentIds: agentIds,
+                  });
+                } catch (err) {
+                  console.error("[playStoryBundle] Failed to activate agents:", err);
                 }
               }
 

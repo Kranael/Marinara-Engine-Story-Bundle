@@ -4,7 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ArrowLeft, BookMarked, BookOpen, FileText, Info, Loader2, MessageSquare, Play, Save, SlidersHorizontal, Trash2, UserRound, Users } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, FileText, Info, Loader2, MessageSquare, Play, Save, SlidersHorizontal, Sparkles, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
@@ -25,6 +25,7 @@ import { StoryBundleCharacters } from "./StoryBundleCharacters";
 import { StoryBundlePersonas } from "./StoryBundlePersonas";
 import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
 import { StoryBundlePresets } from "./StoryBundlePresets";
+import { StoryBundleAgents } from "./StoryBundleAgents";
 import { StoryBundleIntros } from "./StoryBundleIntros";
 
 /** Allowed HTML tags for the description preview. */
@@ -67,6 +68,7 @@ const TABS = [
   { id: "personas", label: "Personas", icon: UserRound },
   { id: "lorebooks", label: "Lorebooks", icon: BookOpen },
   { id: "presets", label: "Presets", icon: SlidersHorizontal },
+  { id: "agents", label: "Agents", icon: Sparkles },
   { id: "intros", label: "Intros", icon: MessageSquare },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
@@ -160,6 +162,7 @@ export function StoryBundleEditor() {
   const [personaIds, setPersonaIds] = useState<string[]>([]);
   const [lorebookIds, setLorebookIds] = useState<string[]>([]);
   const [presetIds, setPresetIds] = useState<string[]>([]);
+  const [agentIds, setAgentIds] = useState<string[]>([]);
   const [intros, setIntros] = useState<StoryBundleIntro[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("metadata");
@@ -185,6 +188,7 @@ export function StoryBundleEditor() {
       setPersonaIds(bundle.personaIds ?? []);
       setLorebookIds(bundle.lorebookIds ?? []);
       setPresetIds(bundle.presetIds ?? []);
+      setAgentIds(bundle.agentIds ?? []);
       setIntros(bundle.intros ?? []);
     }
   }, [bundle]);
@@ -209,13 +213,16 @@ export function StoryBundleEditor() {
   const presetIdsDirty = bundle
     ? JSON.stringify([...(presetIds ?? [])].sort()) !== JSON.stringify([...(bundle.presetIds ?? [])].sort())
     : false;
+  const agentIdsDirty = bundle
+    ? JSON.stringify([...(agentIds ?? [])].sort()) !== JSON.stringify([...(bundle.agentIds ?? [])].sort())
+    : false;
   const introsDirty = bundle
     ? JSON.stringify(intros) !== JSON.stringify(bundle.intros ?? [])
     : false;
   const avatarCropDirty = bundle
     ? JSON.stringify(avatarCrop) !== JSON.stringify(bundle.avatarCrop ?? null)
     : false;
-  const isDirty = nameDirty || descriptionDirty || commentDirty || creatorDirty || versionDirty || tagsDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty || introsDirty || avatarCropDirty;
+  const isDirty = nameDirty || descriptionDirty || commentDirty || creatorDirty || versionDirty || tagsDirty || characterIdsDirty || personaIdsDirty || lorebookIdsDirty || presetIdsDirty || agentIdsDirty || introsDirty || avatarCropDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeDescription(description) : ""),
@@ -226,7 +233,7 @@ export function StoryBundleEditor() {
     if (!storyBundleDetailId || !isDirty || saving) return;
     setSaving(true);
     try {
-      const payload: { name?: string; description?: string | null; avatarCrop?: Record<string, unknown> | null; comment?: string; creator?: string; version?: string; tags?: string[]; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[]; intros?: StoryBundleIntro[] } = {};
+      const payload: { name?: string; description?: string | null; avatarCrop?: Record<string, unknown> | null; comment?: string; creator?: string; version?: string; tags?: string[]; characterIds?: string[]; personaIds?: string[]; lorebookIds?: string[]; presetIds?: string[]; agentIds?: string[]; intros?: StoryBundleIntro[] } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
       if (avatarCropDirty) payload.avatarCrop = avatarCrop;
@@ -238,6 +245,7 @@ export function StoryBundleEditor() {
       if (personaIdsDirty) payload.personaIds = personaIds;
       if (lorebookIdsDirty) payload.lorebookIds = lorebookIds;
       if (presetIdsDirty) payload.presetIds = presetIds;
+      if (agentIdsDirty) payload.agentIds = agentIds;
       if (introsDirty) payload.intros = intros;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
@@ -246,7 +254,7 @@ export function StoryBundleEditor() {
     } finally {
       setSaving(false);
     }
-  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, avatarCropDirty, commentDirty, creatorDirty, versionDirty, tagsDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, introsDirty, updateMutation, name, description, avatarCrop, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, intros, t]);
+  }, [storyBundleDetailId, isDirty, saving, nameDirty, descriptionDirty, avatarCropDirty, commentDirty, creatorDirty, versionDirty, tagsDirty, characterIdsDirty, personaIdsDirty, lorebookIdsDirty, presetIdsDirty, agentIdsDirty, introsDirty, updateMutation, name, description, avatarCrop, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, agentIds, intros, t]);
 
   const handlePlay = useCallback(async () => {
     if (!bundle || playing) return;
@@ -294,6 +302,19 @@ export function StoryBundleEditor() {
               await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
             } catch (err) {
               console.error("[playStoryBundle] Failed to activate lorebooks:", err);
+            }
+          }
+
+          // Activate the bundle's pre-configured agents on the new chat.
+          const agentIds = bundle.agentIds ?? [];
+          if (agentIds.length > 0) {
+            try {
+              await api.patch(`/chats/${chat.id}/metadata`, {
+                enableAgents: true,
+                activeAgentIds: agentIds,
+              });
+            } catch (err) {
+              console.error("[playStoryBundle] Failed to activate agents:", err);
             }
           }
 
@@ -499,6 +520,13 @@ export function StoryBundleEditor() {
                 onPresetIdsChange={setPresetIds}
                 presets={presets}
                 validPresetIds={validPresetIds}
+              />
+            )}
+
+            {activeTab === "agents" && (
+              <StoryBundleAgents
+                agentIds={agentIds}
+                onAgentIdsChange={setAgentIds}
               />
             )}
 

@@ -29,6 +29,7 @@ export const createStoryBundleSchema = z.object({
   personaIds: z.array(z.string()).optional(),
   lorebookIds: z.array(z.string()).optional(),
   presetIds: z.array(z.string()).optional(),
+  agentIds: z.array(z.string()).optional(),
   intros: z.array(storyBundleIntroSchema).optional(),
 });
 
@@ -45,6 +46,7 @@ export const updateStoryBundleSchema = z.object({
   lorebookIds: z.array(z.string()).optional(),
   personaIds: z.array(z.string()).optional(),
   presetIds: z.array(z.string()).optional(),
+  agentIds: z.array(z.string()).optional(),
   intros: z.array(storyBundleIntroSchema).optional(),
 });
 

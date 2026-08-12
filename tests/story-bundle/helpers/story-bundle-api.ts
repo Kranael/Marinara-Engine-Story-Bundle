@@ -8,6 +8,7 @@ export interface StoryBundle {
   personaIds: string[];
   lorebookIds: string[];
   presetIds: string[];
+  agentIds: string[];
   createdAt: string;
   updatedAt: string;
 }

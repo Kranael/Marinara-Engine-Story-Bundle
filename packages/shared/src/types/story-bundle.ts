@@ -64,6 +64,8 @@ export interface StoryBundle {
   lorebookIds: string[];
   /** IDs of presets assigned to this story bundle. */
   presetIds: string[];
+  /** IDs of agents pre-configured for this story bundle. */
+  agentIds: string[];
   /** Inline intro messages that can be selected as the first RP message. */
   intros: StoryBundleIntro[];
   createdAt: string;

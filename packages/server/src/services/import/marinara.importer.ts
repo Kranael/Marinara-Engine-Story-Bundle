@@ -795,6 +795,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     personaIds?: unknown;
     lorebookIds?: unknown;
     presetIds?: unknown;
+    agentIds?: unknown;
     intros?: unknown;
     embeddedCharacters?: unknown;
     embeddedPersonas?: unknown;
@@ -1007,6 +1008,7 @@ async function importStoryBundle(data: unknown, db: DB) {
   const finalPersonaIds = remapIds(stringArray(d.personaIds), personaIdMap);
   const finalLorebookIds = remapIds(stringArray(d.lorebookIds), lorebookIdMap);
   const finalPresetIds = remapIds(stringArray(d.presetIds), presetIdMap);
+  const finalAgentIds = stringArray(d.agentIds);
 
   // Intros are inline data — parse and validate, generating new IDs for each.
   const finalIntros = Array.isArray(d.intros)
@@ -1035,6 +1037,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     personaIds: finalPersonaIds,
     lorebookIds: finalLorebookIds,
     presetIds: finalPresetIds,
+    agentIds: finalAgentIds,
     intros: finalIntros,
   });
   if (!result) {

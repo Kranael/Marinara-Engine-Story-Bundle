@@ -35,6 +35,7 @@ export function createStoryBundlesStorage(db: DB) {
         personaIds: JSON.stringify(input.personaIds ?? []),
         lorebookIds: JSON.stringify(input.lorebookIds ?? []),
         presetIds: JSON.stringify(input.presetIds ?? []),
+        agentIds: JSON.stringify(input.agentIds ?? []),
         intros: JSON.stringify(input.intros ?? []),
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -58,6 +59,7 @@ export function createStoryBundlesStorage(db: DB) {
           ...(data.personaIds !== undefined && { personaIds: JSON.stringify(data.personaIds) }),
           ...(data.lorebookIds !== undefined && { lorebookIds: JSON.stringify(data.lorebookIds) }),
           ...(data.presetIds !== undefined && { presetIds: JSON.stringify(data.presetIds) }),
+          ...(data.agentIds !== undefined && { agentIds: JSON.stringify(data.agentIds) }),
           ...(data.intros !== undefined && { intros: JSON.stringify(data.intros) }),
           updatedAt: now(),
         })
