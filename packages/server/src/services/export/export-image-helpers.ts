@@ -69,16 +69,24 @@ export async function readSpritesForId(id: string): Promise<Array<{ filename: st
 }
 
 /**
- * Read every gallery image for a character (metadata row + binary on disk),
- * returning a serializable list that import can rebuild the gallery from.
+ * Read every gallery image for an owner (character or persona) — metadata row
+ * plus binary on disk — returning a serializable list that import can rebuild
+ * the gallery from. When `characterSheetImageId` matches an image, that image
+ * is tagged with `isCharacterSheet: true`.
  */
-export async function readGalleryForCharacter(
-  characterId: string,
-  galleryStorage: { listByCharacterId: (id: string) => Promise<any[]> },
+export async function readGalleryForOwner(
+  ownerId: string,
+  listImages: (id: string) => Promise<any[]>,
+  characterSheetImageId?: string | null,
 ): Promise<Array<Record<string, unknown>>> {
-  const images = await galleryStorage.listByCharacterId(characterId);
+  const images = await listImages(ownerId);
   const result: Array<Record<string, unknown>> = [];
   for (const img of images) {
+    // img.filePath is stored relative to data/gallery/ — usually
+    // "characters/<id>/<filename>", but GENERATED images keep their canonical
+    // chat-scoped or "shared/<filename>" path. Resolve through the same helper
+    // the serving route uses so those rows export their bytes too instead of
+    // being silently dropped (which stranded card://self refs to them).
     const relPath: string = typeof img.filePath === "string" ? img.filePath : "";
     const storedFile = relPath ? resolveStoredGalleryFile(relPath) : null;
     if (!storedFile) continue;
@@ -92,7 +100,19 @@ export async function readGalleryForCharacter(
       model: img.model ?? "",
       width: img.width ?? null,
       height: img.height ?? null,
+      ...(img.id === characterSheetImageId ? { isCharacterSheet: true } : {}),
     });
   }
   return result;
+}
+
+/**
+ * Read every gallery image for a character (metadata row + binary on disk),
+ * returning a serializable list that import can rebuild the gallery from.
+ */
+export async function readGalleryForCharacter(
+  characterId: string,
+  galleryStorage: { listByCharacterId: (id: string) => Promise<any[]> },
+): Promise<Array<Record<string, unknown>>> {
+  return readGalleryForOwner(characterId, (id) => galleryStorage.listByCharacterId(id));
 }
