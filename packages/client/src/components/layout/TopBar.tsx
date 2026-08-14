@@ -11,8 +11,6 @@ import {
   Sparkles,
   FileText,
   VenetianMask,
-  Bot,
-  AtSign,
   BookMarked,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -107,7 +105,6 @@ export function TopBar() {
   const activeChatId = useChatStore((s) => s.activeChatId);
   const setActiveChatId = useChatStore((s) => s.setActiveChatId);
   const closeAllDetails = useUIStore((s) => s.closeAllDetails);
-  const openNoodle = useUIStore((s) => s.openNoodle);
   const characterDetailId = useUIStore((s) => s.characterDetailId);
   const lorebookDetailId = useUIStore((s) => s.lorebookDetailId);
   const presetDetailId = useUIStore((s) => s.presetDetailId);
@@ -119,7 +116,6 @@ export function TopBar() {
   const storyBundleDetailId = useUIStore((s) => s.storyBundleDetailId);
   const botBrowserOpen = useUIStore((s) => s.botBrowserOpen);
   const gameAssetsBrowserOpen = useUIStore((s) => s.gameAssetsBrowserOpen);
-  const noodleOpen = useUIStore((s) => s.noodleOpen);
   const musicPlayerEnabled = useUIStore((s) => s.musicPlayerEnabled);
   const characterLibraryOpen = useUIStore((s) => s.characterLibraryOpen);
   const cardLibraryKind = useUIStore((s) => s.cardLibraryKind);
@@ -137,7 +133,6 @@ export function TopBar() {
   const showMusicDjUnavailablePlayer =
     spotifyDesktopViewport && musicPlayerEnabled && !installedCapabilitiesLoading && !musicDjInstalled;
 
-  const isBotBrowserActive = (rightPanelOpen && rightPanel === "bot-browser") || botBrowserOpen;
   const isCharactersPanelActive =
     (rightPanelOpen && rightPanel === "characters") ||
     Boolean(characterDetailId) ||
@@ -170,7 +165,6 @@ export function TopBar() {
     !storyBundleDetailId &&
     !botBrowserOpen &&
     !gameAssetsBrowserOpen &&
-    !noodleOpen &&
     !characterLibraryOpen;
 
   const isTopbarHovered = (key: string) => hoveredTopbarKey === key;
@@ -323,32 +317,6 @@ export function TopBar() {
             onClick={() => {
               window.dispatchEvent(new Event("marinara:home-professor-mari-close"));
               setActiveChatId(null);
-              openNoodle();
-            }}
-            data-tour="noodle-tab"
-            data-topbar-hover-key="noodle"
-            className={cn(
-              TOPBAR_BUTTON_CLASS,
-              noodleOpen
-                ? TOPBAR_ACTIVE_BUTTON_CLASS
-                : cn(
-                    "text-[var(--muted-foreground)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
-                    isTopbarHovered("noodle") &&
-                      cn(TOPBAR_FORCE_HOVER_CLASS, "text-[var(--marinara-chat-chrome-button-text-hover)]"),
-                  ),
-            )}
-            title={localize("Noodle")}
-          >
-            <AtSign size={15} className={TOPBAR_ACCENT_ICON_CLASS} />
-            {noodleOpen && (
-              <span className="mari-topbar-active-underline absolute -bottom-0.5 left-1/2 h-0.5 w-3 -translate-x-1/2 rounded-full" />
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              window.dispatchEvent(new Event("marinara:home-professor-mari-close"));
-              setActiveChatId(null);
               closeAllDetails();
             }}
             data-topbar-hover-key="home"
@@ -388,28 +356,6 @@ export function TopBar() {
         aria-label={localize("Panel navigation")}
         className="mari-topbar-panel-nav mari-rgb-icon-scope flex shrink-0 items-center justify-end gap-0.5 rounded-xl p-1 max-sm:gap-0 max-sm:p-0.5"
       >
-        {/* Browser */}
-        <button
-          onClick={() => handleRightPanelClick("bot-browser")}
-          data-tour="panel-bot-browser"
-          data-topbar-hover-key="browser"
-          className={cn(
-            TOPBAR_PANEL_BUTTON_CLASS,
-            isBotBrowserActive
-              ? cn(TOPBAR_ACTIVE_BUTTON_CLASS, "text-lime-300")
-              : cn(
-                  "text-[var(--muted-foreground)] hover:text-lime-300",
-                  isTopbarHovered("browser") && cn(TOPBAR_FORCE_HOVER_CLASS, "text-lime-300"),
-                ),
-          )}
-          title={localize("Browser")}
-        >
-          <Bot size={15} className={TOPBAR_ACCENT_ICON_CLASS} />
-          {isBotBrowserActive && (
-            <span className="absolute -bottom-0.5 left-1/2 h-0.5 w-3 -translate-x-1/2 rounded-full bg-gradient-to-r from-lime-400 via-green-500 to-cyan-500" />
-          )}
-        </button>
-
         <button
           onClick={() => handleRightPanelClick("characters")}
           data-tour="panel-characters"
@@ -469,6 +415,7 @@ export function TopBar() {
           onClick={() => handleRightPanelClick("settings")}
           data-tour="panel-settings"
           data-topbar-hover-key="settings"
+          aria-pressed={rightPanelOpen && rightPanel === "settings"}
           className={cn(
             TOPBAR_PANEL_BUTTON_CLASS,
             rightPanelOpen && rightPanel === "settings"
