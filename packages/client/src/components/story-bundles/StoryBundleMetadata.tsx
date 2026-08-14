@@ -150,6 +150,7 @@ export function StoryBundleMetadata({
         </div>
         <input
           ref={imageInputRef}
+          data-testid="story-bundle-editor-metadata-image-input"
           type="file"
           accept="image/*"
           className="hidden"

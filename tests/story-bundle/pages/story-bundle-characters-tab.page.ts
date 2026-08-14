@@ -9,6 +9,10 @@
  *   story-bundle-editor-characters-empty
  *   story-bundle-editor-characters-group-select
  *   story-bundle-editor-characters-add-group
+ *   story-bundle-editor-characters-selected
+ *   story-bundle-editor-characters-selected-empty
+ *   story-bundle-editor-characters-add-{id}
+ *   story-bundle-editor-characters-remove-{id}
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -21,6 +25,9 @@ export class StoryBundleCharactersTabPage {
   readonly emptyState: Locator;
   readonly groupSelect: Locator;
   readonly addGroupButton: Locator;
+  readonly selectedSection: Locator;
+  readonly selectedEmptyState: Locator;
+  readonly availableAddButtons: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -31,6 +38,11 @@ export class StoryBundleCharactersTabPage {
     this.emptyState = page.getByTestId("story-bundle-editor-characters-empty");
     this.groupSelect = page.getByTestId("story-bundle-editor-characters-group-select");
     this.addGroupButton = page.getByTestId("story-bundle-editor-characters-add-group");
+    this.selectedSection = page.getByTestId("story-bundle-editor-characters-selected");
+    this.selectedEmptyState = page.getByTestId("story-bundle-editor-characters-selected-empty");
+    this.availableAddButtons = this.section.locator(
+      '[data-testid^="story-bundle-editor-characters-add-"]:not([data-testid="story-bundle-editor-characters-add-group"])',
+    );
   }
 
   // ── Actions ───────────────────────────────────────────────
@@ -53,5 +65,35 @@ export class StoryBundleCharactersTabPage {
   /** Click Load More to show additional characters. */
   async loadMore(): Promise<void> {
     await this.loadMoreButton.click();
+  }
+
+  /** Locator for the add (+) button of a specific available character. */
+  addButtonLocator(id: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-characters-add-${id}`);
+  }
+
+  /** Locator for the remove (X) button of a specific selected character. */
+  removeButtonLocator(id: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-characters-remove-${id}`);
+  }
+
+  /** Add a character to the bundle via its add button. */
+  async addItem(id: string): Promise<void> {
+    await this.addButtonLocator(id).click();
+  }
+
+  /** Remove a character from the bundle via its remove button. */
+  async removeItem(id: string): Promise<void> {
+    await this.removeButtonLocator(id).click();
+  }
+
+  /** Select a character group from the group dropdown. */
+  async selectGroup(id: string): Promise<void> {
+    await this.groupSelect.selectOption(id);
+  }
+
+  /** Add all members of the currently selected group. */
+  async addGroup(): Promise<void> {
+    await this.addGroupButton.click();
   }
 }

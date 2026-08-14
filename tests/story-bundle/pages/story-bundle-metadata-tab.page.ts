@@ -16,6 +16,7 @@
  *   story-bundle-editor-metadata-tags-remove-all
  *   story-bundle-editor-metadata-tag-input
  *   story-bundle-editor-metadata-tag-add-button
+ *   story-bundle-editor-metadata-image-input
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -35,6 +36,7 @@ export class StoryBundleMetadataTabPage {
   readonly tagsRemoveAll: Locator;
   readonly tagInput: Locator;
   readonly tagAddButton: Locator;
+  readonly imageInput: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -52,6 +54,7 @@ export class StoryBundleMetadataTabPage {
     this.tagsRemoveAll = page.getByTestId("story-bundle-editor-metadata-tags-remove-all");
     this.tagInput = page.getByTestId("story-bundle-editor-metadata-tag-input");
     this.tagAddButton = page.getByTestId("story-bundle-editor-metadata-tag-add-button");
+    this.imageInput = page.getByTestId("story-bundle-editor-metadata-image-input");
   }
 
   // ── Actions ───────────────────────────────────────────────
@@ -76,6 +79,16 @@ export class StoryBundleMetadataTabPage {
   async removeTag(label: string): Promise<void> {
     const chip = this.tagChip(label);
     await chip.getByRole("button").click();
+  }
+
+  /** Remove every tag via the Remove All button. */
+  async removeAllTags(): Promise<void> {
+    await this.tagsRemoveAll.click();
+  }
+
+  /** Upload an image file through the hidden file input. */
+  async uploadImage(filePath: string): Promise<void> {
+    await this.imageInput.setInputFiles(filePath);
   }
 
 }

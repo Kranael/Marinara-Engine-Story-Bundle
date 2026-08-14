@@ -197,6 +197,7 @@ export function StoryBundleCharacters({
               return (
                 <button
                   key={char.id}
+                  data-testid={`story-bundle-editor-characters-add-${char.id}`}
                   onClick={() => handleToggle(char.id)}
                   className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm transition-all hover:bg-[var(--accent)]"
                 >
@@ -274,7 +275,7 @@ export function StoryBundleCharacters({
       )}
 
       {/* Selected Characters */}
-      <section>
+      <section data-testid="story-bundle-editor-characters-selected">
         <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">
           {t("storyBundles.selectedCharacters", "Selected Characters")}
         </h3>
@@ -301,6 +302,7 @@ export function StoryBundleCharacters({
                     )}
                   </div>
                   <button
+                    data-testid={`story-bundle-editor-characters-remove-${char.id}`}
                     onClick={() => handleToggle(char.id)}
                     className="shrink-0 rounded p-1 text-[var(--muted-foreground)] transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]"
                     title={t("storyBundles.removeCharacter", "Remove")}
@@ -312,7 +314,10 @@ export function StoryBundleCharacters({
             })}
           </div>
         ) : (
-          <div className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]">
+          <div
+            data-testid="story-bundle-editor-characters-selected-empty"
+            className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]"
+          >
             {t("storyBundles.charactersEmpty", "No characters assigned yet.")}
           </div>
         )}

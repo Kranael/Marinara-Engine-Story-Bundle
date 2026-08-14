@@ -196,6 +196,7 @@ export function StoryBundleAgents({ agentIds, onAgentIdsChange }: StoryBundleAge
               return (
                 <button
                   key={agent.id}
+                  data-testid={`story-bundle-editor-agents-add-${agent.id}`}
                   onClick={() => handleToggle(agent.id)}
                   className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm transition-all hover:bg-[var(--accent)]"
                 >
@@ -233,7 +234,7 @@ export function StoryBundleAgents({ agentIds, onAgentIdsChange }: StoryBundleAge
       </section>
 
       {/* Selected Agents */}
-      <section>
+      <section data-testid="story-bundle-editor-agents-selected">
         <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">
           {t("storyBundles.selectedAgents", "Selected Agents")}
         </h3>
@@ -255,6 +256,7 @@ export function StoryBundleAgents({ agentIds, onAgentIdsChange }: StoryBundleAge
                     <div className="truncate text-xs text-[var(--muted-foreground)] capitalize">{category}</div>
                   </div>
                   <button
+                    data-testid={`story-bundle-editor-agents-remove-${agent.id}`}
                     onClick={() => handleToggle(agent.id)}
                     className="shrink-0 rounded p-1 text-[var(--muted-foreground)] transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]"
                     title={t("storyBundles.removeAgent", "Remove")}
@@ -266,7 +268,10 @@ export function StoryBundleAgents({ agentIds, onAgentIdsChange }: StoryBundleAge
             })}
           </div>
         ) : (
-          <div className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]">
+          <div
+            data-testid="story-bundle-editor-agents-selected-empty"
+            className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]"
+          >
             {t("storyBundles.agentsEmpty", "No agents assigned yet.")}
           </div>
         )}

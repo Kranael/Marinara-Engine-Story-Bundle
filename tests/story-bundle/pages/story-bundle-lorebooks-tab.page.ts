@@ -7,6 +7,10 @@
  *   story-bundle-editor-lorebooks-random
  *   story-bundle-editor-lorebooks-load-more
  *   story-bundle-editor-lorebooks-empty
+ *   story-bundle-editor-lorebooks-selected
+ *   story-bundle-editor-lorebooks-selected-empty
+ *   story-bundle-editor-lorebooks-add-{id}
+ *   story-bundle-editor-lorebooks-remove-{id}
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -17,6 +21,9 @@ export class StoryBundleLorebooksTabPage {
   readonly randomButton: Locator;
   readonly loadMoreButton: Locator;
   readonly emptyState: Locator;
+  readonly selectedSection: Locator;
+  readonly selectedEmptyState: Locator;
+  readonly availableAddButtons: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -25,6 +32,9 @@ export class StoryBundleLorebooksTabPage {
     this.randomButton = page.getByTestId("story-bundle-editor-lorebooks-random");
     this.loadMoreButton = page.getByTestId("story-bundle-editor-lorebooks-load-more");
     this.emptyState = page.getByTestId("story-bundle-editor-lorebooks-empty");
+    this.selectedSection = page.getByTestId("story-bundle-editor-lorebooks-selected");
+    this.selectedEmptyState = page.getByTestId("story-bundle-editor-lorebooks-selected-empty");
+    this.availableAddButtons = this.section.locator('[data-testid^="story-bundle-editor-lorebooks-add-"]');
   }
 
   // ── Actions ───────────────────────────────────────────────
@@ -47,5 +57,25 @@ export class StoryBundleLorebooksTabPage {
   /** Click Load More to show additional lorebooks. */
   async loadMore(): Promise<void> {
     await this.loadMoreButton.click();
+  }
+
+  /** Locator for the add (+) button of a specific available lorebook. */
+  addButtonLocator(id: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-lorebooks-add-${id}`);
+  }
+
+  /** Locator for the remove (X) button of a specific selected lorebook. */
+  removeButtonLocator(id: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-lorebooks-remove-${id}`);
+  }
+
+  /** Add a lorebook to the bundle via its add button. */
+  async addItem(id: string): Promise<void> {
+    await this.addButtonLocator(id).click();
+  }
+
+  /** Remove a lorebook from the bundle via its remove button. */
+  async removeItem(id: string): Promise<void> {
+    await this.removeButtonLocator(id).click();
   }
 }
