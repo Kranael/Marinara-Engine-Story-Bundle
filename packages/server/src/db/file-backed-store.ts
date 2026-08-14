@@ -222,7 +222,6 @@ export const FILE_BACKED_TABLES = [
   "installed_extensions",
   "library_folders",
   "story_bundles",
-  "story_bundle_versions",
 ] as const;
 
 type FileBackedTable = (typeof FILE_BACKED_TABLES)[number];
@@ -316,7 +315,6 @@ export const CASCADES: Array<{ parent: FileBackedTable; child: FileBackedTable; 
     { parent: "prompt_presets", child: "choice_blocks", parentKey: "id", childKey: "presetId" },
     { parent: "agent_configs", child: "agent_runs", parentKey: "id", childKey: "agentConfigId" },
     { parent: "agent_configs", child: "agent_memory", parentKey: "id", childKey: "agentConfigId" },
-    { parent: "story_bundles", child: "story_bundle_versions", parentKey: "id", childKey: "bundleId" },
   ];
 
 const SET_NULL_RELATIONS: Array<{
