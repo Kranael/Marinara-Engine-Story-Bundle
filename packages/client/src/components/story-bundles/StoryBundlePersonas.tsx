@@ -191,6 +191,7 @@ export function StoryBundlePersonas({
               return (
                 <button
                   key={persona.id}
+                  data-testid={`story-bundle-editor-personas-add-${persona.id}`}
                   onClick={() => handleToggle(persona.id)}
                   className="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm transition-all hover:bg-[var(--accent)]"
                 >
@@ -269,7 +270,7 @@ export function StoryBundlePersonas({
       )}
 
       {/* Selected Personas */}
-      <section>
+      <section data-testid="story-bundle-editor-personas-selected">
         <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">
           {t("storyBundles.selectedPersonas", "Selected Personas")}
         </h3>
@@ -296,6 +297,7 @@ export function StoryBundlePersonas({
                     )}
                   </div>
                   <button
+                    data-testid={`story-bundle-editor-personas-remove-${persona.id}`}
                     onClick={() => handleToggle(persona.id)}
                     className="shrink-0 rounded p-1 text-[var(--muted-foreground)] transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]"
                     title={t("storyBundles.removePersona", "Remove")}
@@ -307,7 +309,10 @@ export function StoryBundlePersonas({
             })}
           </div>
         ) : (
-          <div className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]">
+          <div
+            data-testid="story-bundle-editor-personas-selected-empty"
+            className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]"
+          >
             {t("storyBundles.personasEmpty", "No personas assigned yet.")}
           </div>
         )}

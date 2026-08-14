@@ -9,6 +9,10 @@
  *   story-bundle-editor-personas-empty
  *   story-bundle-editor-personas-group-select
  *   story-bundle-editor-personas-add-group
+ *   story-bundle-editor-personas-selected
+ *   story-bundle-editor-personas-selected-empty
+ *   story-bundle-editor-personas-add-{id}
+ *   story-bundle-editor-personas-remove-{id}
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -21,6 +25,9 @@ export class StoryBundlePersonasTabPage {
   readonly emptyState: Locator;
   readonly groupSelect: Locator;
   readonly addGroupButton: Locator;
+  readonly selectedSection: Locator;
+  readonly selectedEmptyState: Locator;
+  readonly availableAddButtons: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -31,6 +38,11 @@ export class StoryBundlePersonasTabPage {
     this.emptyState = page.getByTestId("story-bundle-editor-personas-empty");
     this.groupSelect = page.getByTestId("story-bundle-editor-personas-group-select");
     this.addGroupButton = page.getByTestId("story-bundle-editor-personas-add-group");
+    this.selectedSection = page.getByTestId("story-bundle-editor-personas-selected");
+    this.selectedEmptyState = page.getByTestId("story-bundle-editor-personas-selected-empty");
+    this.availableAddButtons = this.section.locator(
+      '[data-testid^="story-bundle-editor-personas-add-"]:not([data-testid="story-bundle-editor-personas-add-group"])',
+    );
   }
 
   // ── Actions ───────────────────────────────────────────────
@@ -53,5 +65,35 @@ export class StoryBundlePersonasTabPage {
   /** Click Load More to show additional personas. */
   async loadMore(): Promise<void> {
     await this.loadMoreButton.click();
+  }
+
+  /** Locator for the add (+) button of a specific available persona. */
+  addButtonLocator(id: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-personas-add-${id}`);
+  }
+
+  /** Locator for the remove (X) button of a specific selected persona. */
+  removeButtonLocator(id: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-personas-remove-${id}`);
+  }
+
+  /** Add a persona to the bundle via its add button. */
+  async addItem(id: string): Promise<void> {
+    await this.addButtonLocator(id).click();
+  }
+
+  /** Remove a persona from the bundle via its remove button. */
+  async removeItem(id: string): Promise<void> {
+    await this.removeButtonLocator(id).click();
+  }
+
+  /** Select a persona group from the group dropdown. */
+  async selectGroup(id: string): Promise<void> {
+    await this.groupSelect.selectOption(id);
+  }
+
+  /** Add all members of the currently selected group. */
+  async addGroup(): Promise<void> {
+    await this.addGroupButton.click();
   }
 }
