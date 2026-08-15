@@ -6,10 +6,11 @@
 // ──────────────────────────────────────────────
 import { useState, useRef } from "react";
 import { Modal } from "../ui/Modal";
-import { BookMarked, BookOpen, Download, FileJson, CheckCircle, UserRound, Users, XCircle, Loader2 } from "lucide-react";
+import { BookMarked, BookOpen, Bot, Download, FileJson, CheckCircle, UserRound, Users, XCircle, Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api-client";
 import { useTranslation } from "react-i18next";
+import { useCapabilityCatalog, useInstallCapabilityPackage } from "../../hooks/use-capability-packages";
 
 interface Props {
   open: boolean;
@@ -22,7 +23,15 @@ interface EmbeddedPreview {
   characterCount: number;
   personaCount: number;
   lorebookCount: number;
+  agentCount: number;
 }
+
+interface MissingAgent {
+  id: string;
+  name: string;
+}
+
+type MissingAgentInstallState = "idle" | "installing" | "installed" | "not-found" | "failed";
 
 export function ImportStoryBundleModal({ open, onClose }: Props) {
   const { t } = useTranslation();
@@ -34,7 +43,49 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
     files: File[];
     previews: EmbeddedPreview[];
   } | null>(null);
+  const [missingAgents, setMissingAgents] = useState<MissingAgent[]>([]);
+  const [agentInstallStates, setAgentInstallStates] = useState<Record<string, MissingAgentInstallState>>({});
   const qc = useQueryClient();
+  const catalog = useCapabilityCatalog(missingAgents.length > 0);
+  const installPackage = useInstallCapabilityPackage();
+
+  /**
+   * Find the catalog package that provides a given agent id.
+   *
+   * Most capability packages provide exactly one agent whose id equals the
+   * package id (e.g. `prose-guardian`, `character-tracker`, `world-state`),
+   * so match on `manifest.id` first. A few packages declare the agents they
+   * own via `contributions.agentDetail.agentIds` instead (e.g.
+   * `long-term-memory`, `hierarchical-maps`), so fall back to that. This
+   * mirrors `resolveFeatureAgentPackage` in lib/feature-agent-package.ts.
+   */
+  const findPackageForAgent = (agentId: string) => {
+    const packages = catalog.data?.packages ?? [];
+    return (
+      packages.find((entry) => entry.manifest.id === agentId) ??
+      packages.find((entry) => entry.manifest.contributions?.agentDetail?.agentIds.includes(agentId)) ??
+      null
+    );
+  };
+
+  const handleInstallAgent = async (agent: MissingAgent) => {
+    const entry = findPackageForAgent(agent.id);
+    if (!entry) {
+      setAgentInstallStates((prev) => ({ ...prev, [agent.id]: "not-found" }));
+      return;
+    }
+    setAgentInstallStates((prev) => ({ ...prev, [agent.id]: "installing" }));
+    try {
+      await installPackage.mutateAsync({
+        id: entry.manifest.id,
+        expectedVersion: entry.manifest.version,
+        expectedArtifactSha256: entry.artifact.sha256,
+      });
+      setAgentInstallStates((prev) => ({ ...prev, [agent.id]: "installed" }));
+    } catch {
+      setAgentInstallStates((prev) => ({ ...prev, [agent.id]: "failed" }));
+    }
+  };
 
   const inspectEnvelopeForEmbedded = (envelope: Record<string, unknown>): EmbeddedPreview | null => {
     const data = envelope.data as Record<string, unknown> | undefined;
@@ -42,6 +93,12 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
     const embeddedCharacters = Array.isArray(data.embeddedCharacters) ? data.embeddedCharacters : [];
     const embeddedPersonas = Array.isArray(data.embeddedPersonas) ? data.embeddedPersonas : [];
     const embeddedLorebooks = Array.isArray(data.embeddedLorebooks) ? data.embeddedLorebooks : [];
+    // Agents are referenced by id (provided by capability packages), not embedded.
+    // Count them from `agentIds`, falling back to the carried `embeddedAgents`
+    // metadata so hand-built envelopes still report a count.
+    const agentIds = Array.isArray(data.agentIds) ? data.agentIds : [];
+    const embeddedAgents = Array.isArray(data.embeddedAgents) ? data.embeddedAgents : [];
+    const agentCount = agentIds.length > 0 ? agentIds.length : embeddedAgents.length;
     const total = embeddedCharacters.length + embeddedPersonas.length + embeddedLorebooks.length;
     if (total === 0) return null;
     return {
@@ -50,6 +107,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
       characterCount: embeddedCharacters.length,
       personaCount: embeddedPersonas.length,
       lorebookCount: embeddedLorebooks.length,
+      agentCount,
     };
   };
 
@@ -58,8 +116,11 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
     setStatus("loading");
     setResults([]);
     setPendingEmbeddedChoice(null);
+    setMissingAgents([]);
+    setAgentInstallStates({});
 
     const nextResults: Array<{ filename: string; success: boolean; message: string }> = [];
+    const nextMissingAgents: MissingAgent[] = [];
 
     for (const file of files) {
       try {
@@ -109,7 +170,14 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
           const payload = importEmbedded === false
             ? { ...envelope, data: { ...(envelope.data as Record<string, unknown>), importEmbedded: false } }
             : envelope;
-          const data = await api.post<{ success: boolean; id?: string; name?: string; embeddedImported?: number; error?: string }>("/import/marinara", payload);
+          const data = await api.post<{
+            success: boolean;
+            id?: string;
+            name?: string;
+            embeddedImported?: number;
+            missingAgents?: Array<{ id: string; name: string }>;
+            error?: string;
+          }>("/import/marinara", payload);
           const embeddedInfo = data.embeddedImported
             ? t("storyBundles.importedWithEmbedded", { count: data.embeddedImported, defaultValue: " with {{count}} embedded entities" })
             : "";
@@ -120,6 +188,13 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
               ? t("storyBundles.importedAs", { name: data.name ?? "Story Bundle", defaultValue: "Imported “{{name}}”" }) + embeddedInfo
               : (data.error ?? t("storyBundles.importFailed", "Import failed")),
           });
+          if (data.success && Array.isArray(data.missingAgents)) {
+            for (const agent of data.missingAgents) {
+              if (agent && typeof agent.id === "string" && !nextMissingAgents.some((existing) => existing.id === agent.id)) {
+                nextMissingAgents.push({ id: agent.id, name: typeof agent.name === "string" && agent.name.trim() ? agent.name : agent.id });
+              }
+            }
+          }
         }
       } catch (error) {
         nextResults.push({
@@ -131,6 +206,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
     }
 
     setResults(nextResults);
+    setMissingAgents(nextMissingAgents);
     setStatus("done");
     if (nextResults.some((result) => result.success)) {
       qc.invalidateQueries();
@@ -147,6 +223,8 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
     setStatus("idle");
     setResults([]);
     setPendingEmbeddedChoice(null);
+    setMissingAgents([]);
+    setAgentInstallStates({});
   };
 
   return (
@@ -187,6 +265,14 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
                   {preview.lorebookCount > 0 && (
                     <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
                       <BookOpen size="0.6875rem" />{preview.lorebookCount}
+                    </span>
+                  )}
+                  {preview.agentCount > 0 && (
+                    <span
+                      data-testid="story-bundle-import-embedded-agent-count"
+                      className="flex items-center gap-1 text-[var(--muted-foreground)]"
+                    >
+                      <Bot size="0.6875rem" />{preview.agentCount}
                     </span>
                   )}
                 </div>
@@ -283,6 +369,63 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Missing agents prompt — agents referenced by the bundle that are not installed */}
+        {status === "done" && missingAgents.length > 0 && (
+          <div data-testid="story-bundle-import-missing-agents" className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+            <p className="text-sm font-semibold text-[var(--foreground)]">
+              {t("storyBundles.missingAgentsFound", "This bundle references agents that are not installed")}
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">
+              {t("storyBundles.missingAgentsFoundHint", "Agents are provided by capability packages. Install the matching package to use these agents.")}
+            </p>
+            <div className="mt-3 flex flex-col gap-1.5">
+              {missingAgents.map((agent) => {
+                const state = agentInstallStates[agent.id] ?? "idle";
+                return (
+                  <div
+                    key={agent.id}
+                    data-testid="story-bundle-import-missing-agent-row"
+                    className="flex items-center gap-2 rounded-lg bg-[var(--sidebar)] px-3 py-2 text-xs"
+                  >
+                    <Bot size="0.8125rem" className="shrink-0 text-amber-400" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium">{agent.name}</div>
+                      {state === "not-found" && (
+                        <div className="text-amber-400">
+                          {t("storyBundles.missingAgentNoPackage", "No capability package provides this agent")}
+                        </div>
+                      )}
+                      {state === "failed" && (
+                        <div className="text-[var(--destructive)]">
+                          {t("storyBundles.missingAgentInstallFailed", "Installation failed")}
+                        </div>
+                      )}
+                    </div>
+                    {state === "installed" ? (
+                      <span className="flex items-center gap-1 text-emerald-400">
+                        <CheckCircle size="0.8125rem" /> {t("storyBundles.missingAgentInstalled", "Installed")}
+                      </span>
+                    ) : state === "installing" ? (
+                      <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
+                        <Loader2 size="0.8125rem" className="animate-spin" /> {t("storyBundles.missingAgentInstalling", "Installing…")}
+                      </span>
+                    ) : state === "not-found" ? null : (
+                      <button
+                        data-testid="story-bundle-import-install-agent"
+                        onClick={() => void handleInstallAgent(agent)}
+                        disabled={catalog.isLoading}
+                        className="mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {t("storyBundles.missingAgentInstall", "Install")}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
