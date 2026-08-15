@@ -17,6 +17,7 @@
  *   story-bundle-editor-metadata-tag-input
  *   story-bundle-editor-metadata-tag-add-button
  *   story-bundle-editor-metadata-image-input
+ *   avatar-crop-remove-button
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -37,6 +38,7 @@ export class StoryBundleMetadataTabPage {
   readonly tagInput: Locator;
   readonly tagAddButton: Locator;
   readonly imageInput: Locator;
+  readonly avatarCropRemoveButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -55,6 +57,7 @@ export class StoryBundleMetadataTabPage {
     this.tagInput = page.getByTestId("story-bundle-editor-metadata-tag-input");
     this.tagAddButton = page.getByTestId("story-bundle-editor-metadata-tag-add-button");
     this.imageInput = page.getByTestId("story-bundle-editor-metadata-image-input");
+    this.avatarCropRemoveButton = page.getByTestId("avatar-crop-remove-button");
   }
 
   // ── Actions ───────────────────────────────────────────────

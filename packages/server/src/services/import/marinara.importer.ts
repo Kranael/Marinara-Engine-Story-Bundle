@@ -16,6 +16,7 @@ import {
   normalizeTrackerCardColorConfig,
   personaCreateInputSchema,
   lorebookFilterModeSchema,
+  BUILT_IN_AGENT_MANIFESTS,
 } from "@marinara-engine/shared";
 import type {
   CharacterData,
@@ -30,6 +31,7 @@ import { createPersonaGalleryStorage } from "../storage/persona-gallery.storage.
 import { createLorebooksStorage } from "../storage/lorebooks.storage.js";
 import { createPromptsStorage } from "../storage/prompts.storage.js";
 import { createStoryBundlesStorage } from "../storage/story-bundles.storage.js";
+import { createAgentsStorage } from "../storage/agents.storage.js";
 import { normalizeTimestampOverrides, type TimestampOverrides } from "./import-timestamps.js";
 import { newId } from "../../utils/id-generator.js";
 import { resolveLorebookEntryRole } from "./lorebook-role.js";
@@ -120,6 +122,25 @@ async function saveAvatarFromDataUrl(dataUrl: unknown, prefix: string, id: strin
     throw error;
   }
   return { avatarPath: `/api/avatars/file/${filename}`, filePath: filepath };
+}
+
+// Decode a `bundleImage` data URL carried in a story bundle export, validate
+// it as a real image, and write it under data/story-bundles/images/. Returns
+// the public API path so the imported bundle keeps its picture across
+// machines. Returns null when the payload is absent or invalid.
+async function saveStoryBundleImageFromDataUrl(dataUrl: unknown, id: string): Promise<string | null> {
+  if (dataUrl === undefined || dataUrl === null || dataUrl === "") return null;
+  const decoded = decodeImageDataUrl(dataUrl);
+  if (!decoded) {
+    logger.warn("Skipped invalid story bundle image data for %s", id);
+    return null;
+  }
+  const imagesDir = join(DATA_DIR, "story-bundles", "images");
+  await mkdir(imagesDir, { recursive: true });
+  const filename = `story-bundle-${id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${decoded.ext}`;
+  const filepath = assertInsideDir(imagesDir, join(imagesDir, filename));
+  await writeFile(filepath, decoded.buffer);
+  return `/api/story-bundles/images/file/${filename}`;
 }
 
 function readLorebookScope(value: unknown): { mode: "all" | "disabled" | "specific"; chatIds: string[] } {
@@ -334,7 +355,16 @@ function readFilterMode(value: unknown): LorebookFilterMode {
 export async function importMarinara(
   envelope: ExportEnvelope,
   db: DB,
-): Promise<{ success: boolean; type: ExportType; id?: string; name?: string; error?: string }> {
+): Promise<{
+  success: boolean;
+  type: ExportType;
+  id?: string;
+  name?: string;
+  error?: string;
+  embeddedImported?: number;
+  embeddedSkipped?: number;
+  missingAgents?: Array<{ id: string; name: string }>;
+}> {
   const normalizedEnvelope = unwrapFolderManifestEnvelope(envelope) ?? envelope;
   if (
     !normalizedEnvelope ||
@@ -942,6 +972,8 @@ async function importStoryBundle(data: unknown, db: DB) {
     name?: unknown;
     description?: unknown;
     imagePath?: unknown;
+    avatarCrop?: unknown;
+    bundleImage?: unknown;
     comment?: unknown;
     creator?: unknown;
     version?: unknown;
@@ -956,6 +988,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     embeddedPersonas?: unknown;
     embeddedLorebooks?: unknown;
     embeddedPresets?: unknown;
+    embeddedAgents?: unknown;
     importEmbedded?: unknown;
   };
   if (!d || typeof d !== "object") {
@@ -1165,6 +1198,33 @@ async function importStoryBundle(data: unknown, db: DB) {
   const finalPresetIds = remapIds(stringArray(d.presetIds), presetIdMap);
   const finalAgentIds = stringArray(d.agentIds);
 
+  // Detect agents referenced by the bundle that are not available locally, so
+  // the client can offer to install the capability package that provides them.
+  // An agent is "present" if it is a built-in (from an installed capability
+  // package) or a custom agent config. Anything else is missing.
+  const agentsStorage = createAgentsStorage(db);
+  const agentConfigs = await agentsStorage.list();
+  const knownAgentIds = new Set<string>();
+  for (const manifest of BUILT_IN_AGENT_MANIFESTS) knownAgentIds.add(manifest.id);
+  for (const config of agentConfigs) knownAgentIds.add((config as Record<string, unknown>).type as string);
+
+  // Embedded agent metadata carried in the export (id → display name) so the
+  // missing-agent prompt can show a friendly label instead of a raw id.
+  const embeddedAgentNames = new Map<string, string>();
+  if (Array.isArray(d.embeddedAgents)) {
+    for (const entry of d.embeddedAgents) {
+      if (!entry || typeof entry !== "object") continue;
+      const ea = entry as Record<string, unknown>;
+      if (typeof ea.id === "string" && typeof ea.name === "string" && ea.name.trim()) {
+        embeddedAgentNames.set(ea.id, ea.name.trim());
+      }
+    }
+  }
+
+  const missingAgents = finalAgentIds
+    .filter((agentId) => !knownAgentIds.has(agentId))
+    .map((agentId) => ({ id: agentId, name: embeddedAgentNames.get(agentId) ?? agentId }));
+
   // Intros are inline data — parse and validate, generating new IDs for each.
   const finalIntros = Array.isArray(d.intros)
     ? d.intros
@@ -1183,7 +1243,7 @@ async function importStoryBundle(data: unknown, db: DB) {
   const result = await storage.create({
     name,
     description: typeof d.description === "string" ? d.description : null,
-    imagePath: typeof d.imagePath === "string" ? d.imagePath : null,
+    imagePath: null,
     comment: typeof d.comment === "string" ? d.comment : "",
     creator: typeof d.creator === "string" ? d.creator : "",
     version: typeof d.version === "string" ? d.version : "",
@@ -1198,13 +1258,29 @@ async function importStoryBundle(data: unknown, db: DB) {
   if (!result) {
     return { success: false, type: "marinara_story_bundle" as const, error: "Failed to create story bundle" };
   }
+
+  // Restore the bundle picture from the embedded data URL. The exported
+  // imagePath points at the source machine's file, so it is only kept when no
+  // embedded image is available.
+  const importedId = result.id as string;
+  let imagePath: string | null = typeof d.imagePath === "string" ? d.imagePath : null;
+  if (d.bundleImage !== undefined && d.bundleImage !== null && d.bundleImage !== "") {
+    const restored = await saveStoryBundleImageFromDataUrl(d.bundleImage, importedId);
+    if (restored) imagePath = restored;
+  }
+  const avatarCrop = normalizeAvatarCrop(d.avatarCrop);
+  if (imagePath !== null || avatarCrop !== null) {
+    await storage.update(importedId, { imagePath, avatarCrop });
+  }
+
   return {
     success: true,
     type: "marinara_story_bundle" as const,
-    id: result.id as string,
+    id: importedId,
     name,
     embeddedImported,
     embeddedSkipped,
+    missingAgents,
   };
 }
 

@@ -3,12 +3,13 @@
 // ──────────────────────────────────────────────
 import type { FastifyInstance } from "fastify";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import {
   createStoryBundleSchema,
   storyBundleIdParamsSchema,
   updateStoryBundleSchema,
+  BUILT_IN_AGENT_MANIFESTS,
 } from "@marinara-engine/shared";
 import type { ExportEnvelope, StoryBundle, StoryBundleIntro } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
@@ -16,6 +17,7 @@ import { createCharactersStorage } from "../services/storage/characters.storage.
 import { createCharacterGalleryStorage } from "../services/storage/character-gallery.storage.js";
 import { createLorebooksStorage } from "../services/storage/lorebooks.storage.js";
 import { createPromptsStorage } from "../services/storage/prompts.storage.js";
+import { createAgentsStorage } from "../services/storage/agents.storage.js";
 import { logger } from "../lib/logger.js";
 import { DATA_DIR } from "../utils/data-dir.js";
 import { assertInsideDir, extensionFromImageMime, isAllowedImageBuffer } from "../utils/security.js";
@@ -119,6 +121,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
   const characterGalleryStorage = createCharacterGalleryStorage(app.db);
   const lorebooksStorage = createLorebooksStorage(app.db);
   const promptsStorage = createPromptsStorage(app.db);
+  const agentsStorage = createAgentsStorage(app.db);
 
   // ── List all story bundles ──
   app.get("/", async (_req, reply) => {
@@ -187,6 +190,29 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     await writeFile(filepath, buffer);
 
     const updated = await storage.update(req.params.id, { imagePath: `/api/story-bundles/images/file/${filename}` });
+    if (!updated) return reply.status(404).send({ error: "Story bundle not found" });
+    return reply.send(serializeBundle(updated));
+  });
+
+  // ── Remove a story bundle image ──
+  app.delete<{ Params: { id: string } }>("/:id/image", async (req, reply) => {
+    const bundle = await storage.getById(req.params.id);
+    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+
+    const existingPath = (bundle.imagePath as string) ?? null;
+    if (existingPath) {
+      const filename = existingPath.split("?")[0]!.split("/").pop() ?? "";
+      const filepath = getSafeStoryBundleImagePath(filename);
+      if (filepath && existsSync(filepath)) {
+        try {
+          await unlink(filepath);
+        } catch (error) {
+          logger.warn("Failed to delete story bundle image file %s: %s", filepath, error);
+        }
+      }
+    }
+
+    const updated = await storage.update(req.params.id, { imagePath: null, avatarCrop: null });
     if (!updated) return reply.status(404).send({ error: "Story bundle not found" });
     return reply.send(serializeBundle(updated));
   });
@@ -299,6 +325,27 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       }
     }
 
+    // Carry lightweight agent metadata (id → display name) so an importing
+    // machine can label missing agents in the install prompt. Agents are
+    // provided by capability packages, so they are referenced by id rather
+    // than embedded.
+    const embeddedAgents: Array<{ id: string; name: string }> = [];
+    if (serialized.agentIds.length > 0) {
+      const agentConfigs = await agentsStorage.list();
+      const configNameByType = new Map<string, string>();
+      for (const config of agentConfigs) {
+        const row = config as Record<string, unknown>;
+        if (typeof row.type === "string" && typeof row.name === "string" && row.name.trim()) {
+          configNameByType.set(row.type, row.name.trim());
+        }
+      }
+      for (const agentId of serialized.agentIds) {
+        const manifest = BUILT_IN_AGENT_MANIFESTS.find((candidate) => candidate.id === agentId);
+        const displayName = manifest?.name ?? configNameByType.get(agentId) ?? agentId;
+        embeddedAgents.push({ id: agentId, name: displayName });
+      }
+    }
+
     const envelope: ExportEnvelope = {
       type: "marinara_story_bundle",
       version: 1,
@@ -307,6 +354,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
         name: serialized.name,
         description: serialized.description,
         imagePath: serialized.imagePath,
+        avatarCrop: serialized.avatarCrop,
         comment: serialized.comment,
         creator: serialized.creator,
         version: serialized.version,
@@ -321,6 +369,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
         embeddedPersonas,
         embeddedLorebooks,
         embeddedPresets,
+        ...(embeddedAgents.length > 0 ? { embeddedAgents } : {}),
         ...(bundleImage ? { bundleImage } : {}),
       },
     };

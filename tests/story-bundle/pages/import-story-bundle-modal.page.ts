@@ -11,6 +11,9 @@
  *   story-bundle-import-skip-embedded
  *   story-bundle-import-import-all
  *   story-bundle-import-close-button
+ *   story-bundle-import-missing-agents
+ *   story-bundle-import-missing-agent-row
+ *   story-bundle-import-install-agent
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -24,6 +27,9 @@ export class ImportStoryBundleModalPage {
   readonly skipEmbeddedButton: Locator;
   readonly importAllButton: Locator;
   readonly closeButton: Locator;
+  readonly missingAgentsSection: Locator;
+  readonly missingAgentRows: Locator;
+  readonly installAgentButtons: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -35,6 +41,9 @@ export class ImportStoryBundleModalPage {
     this.skipEmbeddedButton = page.getByTestId("story-bundle-import-skip-embedded");
     this.importAllButton = page.getByTestId("story-bundle-import-import-all");
     this.closeButton = page.getByTestId("story-bundle-import-close-button");
+    this.missingAgentsSection = page.getByTestId("story-bundle-import-missing-agents");
+    this.missingAgentRows = page.getByTestId("story-bundle-import-missing-agent-row");
+    this.installAgentButtons = page.getByTestId("story-bundle-import-install-agent");
   }
 
   // ── Actions ───────────────────────────────────────────────
