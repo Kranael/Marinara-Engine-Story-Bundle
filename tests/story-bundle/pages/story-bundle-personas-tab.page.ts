@@ -7,8 +7,6 @@
  *   story-bundle-editor-personas-random
  *   story-bundle-editor-personas-load-more
  *   story-bundle-editor-personas-empty
- *   story-bundle-editor-personas-group-select
- *   story-bundle-editor-personas-add-group
  *   story-bundle-editor-personas-selected
  *   story-bundle-editor-personas-selected-empty
  *   story-bundle-editor-personas-add-{id}
@@ -23,8 +21,6 @@ export class StoryBundlePersonasTabPage {
   readonly randomButton: Locator;
   readonly loadMoreButton: Locator;
   readonly emptyState: Locator;
-  readonly groupSelect: Locator;
-  readonly addGroupButton: Locator;
   readonly selectedSection: Locator;
   readonly selectedEmptyState: Locator;
   readonly availableAddButtons: Locator;
@@ -36,12 +32,10 @@ export class StoryBundlePersonasTabPage {
     this.randomButton = page.getByTestId("story-bundle-editor-personas-random");
     this.loadMoreButton = page.getByTestId("story-bundle-editor-personas-load-more");
     this.emptyState = page.getByTestId("story-bundle-editor-personas-empty");
-    this.groupSelect = page.getByTestId("story-bundle-editor-personas-group-select");
-    this.addGroupButton = page.getByTestId("story-bundle-editor-personas-add-group");
     this.selectedSection = page.getByTestId("story-bundle-editor-personas-selected");
     this.selectedEmptyState = page.getByTestId("story-bundle-editor-personas-selected-empty");
     this.availableAddButtons = this.section.locator(
-      '[data-testid^="story-bundle-editor-personas-add-"]:not([data-testid="story-bundle-editor-personas-add-group"])',
+      '[data-testid^="story-bundle-editor-personas-add-"]',
     );
   }
 
@@ -85,15 +79,5 @@ export class StoryBundlePersonasTabPage {
   /** Remove a persona from the bundle via its remove button. */
   async removeItem(id: string): Promise<void> {
     await this.removeButtonLocator(id).click();
-  }
-
-  /** Select a persona group from the group dropdown. */
-  async selectGroup(id: string): Promise<void> {
-    await this.groupSelect.selectOption(id);
-  }
-
-  /** Add all members of the currently selected group. */
-  async addGroup(): Promise<void> {
-    await this.addGroupButton.click();
   }
 }

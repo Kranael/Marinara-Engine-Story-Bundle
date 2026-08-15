@@ -4,8 +4,18 @@ This file is the release-notes source of truth for Marinara Engine. Reuse these 
 
 ## [Unreleased]
 
+### Added
+
+- Added an agent count badge to the Story Bundle import dialog's embedded-content prompt, so you can see how many agents a bundle references before deciding whether to import its embedded content.
+
+### Changed
+
+- Story Bundles now play exactly one persona: the Personas tab in the bundle editor is single-select, and picking a persona replaces any previously selected one instead of adding to a list.
+- Made the Story Bundle editor's Play and Save buttons and the panel's New Bundle button compact so they match the height of the small icon buttons (Import, Delete) for a tidier toolbar.
+
 ### Fixed
 
+- Fixed the Story Bundle import dialog's Install button for missing agents: it now resolves the providing capability package by package id first (falling back to the package's declared agent list), so agents whose id matches their package id install correctly instead of showing "No capability package provides this agent".
 - Fixed the Windows launcher failing its pre-update data snapshot with `EPERM: operation not permitted, symlink` once the capability package runtime had created its `data/capability-packages/node_modules` junction: launcher data protection now skips symbolic links when snapshotting and restoring user data, since those links point at runtime artifacts the server recreates on every startup. The snapshot no longer aborts, so auto-update is no longer skipped on affected Windows installs.
 - Kept the caret at the chosen insertion point when typing quotes or apostrophes in expanded Character and Persona text editors (#4656).
 - Prevented multiple Marinara processes from silently overwriting a shared local data directory; stale diagnostic counts are repaired without hiding stored rows (#5013).

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { ArrowLeft, BookMarked, BookOpen, FileText, Info, Loader2, MessageSquare, Play, Save, SlidersHorizontal, Sparkles, Trash2, UserRound, Users } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
-import { useCharacters, useCharacterGroups, usePersonas, usePersonaGroups } from "../../hooks/use-characters";
+import { useCharacters, useCharacterGroups, usePersonas } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
 import type { Lorebook, PromptPreset, StoryBundleIntro } from "@marinara-engine/shared";
@@ -86,7 +86,6 @@ export function StoryBundleEditor() {
   const { data: allCharacters } = useCharacters();
   const { data: allCharacterGroups } = useCharacterGroups();
   const { data: allPersonas } = usePersonas();
-  const { data: allPersonaGroups } = usePersonaGroups();
   const { data: allLorebooks } = useLorebooks();
   const { data: allPresets } = usePresets();
 
@@ -114,15 +113,6 @@ export function StoryBundleEditor() {
     () =>
       (allPersonas ?? []) as Array<{ id: string; name: string; avatarPath?: string | null; avatarCrop?: string; comment?: string | null; description?: string | null }>,
     [allPersonas],
-  );
-
-  const personaFolders = useMemo(
-    () =>
-      ((allPersonaGroups ?? []) as Array<{ id: string; name: string; personaIds: unknown }>).map((group) => ({
-        ...group,
-        personaIds: parseCharacterFolderIds(group.personaIds),
-      })),
-    [allPersonaGroups],
   );
 
   const validPersonaIds = useMemo(
@@ -419,7 +409,7 @@ export function StoryBundleEditor() {
             onClick={handlePlay}
             disabled={playing}
             className={cn(
-              "mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium",
+              "mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium",
               playing && "cursor-not-allowed opacity-45",
             )}
             title={t("storyBundles.playTitle", "Start game from this story bundle")}
@@ -432,7 +422,7 @@ export function StoryBundleEditor() {
             onClick={handleSave}
             disabled={!isDirty || saving}
             className={cn(
-              "mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium",
+              "mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium",
               (!isDirty || saving) && "cursor-not-allowed opacity-45",
             )}
           >
@@ -500,7 +490,6 @@ export function StoryBundleEditor() {
                 personaIds={personaIds}
                 onPersonaIdsChange={setPersonaIds}
                 personas={personas}
-                personaFolders={personaFolders}
                 validPersonaIds={validPersonaIds}
               />
             )}

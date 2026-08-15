@@ -63,6 +63,25 @@ test.describe("Story Bundle Editor — Positive", () => {
     await api.delete(bundle.id);
   });
 
+  test("play and save buttons match the compact icon-button height", async ({ page }) => {
+    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
+    const api = new StoryBundleAPI(page);
+
+    // Play/Save are compact gradient buttons; Delete is the 2rem (h-8 w-8)
+    // icon button they should visually match.
+    const deleteBox = await editor.deleteButton.boundingBox();
+    const playBox = await editor.playButton.boundingBox();
+    const saveBox = await editor.saveButton.boundingBox();
+
+    expect(deleteBox).not.toBeNull();
+    expect(playBox).not.toBeNull();
+    expect(saveBox).not.toBeNull();
+    expect(playBox!.height).toBeCloseTo(deleteBox!.height, 0);
+    expect(saveBox!.height).toBeCloseTo(deleteBox!.height, 0);
+
+    await api.delete(bundle.id);
+  });
+
   test("back button returns to the Story Bundles panel", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
     const panel = new StoryBundlesPanelPage(page);

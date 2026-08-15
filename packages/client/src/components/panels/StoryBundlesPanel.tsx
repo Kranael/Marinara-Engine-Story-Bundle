@@ -230,7 +230,7 @@ export function StoryBundlesPanel() {
             data-testid="story-bundles-create-button"
             onClick={handleCreate}
             disabled={creating}
-            className="mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+            className="mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
           >
             {creating ? <Loader2 size="0.75rem" className="animate-spin" /> : <Plus size="0.75rem" />}
             {t("storyBundles.newBundle", "New Bundle")}

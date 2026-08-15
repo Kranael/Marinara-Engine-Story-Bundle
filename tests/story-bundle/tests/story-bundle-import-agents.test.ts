@@ -10,6 +10,11 @@
  *   agent config) does NOT show the missing-agents prompt.
  * - Importing a bundle that carries an embedded `bundleImage` data URL and an
  *   `avatarCrop` restores both on the importing machine (self-contained export).
+ * - Clicking Install on a missing agent resolves the providing capability
+ *   package by `manifest.id` and installs it (catalog + install endpoint are
+ *   mocked so no real artifact is downloaded).
+ * - Clicking Install when no catalog package provides the agent shows the
+ *   "no capability package" hint instead of firing an install request.
  *
  * Each test writes a unique envelope (unique bundle + agent names) so parallel
  * workers never collide, and cleans up bundles, agents, and temp files in a
@@ -64,6 +69,73 @@ async function findBundleIdByName(
   return bundles.find((b) => b.name === name)?.id ?? null;
 }
 
+/** Build a single capability-package catalog entry for a given package/agent id. */
+function buildCatalogPackage(id: string, name: string) {
+  return {
+    category: "writer",
+    manifest: {
+      schemaVersion: 1,
+      id,
+      name,
+      version: "1.0.0",
+      description: `Provides the ${name} agent.`,
+      engine: { min: "2.3.0", maxExclusive: "3.0.0" },
+      kind: ["agent"],
+      entrypoints: { agents: "agents.json" },
+      files: [],
+      permissions: ["agent-runtime", "chat-read", "prompt-context", "ui"],
+      restartRequired: false,
+    },
+    artifact: { url: `https://example.com/${id}.zip`, sha256: "a".repeat(64), bytes: 2048 },
+  };
+}
+
+/**
+ * Mock the capability catalog and the install endpoint so the Install button
+ * resolves the providing package without downloading a real artifact.
+ * Returns the ids that were POSTed to `/install`.
+ */
+async function mockCapabilityCatalog(
+  page: import("@playwright/test").Page,
+  packages: Array<ReturnType<typeof buildCatalogPackage>>,
+): Promise<string[]> {
+  const installRequests: string[] = [];
+
+  await page.route("**/api/capability-packages/catalog", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        schemaVersion: 1,
+        generatedAt: "2026-01-01T00:00:00.000Z",
+        packages,
+      }),
+    });
+  });
+
+  await page.route(/\/api\/capability-packages\/[^/]+\/install$/, async (route) => {
+    const pathname = new URL(route.request().url()).pathname;
+    const id = decodeURIComponent(pathname.split("/").at(-2) ?? "");
+    installRequests.push(id);
+    const entry = packages.find((candidate) => candidate.manifest.id === id);
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id,
+        version: entry?.manifest.version ?? "1.0.0",
+        manifest: entry?.manifest ?? null,
+        installedAt: "2026-01-01T00:00:00.000Z",
+        status: "active",
+        error: null,
+        legacy: false,
+      }),
+    });
+  });
+
+  return installRequests;
+}
+
 test.describe("Story Bundle Import Agents — Positive", () => {
   test("importing a bundle with a missing agent shows the install prompt", async ({ page }) => {
     const base = new BasePage(page);
@@ -104,6 +176,66 @@ test.describe("Story Bundle Import Agents — Positive", () => {
       await expect(importModal.missingAgentsSection).toContainText(missingAgentLabel);
       await expect(importModal.missingAgentRows).toHaveCount(1);
       await expect(importModal.installAgentButtons).toHaveCount(1);
+
+      bundleId = await findBundleIdByName(page.request, bundleName);
+    } finally {
+      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (fs.existsSync(envelopePath)) fs.unlinkSync(envelopePath);
+    }
+  });
+
+  test("installing a missing agent resolves the package by manifest id", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const importModal = new ImportStoryBundleModalPage(page);
+
+    const suffix = `${Date.now().toString(36)}-${process.env.TEST_WORKER_INDEX ?? "0"}`;
+    const bundleName = `Install Agent Bundle ${suffix}`;
+    // The fix under test: the providing package is found via manifest.id ===
+    // agent id (no contributions.agentDetail fallback needed).
+    const agentId = `installable-agent-${suffix}`;
+    const agentLabel = `Installable Agent ${suffix}`;
+    const envelopePath = path.join(DATA_DIR, `install-agent-${suffix}.json`);
+
+    let bundleId: string | null = null;
+
+    try {
+      const installRequests = await mockCapabilityCatalog(page, [
+        buildCatalogPackage(agentId, agentLabel),
+      ]);
+
+      writeAgentEnvelope(envelopePath, bundleName, [agentId], [
+        { id: agentId, name: agentLabel },
+      ]);
+
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.importButton.click();
+      await importModal.waitFor();
+
+      await importModal.uploadFile(envelopePath);
+
+      await expect(importModal.results).toContainText(/Imported/, { timeout: 10_000 });
+      await expect(importModal.missingAgentsSection).toBeVisible({ timeout: 10_000 });
+      await expect(importModal.installAgentButtons).toHaveCount(1);
+
+      // Playwright waits for the button to be enabled (it is disabled while
+      // the catalog loads), then the install mutation hits the mocked route.
+      await importModal.installAgentButtons.first().click();
+
+      // The row flips to the installed state…
+      await expect(importModal.missingAgentRows.first()).toContainText(/Installed/, {
+        timeout: 10_000,
+      });
+      await expect(importModal.missingAgentRows.first()).not.toContainText(
+        /No capability package provides this agent/,
+      );
+
+      // …and exactly one install request went out for the package id.
+      expect(installRequests).toEqual([agentId]);
 
       bundleId = await findBundleIdByName(page.request, bundleName);
     } finally {
@@ -273,6 +405,64 @@ test.describe("Story Bundle Import Agents — Positive", () => {
       // Skip embedded content so we do not actually import the character.
       await importModal.skipEmbeddedButton.click();
       await expect(importModal.results).toContainText(/Imported/, { timeout: 10_000 });
+
+      bundleId = await findBundleIdByName(page.request, bundleName);
+    } finally {
+      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (fs.existsSync(envelopePath)) fs.unlinkSync(envelopePath);
+    }
+  });
+});
+
+test.describe("Story Bundle Import Agents — Negative", () => {
+  test("install shows a hint when no catalog package provides the agent", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const importModal = new ImportStoryBundleModalPage(page);
+
+    const suffix = `${Date.now().toString(36)}-${process.env.TEST_WORKER_INDEX ?? "0"}`;
+    const bundleName = `Orphan Agent Bundle ${suffix}`;
+    const agentId = `orphan-agent-${suffix}`;
+    const agentLabel = `Orphan Agent ${suffix}`;
+    const envelopePath = path.join(DATA_DIR, `orphan-agent-${suffix}.json`);
+
+    let bundleId: string | null = null;
+
+    try {
+      // The catalog contains a package, but none that provides this agent —
+      // neither by manifest.id nor via contributions.agentDetail.
+      const installRequests = await mockCapabilityCatalog(page, [
+        buildCatalogPackage(`unrelated-package-${suffix}`, `Unrelated Package ${suffix}`),
+      ]);
+
+      writeAgentEnvelope(envelopePath, bundleName, [agentId], [
+        { id: agentId, name: agentLabel },
+      ]);
+
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.importButton.click();
+      await importModal.waitFor();
+
+      await importModal.uploadFile(envelopePath);
+
+      await expect(importModal.results).toContainText(/Imported/, { timeout: 10_000 });
+      await expect(importModal.missingAgentsSection).toBeVisible({ timeout: 10_000 });
+
+      await importModal.installAgentButtons.first().click();
+
+      // No matching package → the row explains why nothing was installed…
+      await expect(importModal.missingAgentRows.first()).toContainText(
+        /No capability package provides this agent/,
+        { timeout: 10_000 },
+      );
+      await expect(importModal.missingAgentRows.first()).not.toContainText(/Installed/);
+
+      // …and no install request was fired.
+      expect(installRequests).toEqual([]);
 
       bundleId = await findBundleIdByName(page.request, bundleName);
     } finally {
