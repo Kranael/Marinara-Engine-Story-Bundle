@@ -260,6 +260,7 @@ type ChatCommonOverlaysProps = {
   onOpenScheduleEditor?: (characterId: string, options?: { initialDay?: string | null }) => void;
   /** Manually trigger the Illustrator agent */
   onIllustrate?: () => void;
+  onIllustrateWithAgent?: (agentType: string) => void | Promise<void>;
   /** Generate an on-demand Conversation selfie. */
   onGenerateSelfie?: (characterId?: string) => void | Promise<void>;
   selfieCharacters?: Array<{ id: string; name: string }>;
@@ -308,6 +309,7 @@ export function ChatCommonOverlays({
   onCloseGallery,
   onOpenScheduleEditor,
   onIllustrate,
+  onIllustrateWithAgent,
   onGenerateSelfie,
   selfieCharacters,
   onGenerateBackground,
@@ -357,6 +359,7 @@ export function ChatCommonOverlays({
               onClose={onCloseGallery}
               anchor={galleryAnchor}
               onIllustrate={onIllustrate}
+              onIllustrateWithAgent={onIllustrateWithAgent}
               onGenerateSelfie={onGenerateSelfie}
               selfieCharacters={selfieCharacters}
               onGenerateStoryboard={onGenerateStoryboard}

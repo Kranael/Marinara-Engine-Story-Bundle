@@ -10,28 +10,6 @@ export interface StoryBundleIntro {
   text: string;
 }
 
-/** A version snapshot in a story bundle's version history. */
-export interface StoryBundleVersion {
-  id: string;
-  bundleId: string;
-  /** Snapshot of the bundle's metadata fields at this version. */
-  name: string;
-  description: string | null;
-  comment: string;
-  creator: string;
-  version: string;
-  tags: string[];
-  /** Who or what created this version. */
-  source: "manual" | "agent" | "command" | "restore" | string;
-  /** Optional reason for the version snapshot. */
-  reason: string;
-  createdAt: string;
-  /** Monotonic display revision within this bundle's history. */
-  revision: number;
-  /** True for the live bundle state included at the top of history. */
-  isCurrent?: boolean;
-}
-
 /**
  * A Story Bundle is a named container that groups characters, personas,
  * lorebooks, presets, and intro messages into a ready-to-play story.
