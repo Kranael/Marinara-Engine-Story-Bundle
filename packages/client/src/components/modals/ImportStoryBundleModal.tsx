@@ -23,6 +23,7 @@ interface EmbeddedPreview {
   characterCount: number;
   personaCount: number;
   lorebookCount: number;
+  agentCount: number;
 }
 
 interface MissingAgent {
@@ -48,11 +49,22 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
   const catalog = useCapabilityCatalog(missingAgents.length > 0);
   const installPackage = useInstallCapabilityPackage();
 
-  /** Find the catalog package that provides a given agent id. */
+  /**
+   * Find the catalog package that provides a given agent id.
+   *
+   * Most capability packages provide exactly one agent whose id equals the
+   * package id (e.g. `prose-guardian`, `character-tracker`, `world-state`),
+   * so match on `manifest.id` first. A few packages declare the agents they
+   * own via `contributions.agentDetail.agentIds` instead (e.g.
+   * `long-term-memory`, `hierarchical-maps`), so fall back to that. This
+   * mirrors `resolveFeatureAgentPackage` in lib/feature-agent-package.ts.
+   */
   const findPackageForAgent = (agentId: string) => {
     const packages = catalog.data?.packages ?? [];
     return (
-      packages.find((entry) => entry.manifest.contributions?.agentDetail?.agentIds.includes(agentId)) ?? null
+      packages.find((entry) => entry.manifest.id === agentId) ??
+      packages.find((entry) => entry.manifest.contributions?.agentDetail?.agentIds.includes(agentId)) ??
+      null
     );
   };
 
@@ -81,6 +93,12 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
     const embeddedCharacters = Array.isArray(data.embeddedCharacters) ? data.embeddedCharacters : [];
     const embeddedPersonas = Array.isArray(data.embeddedPersonas) ? data.embeddedPersonas : [];
     const embeddedLorebooks = Array.isArray(data.embeddedLorebooks) ? data.embeddedLorebooks : [];
+    // Agents are referenced by id (provided by capability packages), not embedded.
+    // Count them from `agentIds`, falling back to the carried `embeddedAgents`
+    // metadata so hand-built envelopes still report a count.
+    const agentIds = Array.isArray(data.agentIds) ? data.agentIds : [];
+    const embeddedAgents = Array.isArray(data.embeddedAgents) ? data.embeddedAgents : [];
+    const agentCount = agentIds.length > 0 ? agentIds.length : embeddedAgents.length;
     const total = embeddedCharacters.length + embeddedPersonas.length + embeddedLorebooks.length;
     if (total === 0) return null;
     return {
@@ -89,6 +107,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
       characterCount: embeddedCharacters.length,
       personaCount: embeddedPersonas.length,
       lorebookCount: embeddedLorebooks.length,
+      agentCount,
     };
   };
 
@@ -246,6 +265,14 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
                   {preview.lorebookCount > 0 && (
                     <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
                       <BookOpen size="0.6875rem" />{preview.lorebookCount}
+                    </span>
+                  )}
+                  {preview.agentCount > 0 && (
+                    <span
+                      data-testid="story-bundle-import-embedded-agent-count"
+                      className="flex items-center gap-1 text-[var(--muted-foreground)]"
+                    >
+                      <Bot size="0.6875rem" />{preview.agentCount}
                     </span>
                   )}
                 </div>

@@ -219,4 +219,65 @@ test.describe("Story Bundle Import Agents — Positive", () => {
       if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
     }
   });
+
+  test("embedded prompt shows the count of agents included in the bundle", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const importModal = new ImportStoryBundleModalPage(page);
+
+    const suffix = `${Date.now().toString(36)}-${process.env.TEST_WORKER_INDEX ?? "0"}`;
+    const bundleName = `Agent Count Bundle ${suffix}`;
+    const envelopePath = path.join(DATA_DIR, `agent-count-${suffix}.json`);
+
+    let bundleId: string | null = null;
+
+    try {
+      // Embedded character (so the prompt appears) plus two referenced agents
+      // (so the agent count badge shows "2").
+      const envelope = {
+        type: "marinara_story_bundle",
+        version: 1,
+        data: {
+          name: bundleName,
+          description: "",
+          characterIds: [],
+          personaIds: [],
+          lorebookIds: [],
+          agentIds: [`agent-a-${suffix}`, `agent-b-${suffix}`],
+          embeddedCharacters: [{ id: `char-${suffix}`, name: `Count Char ${suffix}`, data: {} }],
+          embeddedPersonas: [],
+          embeddedLorebooks: [],
+          embeddedAgents: [
+            { id: `agent-a-${suffix}`, name: `Agent A ${suffix}` },
+            { id: `agent-b-${suffix}`, name: `Agent B ${suffix}` },
+          ],
+        },
+      };
+      fs.writeFileSync(envelopePath, JSON.stringify(envelope));
+
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.importButton.click();
+      await importModal.waitFor();
+
+      await importModal.uploadFile(envelopePath);
+
+      // The embedded prompt appears and shows the agent count.
+      await expect(importModal.modal).toContainText(/embedded content|Embedded/, { timeout: 10_000 });
+      await expect(importModal.embeddedAgentCount).toBeVisible();
+      await expect(importModal.embeddedAgentCount).toHaveText("2");
+
+      // Skip embedded content so we do not actually import the character.
+      await importModal.skipEmbeddedButton.click();
+      await expect(importModal.results).toContainText(/Imported/, { timeout: 10_000 });
+
+      bundleId = await findBundleIdByName(page.request, bundleName);
+    } finally {
+      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (fs.existsSync(envelopePath)) fs.unlinkSync(envelopePath);
+    }
+  });
 });
