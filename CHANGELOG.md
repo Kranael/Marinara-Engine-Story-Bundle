@@ -19,6 +19,7 @@ This file is the release-notes source of truth for Marinara Engine. Reuse these 
 - Fixed the Windows launcher failing its pre-update data snapshot with `EPERM: operation not permitted, symlink` once the capability package runtime had created its `data/capability-packages/node_modules` junction: launcher data protection now skips symbolic links when snapshotting and restoring user data, since those links point at runtime artifacts the server recreates on every startup. The snapshot no longer aborts, so auto-update is no longer skipped on affected Windows installs.
 - Kept the caret at the chosen insertion point when typing quotes or apostrophes in expanded Character and Persona text editors (#4656).
 - Prevented multiple Marinara processes from silently overwriting a shared local data directory; stale diagnostic counts are repaired without hiding stored rows (#5013).
+- Fixed the storage writer lease failing to self-heal on Windows after a crash or forced shutdown: the host identity now derives from the stable registry `MachineGuid` instead of volatile network MAC addresses, so a stale lease left behind by an exited process on the same machine is reclaimed automatically on the next start instead of requiring manual removal of `.writer-lease`.
 
 ## [2.4.2]
 

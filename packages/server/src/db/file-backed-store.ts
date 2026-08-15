@@ -22,6 +22,7 @@ import { chmod, copyFile, open, rename, unlink, writeFile } from "node:fs/promis
 import { createHash, randomUUID } from "node:crypto";
 import { dirname, join } from "node:path";
 import { hostname, networkInterfaces } from "node:os";
+import { execFileSync } from "node:child_process";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { STORAGE_MIGRATION_NOTICE_SETTINGS_KEY, type StorageMigrationNotice } from "@marinara-engine/shared";
 import { logger } from "../lib/logger.js";
@@ -978,6 +979,23 @@ function writerLeaseOwnerPath(path: string) {
 }
 
 const CURRENT_HOSTNAME = hostname();
+
+function readWindowsMachineGuid(): string | undefined {
+  if (process.platform !== "win32") return undefined;
+  try {
+    const output = execFileSync(
+      "reg",
+      ["query", "HKLM\\SOFTWARE\\Microsoft\\Cryptography", "/v", "MachineGuid"],
+      { encoding: "utf8", timeout: 2000, windowsHide: true },
+    );
+    const match = output.match(/MachineGuid\s+REG_SZ\s+([0-9a-fA-F-]+)/);
+    const guid = match?.[1]?.trim();
+    return guid ? guid : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 const CURRENT_HOST_ID = (() => {
   const machineId = ["/etc/machine-id", "/var/lib/dbus/machine-id"].flatMap((path) => {
     try {
@@ -986,15 +1004,25 @@ const CURRENT_HOST_ID = (() => {
       return [];
     }
   })[0];
+  // Windows has no /etc/machine-id; the registry MachineGuid is the stable
+  // machine identity there. MAC addresses alone are volatile (Hyper-V, VPN,
+  // and Wi-Fi adapters appear and disappear), which made the host id drift
+  // between runs and blocked stale-lease reclamation on the same machine.
+  const windowsMachineId = readWindowsMachineGuid();
+  const stableId = machineId ?? windowsMachineId;
+  // Prefer a stable machine identity. Only fall back to MAC addresses when no
+  // stable id exists; mixing volatile MACs into the hash whenever they exist
+  // would still let the host id drift as adapters appear and disappear.
+  if (stableId) {
+    return createHash("sha256").update([CURRENT_HOSTNAME, stableId].join("\n")).digest("hex");
+  }
   const macs = Object.values(networkInterfaces())
     .flatMap((entries) => entries ?? [])
     .map((entry) => entry.mac.toLowerCase())
     .filter((mac) => mac !== "00:00:00:00:00:00")
     .sort();
-  if (!machineId && macs.length === 0) return null;
-  return createHash("sha256")
-    .update([CURRENT_HOSTNAME, machineId ?? "", ...macs].join("\n"))
-    .digest("hex");
+  if (macs.length === 0) return null;
+  return createHash("sha256").update([CURRENT_HOSTNAME, ...macs].join("\n")).digest("hex");
 })();
 
 class WriterLeasePendingError extends Error {}
