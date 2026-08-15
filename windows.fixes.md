@@ -114,3 +114,104 @@ A lease written by an older build uses the legacy MAC-based host id, which will 
 match the new `MachineGuid`-based host id. If you upgrade while a stale lease from
 the old format is present, remove the `.writer-lease` directory once. All leases
 written from this fix onward are stable and self-healing.
+
+## Launcher update snapshot fails with `EPERM: operation not permitted, symlink`
+
+**Status:** Fixed
+**Commit:** `7561a226`
+**Affected files:** `scripts/protect-launcher-data.mjs`,
+`scripts/regressions/launcher-update.regression.mjs`
+
+### Symptom
+
+Starting the app with `start.bat` prints an error during the update check and
+then skips the auto-update entirely:
+
+```
+[..] Checking for updates...
+  [ERROR] Could not protect launcher data: EPERM: operation not permitted,
+  symlink 'C:\...\packages\server\node_modules' ->
+  'C:\...\.marinara-engine-update-backups\.incomplete-update-...\data\capability-packages\node_modules'
+ [WARN] Could not create an update snapshot. Skipping auto-update to protect your data.
+```
+
+The app still starts normally afterwards — the launcher's safe fallback aborts
+only the update, never the startup. The error only appears once the capability
+package runtime has run at least once, which is why earlier starts never showed it.
+
+### Root cause
+
+Two pieces interact here:
+
+1. On server startup, the capability package runtime links installed packages into
+   the host dependency tree by creating a **junction** inside the data directory
+   (`packages/server/src/services/capability-packages/capability-module-runtime.service.ts`):
+
+   ```ts
+   await symlink(serverNodeModules, link, process.platform === "win32" ? "junction" : "dir");
+   ```
+
+   This creates `data/capability-packages/node_modules` → `packages/server/node_modules`.
+
+2. Before a git auto-update, `start.bat` snapshots the user data directory via
+   `node scripts/protect-launcher-data.mjs snapshot` so it can be restored if the
+   update goes wrong. The snapshot used `fs.cp` to copy the whole data directory:
+
+   ```js
+   await cp(dataDir, resolve(incompleteDir, "data"), {
+     recursive: true,
+     preserveTimestamps: true,
+     errorOnExist: true,
+   });
+   ```
+
+   By default `fs.cp` recreates symbolic links at the destination via `fs.symlink`.
+   **On Windows, `fs.symlink` requires elevated privileges or Developer Mode**, so
+   recreating the junction inside the backup threw `EPERM`. The error aborted the
+   entire snapshot, and the launcher skipped the auto-update to protect the data.
+
+The junction only exists after the capability runtime has started once, which is why
+the error did not appear on fresh installs or before that first run.
+
+### Fix
+
+Skip symbolic links when copying the data directory, for both the snapshot and the
+restore path. The links point at runtime artifacts that the server recreates on
+every startup — they are not user data. Dereferencing them instead would bloat
+every backup with a full copy of `node_modules`.
+
+```js
+// The data directory can contain symbolic links, e.g. the capability-packages
+// node_modules junction that the server recreates on every startup. fs.cp
+// would try to recreate them via fs.symlink, which fails on Windows without
+// elevated privileges (EPERM) and aborted the whole update snapshot;
+// dereferencing them instead would bloat every backup with node_modules.
+// Links point at runtime artifacts, not user data, so snapshots skip them.
+async function skipSymbolicLinks(sourcePath) {
+  return !(await lstat(sourcePath)).isSymbolicLink();
+}
+```
+
+```js
+await cp(dataDir, resolve(incompleteDir, "data"), {
+  recursive: true,
+  preserveTimestamps: true,
+  errorOnExist: true,
+  filter: skipSymbolicLinks,
+});
+```
+
+The same `filter` is applied in `restoreLauncherDataIfMissing` so restoring a
+backup that contains links (e.g. created on Linux/macOS) cannot fail either.
+
+### Verification
+
+- **Regression test** added to `scripts/regressions/launcher-update.regression.mjs`:
+  the fixture creates a real junction inside the data directory (junctions do not
+  need admin rights, matching what the server does), then asserts the snapshot
+  succeeds, skips the link, and still preserves the user data files.
+- **Real snapshot** against the actual local data directory containing the junction:
+  `[OK] Protected user data at ...`, and the backup contains the data files but not
+  the `node_modules` junction.
+- `pnpm check` (TypeScript + ESLint + localization) passes.
+- `pnpm regression:story-bundle` and the launcher regression both pass.
