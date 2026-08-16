@@ -122,6 +122,38 @@ try {
   });
   assert.equal(getCapabilityApiCompatibilityIssue(currentManifestV2), null);
   assert.deepEqual(currentManifestV2.contributions?.agentDetail?.agentIds, ["feature-agent"]);
+
+  // A game-surface package may declare package-owned static assets (tiles, sprites, atlases).
+  // The catalog must accept the `contributions.assets` shape so a single unrecognized key does
+  // not fail the entire catalog (which previously returned 400 and blocked every agent install).
+  const gameSurfaceManifest = capabilityPackageManifestSchema.parse({
+    ...manifestV2,
+    id: "pixelforge",
+    name: "Pixelforge",
+    version: "0.5.0",
+    capabilityApi: { major: 1, minor: 10 },
+    contributions: {
+      slots: ["game-surface"],
+      gameSurface: { surfaceClass: "pixelforge-surface" },
+      assets: {
+        paths: ["tiles.png", "atlas.json", "sprites/player.png"],
+      },
+    },
+  });
+  assert.deepEqual(
+    gameSurfaceManifest.contributions?.assets?.paths,
+    ["tiles.png", "atlas.json", "sprites/player.png"],
+    "A game-surface package's declared asset paths must survive manifest parsing",
+  );
+  assert.throws(
+    () =>
+      capabilityPackageManifestSchema.parse({
+        ...manifestV2,
+        contributions: { assets: { paths: [] } },
+      }),
+    /assets/,
+    "An assets contribution with an empty paths array must be rejected",
+  );
   assert.throws(
     () =>
       capabilityPackageManifestSchema.parse({

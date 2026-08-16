@@ -95,6 +95,7 @@
     "regression:localization": "pnpm --filter @marinara-engine/server exec tsx ../../scripts/regressions/localization-key-references.regression.ts",
     "regression:docs": "pnpm build:shared && pnpm --filter @marinara-engine/server exec tsx ../../scripts/regressions/docs-language.regression.ts",
     "regression:story-bundle": "playwright test -c playwright.config.ts tests/story-bundle/tests/",
+    "manual-validation:story-bundle": "node scripts/with-env.mjs PLAYWRIGHT_SLOW_MO=1500 -- playwright test -c playwright.config.ts tests/story-bundle/tests/ --headed --workers=1 --project=desktop-chromium",
     "smoke:ui": "playwright test -c playwright.config.ts",
     "test": "node ./scripts/check-windows-installer-layout.mjs && pnpm regression",
     "version:sync": "node ./scripts/sync-version.mjs",

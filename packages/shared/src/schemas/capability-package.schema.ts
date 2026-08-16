@@ -84,6 +84,23 @@ const capabilityPackageManifestBaseSchema = z
           })
           .strict()
           .optional(),
+        /** Package-owned static assets (e.g. a game-surface package's tiles, sprites, and atlases).
+         *  Declared so the host can verify and serve them without trusting arbitrary archive contents. */
+        assets: z
+          .object({
+            paths: z
+              .array(
+                z
+                  .string()
+                  .min(1)
+                  .max(240)
+                  .regex(/^[a-z0-9][a-z0-9./_-]*$/i),
+              )
+              .min(1)
+              .max(256),
+          })
+          .strict()
+          .optional(),
         /** Browser metadata is declarative so Home can paint the tab before the client bundle loads. */
         homeBrowserTab: z
           .object({
