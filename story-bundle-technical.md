@@ -560,19 +560,3 @@ import { importStoryBundleFixture } from './tests/story-bundle/helpers/story-bun
 const bundle = await importStoryBundleFixture(page, './tests/story-bundle/data/with-description.json');
 // bundle.description === "<h1>Chapter One</h1>..."
 ```
-
-## 7. Outlook (Next Iterations)
-
-Possible extensions the current structure already prepares for:
-
-- ~~Fields: `coverImage`~~ ✅ Done (Metadata tab with image upload).
-- ~~Metadata tab (name, comment, creator, version, tags, image)~~ ✅ Done.
-- Fields: chapter/scene list.
-- ~~Links to lorebooks.~~ ✅ Done.
-- ~~Export/import as JSON.~~ ✅ Done.
-- ~~Agent assignment.~~ ✅ Done (Agents tab).
-- ~~Play flow (start a roleplay from a bundle).~~ ✅ Done.
-- Panel search and sorting.
-
-For each, extend: shared type + schema → server columns + storage →
-client editor fields + hooks. The existing title handling remains unaffected.
