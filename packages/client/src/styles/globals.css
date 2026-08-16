@@ -857,6 +857,14 @@
   filter: none;
 }
 
+/* Compact variant for dense toolbars/headers — same height as the
+   icon-only chrome controls (2rem) instead of the default 2.5rem. */
+.mari-panel-gradient-button--compact {
+  min-height: 2rem;
+  border-radius: 0.625rem;
+  padding: 0.25rem 0.625rem;
+}
+
 .mari-panel-gradient--characters {
   --mari-panel-gradient-start: #f472b6;
   --mari-panel-gradient-end: #f43f5e;

@@ -5,8 +5,7 @@
  * - Add a persona via its plus button → appears in the selected section
  * - Remove a persona via its X button → selected empty state returns
  * - Random button adds a persona from the filtered list
- * - Add-from-group adds every persona-group member at once
- * - Add-from-group button is disabled while no group is selected
+ * - Selecting a second persona replaces the first (a bundle plays exactly one)
  * - Random button is disabled once every matching persona is added
  *
  * Precondition data is seeded through REST endpoints (never the UI) with
@@ -23,9 +22,7 @@ import { StoryBundlePersonasTabPage } from "../pages/story-bundle-personas-tab.p
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import {
   createPersona,
-  createPersonaGroup,
   deletePersona,
-  deletePersonaGroup,
   entitySuffix,
   type EntityRef,
 } from "../helpers/story-bundle-entities.js";
@@ -179,18 +176,15 @@ test.describe("Story Bundle Personas Picker — Positive", () => {
     }
   });
 
-  test("add-from-group adds every persona group member to the selected list", async ({ page }) => {
+  test("selecting a second persona replaces the first one", async ({ page }) => {
     const suffix = entitySuffix(test.info().title);
     const seeded: EntityRef[] = [];
-    const seededGroups: EntityRef[] = [];
     let bundleId: string | null = null;
 
     try {
       const alpha = await createPersona(page.request, `Persona Alpha ${suffix}`);
       const beta = await createPersona(page.request, `Persona Beta ${suffix}`);
       seeded.push(alpha, beta);
-      const group = await createPersonaGroup(page.request, `Picker Persona Group ${suffix}`, [alpha.id, beta.id]);
-      seededGroups.push(group);
 
       const { bundle, editor } = await openEditorForBundle(page, "empty.json");
       bundleId = bundle.id;
@@ -199,15 +193,20 @@ test.describe("Story Bundle Personas Picker — Positive", () => {
       await editor.switchToPersonas();
       await personasTab.waitFor();
 
-      await personasTab.selectGroup(group.id);
-      await personasTab.addGroup();
-
+      await personasTab.search(suffix);
+      await personasTab.addItem(alpha.id);
       await expect(personasTab.selectedSection).toContainText(alpha.name);
+
+      // A bundle plays exactly one persona: picking Beta replaces Alpha.
+      await personasTab.addItem(beta.id);
+
       await expect(personasTab.selectedSection).toContainText(beta.name);
-      await expect(personasTab.addButtonLocator(alpha.id)).toBeHidden();
-      await expect(personasTab.addButtonLocator(beta.id)).toBeHidden();
+      await expect(personasTab.selectedSection).not.toContainText(alpha.name);
+      await expect(personasTab.removeButtonLocator(beta.id)).toBeVisible();
+      await expect(personasTab.removeButtonLocator(alpha.id)).toBeHidden();
+      // Alpha is available for selection again.
+      await expect(personasTab.addButtonLocator(alpha.id)).toBeVisible();
     } finally {
-      for (const group of seededGroups) await deletePersonaGroup(page.request, group.id);
       for (const entity of seeded) await deletePersona(page.request, entity.id);
       if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
     }
@@ -215,18 +214,14 @@ test.describe("Story Bundle Personas Picker — Positive", () => {
 });
 
 test.describe("Story Bundle Personas Picker — Negative", () => {
-  test("add-from-group button is disabled while no persona group is selected", async ({ page }) => {
+  test("picker shows the already-selected empty state once a persona is chosen", async ({ page }) => {
     const suffix = entitySuffix(test.info().title);
     const seeded: EntityRef[] = [];
-    const seededGroups: EntityRef[] = [];
     let bundleId: string | null = null;
 
     try {
-      const persona = await createPersona(page.request, `Lonely Persona ${suffix}`);
+      const persona = await createPersona(page.request, `Solo Persona ${suffix}`);
       seeded.push(persona);
-      // The groups section only renders once at least one group exists.
-      const group = await createPersonaGroup(page.request, `Disabled Persona Group ${suffix}`, [persona.id]);
-      seededGroups.push(group);
 
       const { bundle, editor } = await openEditorForBundle(page, "empty.json");
       bundleId = bundle.id;
@@ -235,10 +230,15 @@ test.describe("Story Bundle Personas Picker — Negative", () => {
       await editor.switchToPersonas();
       await personasTab.waitFor();
 
-      await expect(personasTab.groupSelect).toBeVisible();
-      await expect(personasTab.addGroupButton).toBeDisabled();
+      await personasTab.search(suffix);
+      await personasTab.addItem(persona.id);
+
+      // The search still matches the seeded persona, but it is selected — so
+      // the picker explains the selection instead of claiming no matches.
+      await expect(personasTab.emptyState).toBeVisible();
+      await expect(personasTab.emptyState).toContainText(/already selected/i);
+      await expect(personasTab.availableAddButtons).toHaveCount(0);
     } finally {
-      for (const group of seededGroups) await deletePersonaGroup(page.request, group.id);
       for (const entity of seeded) await deletePersona(page.request, entity.id);
       if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
     }

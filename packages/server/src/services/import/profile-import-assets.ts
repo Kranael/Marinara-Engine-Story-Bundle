@@ -88,6 +88,20 @@ async function validateProfileImportAsset(path: string, stagedPath: string, stag
     return;
   }
 
+  // Chat galleries keep JSON manifests next to their media (for example
+  // gallery/<chatId>/manifest.json and gallery/mari-images/manifest.json for
+  // the Professor Mari preview gallery). Let metadata files through without
+  // image validation, mirroring the video-asset exemption above, so backups
+  // that include them import cleanly.
+  if (normalized.startsWith("gallery/") && /\.json$/iu.test(normalized)) return;
+
+  // Game-asset seeding writes empty `.native` marker files into every bundled
+  // asset directory (see db/seed-game-assets.ts) so the app can tell shipped
+  // assets apart from user files. The export includes them, but the
+  // game-asset routes never serve dotfiles and the markers are recreated on
+  // every startup, so let them through without image validation.
+  if (normalized.startsWith("game-assets/") && normalized.split("/").pop() === ".native") return;
+
   const imagePolicy = profileAssetImagePolicy(normalized);
   if (!imagePolicy) {
     const leafName = normalized.split("/").pop() ?? "";
