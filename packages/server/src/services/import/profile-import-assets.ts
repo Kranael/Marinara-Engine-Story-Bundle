@@ -95,6 +95,13 @@ async function validateProfileImportAsset(path: string, stagedPath: string, stag
   // that include them import cleanly.
   if (normalized.startsWith("gallery/") && /\.json$/iu.test(normalized)) return;
 
+  // Game-asset seeding writes empty `.native` marker files into every bundled
+  // asset directory (see db/seed-game-assets.ts) so the app can tell shipped
+  // assets apart from user files. The export includes them, but the
+  // game-asset routes never serve dotfiles and the markers are recreated on
+  // every startup, so let them through without image validation.
+  if (normalized.startsWith("game-assets/") && normalized.split("/").pop() === ".native") return;
+
   const imagePolicy = profileAssetImagePolicy(normalized);
   if (!imagePolicy) {
     const leafName = normalized.split("/").pop() ?? "";

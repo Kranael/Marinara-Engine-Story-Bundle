@@ -2,9 +2,10 @@
  * Profile Export/Import Roundtrip Test
  *
  * Verifies that a full profile export can be imported back successfully.
- * This specifically covers the fix for gallery JSON manifest files
- * (e.g. gallery/mari-images/manifest.json) that were previously rejected
- * during import with "not a supported image file".
+ * This specifically covers the fixes for non-media metadata files that were
+ * previously rejected during import with "not a supported image file":
+ * gallery JSON manifests (e.g. gallery/mari-images/manifest.json) and
+ * game-asset `.native` marker files (e.g. game-assets/sprites/.native).
  *
  * Seeds at least 2 of each entity type, writes a gallery manifest to the
  * data dir, exports the profile as ZIP, imports it back, and verifies all
@@ -129,6 +130,19 @@ test.describe("Profile Export/Import Roundtrip", () => {
           },
         ]),
       );
+
+      // ── Write .native game-asset markers to exercise the marker fix ──
+      // Game-asset seeding (packages/server/src/db/seed-game-assets.ts) writes
+      // empty `.native` marker files into every bundled asset directory. The
+      // export includes them, and the import must accept them without image
+      // validation. game-assets/sprites/ and game-assets/backgrounds/ both
+      // carry an image policy, so a marker in each covers both branches.
+      const gameAssetSpritesDir = resolve(desktopDataDir, "game-assets", "sprites");
+      mkdirSync(gameAssetSpritesDir, { recursive: true });
+      writeFileSync(resolve(gameAssetSpritesDir, ".native"), "");
+      const gameAssetBackgroundsDir = resolve(desktopDataDir, "game-assets", "backgrounds");
+      mkdirSync(gameAssetBackgroundsDir, { recursive: true });
+      writeFileSync(resolve(gameAssetBackgroundsDir, ".native"), "");
 
       // ── Export the profile as ZIP ──
       const exportResponse = await request.get("/api/backup/export-profile?format=zip", { timeout: 60_000 });

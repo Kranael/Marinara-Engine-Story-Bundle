@@ -78,3 +78,65 @@ The `profile-import-asset-security` regression has a pre-existing Windows-only
 `EPERM` failure in its own descriptor race-safety section (line 133,
 `renameSync` over an open file handle). It occurs identically with and without
 this fix and is unrelated.
+
+## Profile import rejects backups containing game-asset `.native` marker files
+
+**Status:** Fixed
+**Affected file:** `packages/server/src/services/import/profile-import-assets.ts`
+
+### Symptom
+
+After fixing the gallery-manifest issue, importing the same profile backup
+fails one step later with:
+
+```
+Profile import failed
+Profile asset game-assets/sprites/.native is not a supported image file.
+```
+
+Like the gallery manifest, this is **not** related to Story Bundles.
+
+### Root cause
+
+Game-asset seeding (`packages/server/src/db/seed-game-assets.ts`,
+`ensureNativeMarkers()`) writes an empty `.native` marker file into every
+directory under `game-assets/` that corresponds to a shipped default asset
+folder — including `game-assets/sprites/.native` and
+`game-assets/backgrounds/.native`. The markers let the app distinguish bundled
+assets from user files.
+
+The profile **export** collects every file under `game-assets/` recursively,
+so the markers end up in the archive. The profile **import** then runs
+`profileAssetImagePolicy()` on them: `game-assets/sprites/` (and `sprites/`)
+returns `{ allowSvg: true }` and `game-assets/backgrounds/` returns `{}`, so
+the empty `.native` files were validated as images and rejected.
+
+### Fix
+
+Exempt files named exactly `.native` under `game-assets/` from image
+validation in `validateProfileImportAsset()`:
+
+```ts
+// Game-asset seeding writes empty `.native` marker files into every bundled
+// asset directory (see db/seed-game-assets.ts) so the app can tell shipped
+// assets apart from user files. The export includes them, but the
+// game-asset routes never serve dotfiles and the markers are recreated on
+// every startup, so let them through without image validation.
+if (normalized.startsWith("game-assets/") && normalized.split("/").pop() === ".native") return;
+```
+
+This is safe: the markers are empty files, the game-asset routes filter out
+dotfiles when listing and never serve them, and seeding recreates the markers
+on every startup anyway. The exemption matches only the exact `.native` file
+name — SVG/HTML payloads and any other smuggled content under `game-assets/`
+are still rejected (covered by the asset-security regression).
+
+### Verification
+
+- `tests/general/profile-roundtrip.test.ts` now also writes `.native` markers
+  into `game-assets/sprites/` and `game-assets/backgrounds/` before export,
+  covering both image-policy branches.
+- Without the fix, the roundtrip test fails with the exact reported error
+  (`Profile asset game-assets/sprites/.native is not a supported image
+  file.`); with the fix it passes.
+- `pnpm check` (TypeScript + ESLint + build) passes.
