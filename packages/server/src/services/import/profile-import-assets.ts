@@ -88,6 +88,13 @@ async function validateProfileImportAsset(path: string, stagedPath: string, stag
     return;
   }
 
+  // Chat galleries keep JSON manifests next to their media (for example
+  // gallery/<chatId>/manifest.json and gallery/mari-images/manifest.json for
+  // the Professor Mari preview gallery). Let metadata files through without
+  // image validation, mirroring the video-asset exemption above, so backups
+  // that include them import cleanly.
+  if (normalized.startsWith("gallery/") && /\.json$/iu.test(normalized)) return;
+
   const imagePolicy = profileAssetImagePolicy(normalized);
   if (!imagePolicy) {
     const leafName = normalized.split("/").pop() ?? "";
