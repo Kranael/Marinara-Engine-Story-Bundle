@@ -19,6 +19,7 @@ This file is the release-notes source of truth for Marinara Engine. Reuse these 
 ### Changed
 
 - Story Bundles now play exactly one persona: the Personas tab in the bundle editor is single-select, and picking a persona replaces any previously selected one instead of adding to a list.
+- Story Bundles now play exactly one prompt preset: the Presets tab in the bundle editor is single-select, and picking a preset replaces any previously selected one instead of adding to a list.
 - Made the Story Bundle editor's Play and Save buttons and the panel's New Bundle button compact so they match the height of the small icon buttons (Import, Delete) for a tidier toolbar.
 
 ### Fixed
