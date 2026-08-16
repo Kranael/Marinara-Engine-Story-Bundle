@@ -11,7 +11,7 @@ import { useCharacters, useCharacterGroups, usePersonas } from "../../hooks/use-
 import { useLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
 import type { Lorebook, PromptPreset, StoryBundleIntro } from "@marinara-engine/shared";
-import { useCreateChat } from "../../hooks/use-chats";
+import { useCreateChat, useUpdateChatMetadata } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
@@ -161,6 +161,7 @@ export function StoryBundleEditor() {
 
   // RP chat creation hook for the Play button
   const createChat = useCreateChat();
+  const updateChatMetadata = useUpdateChatMetadata();
   const { data: connections } = useConnections();
 
   // Keep the local draft in sync with the loaded bundle.
@@ -285,6 +286,14 @@ export function StoryBundleEditor() {
         onSuccess: async (chat) => {
           useChatStore.getState().setActiveChatId(chat.id);
 
+          // Tag the chat with the story bundle it was started from so the
+          // chat sidebar can show the bundle's picture on this RP's row.
+          try {
+            await updateChatMetadata.mutateAsync({ id: chat.id, storyBundleId: bundle.id });
+          } catch (err) {
+            console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
+          }
+
           // Activate the bundle's lorebooks on the new chat.
           const lorebookIds = bundle.lorebookIds ?? [];
           if (lorebookIds.length > 0) {
@@ -348,7 +357,7 @@ export function StoryBundleEditor() {
         },
       },
     );
-  }, [bundle, playing, connections, createChat, closeStoryBundleDetail, t]);
+  }, [bundle, playing, connections, createChat, updateChatMetadata, closeStoryBundleDetail, t]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;

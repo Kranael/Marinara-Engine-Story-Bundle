@@ -179,3 +179,111 @@ test.describe("Story Bundle Play — Negative", () => {
     await api.delete(bundle.id);
   });
 });
+
+test.describe("Story Bundle Play — Sidebar Image", () => {
+  const TINY_PNG_BASE64 =
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+
+  test("playing a bundle with an image shows the bundle picture on the chat sidebar row", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const api = new StoryBundleAPI(page);
+
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    // Upload a picture to the bundle so the sidebar has something to show.
+    const uploadResp = await page.request.post(`/api/story-bundles/${bundle.id}/image`, {
+      data: { image: `data:image/png;base64,${TINY_PNG_BASE64}` },
+    });
+    expect(uploadResp.ok()).toBeTruthy();
+    const imagePath = ((await uploadResp.json()) as { imagePath: string | null }).imagePath;
+    expect(imagePath).toBeTruthy();
+
+    let chatId: string | null = null;
+    try {
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.hoverRow(bundle.name);
+      await panel.clickPlay(bundle.name);
+
+      await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
+
+      // The new chat must be tagged with the story bundle it came from.
+      const chatsResp = await page.request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{
+        id: string;
+        name: string;
+        metadata: Record<string, unknown>;
+      }>;
+      const chat = chats.find((c) => c.name === bundle.name);
+      expect(chat).toBeDefined();
+      chatId = chat!.id;
+      expect((chat!.metadata ?? {}).storyBundleId).toBe(bundle.id);
+
+      // Open the chat sidebar via the UI store (same pattern as core-flows)
+      // and switch to the Roleplay tab. On mobile viewports the Story
+      // Bundles right panel is a full-screen overlay, so close it first —
+      // otherwise it intercepts every sidebar click.
+      await page.evaluate(async () => {
+        const { useUIStore } = await import("/src/stores/ui.store.ts");
+        const ui = useUIStore.getState();
+        ui.closeRightPanel();
+        ui.setSidebarOpen(true);
+      });
+      const sidebar = page.locator('[data-component="ChatSidebar"]');
+      await expect(sidebar).toBeVisible();
+      const roleplayTab = page.locator('[data-chat-mode-tab="roleplay"]');
+      await expect(roleplayTab).toBeInViewport();
+      await roleplayTab.click();
+
+      // The bundle-started chat's row shows the bundle picture as its avatar.
+      // Scope by src: the row also renders a background banner <img>, so a
+      // bare first() match would hit the banner instead of the avatar.
+      const chatRow = sidebar.locator(`[data-chat-id="${chatId}"]`);
+      await expect(chatRow).toBeVisible();
+      const bundleAvatar = chatRow.locator('img[src*="/api/story-bundles/images/file/"]');
+      await expect(bundleAvatar).toBeVisible();
+    } finally {
+      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+    }
+  });
+
+  test("a roleplay started without a story bundle keeps its default sidebar avatar", async ({ page }) => {
+    const base = new BasePage(page);
+
+    // A plain roleplay chat that never came from a story bundle.
+    const createResp = await page.request.post("/api/chats", {
+      data: { name: `Plain RP ${test.info().title}`, mode: "roleplay", characterIds: [] },
+    });
+    expect(createResp.ok()).toBeTruthy();
+    const chat = (await createResp.json()) as { id: string; metadata: Record<string, unknown> };
+
+    try {
+      await base.goto();
+
+      // Open the chat sidebar via the UI store (same pattern as core-flows)
+      // and switch to the Roleplay tab.
+      await page.evaluate(async () => {
+        const { useUIStore } = await import("/src/stores/ui.store.ts");
+        useUIStore.getState().setSidebarOpen(true);
+      });
+      const sidebar = page.locator('[data-component="ChatSidebar"]');
+      await expect(sidebar).toBeVisible();
+      const roleplayTab = page.locator('[data-chat-mode-tab="roleplay"]');
+      await expect(roleplayTab).toBeInViewport();
+      await roleplayTab.click();
+
+      const chatRow = sidebar.locator(`[data-chat-id="${chat.id}"]`);
+      await expect(chatRow).toBeVisible();
+      // No story bundle picture — the row keeps the plain mode icon fallback.
+      await expect(chatRow.locator('img[src*="story-bundles"]')).toHaveCount(0);
+      expect((chat.metadata ?? {}).storyBundleId).toBeFalsy();
+    } finally {
+      await page.request.delete(`/api/chats/${chat.id}?force=true`);
+    }
+  });
+});

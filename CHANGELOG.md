@@ -6,6 +6,7 @@ This file is the release-notes source of truth for Marinara Engine. Reuse these 
 
 ### Added
 
+- Added the Story Bundle picture to the chat sidebar: a roleplay started from a Story Bundle now shows the bundle's image (with its saved avatar crop) on its chat row instead of the character avatars, so bundle-started stories are recognizable at a glance. Roleplays started any other way keep their existing avatars.
 - Added an agent count badge to the Story Bundle import dialog's embedded-content prompt, so you can see how many agents a bundle references before deciding whether to import its embedded content.
 
 ### Changed

@@ -38,6 +38,7 @@ import {
   useMoveChat,
 } from "../../hooks/use-chat-folders";
 import { useCharacterSummaries } from "../../hooks/use-characters";
+import { useStoryBundles } from "../../hooks/use-story-bundles";
 import { handleFolderRenameKeyDown, useFolderRenameGesture } from "../../hooks/use-folder-rename-gesture";
 import { useChatStore } from "../../stores/chat.store";
 import { confirmNonEmptyFolderDelete, showConfirmDialog } from "../../lib/app-dialogs";
@@ -345,6 +346,20 @@ export function ChatSidebar() {
     return Array.from(ids);
   }, [chats]);
   const { data: characterSummaries } = useCharacterSummaries(sidebarCharacterIds);
+  const { data: storyBundles } = useStoryBundles();
+
+  // Build story bundle lookup: id → bundle (for bundle-started chat row avatars)
+  const bundleLookup = useMemo(() => {
+    const map = new Map<string, { name: string; imagePath: string | null; avatarCrop?: unknown }>();
+    for (const bundle of storyBundles ?? []) {
+      map.set(bundle.id, {
+        name: bundle.name,
+        imagePath: bundle.imagePath,
+        avatarCrop: bundle.avatarCrop,
+      });
+    }
+    return map;
+  }, [storyBundles]);
 
   // Build character lookup: id → { name, avatarUrl, avatarCrop, conversationStatus }
   const charLookup = useMemo(() => {
@@ -1064,6 +1079,26 @@ export function ChatSidebar() {
         {/* Chat avatar(s) or mode icon fallback — with unread badge overlay */}
         <div className="relative flex-shrink-0">
           {(() => {
+            // Chats started from a Story Bundle show the bundle's picture
+            // instead of the character avatar(s). Chats started any other way
+            // never carry storyBundleId, so they keep the existing behavior.
+            const storyBundleId = chat.metadata?.storyBundleId;
+            const storyBundle = typeof storyBundleId === "string" ? bundleLookup.get(storyBundleId) : undefined;
+            if (storyBundle?.imagePath) {
+              return (
+                <div className="relative h-7 w-7 flex-shrink-0 transition-transform group-active:scale-90">
+                  <span className="relative block h-7 w-7 overflow-hidden rounded-lg">
+                    <img
+                      src={storyBundle.imagePath}
+                      alt={storyBundle.name}
+                      className="h-full w-full object-cover"
+                      style={getAvatarCropStyle(normalizeAvatarCrop(storyBundle.avatarCrop))}
+                    />
+                  </span>
+                </div>
+              );
+            }
+
             const avatars = charIds
               .slice(0, 3)
               .map((id) => {
