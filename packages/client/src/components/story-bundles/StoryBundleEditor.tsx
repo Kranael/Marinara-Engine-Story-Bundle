@@ -1,7 +1,7 @@
 // ──────────────────────────────────────────────
 // Story Bundle Editor — Full-page detail view
 // ──────────────────────────────────────────────
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { ArrowLeft, BookMarked, BookOpen, FileText, Info, Loader2, MessageSquare, Play, Save, SlidersHorizontal, Sparkles, Trash2, UserRound, Users } from "lucide-react";
@@ -164,8 +164,11 @@ export function StoryBundleEditor() {
   const updateChatMetadata = useUpdateChatMetadata();
   const { data: connections } = useConnections();
 
-  // Keep the local draft in sync with the loaded bundle.
-  useEffect(() => {
+  // Keep the local draft in sync with the loaded bundle. useLayoutEffect so
+  // the draft is populated synchronously before paint — Play must never read
+  // an empty draft in the window between the editor rendering and a passive
+  // effect running.
+  useLayoutEffect(() => {
     if (bundle) {
       setName(bundle.name);
       setDescription(bundle.description ?? "");
@@ -251,14 +254,24 @@ export function StoryBundleEditor() {
     if (!bundle || playing) return;
     setPlaying(true);
 
+    // Play what the user sees: use the current editor draft rather than the
+    // last saved server state, so unsaved changes (e.g. a freshly added
+    // preset) are honored when starting the roleplay.
+    const draftName = name.trim() || bundle.name;
+    const draftCharacterIds = characterIds;
+    const draftPersonaId = personaIds[0] ?? null;
+    const draftLorebookIds = lorebookIds;
+    const draftPresetId = presetIds[0] ?? null;
+    const draftAgentIds = agentIds;
+    const draftIntros = intros;
+
     // If the bundle has intros, let the user pick one first.
     let selectedIntroText: string | null = null;
-    const bundleIntros = bundle.intros ?? [];
-    if (bundleIntros.length > 0) {
+    if (draftIntros.length > 0) {
       const choice = await showChoiceDialog({
         title: t("storyBundles.introPickTitle", "Choose an Intro"),
         message: t("storyBundles.introPickMessage", "Select an intro to use as the first message."),
-        choices: bundleIntros.map((intro) => ({
+        choices: draftIntros.map((intro) => ({
           key: intro.id,
           label: intro.name,
         })),
@@ -268,19 +281,19 @@ export function StoryBundleEditor() {
         setPlaying(false);
         return;
       }
-      const picked = bundleIntros.find((i) => i.id === choice);
+      const picked = draftIntros.find((i) => i.id === choice);
       selectedIntroText = picked?.text ?? null;
     }
 
     const conns = (connections ?? []) as Array<{ id: string }>;
     createChat.mutate(
       {
-        name: bundle.name,
+        name: draftName,
         mode: "roleplay",
-        characterIds: bundle.characterIds ?? [],
-        personaId: bundle.personaIds?.[0] ?? null,
+        characterIds: draftCharacterIds,
+        personaId: draftPersonaId,
         connectionId: conns[0]?.id,
-        promptPresetId: bundle.presetIds?.[0] ?? null,
+        promptPresetId: draftPresetId,
       },
       {
         onSuccess: async (chat) => {
@@ -295,22 +308,20 @@ export function StoryBundleEditor() {
           }
 
           // Activate the bundle's lorebooks on the new chat.
-          const lorebookIds = bundle.lorebookIds ?? [];
-          if (lorebookIds.length > 0) {
+          if (draftLorebookIds.length > 0) {
             try {
-              await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
+              await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: draftLorebookIds });
             } catch (err) {
               console.error("[playStoryBundle] Failed to activate lorebooks:", err);
             }
           }
 
           // Activate the bundle's pre-configured agents on the new chat.
-          const agentIds = bundle.agentIds ?? [];
-          if (agentIds.length > 0) {
+          if (draftAgentIds.length > 0) {
             try {
               await api.patch(`/chats/${chat.id}/metadata`, {
                 enableAgents: true,
-                activeAgentIds: agentIds,
+                activeAgentIds: draftAgentIds,
               });
             } catch (err) {
               console.error("[playStoryBundle] Failed to activate agents:", err);
@@ -331,7 +342,7 @@ export function StoryBundleEditor() {
 
           // Check if the preset has configurable variables — if so, show
           // only the ChoiceSelectionModal instead of the full setup wizard.
-          const presetId = bundle.presetIds?.[0] ?? null;
+          const presetId = draftPresetId;
           let hasPresetVariables = false;
           if (presetId) {
             try {
@@ -357,7 +368,7 @@ export function StoryBundleEditor() {
         },
       },
     );
-  }, [bundle, playing, connections, createChat, updateChatMetadata, closeStoryBundleDetail, t]);
+  }, [bundle, playing, connections, createChat, updateChatMetadata, closeStoryBundleDetail, t, name, characterIds, personaIds, lorebookIds, presetIds, agentIds, intros]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;

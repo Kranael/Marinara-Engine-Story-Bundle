@@ -14,6 +14,7 @@ import { BasePage } from "../pages/base.page.js";
 import { HomePage } from "../../pages/home.page.js";
 import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
+import { StoryBundlePresetsTabPage } from "../pages/story-bundle-presets-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
 
@@ -284,6 +285,174 @@ test.describe("Story Bundle Play — Sidebar Image", () => {
       expect((chat.metadata ?? {}).storyBundleId).toBeFalsy();
     } finally {
       await page.request.delete(`/api/chats/${chat.id}?force=true`);
+    }
+  });
+});
+
+test.describe("Story Bundle Play — Preset Loading", () => {
+  test("playing a bundle with a preset applies the preset to the new roleplay chat", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const api = new StoryBundleAPI(page);
+
+    // Create a prompt preset via API (no variables, so no choice dialog).
+    const suffix = Date.now().toString(36);
+    const presetResp = await page.request.post("/api/prompts", {
+      data: { name: `SB Play Preset ${suffix}`, description: "Preset loading test fixture." },
+    });
+    expect(presetResp.ok()).toBeTruthy();
+    const preset = (await presetResp.json()) as { id: string };
+
+    // Create a bundle that references the preset.
+    const bundle = await api.create({ name: `SB Preset Play ${suffix}` });
+    const updateResp = await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+      data: { presetIds: [preset.id] },
+    });
+    expect(updateResp.ok()).toBeTruthy();
+
+    let chatId: string | null = null;
+    try {
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.hoverRow(bundle.name);
+      await panel.clickPlay(bundle.name);
+
+      await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
+
+      // The new chat must carry the bundle's prompt preset.
+      const chatsResp = await page.request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{
+        id: string;
+        name: string;
+        promptPresetId: string | null;
+      }>;
+      const chat = chats.find((c) => c.name === bundle.name);
+      expect(chat).toBeDefined();
+      chatId = chat!.id;
+      expect(chat!.promptPresetId).toBe(preset.id);
+
+      // The auto-opened settings drawer must show the bundle's preset as the
+      // selected prompt preset — this is what "loaded in the RP" means to the
+      // user. Scope to the prompt-preset section so we don't match the
+      // settings-profile ("Profile") select, which shares the same class. The
+      // section is collapsed by default, so expand it before reading the value.
+      const presetSection = page.locator('[data-chat-settings-section="prompt-preset"]');
+      await expect(presetSection).toBeVisible({ timeout: 10_000 });
+      await presetSection.locator('[role="button"]').first().click();
+      const presetSelect = presetSection.locator("select.mari-preset-native-select").first();
+      await expect(presetSelect).toBeVisible({ timeout: 10_000 });
+      await expect(presetSelect).toHaveValue(preset.id);
+    } finally {
+      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+      await page.request.delete(`/api/prompts/${preset.id}`);
+    }
+  });
+
+  test("playing a bundle with a preset from the editor applies the preset to the new chat", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
+    const api = new StoryBundleAPI(page);
+
+    const suffix = Date.now().toString(36);
+    const presetResp = await page.request.post("/api/prompts", {
+      data: { name: `SB Editor Preset ${suffix}`, description: "Preset loading test fixture (editor)." },
+    });
+    expect(presetResp.ok()).toBeTruthy();
+    const preset = (await presetResp.json()) as { id: string };
+
+    const bundle = await api.create({ name: `SB Editor Preset Play ${suffix}` });
+    const updateResp = await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+      data: { presetIds: [preset.id] },
+    });
+    expect(updateResp.ok()).toBeTruthy();
+
+    let chatId: string | null = null;
+    try {
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+
+      await editor.playButton.click();
+      await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
+
+      const chatsResp = await page.request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{
+        id: string;
+        name: string;
+        promptPresetId: string | null;
+      }>;
+      const chat = chats.find((c) => c.name === bundle.name);
+      expect(chat).toBeDefined();
+      chatId = chat!.id;
+      expect(chat!.promptPresetId).toBe(preset.id);
+    } finally {
+      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+      await page.request.delete(`/api/prompts/${preset.id}`);
+    }
+  });
+
+  test("playing from the editor applies an unsaved preset selection", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
+    const presetsTab = new StoryBundlePresetsTabPage(page);
+    const api = new StoryBundleAPI(page);
+
+    const suffix = Date.now().toString(36);
+    const presetResp = await page.request.post("/api/prompts", {
+      data: { name: `SB Unsaved Preset ${suffix}`, description: "Unsaved preset selection test fixture." },
+    });
+    expect(presetResp.ok()).toBeTruthy();
+    const preset = (await presetResp.json()) as { id: string };
+
+    // Bundle starts WITHOUT the preset — it is only added in the editor draft.
+    const bundle = await api.create({ name: `SB Unsaved Preset Play ${suffix}` });
+
+    let chatId: string | null = null;
+    try {
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+
+      // Add the preset in the Presets tab but do NOT save.
+      await editor.switchToPresets();
+      await presetsTab.waitFor();
+      await presetsTab.search(`SB Unsaved Preset ${suffix}`);
+      await presetsTab.addItem(preset.id);
+      await expect(presetsTab.removeButtonLocator(preset.id)).toBeVisible({ timeout: 5_000 });
+
+      // Play directly from the editor — the unsaved draft must be honored.
+      await editor.playButton.click();
+      await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
+
+      const chatsResp = await page.request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{
+        id: string;
+        name: string;
+        promptPresetId: string | null;
+      }>;
+      const chat = chats.find((c) => c.name === bundle.name);
+      expect(chat).toBeDefined();
+      chatId = chat!.id;
+      expect(chat!.promptPresetId).toBe(preset.id);
+    } finally {
+      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+      await page.request.delete(`/api/prompts/${preset.id}`);
     }
   });
 });
