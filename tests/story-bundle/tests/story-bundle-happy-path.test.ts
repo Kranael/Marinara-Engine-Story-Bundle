@@ -21,7 +21,7 @@ test('E2E Story Bundle Happy Path', async ({ page }) => {
             page.getByRole('button', { name: 'Upload avatar' }).click(),
         ]);
         await fileChooser.setFiles(
-            'tests/story-bundle/data/lyra-evermist.webp'
+            'tests/story-bundle/data/happy-path/lyra-evermist.webp'
         );
         // Add Creator
         await page.getByRole('textbox', { name: 'Your name' }).fill('Aster Vale');
@@ -71,7 +71,7 @@ test('E2E Story Bundle Happy Path', async ({ page }) => {
             ]);
 
             await fileChooser.setFiles(
-                'tests/story-bundle/data/aiden-vale.webp'
+                'tests/story-bundle/data/happy-path/aiden-vale.webp'
             );
         });
 
