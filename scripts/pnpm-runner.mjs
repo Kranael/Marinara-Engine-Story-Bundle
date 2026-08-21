@@ -9,8 +9,11 @@ export function resolvePnpmRunner({
   const pnpmCliPath = environment.npm_execpath;
   const npmUserAgent = environment.npm_config_user_agent ?? "";
   const pathApi = platform === "win32" ? win32 : posix;
+  // Standalone pnpm installs expose a native binary (pnpm.exe on Windows) as npm_execpath;
+  // Node cannot execute that file, so only reuse the current Node process for the JS CLI.
+  const isJavaScriptPnpmCli = Boolean(pnpmCliPath) && /\.(?:c?js|mjs)$/iu.test(pathApi.basename(pnpmCliPath ?? ""));
   const useCurrentPnpm =
-    Boolean(pnpmCliPath) &&
+    isJavaScriptPnpmCli &&
     (npmUserAgent.startsWith("pnpm/") || pathApi.basename(pnpmCliPath ?? "").startsWith("pnpm"));
 
   if (useCurrentPnpm && pnpmCliPath) {

@@ -11,6 +11,7 @@ This file is the release-notes source of truth for Marinara Engine. Reuse these 
 ### Fixed
 
 - Fixed the Windows launcher failing its pre-update data snapshot with `EPERM: operation not permitted, symlink` once the capability package runtime had created its `data/capability-packages/node_modules` junction: launcher data protection now skips symbolic links when snapshotting and restoring user data, since those links point at runtime artifacts the server recreates on every startup. The snapshot no longer aborts, so auto-update is no longer skipped on affected Windows installs.
+- Fixed the dev server and Playwright webServer failing to start on Windows with standalone pnpm installs: the pnpm runner now detects that `npm_execpath` points at a native `pnpm.exe` binary — which Node cannot execute — and falls back to invoking pnpm through `ComSpec` instead of crashing with `SyntaxError: Invalid or unexpected token` on the PE header.
 
 ## [2.4.3]
 
