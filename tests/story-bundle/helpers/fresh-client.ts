@@ -12,7 +12,7 @@ const APP_VERSION = (
 // minimal state they were never designed for.
 const UI_STORE_VERSION = Number(
   readFileSync(new URL('../../../packages/client/src/stores/ui.store.ts', import.meta.url), 'utf8').match(
-    /name:\s*"marinara-engine-ui",\s*version:\s*(\d+)/u,
+    /name:\s*"marinara-engine-ui",[\s\S]*?version:\s*(\d+)/u,
   )?.[1],
 );
 if (!Number.isInteger(UI_STORE_VERSION)) {
