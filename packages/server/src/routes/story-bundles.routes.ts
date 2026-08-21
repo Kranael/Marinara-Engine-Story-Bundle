@@ -5,11 +5,7 @@ import type { FastifyInstance } from "fastify";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
-import {
-  createStoryBundleSchema,
-  storyBundleIdParamsSchema,
-  updateStoryBundleSchema,
-} from "@marinara-engine/shared";
+import { createStoryBundleSchema, storyBundleIdParamsSchema, updateStoryBundleSchema } from "@marinara-engine/shared";
 import type { ExportEnvelope, StoryBundle, StoryBundleIntro } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
 import { createCharactersStorage } from "../services/storage/characters.storage.js";
@@ -55,10 +51,10 @@ function parseJsonArray(value: unknown): string[] {
   if (typeof value !== "string") return [];
   try {
     const parsed = JSON.parse(value);
-    return Array.isArray(parsed)
-      ? parsed.filter((entry): entry is string => typeof entry === "string")
-      : [];
-  } catch { return []; }
+    return Array.isArray(parsed) ? parsed.filter((entry): entry is string => typeof entry === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
 /** Parse a JSON text column into a typed intro array. */
@@ -87,7 +83,9 @@ function parseJsonObject(value: unknown): Record<string, unknown> | null {
   try {
     const parsed = JSON.parse(value);
     return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed) ? parsed : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 /** Parse the JSON columns into typed arrays for the API response. */
@@ -326,7 +324,10 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     };
     return reply
       .header("Content-Type", "application/json")
-      .header("Content-Disposition", `attachment; filename="${serialized.name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json"`)
+      .header(
+        "Content-Disposition",
+        `attachment; filename="${serialized.name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json"`,
+      )
       .send(envelope);
   });
 }

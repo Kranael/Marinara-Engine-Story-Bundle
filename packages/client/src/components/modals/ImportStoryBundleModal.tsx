@@ -6,7 +6,17 @@
 // ──────────────────────────────────────────────
 import { useState, useRef } from "react";
 import { Modal } from "../ui/Modal";
-import { BookMarked, BookOpen, Download, FileJson, CheckCircle, UserRound, Users, XCircle, Loader2 } from "lucide-react";
+import {
+  BookMarked,
+  BookOpen,
+  Download,
+  FileJson,
+  CheckCircle,
+  UserRound,
+  Users,
+  XCircle,
+  Loader2,
+} from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../../lib/api-client";
 import { useTranslation } from "react-i18next";
@@ -68,7 +78,12 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
 
         // Accept both bare envelopes and wrapped folder manifests
         const envelopes: Record<string, unknown>[] = [];
-        if (json && typeof json === "object" && !Array.isArray(json) && (json as Record<string, unknown>).type === "marinara_story_bundle") {
+        if (
+          json &&
+          typeof json === "object" &&
+          !Array.isArray(json) &&
+          (json as Record<string, unknown>).type === "marinara_story_bundle"
+        ) {
           envelopes.push(json as Record<string, unknown>);
         } else if (Array.isArray((json as Record<string, unknown>).entries)) {
           const entries = (json as Record<string, unknown>).entries as Array<Record<string, unknown>>;
@@ -106,18 +121,31 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
         }
 
         for (const envelope of envelopes) {
-          const payload = importEmbedded === false
-            ? { ...envelope, data: { ...(envelope.data as Record<string, unknown>), importEmbedded: false } }
-            : envelope;
-          const data = await api.post<{ success: boolean; id?: string; name?: string; embeddedImported?: number; error?: string }>("/import/marinara", payload);
+          const payload =
+            importEmbedded === false
+              ? { ...envelope, data: { ...(envelope.data as Record<string, unknown>), importEmbedded: false } }
+              : envelope;
+          const data = await api.post<{
+            success: boolean;
+            id?: string;
+            name?: string;
+            embeddedImported?: number;
+            error?: string;
+          }>("/import/marinara", payload);
           const embeddedInfo = data.embeddedImported
-            ? t("storyBundles.importedWithEmbedded", { count: data.embeddedImported, defaultValue: " with {{count}} embedded entities" })
+            ? t("storyBundles.importedWithEmbedded", {
+                count: data.embeddedImported,
+                defaultValue: " with {{count}} embedded entities",
+              })
             : "";
           nextResults.push({
             filename: file.name,
             success: data.success,
             message: data.success
-              ? t("storyBundles.importedAs", { name: data.name ?? "Story Bundle", defaultValue: "Imported “{{name}}”" }) + embeddedInfo
+              ? t("storyBundles.importedAs", {
+                  name: data.name ?? "Story Bundle",
+                  defaultValue: "Imported “{{name}}”",
+                }) + embeddedInfo
               : (data.error ?? t("storyBundles.importFailed", "Import failed")),
           });
         }
@@ -167,26 +195,35 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
               {t("storyBundles.embeddedFound", "This bundle includes embedded content")}
             </p>
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">
-              {t("storyBundles.embeddedFoundHint", "The exported file contains full character, persona, and lorebook data. Import them into your library?")}
+              {t(
+                "storyBundles.embeddedFoundHint",
+                "The exported file contains full character, persona, and lorebook data. Import them into your library?",
+              )}
             </p>
             <div className="mt-3 flex flex-col gap-1.5">
               {pendingEmbeddedChoice.previews.map((preview, idx) => (
-                <div key={idx} className="flex flex-wrap items-center gap-2 rounded-lg bg-[var(--sidebar)] px-3 py-2 text-xs">
+                <div
+                  key={idx}
+                  className="flex flex-wrap items-center gap-2 rounded-lg bg-[var(--sidebar)] px-3 py-2 text-xs"
+                >
                   <BookMarked size="0.8125rem" className="text-[var(--primary)]" />
                   <span className="font-medium">{preview.bundleName}</span>
                   {preview.characterCount > 0 && (
                     <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
-                      <Users size="0.6875rem" />{preview.characterCount}
+                      <Users size="0.6875rem" />
+                      {preview.characterCount}
                     </span>
                   )}
                   {preview.personaCount > 0 && (
                     <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
-                      <UserRound size="0.6875rem" />{preview.personaCount}
+                      <UserRound size="0.6875rem" />
+                      {preview.personaCount}
                     </span>
                   )}
                   {preview.lorebookCount > 0 && (
                     <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
-                      <BookOpen size="0.6875rem" />{preview.lorebookCount}
+                      <BookOpen size="0.6875rem" />
+                      {preview.lorebookCount}
                     </span>
                   )}
                 </div>
@@ -228,7 +265,9 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
             }`}
           >
             <Download size="2rem" className={dragOver ? "text-[var(--primary)]" : "text-[var(--muted-foreground)]"} />
-            <p className="text-sm font-medium">{t("storyBundles.importDropHint", "Drop one or more story bundle files here or click to browse")}</p>
+            <p className="text-sm font-medium">
+              {t("storyBundles.importDropHint", "Drop one or more story bundle files here or click to browse")}
+            </p>
             <span className="flex items-center gap-1 rounded-full bg-[var(--secondary)] px-2.5 py-1 text-xs text-[var(--muted-foreground)]">
               <FileJson size="0.75rem" /> {t("storyBundles.importFormat", ".marinara.json")}
             </span>
@@ -249,8 +288,12 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
         />
 
         {status === "loading" && (
-          <div data-testid="story-bundle-import-loading" className="flex items-center gap-2 rounded-lg bg-[var(--secondary)] p-3 text-xs">
-            <Loader2 size="0.875rem" className="animate-spin text-[var(--primary)]" /> {t("storyBundles.importing", "Importing…")}
+          <div
+            data-testid="story-bundle-import-loading"
+            className="flex items-center gap-2 rounded-lg bg-[var(--secondary)] p-3 text-xs"
+          >
+            <Loader2 size="0.875rem" className="animate-spin text-[var(--primary)]" />{" "}
+            {t("storyBundles.importing", "Importing…")}
           </div>
         )}
         {status === "done" && results.length > 0 && (

@@ -84,11 +84,7 @@ import {
   resolveStoredGalleryFile,
   unlinkGalleryFileIfUnreferenced,
 } from "../services/image/gallery-file-lifecycle.js";
-import {
-  readAvatarDataUrl,
-  readGalleryForOwner,
-  readSpritesForId,
-} from "../services/export/export-image-helpers.js";
+import { readAvatarDataUrl, readGalleryForOwner, readSpritesForId } from "../services/export/export-image-helpers.js";
 import {
   collectCharacterAvatarPaths,
   collectPersonaAvatarPaths,

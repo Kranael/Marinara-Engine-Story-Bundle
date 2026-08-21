@@ -2,7 +2,19 @@
 // Layout: Right Panel (polished with panel transitions)
 // ──────────────────────────────────────────────
 import { lazy, Suspense, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
-import { X, Users, BookOpen, FileText, Link, Sparkles, Settings, VenetianMask, Bot, Puzzle, BookMarked } from "lucide-react";
+import {
+  X,
+  Users,
+  BookOpen,
+  FileText,
+  Link,
+  Sparkles,
+  Settings,
+  VenetianMask,
+  Bot,
+  Puzzle,
+  BookMarked,
+} from "lucide-react";
 import { useUIStore } from "../../stores/ui.store";
 import { cn } from "../../lib/utils";
 import { usePersonalExtensionContributions } from "../../lib/personal-extension-contributions";
