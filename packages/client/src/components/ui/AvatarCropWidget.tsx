@@ -241,6 +241,7 @@ export function AvatarCropWidget({ src, alt, crop, onChange, onRemove, removing 
           {onRemove && (
             <button
               type="button"
+              data-testid="avatar-crop-remove-button"
               onClick={onRemove}
               disabled={removing}
               className="mari-editor-action mari-editor-action--compact mari-editor-action--danger inline-flex gap-1 rounded-lg px-2 py-1 text-[0.625rem]"

@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { BookMarked, Download, Loader2, Play, Plus, Trash2, Upload } from "lucide-react";
 import { useStoryBundles, useCreateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
-import { useCreateChat } from "../../hooks/use-chats";
+import { useCreateChat, useUpdateChatMetadata } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
@@ -31,6 +31,7 @@ export function StoryBundlesPanel() {
 
   // RP chat creation hook for the Play button
   const createChat = useCreateChat();
+  const updateChatMetadata = useUpdateChatMetadata();
   const { data: connections } = useConnections();
 
   const handleCreate = useCallback(async () => {
@@ -132,6 +133,14 @@ export function StoryBundlesPanel() {
             onSuccess: async (chat) => {
               useChatStore.getState().setActiveChatId(chat.id);
 
+              // Tag the chat with the story bundle it was started from so the
+              // chat sidebar can show the bundle's picture on this RP's row.
+              try {
+                await updateChatMetadata.mutateAsync({ id: chat.id, storyBundleId: bundle.id });
+              } catch (err) {
+                console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
+              }
+
               // Activate the bundle's lorebooks on the new chat.
               const lorebookIds = bundle.lorebookIds ?? [];
               if (lorebookIds.length > 0) {
@@ -202,7 +211,7 @@ export function StoryBundlesPanel() {
         setPlayingId(null);
       }
     },
-    [playingId, connections, createChat, t],
+    [playingId, connections, createChat, updateChatMetadata, t],
   );
 
   const handleExport = useCallback(
@@ -241,7 +250,7 @@ export function StoryBundlesPanel() {
             data-testid="story-bundles-create-button"
             onClick={handleCreate}
             disabled={creating}
-            className="mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+            className="mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
           >
             {creating ? <Loader2 size="0.75rem" className="animate-spin" /> : <Plus size="0.75rem" />}
             {t("storyBundles.newBundle", "New Bundle")}

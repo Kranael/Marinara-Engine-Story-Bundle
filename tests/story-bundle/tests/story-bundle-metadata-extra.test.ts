@@ -4,6 +4,8 @@
  * Extends story-bundle-metadata.test.ts with the remaining metadata buttons:
  * - Upload Image button: picking a valid image stores it and swaps the
  *   button label to "Change Image"
+ * - Avatar crop Remove button: deletes the stored image file, clears the
+ *   preview, and resets the avatar crop (with confirm dialog)
  * - Remove All tags button clears every tag chip at once
  * - Picking a non-image file shows an error toast and keeps the placeholder
  *
@@ -65,6 +67,83 @@ test.describe("Story Bundle Metadata Extra — Positive", () => {
 
       await expect(page.getByText("Bundle picture updated.")).toBeVisible({ timeout: 10_000 });
       await expect(metadataTab.avatarPreview.locator("img")).toBeVisible();
+      await expect(metadataTab.uploadButton).toContainText("Change Image");
+    } finally {
+      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+    }
+  });
+
+  test("removing the image clears the preview and deletes the stored file", async ({ page }) => {
+    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
+    const metadataTab = new StoryBundleMetadataTabPage(page);
+
+    try {
+      await editor.switchToMetadata();
+      await metadataTab.waitFor();
+
+      // Upload first so the avatar crop widget (and its Remove button) appears.
+      await metadataTab.imageInput.setInputFiles({
+        name: "bundle-pixel.png",
+        mimeType: "image/png",
+        buffer: Buffer.from(TINY_PNG_BASE64, "base64"),
+      });
+
+      await expect(page.getByText("Bundle picture updated.")).toBeVisible({ timeout: 10_000 });
+      await expect(metadataTab.avatarCropRemoveButton).toBeVisible();
+
+      // Capture the stored image URL so we can assert the file is gone afterwards.
+      const imagePath = (await (
+        await page.request.get(`/api/story-bundles/${bundle.id}`)
+      ).json()).imagePath as string;
+      expect(imagePath).toBeTruthy();
+      expect((await page.request.get(imagePath)).ok()).toBe(true);
+
+      await metadataTab.avatarCropRemoveButton.click();
+
+      // Confirm the destructive dialog.
+      await page.getByTestId("app-dialog-confirm-button").click();
+
+      await expect(page.getByText("Bundle picture removed.")).toBeVisible({ timeout: 10_000 });
+      await expect(metadataTab.avatarPreview.locator("img")).toHaveCount(0);
+      await expect(metadataTab.avatarCropRemoveButton).toBeHidden();
+      await expect(metadataTab.uploadButton).toContainText("Upload Image");
+
+      // The image file itself must be deleted on the server.
+      expect((await page.request.get(imagePath)).status()).toBe(404);
+
+      // imagePath and avatarCrop must be cleared in storage.
+      const after = await (await page.request.get(`/api/story-bundles/${bundle.id}`)).json();
+      expect(after.imagePath).toBeNull();
+      expect(after.avatarCrop).toBeNull();
+    } finally {
+      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+    }
+  });
+
+  test("cancelling the remove dialog keeps the image", async ({ page }) => {
+    const { bundle, editor } = await openEditorForBundle(page, "empty.json");
+    const metadataTab = new StoryBundleMetadataTabPage(page);
+
+    try {
+      await editor.switchToMetadata();
+      await metadataTab.waitFor();
+
+      await metadataTab.imageInput.setInputFiles({
+        name: "bundle-pixel.png",
+        mimeType: "image/png",
+        buffer: Buffer.from(TINY_PNG_BASE64, "base64"),
+      });
+
+      await expect(page.getByText("Bundle picture updated.")).toBeVisible({ timeout: 10_000 });
+      await expect(metadataTab.avatarCropRemoveButton).toBeVisible();
+
+      await metadataTab.avatarCropRemoveButton.click();
+
+      // Cancel the destructive dialog.
+      await page.getByTestId("app-dialog-cancel-button").click();
+
+      await expect(metadataTab.avatarPreview.locator("img")).toBeVisible();
+      await expect(metadataTab.avatarCropRemoveButton).toBeVisible();
       await expect(metadataTab.uploadButton).toContainText("Change Image");
     } finally {
       await page.request.delete(`/api/story-bundles/${bundle.id}`);

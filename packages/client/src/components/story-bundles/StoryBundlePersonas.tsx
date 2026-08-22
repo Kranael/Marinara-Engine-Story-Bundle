@@ -19,17 +19,10 @@ interface Persona {
   description?: string | null;
 }
 
-interface PersonaFolder {
-  id: string;
-  name: string;
-  personaIds: string[];
-}
-
 export interface StoryBundlePersonasProps {
   personaIds: string[];
   onPersonaIdsChange: (ids: string[]) => void;
   personas: Persona[];
-  personaFolders: PersonaFolder[];
   validPersonaIds: Set<string>;
 }
 
@@ -67,7 +60,12 @@ function CroppedAvatarImage({
 
   return (
     <div className={cn("relative shrink-0 overflow-hidden rounded-full", className)}>
-      <img src={avatarPath} alt={alt} className="h-full w-full object-cover" style={cropStyle} />
+      <img
+        src={avatarPath}
+        alt={alt}
+        className="h-full w-full object-cover"
+        style={cropStyle}
+      />
     </div>
   );
 }
@@ -76,13 +74,11 @@ export function StoryBundlePersonas({
   personaIds,
   onPersonaIdsChange,
   personas,
-  personaFolders,
   validPersonaIds,
 }: StoryBundlePersonasProps) {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [personaPickerLimit, setPersonaPickerLimit] = useState(PERSONA_PICKER_PAGE_SIZE);
-  const [selectedGroupId, setSelectedGroupId] = useState("");
 
   useEffect(() => {
     setPersonaPickerLimit(PERSONA_PICKER_PAGE_SIZE);
@@ -97,65 +93,61 @@ export function StoryBundlePersonas({
       if (!validPersonaIds.has(p.id)) return false;
       if (!query) return true;
       const name = p.name.toLowerCase();
-      const title = p.comment?.trim().toLowerCase() ?? "";
+      const title = (p.comment?.trim().toLowerCase() ?? "");
       return name.includes(query) || title.includes(query);
     });
   }, [personas, selectedIds, validPersonaIds, search]);
 
-  const visibleAvailable = useMemo(() => available.slice(0, personaPickerLimit), [available, personaPickerLimit]);
+  const visibleAvailable = useMemo(
+    () => available.slice(0, personaPickerLimit),
+    [available, personaPickerLimit],
+  );
 
   const selectedPersonas = useMemo(
     () => personas.filter((p) => selectedIds.has(p.id) && validPersonaIds.has(p.id)),
     [personas, selectedIds, validPersonaIds],
   );
 
+  // True when the active search matches the already-selected persona. In that
+  // case the picker's empty state should say a persona is selected, not that
+  // nothing matches the search (the persona does match — it is just picked).
+  const searchMatchesSelected = useMemo(() => {
+    const query = search.toLowerCase().trim();
+    if (!query) return false;
+    return selectedPersonas.some((p) => {
+      const name = p.name.toLowerCase();
+      const title = (p.comment?.trim().toLowerCase() ?? "");
+      return name.includes(query) || title.includes(query);
+    });
+  }, [search, selectedPersonas]);
+
   const handleToggle = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) {
-      next.delete(id);
+    // A story bundle plays exactly one persona: picking a persona replaces any
+    // previous selection instead of adding to it.
+    if (selectedIds.has(id)) {
+      onPersonaIdsChange([]);
     } else {
-      next.add(id);
+      onPersonaIdsChange([id]);
     }
-    onPersonaIdsChange([...next]);
   };
 
   const handleRandom = () => {
     if (available.length === 0) return;
     const pick = available[Math.floor(Math.random() * available.length)];
-    const next = new Set(selectedIds);
-    next.add(pick.id);
-    onPersonaIdsChange([...next]);
+    onPersonaIdsChange([pick.id]);
   };
-
-  const handleAddGroup = () => {
-    if (!selectedGroupId) return;
-    const folder = personaFolders.find((f) => f.id === selectedGroupId);
-    if (!folder) return;
-    const newIds = folder.personaIds.filter((id) => !selectedIds.has(id) && validPersonaIds.has(id));
-    if (newIds.length === 0) return;
-    const next = new Set(selectedIds);
-    for (const id of newIds) next.add(id);
-    onPersonaIdsChange([...next]);
-    setSelectedGroupId("");
-  };
-
-  const groupNewCount = (folder: PersonaFolder) =>
-    folder.personaIds.filter((id) => !selectedIds.has(id) && validPersonaIds.has(id)).length;
 
   return (
     <div data-testid="story-bundle-editor-personas" className="flex flex-col gap-6">
-      {/* Add Personas */}
+      {/* Add Persona */}
       <section>
         <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">
-          {t("storyBundles.addPersonas", "Add Personas")}
+          {t("storyBundles.addPersona", "Add Persona")}
         </h3>
 
         <div className="mb-3 flex items-center gap-2">
           <div className="relative flex-1">
-            <Search
-              size="0.875rem"
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
-            />
+            <Search size="0.875rem" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" />
             <input
               data-testid="story-bundle-editor-personas-search"
               type="text"
@@ -196,7 +188,9 @@ export function StoryBundlePersonas({
                   />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium text-[var(--foreground)]">{persona.name}</div>
-                    {title && <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>}
+                    {title && (
+                      <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>
+                    )}
                   </div>
                   <Plus size="0.875rem" className="shrink-0 text-[var(--muted-foreground)]" />
                 </button>
@@ -208,8 +202,7 @@ export function StoryBundlePersonas({
                 onClick={() => setPersonaPickerLimit((limit) => limit + PERSONA_PICKER_PAGE_SIZE)}
                 className="w-full rounded-md px-2 py-1.5 text-center text-xs text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
               >
-                {t("storyBundles.loadMore", "Load more")} ({visibleAvailable.length} {t("storyBundles.of", "of")}{" "}
-                {available.length})
+                {t("storyBundles.loadMore", "Load more")} ({visibleAvailable.length} {t("storyBundles.of", "of")} {available.length})
               </button>
             )}
           </div>
@@ -218,51 +211,19 @@ export function StoryBundlePersonas({
             data-testid="story-bundle-editor-personas-empty"
             className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]"
           >
-            {search
+            {search && !searchMatchesSelected
               ? t("storyBundles.noPersonasMatch", "No personas match your search.")
-              : t("storyBundles.allPersonasAdded", "All personas have been added.")}
+              : selectedPersonas.length > 0
+                ? t("storyBundles.personaAlreadySelected", "A persona is already selected.")
+                : t("storyBundles.noPersonasAvailable", "No personas available.")}
           </div>
         )}
       </section>
 
-      {/* Groups */}
-      {personaFolders.length > 0 && (
-        <section>
-          <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">{t("storyBundles.groups", "Groups")}</h3>
-          <div className="flex items-center gap-2">
-            <select
-              data-testid="story-bundle-editor-personas-group-select"
-              value={selectedGroupId}
-              onChange={(e) => setSelectedGroupId(e.target.value)}
-              aria-label={t("storyBundles.addFromGroup", "Add personas from group")}
-              className="mari-input flex-1 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 py-1.5 text-sm text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none focus:ring-1 focus:ring-[var(--ring)]"
-            >
-              <option value="">{t("storyBundles.addFromGroup", "Add from group…")}</option>
-              {personaFolders.map((folder) => {
-                const newCount = groupNewCount(folder);
-                return (
-                  <option key={folder.id} value={folder.id}>
-                    {folder.name} ({newCount > 0 ? newCount : t("storyBundles.allAdded", "all added")})
-                  </option>
-                );
-              })}
-            </select>
-            <button
-              data-testid="story-bundle-editor-personas-add-group"
-              onClick={handleAddGroup}
-              disabled={!selectedGroupId}
-              className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {t("storyBundles.add", "Add")}
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* Selected Personas */}
+      {/* Selected Persona */}
       <section data-testid="story-bundle-editor-personas-selected">
         <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">
-          {t("storyBundles.selectedPersonas", "Selected Personas")}
+          {t("storyBundles.selectedPersona", "Selected Persona")}
         </h3>
 
         {selectedPersonas.length > 0 ? (
@@ -270,7 +231,10 @@ export function StoryBundlePersonas({
             {selectedPersonas.map((persona) => {
               const title = getPersonaTitle(persona);
               return (
-                <div key={persona.id} className="flex items-center gap-2.5 rounded-md px-2 py-1.5">
+                <div
+                  key={persona.id}
+                  className="flex items-center gap-2.5 rounded-md px-2 py-1.5"
+                >
                   <CroppedAvatarImage
                     avatarPath={persona.avatarPath}
                     avatarCrop={persona.avatarCrop}
@@ -279,7 +243,9 @@ export function StoryBundlePersonas({
                   />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium text-[var(--foreground)]">{persona.name}</div>
-                    {title && <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>}
+                    {title && (
+                      <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>
+                    )}
                   </div>
                   <button
                     data-testid={`story-bundle-editor-personas-remove-${persona.id}`}
@@ -298,7 +264,7 @@ export function StoryBundlePersonas({
             data-testid="story-bundle-editor-personas-selected-empty"
             className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]"
           >
-            {t("storyBundles.personasEmpty", "No personas assigned yet.")}
+            {t("storyBundles.personaEmpty", "No persona selected yet.")}
           </div>
         )}
       </section>

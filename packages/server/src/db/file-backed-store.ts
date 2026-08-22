@@ -24,6 +24,7 @@ import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { dirname, join, resolve, sep } from "node:path";
 import { hostname, networkInterfaces } from "node:os";
+import { execFileSync } from "node:child_process";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { STORAGE_MIGRATION_NOTICE_SETTINGS_KEY, type StorageMigrationNotice } from "@marinara-engine/shared";
 import { logger } from "../lib/logger.js";
@@ -1063,6 +1064,49 @@ const CURRENT_LEGACY_HOST_ID = (() => {
     .digest("hex");
 })();
 
+function readWindowsMachineGuid(): string | undefined {
+  if (process.platform !== "win32") return undefined;
+  try {
+    const output = execFileSync(
+      "reg",
+      ["query", "HKLM\\SOFTWARE\\Microsoft\\Cryptography", "/v", "MachineGuid"],
+      { encoding: "utf8", timeout: 2000, windowsHide: true },
+    );
+    const match = output.match(/MachineGuid\s+REG_SZ\s+([0-9a-fA-F-]+)/);
+    const guid = match?.[1]?.trim();
+    return guid ? guid : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Host id used by story-bundle-dev builds before the upstream v2 lease
+ * rewrite: machine-id or the Windows registry MachineGuid preferred, MAC
+ * addresses only as a fallback. Kept alongside the stock legacy id so stale
+ * v1 leases written by those builds are still reclaimed after this merge.
+ */
+const CURRENT_STORY_BUNDLE_LEGACY_HOST_ID = (() => {
+  const machineId = ["/etc/machine-id", "/var/lib/dbus/machine-id"].flatMap((path) => {
+    try {
+      return [readFileSync(path, "utf8").trim()];
+    } catch {
+      return [];
+    }
+  })[0];
+  const stableId = machineId ?? readWindowsMachineGuid();
+  if (stableId) {
+    return createHash("sha256").update([CURRENT_HOSTNAME, stableId].join("\n")).digest("hex");
+  }
+  const macs = Object.values(networkInterfaces())
+    .flatMap((entries) => entries ?? [])
+    .map((entry) => entry.mac.toLowerCase())
+    .filter((mac) => mac !== "00:00:00:00:00:00")
+    .sort();
+  if (macs.length === 0) return null;
+  return createHash("sha256").update([CURRENT_HOSTNAME, ...macs].join("\n")).digest("hex");
+})();
+
 function readStableMachineId() {
   if (process.platform === "darwin") {
     try {
@@ -1121,6 +1165,7 @@ function writerLeaseBelongsToCurrentHost(record: StorageWriterLeaseRecord) {
     return Boolean(CURRENT_HOST_ID && record.hostId === CURRENT_HOST_ID);
   }
   if (CURRENT_LEGACY_HOST_ID && record.hostId === CURRENT_LEGACY_HOST_ID) return true;
+  if (CURRENT_STORY_BUNDLE_LEGACY_HOST_ID && record.hostId === CURRENT_STORY_BUNDLE_LEGACY_HOST_ID) return true;
 
   // Version 1 used every visible MAC address in its fingerprint. On macOS,
   // VPN and virtual interfaces can change that list between launches. The

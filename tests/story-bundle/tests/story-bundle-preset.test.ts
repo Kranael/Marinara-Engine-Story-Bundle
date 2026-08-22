@@ -118,6 +118,210 @@ test.describe("Story Bundle Presets — Positive", () => {
     await api.delete(bundle.id);
     await request.delete(`/api/prompts/${preset.id}`);
   });
+
+  test("playing a bundle with a preset that has variables from the panel shows the choice dialog", async ({
+    page,
+    request,
+  }) => {
+    const suffix = Date.now().toString(36);
+
+    // Create a preset with variables
+    const presetResponse = await request.post("/api/prompts", {
+      data: { name: `SB Panel Preset ${suffix}`, description: "Story bundle panel play test fixture." },
+    });
+    expect(presetResponse.ok()).toBeTruthy();
+    const preset = (await presetResponse.json()) as { id: string };
+
+    const variableResponse = await request.post(`/api/prompts/${preset.id}/variables`, {
+      data: {
+        variableName: `SB_PANEL_VAR_${suffix}`,
+        question: "Choose an option",
+        options: [
+          { id: `sb_panel_${suffix}_a`, label: "Option A", value: "value_a" },
+          { id: `sb_panel_${suffix}_b`, label: "Option B", value: "value_b" },
+        ],
+      },
+    });
+    expect(variableResponse.ok()).toBeTruthy();
+
+    // Create a story bundle with the preset
+    const api = new StoryBundleAPI(page);
+    const bundle = await api.create({ name: `SB Panel Preset Test ${suffix}` });
+
+    // Update the bundle to include the preset
+    const updateResponse = await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+      data: { presetIds: [preset.id] },
+    });
+    expect(updateResponse.ok()).toBeTruthy();
+
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+
+    let chatId: string | null = null;
+    try {
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      // Play directly from the panel action pill (no editor).
+      await panel.hoverRow(bundle.name);
+      await panel.clickPlay(bundle.name);
+
+      // The "Configure Preset Variables" dialog should appear directly
+      const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
+      await expect(choiceDialog).toBeVisible({ timeout: 10_000 });
+
+      // Skip the dialog
+      await choiceDialog.getByRole("button", { name: "Skip", exact: true }).click();
+      await expect(choiceDialog).toBeHidden({ timeout: 5_000 });
+
+      // Track the created chat for cleanup
+      const chatsResp = await request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{ id: string; name: string }>;
+      chatId = chats.find((c) => c.name === bundle.name)?.id ?? null;
+    } finally {
+      if (chatId) await request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+      await request.delete(`/api/prompts/${preset.id}`);
+    }
+  });
+
+  test("playing a bundle with the seeded Marinara preset from the panel shows the choice dialog", async ({
+    page,
+    request,
+  }) => {
+    // Locate the seeded stock preset by its reserved system key.
+    const presetsResp = await request.get("/api/prompts");
+    expect(presetsResp.ok()).toBeTruthy();
+    const presets = (await presetsResp.json()) as Array<{ id: string; systemKey?: string }>;
+    const marinaraPreset = presets.find((p) => p.systemKey === "marinara-universal-preset");
+    expect(marinaraPreset, "seeded Marinara universal preset must exist").toBeDefined();
+
+    // Sanity: the stock preset must actually have configurable variables.
+    const fullResp = await request.get(`/api/prompts/${marinaraPreset!.id}/full`);
+    expect(fullResp.ok()).toBeTruthy();
+    const full = (await fullResp.json()) as { choiceBlocks?: Array<{ id: string }> };
+    expect((full.choiceBlocks ?? []).length).toBeGreaterThan(0);
+
+    const suffix = Date.now().toString(36);
+    const api = new StoryBundleAPI(page);
+    const bundle = await api.create({ name: `SB Marinara Preset Test ${suffix}` });
+
+    const updateResponse = await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+      data: { presetIds: [marinaraPreset!.id] },
+    });
+    expect(updateResponse.ok()).toBeTruthy();
+
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+
+    let chatId: string | null = null;
+    try {
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.hoverRow(bundle.name);
+      await panel.clickPlay(bundle.name);
+
+      // The "Configure Preset Variables" dialog should appear directly
+      const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
+      await expect(choiceDialog).toBeVisible({ timeout: 10_000 });
+
+      // Skip the dialog
+      await choiceDialog.getByRole("button", { name: "Skip", exact: true }).click();
+      await expect(choiceDialog).toBeHidden({ timeout: 5_000 });
+
+      // The new chat must carry the Marinara preset.
+      const chatsResp = await request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{
+        id: string;
+        name: string;
+        promptPresetId: string | null;
+      }>;
+      const chat = chats.find((c) => c.name === bundle.name);
+      expect(chat).toBeDefined();
+      chatId = chat!.id;
+      expect(chat!.promptPresetId).toBe(marinaraPreset!.id);
+    } finally {
+      if (chatId) await request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+    }
+  });
+
+  test("playing a bundle with an intro and a variable preset from the panel shows the choice dialog after the intro pick", async ({
+    page,
+    request,
+  }) => {
+    const suffix = Date.now().toString(36);
+
+    // Create a preset with variables
+    const presetResponse = await request.post("/api/prompts", {
+      data: { name: `SB Intro Preset ${suffix}`, description: "Intro + variables play test fixture." },
+    });
+    expect(presetResponse.ok()).toBeTruthy();
+    const preset = (await presetResponse.json()) as { id: string };
+
+    const variableResponse = await request.post(`/api/prompts/${preset.id}/variables`, {
+      data: {
+        variableName: `SB_INTRO_VAR_${suffix}`,
+        question: "Choose an option",
+        options: [
+          { id: `sb_intro_${suffix}_a`, label: "Option A", value: "value_a" },
+          { id: `sb_intro_${suffix}_b`, label: "Option B", value: "value_b" },
+        ],
+      },
+    });
+    expect(variableResponse.ok()).toBeTruthy();
+
+    // Create a bundle with the preset AND an intro.
+    const api = new StoryBundleAPI(page);
+    const bundle = await api.create({ name: `SB Intro Preset Test ${suffix}` });
+
+    const introName = `Intro ${suffix}`;
+    const updateResponse = await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+      data: {
+        presetIds: [preset.id],
+        intros: [{ id: `intro_${suffix}`, name: introName, text: "The story begins..." }],
+      },
+    });
+    expect(updateResponse.ok()).toBeTruthy();
+
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+
+    let chatId: string | null = null;
+    try {
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+
+      await panel.hoverRow(bundle.name);
+      await panel.clickPlay(bundle.name);
+
+      // Step 1: the intro pick dialog appears first.
+      await page.getByRole("button", { name: introName, exact: true }).click();
+
+      // Step 2: the "Configure Preset Variables" dialog must follow.
+      const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
+      await expect(choiceDialog).toBeVisible({ timeout: 10_000 });
+
+      await choiceDialog.getByRole("button", { name: "Skip", exact: true }).click();
+      await expect(choiceDialog).toBeHidden({ timeout: 5_000 });
+
+      // Track the created chat for cleanup
+      const chatsResp = await request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{ id: string; name: string }>;
+      chatId = chats.find((c) => c.name === bundle.name)?.id ?? null;
+    } finally {
+      if (chatId) await request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+      await request.delete(`/api/prompts/${preset.id}`);
+    }
+  });
 });
 
 test.describe("Story Bundle Presets — Negative", () => {

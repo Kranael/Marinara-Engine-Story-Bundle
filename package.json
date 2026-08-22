@@ -44,6 +44,7 @@
     "regression:android-local-auth:run": "pnpm --filter @marinara-engine/server exec tsx ../../scripts/regressions/android-local-auth.regression.ts",
     "regression:android-local-auth": "pnpm build:shared && pnpm regression:android-local-auth:run",
     "regression:story-bundle": "playwright test -c playwright.config.ts tests/story-bundle/tests/",
+    "manual-validation:story-bundle": "node scripts/with-env.mjs PLAYWRIGHT_SLOW_MO=1500 -- playwright test -c playwright.config.ts tests/story-bundle/tests/ --headed --workers=1 --project=desktop-chromium",
     "smoke:ui": "pnpm regression:ui",
     "test": "node ./scripts/check-windows-installer-layout.mjs && pnpm regression",
     "version:sync": "node ./scripts/sync-version.mjs",

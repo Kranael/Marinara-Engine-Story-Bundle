@@ -45,30 +45,41 @@ export function StoryBundlePresets({ presetIds, onPresetIdsChange, presets, vali
     [presets, selectedIds, validPresetIds],
   );
 
+  // True when the active search matches the already-selected preset. In that
+  // case the picker's empty state should say a preset is selected, not that
+  // nothing matches the search (the preset does match — it is just picked).
+  const searchMatchesSelected = useMemo(() => {
+    const query = search.toLowerCase().trim();
+    if (!query) return false;
+    return selectedPresets.some((p) => {
+      const name = p.name.toLowerCase();
+      const desc = (p.description ?? "").toLowerCase();
+      return name.includes(query) || desc.includes(query);
+    });
+  }, [search, selectedPresets]);
+
   const handleToggle = (id: string) => {
-    const next = new Set(selectedIds);
-    if (next.has(id)) {
-      next.delete(id);
+    // A story bundle plays exactly one preset: picking a preset replaces any
+    // previous selection instead of adding to it.
+    if (selectedIds.has(id)) {
+      onPresetIdsChange([]);
     } else {
-      next.add(id);
+      onPresetIdsChange([id]);
     }
-    onPresetIdsChange([...next]);
   };
 
   const handleRandom = () => {
     if (available.length === 0) return;
     const pick = available[Math.floor(Math.random() * available.length)];
-    const next = new Set(selectedIds);
-    next.add(pick.id);
-    onPresetIdsChange([...next]);
+    onPresetIdsChange([pick.id]);
   };
 
   return (
     <div data-testid="story-bundle-editor-presets" className="flex flex-col gap-6">
-      {/* Add Presets */}
+      {/* Add Preset */}
       <section>
         <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">
-          {t("storyBundles.addPresets", "Add Presets")}
+          {t("storyBundles.addPreset", "Add Preset")}
         </h3>
 
         <div className="mb-3 flex items-center gap-2">
@@ -133,17 +144,19 @@ export function StoryBundlePresets({ presetIds, onPresetIdsChange, presets, vali
             data-testid="story-bundle-editor-presets-empty"
             className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]"
           >
-            {search
+            {search && !searchMatchesSelected
               ? t("storyBundles.noPresetsMatch", "No presets match your search.")
-              : t("storyBundles.allPresetsAdded", "All presets have been added.")}
+              : selectedPresets.length > 0
+                ? t("storyBundles.presetAlreadySelected", "A preset is already selected.")
+                : t("storyBundles.noPresetsAvailable", "No presets available.")}
           </div>
         )}
       </section>
 
-      {/* Selected Presets */}
+      {/* Selected Preset */}
       <section data-testid="story-bundle-editor-presets-selected">
         <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">
-          {t("storyBundles.selectedPresets", "Selected Presets")}
+          {t("storyBundles.selectedPreset", "Selected Preset")}
         </h3>
 
         {selectedPresets.length > 0 ? (
@@ -173,7 +186,7 @@ export function StoryBundlePresets({ presetIds, onPresetIdsChange, presets, vali
             data-testid="story-bundle-editor-presets-selected-empty"
             className="flex items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--card)] py-6 text-sm text-[var(--muted-foreground)]"
           >
-            {t("storyBundles.presetsEmpty", "No presets assigned yet.")}
+            {t("storyBundles.presetEmpty", "No preset selected yet.")}
           </div>
         )}
       </section>

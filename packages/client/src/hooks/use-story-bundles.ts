@@ -66,3 +66,15 @@ export function useUploadStoryBundleImage() {
     },
   });
 }
+
+export function useRemoveStoryBundleImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.delete<StoryBundle>(`/story-bundles/${id}/image`),
+    onSuccess: (_data, id) => {
+      qc.invalidateQueries({ queryKey: storyBundleKeys.all });
+      qc.invalidateQueries({ queryKey: storyBundleKeys.list() });
+      qc.invalidateQueries({ queryKey: storyBundleKeys.detail(id) });
+    },
+  });
+}

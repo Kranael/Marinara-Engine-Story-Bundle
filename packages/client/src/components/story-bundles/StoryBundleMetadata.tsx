@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Image, Tag, Upload, X } from "lucide-react";
 import { normalizeAvatarCrop, type AvatarCrop } from "@marinara-engine/shared";
-import { useUploadStoryBundleImage } from "../../hooks/use-story-bundles";
+import { useRemoveStoryBundleImage, useUploadStoryBundleImage } from "../../hooks/use-story-bundles";
+import { showConfirmDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 import { AvatarCropWidget } from "../ui/AvatarCropWidget";
 
@@ -45,6 +46,7 @@ export function StoryBundleMetadata({
 }: StoryBundleMetadataProps) {
   const { t } = useTranslation();
   const uploadImage = useUploadStoryBundleImage();
+  const removeImage = useRemoveStoryBundleImage();
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [newTag, setNewTag] = useState("");
 
@@ -84,6 +86,26 @@ export function StoryBundleMetadata({
     },
     [bundleId, uploadImage, t],
   );
+
+  const handleRemoveImage = useCallback(async () => {
+    if (removeImage.isPending || uploadImage.isPending) return;
+    const confirmed = await showConfirmDialog({
+      title: t("storyBundles.metadata.removeImageTitle", "Remove Image"),
+      message: t(
+        "storyBundles.metadata.removeImageMessage",
+        "Remove the bundle picture? The image file will be deleted and the avatar crop will be reset.",
+      ),
+      confirmLabel: t("storyBundles.metadata.removeImageConfirm", "Remove"),
+      tone: "destructive",
+    });
+    if (!confirmed) return;
+    try {
+      await removeImage.mutateAsync(bundleId);
+      toast.success(t("storyBundles.imageRemoved", "Bundle picture removed."));
+    } catch {
+      toast.error(t("storyBundles.imageRemoveFailed", "Failed to remove the bundle picture."));
+    }
+  }, [bundleId, removeImage, uploadImage, t]);
 
   const addTag = useCallback(() => {
     const trimmed = newTag.trim();
@@ -165,7 +187,8 @@ export function StoryBundleMetadata({
           alt={name}
           crop={normalizeAvatarCrop(avatarCrop as unknown as AvatarCrop)}
           onChange={(next) => onAvatarCropChange(next as unknown as Record<string, unknown>)}
-          onRemove={() => {}}
+          onRemove={handleRemoveImage}
+          removing={removeImage.isPending}
         />
       )}
 

@@ -52,6 +52,8 @@ export const CHAT_PRESET_EXCLUDED_METADATA_KEYS: readonly string[] = [
   "weekSummaries",
   "tags",
   "appliedChatPresetId",
+  // The story-bundle origin is per-chat identity, never reusable setup.
+  "storyBundleId",
   "branchName",
   "branchParentChatId",
   "branchParentMessageId",

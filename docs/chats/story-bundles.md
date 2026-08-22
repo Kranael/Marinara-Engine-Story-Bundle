@@ -11,7 +11,7 @@ A Story Bundle holds:
 - A **name** (title).
 - A **description** (optional HTML text that describes the story or setting).
 - A list of **characters** who appear in the story.
-- A list of **personas** (the roles you can play).
+- A single **persona** (the role you play in this story).
 - A list of **lorebooks** (world facts the AI reads when keywords appear).
 - A list of **agents** that are pre-configured for the story.
 
@@ -54,7 +54,7 @@ Click a character in the left column to add it. Click **Load more** if you have 
 
 ### Personas tab
 
-Works the same way as Characters. Pick which personas belong to this story. The first persona in the list is used as the default when you start a roleplay from the bundle.
+A bundle plays exactly one persona. Pick the persona you want to play in this story — selecting a persona replaces any previously selected one. Click the **X** button to clear the selection.
 
 ### Lorebooks tab
 
@@ -91,7 +91,7 @@ Imported bundles appear in your list. If a referenced character, persona, or lor
 
 ## Starting a roleplay from a Story Bundle
 
-The **Play** button starts a new Roleplay chat from the bundle in one click. It uses the bundle name as the chat name, adds all bundle characters, sets your persona to the first persona in the bundle, and enables any agents pre-configured in the bundle.
+The **Play** button starts a new Roleplay chat from the bundle in one click. It uses the bundle name as the chat name, adds all bundle characters, sets your persona to the bundle's selected persona, and enables any agents pre-configured in the bundle.
 
 From the editor:
 
