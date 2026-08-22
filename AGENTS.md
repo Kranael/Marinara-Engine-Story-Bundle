@@ -26,6 +26,7 @@ This file is a thin maintainer note for contributors using Codex. Canonical work
 ## Temporary Tests
 
 - Do not keep `.test.ts` files in the repo. If an agent creates one for local proof, remove it after the test is done.
+- Exception of this Rule is `tests/general` and `tests/story-bundle/*`
 
 ## Repo-Specific Cautions
 
