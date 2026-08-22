@@ -185,10 +185,7 @@ export function StoryBundleEditor() {
     [allPersonas],
   );
 
-  const validPersonaIds = useMemo(
-    () => new Set((personas ?? []).map((p) => p.id)),
-    [personas],
-  );
+  const validPersonaIds = useMemo(() => new Set((personas ?? []).map((p) => p.id)), [personas]);
 
   const lorebooks = useMemo(() => (allLorebooks ?? []) as Lorebook[], [allLorebooks]);
 
@@ -478,7 +475,22 @@ export function StoryBundleEditor() {
         },
       },
     );
-  }, [bundle, playing, connections, createChat, updateChatMetadata, closeStoryBundleDetail, t, name, characterIds, personaIds, lorebookIds, presetIds, agentIds, intros]);
+  }, [
+    bundle,
+    playing,
+    connections,
+    createChat,
+    updateChatMetadata,
+    closeStoryBundleDetail,
+    t,
+    name,
+    characterIds,
+    personaIds,
+    lorebookIds,
+    presetIds,
+    agentIds,
+    intros,
+  ]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;

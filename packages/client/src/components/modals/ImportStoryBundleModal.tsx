@@ -213,8 +213,15 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
           });
           if (data.success && Array.isArray(data.missingAgents)) {
             for (const agent of data.missingAgents) {
-              if (agent && typeof agent.id === "string" && !nextMissingAgents.some((existing) => existing.id === agent.id)) {
-                nextMissingAgents.push({ id: agent.id, name: typeof agent.name === "string" && agent.name.trim() ? agent.name : agent.id });
+              if (
+                agent &&
+                typeof agent.id === "string" &&
+                !nextMissingAgents.some((existing) => existing.id === agent.id)
+              ) {
+                nextMissingAgents.push({
+                  id: agent.id,
+                  name: typeof agent.name === "string" && agent.name.trim() ? agent.name : agent.id,
+                });
               }
             }
           }
@@ -304,7 +311,8 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
                       data-testid="story-bundle-import-embedded-agent-count"
                       className="flex items-center gap-1 text-[var(--muted-foreground)]"
                     >
-                      <Bot size="0.6875rem" />{preview.agentCount}
+                      <Bot size="0.6875rem" />
+                      {preview.agentCount}
                     </span>
                   )}
                 </div>
@@ -413,12 +421,18 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
 
         {/* Missing agents prompt — agents referenced by the bundle that are not installed */}
         {status === "done" && missingAgents.length > 0 && (
-          <div data-testid="story-bundle-import-missing-agents" className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+          <div
+            data-testid="story-bundle-import-missing-agents"
+            className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4"
+          >
             <p className="text-sm font-semibold text-[var(--foreground)]">
               {t("storyBundles.missingAgentsFound", "This bundle references agents that are not installed")}
             </p>
             <p className="mt-1 text-xs leading-relaxed text-[var(--muted-foreground)]">
-              {t("storyBundles.missingAgentsFoundHint", "Agents are provided by capability packages. Install the matching package to use these agents.")}
+              {t(
+                "storyBundles.missingAgentsFoundHint",
+                "Agents are provided by capability packages. Install the matching package to use these agents.",
+              )}
             </p>
             <div className="mt-3 flex flex-col gap-1.5">
               {missingAgents.map((agent) => {
@@ -449,7 +463,8 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
                       </span>
                     ) : state === "installing" ? (
                       <span className="flex items-center gap-1 text-[var(--muted-foreground)]">
-                        <Loader2 size="0.8125rem" className="animate-spin" /> {t("storyBundles.missingAgentInstalling", "Installing…")}
+                        <Loader2 size="0.8125rem" className="animate-spin" />{" "}
+                        {t("storyBundles.missingAgentInstalling", "Installing…")}
                       </span>
                     ) : state === "not-found" ? null : (
                       <button

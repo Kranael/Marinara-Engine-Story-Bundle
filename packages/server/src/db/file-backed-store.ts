@@ -24,7 +24,6 @@ import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { dirname, join, resolve, sep } from "node:path";
 import { hostname, networkInterfaces } from "node:os";
-import { execFileSync } from "node:child_process";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { STORAGE_MIGRATION_NOTICE_SETTINGS_KEY, type StorageMigrationNotice } from "@marinara-engine/shared";
 import { logger } from "../lib/logger.js";
@@ -1067,11 +1066,11 @@ const CURRENT_LEGACY_HOST_ID = (() => {
 function readWindowsMachineGuid(): string | undefined {
   if (process.platform !== "win32") return undefined;
   try {
-    const output = execFileSync(
-      "reg",
-      ["query", "HKLM\\SOFTWARE\\Microsoft\\Cryptography", "/v", "MachineGuid"],
-      { encoding: "utf8", timeout: 2000, windowsHide: true },
-    );
+    const output = execFileSync("reg", ["query", "HKLM\\SOFTWARE\\Microsoft\\Cryptography", "/v", "MachineGuid"], {
+      encoding: "utf8",
+      timeout: 2000,
+      windowsHide: true,
+    });
     const match = output.match(/MachineGuid\s+REG_SZ\s+([0-9a-fA-F-]+)/);
     const guid = match?.[1]?.trim();
     return guid ? guid : undefined;
@@ -1104,7 +1103,9 @@ const CURRENT_STORY_BUNDLE_LEGACY_HOST_ID = (() => {
     .filter((mac) => mac !== "00:00:00:00:00:00")
     .sort();
   if (macs.length === 0) return null;
-  return createHash("sha256").update([CURRENT_HOSTNAME, ...macs].join("\n")).digest("hex");
+  return createHash("sha256")
+    .update([CURRENT_HOSTNAME, ...macs].join("\n"))
+    .digest("hex");
 })();
 
 function readStableMachineId() {
