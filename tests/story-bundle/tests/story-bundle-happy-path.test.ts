@@ -52,7 +52,7 @@ test('E2E Story Bundle Happy Path', async ({ page }) => {
     // Persona ###
     await test.step('Create a new Persona', async () => {
         await test.step('Click on Personas', async () => {
-            await page.getByTestId('topbar-panel-button-personas').click();
+            await page.getByTestId('personas-tab').click();
         });
 
         await test.step('Click on +', async () => {

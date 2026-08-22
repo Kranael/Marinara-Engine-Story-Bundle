@@ -620,6 +620,8 @@ type SettingsSwitchProps = SettingsSwitchAccessibleLabel & {
   labelClassName?: string;
   /** Appended last so callers can intentionally override checked-track visuals. */
   switchClassName?: string;
+  /** Optional data-testid applied to the underlying checkbox for Playwright selectors. */
+  testId?: string;
 };
 
 export function SettingsSwitch({
@@ -638,6 +640,7 @@ export function SettingsSwitch({
   className,
   labelClassName,
   switchClassName,
+  testId,
 }: SettingsSwitchProps) {
   const inputId = useId();
   const localize = useLocalizedUiText();
@@ -653,6 +656,7 @@ export function SettingsSwitch({
         disabled={disabled}
         aria-label={!label && ariaLabel ? localize(ariaLabel) : undefined}
         onChange={(e) => onChange(e.target.checked)}
+        data-testid={testId}
         className="peer sr-only"
       />
       <label

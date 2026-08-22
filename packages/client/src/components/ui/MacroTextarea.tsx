@@ -315,6 +315,8 @@ export interface MacroTextareaProps {
   spellCheck?: boolean;
   /** Optional ref to the underlying textarea (e.g. to insert emoji at the caret). */
   textareaRef?: Ref<HTMLTextAreaElement>;
+  /** Optional data-testid applied to the underlying textarea for Playwright selectors. */
+  testId?: string;
 }
 
 export function MacroTextarea({
@@ -341,6 +343,7 @@ export function MacroTextarea({
   selfCharacterId,
   spellCheck = true,
   textareaRef,
+  testId,
 }: MacroTextareaProps) {
   const { t: localizeUi } = useUiTranslation();
   const [expanded, setExpanded] = useState(false);
@@ -412,6 +415,7 @@ export function MacroTextarea({
             aria-label={ariaLabel}
             placeholder={placeholder}
             spellCheck={spellCheck}
+            data-testid={testId}
             className={cn(
               "w-full resize-y rounded-lg bg-[var(--secondary)] p-2.5 text-sm leading-6 text-[var(--foreground)] ring-1 ring-[var(--border)] transition placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]",
               className,
