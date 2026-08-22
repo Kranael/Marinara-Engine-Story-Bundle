@@ -140,6 +140,12 @@ try {
         paths: ["tiles.png", "atlas.json", "sprites/player.png"],
       },
     },
+    files: [
+      ...manifestV2.files,
+      { path: "tiles.png", sha256: "3".repeat(64), bytes: 1 },
+      { path: "atlas.json", sha256: "4".repeat(64), bytes: 1 },
+      { path: "sprites/player.png", sha256: "5".repeat(64), bytes: 1 },
+    ],
   });
   assert.deepEqual(
     gameSurfaceManifest.contributions?.assets?.paths,
