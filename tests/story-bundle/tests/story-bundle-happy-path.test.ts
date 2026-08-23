@@ -3,7 +3,7 @@ import { prepareFreshClient } from "../helpers/fresh-client.js";
 
 // E2E Test Happy Path  ### Full Flow from fresh start
 
-test("E2E Story Bundle Happy Path", async ({ page }) => {
+test("Story Bundle Happy Path", async ({ page }) => {
   // Ids of everything created/used in this run. Filled as soon as an id is
   // available and reused for adding to the story bundle.
   const characters: string[] = [];
