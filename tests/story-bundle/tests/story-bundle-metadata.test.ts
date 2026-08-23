@@ -150,7 +150,6 @@ test.describe("Story Bundle Metadata — Positive", () => {
 
     await api.delete(bundle.id);
   });
-
 });
 
 test.describe("Story Bundle Metadata — Negative", () => {
@@ -176,5 +175,4 @@ test.describe("Story Bundle Metadata — Negative", () => {
 
     await api.delete(bundle.id);
   });
-
 });

@@ -262,5 +262,4 @@ test.describe("Story Bundle Editor — Negative", () => {
 
     await api.delete(bundle.id);
   });
-
 });

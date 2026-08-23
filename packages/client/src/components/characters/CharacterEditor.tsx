@@ -1136,7 +1136,12 @@ export function CharacterEditor() {
           </div>
         </div>
 
-        <EditorTabNavigation tabs={TABS} activeId={activeTab} onChange={setActiveTab} tabTestId="character-editor-tab" />
+        <EditorTabNavigation
+          tabs={TABS}
+          activeId={activeTab}
+          onChange={setActiveTab}
+          tabTestId="character-editor-tab"
+        />
 
         <div className="mari-editor-actions flex">
           <button

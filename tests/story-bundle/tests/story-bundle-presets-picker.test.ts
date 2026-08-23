@@ -20,12 +20,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundlePresetsTabPage } from "../pages/story-bundle-presets-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
-import {
-  createPreset,
-  deletePreset,
-  entitySuffix,
-  type EntityRef,
-} from "../helpers/story-bundle-entities.js";
+import { createPreset, deletePreset, entitySuffix, type EntityRef } from "../helpers/story-bundle-entities.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 

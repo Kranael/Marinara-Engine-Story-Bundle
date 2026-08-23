@@ -93,5 +93,4 @@ export class StoryBundleMetadataTabPage {
   async uploadImage(filePath: string): Promise<void> {
     await this.imageInput.setInputFiles(filePath);
   }
-
 }

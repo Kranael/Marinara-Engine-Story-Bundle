@@ -92,9 +92,7 @@ test.describe("Story Bundle Metadata Extra — Positive", () => {
       await expect(metadataTab.avatarCropRemoveButton).toBeVisible();
 
       // Capture the stored image URL so we can assert the file is gone afterwards.
-      const imagePath = (await (
-        await page.request.get(`/api/story-bundles/${bundle.id}`)
-      ).json()).imagePath as string;
+      const imagePath = (await (await page.request.get(`/api/story-bundles/${bundle.id}`)).json()).imagePath as string;
       expect(imagePath).toBeTruthy();
       expect((await page.request.get(imagePath)).ok()).toBe(true);
 

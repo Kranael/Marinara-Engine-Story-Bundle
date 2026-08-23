@@ -12,10 +12,7 @@ import { DATA_DIR } from "../../utils/data-dir.js";
 import { MAX_FILE_SIZES } from "@marinara-engine/shared";
 import { assertInsideDir, isAllowedImageBuffer } from "../../utils/security.js";
 import { resolveStoredGalleryFile } from "../image/gallery-file-lifecycle.js";
-import {
-  embeddedSpriteSizesAreWithinLimits,
-  MAX_EMBEDDED_SPRITE_COUNT,
-} from "../import/marinara.importer.js";
+import { embeddedSpriteSizesAreWithinLimits, MAX_EMBEDDED_SPRITE_COUNT } from "../import/marinara.importer.js";
 
 /**
  * Read an image file and return it as a base64 data URL, or null if the file

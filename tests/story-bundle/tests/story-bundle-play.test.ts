@@ -146,9 +146,7 @@ test.describe("Story Bundle Play — Positive", () => {
 
     // Verify both lorebooks are active on the chat.
     const meta = (chat!.metadata ?? {}) as Record<string, unknown>;
-    const activeIds: string[] = Array.isArray(meta.activeLorebookIds)
-      ? (meta.activeLorebookIds as string[])
-      : [];
+    const activeIds: string[] = Array.isArray(meta.activeLorebookIds) ? (meta.activeLorebookIds as string[]) : [];
     expect(activeIds).toContain(lore1Data.id);
     expect(activeIds).toContain(lore2Data.id);
 

@@ -34,9 +34,7 @@ export class StoryBundlePersonasTabPage {
     this.emptyState = page.getByTestId("story-bundle-editor-personas-empty");
     this.selectedSection = page.getByTestId("story-bundle-editor-personas-selected");
     this.selectedEmptyState = page.getByTestId("story-bundle-editor-personas-selected-empty");
-    this.availableAddButtons = this.section.locator(
-      '[data-testid^="story-bundle-editor-personas-add-"]',
-    );
+    this.availableAddButtons = this.section.locator('[data-testid^="story-bundle-editor-personas-add-"]');
   }
 
   // ── Actions ───────────────────────────────────────────────

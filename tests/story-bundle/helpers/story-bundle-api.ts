@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Page } from "@playwright/test";
 
 export interface StoryBundle {
   id: string;
@@ -27,7 +27,7 @@ export class StoryBundleAPI {
 
   /** Create a story bundle via POST /api/story-bundles. */
   async create(input: CreateStoryBundleInput): Promise<StoryBundle> {
-    const response = await this.page.request.post('/api/story-bundles', {
+    const response = await this.page.request.post("/api/story-bundles", {
       data: { name: input.name, description: input.description ?? null },
     });
     if (!response.ok()) {
@@ -46,7 +46,7 @@ export class StoryBundleAPI {
 
   /** Import a story bundle from a Marinara export envelope via POST /api/import/marinara. */
   async importFromEnvelope(envelope: Record<string, unknown>): Promise<StoryBundle> {
-    const response = await this.page.request.post('/api/import/marinara', {
+    const response = await this.page.request.post("/api/import/marinara", {
       data: envelope,
     });
     if (!response.ok()) {
@@ -71,5 +71,4 @@ export class StoryBundleAPI {
     }
     return (await response.json()) as Record<string, unknown>;
   }
-
 }

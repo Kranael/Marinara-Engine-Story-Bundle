@@ -152,12 +152,7 @@ test.describe("Story Bundle Import Agents — Positive", () => {
     let bundleId: string | null = null;
 
     try {
-      writeAgentEnvelope(
-        envelopePath,
-        bundleName,
-        [missingAgentId],
-        [{ id: missingAgentId, name: missingAgentLabel }],
-      );
+      writeAgentEnvelope(envelopePath, bundleName, [missingAgentId], [{ id: missingAgentId, name: missingAgentLabel }]);
 
       await base.goto();
       await home.openStoryBundlesPanel();
@@ -201,13 +196,9 @@ test.describe("Story Bundle Import Agents — Positive", () => {
     let bundleId: string | null = null;
 
     try {
-      const installRequests = await mockCapabilityCatalog(page, [
-        buildCatalogPackage(agentId, agentLabel),
-      ]);
+      const installRequests = await mockCapabilityCatalog(page, [buildCatalogPackage(agentId, agentLabel)]);
 
-      writeAgentEnvelope(envelopePath, bundleName, [agentId], [
-        { id: agentId, name: agentLabel },
-      ]);
+      writeAgentEnvelope(envelopePath, bundleName, [agentId], [{ id: agentId, name: agentLabel }]);
 
       await base.goto();
       await home.openStoryBundlesPanel();
@@ -230,9 +221,7 @@ test.describe("Story Bundle Import Agents — Positive", () => {
       await expect(importModal.missingAgentRows.first()).toContainText(/Installed/, {
         timeout: 10_000,
       });
-      await expect(importModal.missingAgentRows.first()).not.toContainText(
-        /No capability package provides this agent/,
-      );
+      await expect(importModal.missingAgentRows.first()).not.toContainText(/No capability package provides this agent/);
 
       // …and exactly one install request went out for the package id.
       expect(installRequests).toEqual([agentId]);
@@ -275,9 +264,7 @@ test.describe("Story Bundle Import Agents — Positive", () => {
       expect(agentResponse.ok()).toBe(true);
       agentId = ((await agentResponse.json()) as { id?: string }).id ?? null;
 
-      writeAgentEnvelope(envelopePath, bundleName, [agentType], [
-        { id: agentType, name: `Custom Agent ${suffix}` },
-      ]);
+      writeAgentEnvelope(envelopePath, bundleName, [agentType], [{ id: agentType, name: `Custom Agent ${suffix}` }]);
 
       await base.goto();
       await home.openStoryBundlesPanel();
@@ -436,9 +423,7 @@ test.describe("Story Bundle Import Agents — Negative", () => {
         buildCatalogPackage(`unrelated-package-${suffix}`, `Unrelated Package ${suffix}`),
       ]);
 
-      writeAgentEnvelope(envelopePath, bundleName, [agentId], [
-        { id: agentId, name: agentLabel },
-      ]);
+      writeAgentEnvelope(envelopePath, bundleName, [agentId], [{ id: agentId, name: agentLabel }]);
 
       await base.goto();
       await home.openStoryBundlesPanel();
@@ -455,10 +440,9 @@ test.describe("Story Bundle Import Agents — Negative", () => {
       await importModal.installAgentButtons.first().click();
 
       // No matching package → the row explains why nothing was installed…
-      await expect(importModal.missingAgentRows.first()).toContainText(
-        /No capability package provides this agent/,
-        { timeout: 10_000 },
-      );
+      await expect(importModal.missingAgentRows.first()).toContainText(/No capability package provides this agent/, {
+        timeout: 10_000,
+      });
       await expect(importModal.missingAgentRows.first()).not.toContainText(/Installed/);
 
       // …and no install request was fired.

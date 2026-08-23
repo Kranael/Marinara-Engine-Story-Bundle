@@ -24,12 +24,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleAgentsTabPage } from "../pages/story-bundle-agents-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
-import {
-  createCustomAgent,
-  deleteAgent,
-  entitySuffix,
-  type AgentRef,
-} from "../helpers/story-bundle-entities.js";
+import { createCustomAgent, deleteAgent, entitySuffix, type AgentRef } from "../helpers/story-bundle-entities.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 

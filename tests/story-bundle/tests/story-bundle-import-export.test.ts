@@ -208,6 +208,10 @@ test.describe("Story Bundle Import/Export — Negative", () => {
 
     await expect(importModal.results).toContainText(/is not valid JSON|Failed to parse/, { timeout: 10_000 });
 
-    try { fs.unlinkSync(invalidPath); } catch { /* already cleaned up by another worker */ }
+    try {
+      fs.unlinkSync(invalidPath);
+    } catch {
+      /* already cleaned up by another worker */
+    }
   });
 });

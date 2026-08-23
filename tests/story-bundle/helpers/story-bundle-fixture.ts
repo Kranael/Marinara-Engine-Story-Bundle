@@ -1,6 +1,6 @@
-import type { Page } from '@playwright/test';
-import { readFile } from 'fs/promises';
-import type { StoryBundle } from './story-bundle-api';
+import type { Page } from "@playwright/test";
+import { readFile } from "fs/promises";
+import type { StoryBundle } from "./story-bundle-api";
 
 /**
  * Result returned by the Marinara import API for a story bundle.
@@ -36,7 +36,7 @@ export async function importStoryBundleFixture(
   filePath: string,
   nameSuffix?: string,
 ): Promise<StoryBundle> {
-  const raw = await readFile(filePath, 'utf-8');
+  const raw = await readFile(filePath, "utf-8");
   const envelope = JSON.parse(raw);
 
   // Append a unique suffix so parallel tests don't collide on the same name.
@@ -47,7 +47,7 @@ export async function importStoryBundleFixture(
     envelope.data.name = `${envelope.data.name}${label} #${pid}-${++_importCounter}`;
   }
 
-  const response = await page.request.post('/api/import/marinara', {
+  const response = await page.request.post("/api/import/marinara", {
     data: envelope,
   });
 
@@ -60,17 +60,13 @@ export async function importStoryBundleFixture(
   const result = (await response.json()) as ImportResult;
 
   if (!result.success || !result.id) {
-    throw new Error(
-      `Story bundle fixture import returned failure: ${JSON.stringify(result)}`,
-    );
+    throw new Error(`Story bundle fixture import returned failure: ${JSON.stringify(result)}`);
   }
 
   // Fetch the full bundle to get all serialized fields
   const getResponse = await page.request.get(`/api/story-bundles/${result.id}`);
   if (!getResponse.ok()) {
-    throw new Error(
-      `Failed to fetch imported story bundle ${result.id}: ${getResponse.status()}`,
-    );
+    throw new Error(`Failed to fetch imported story bundle ${result.id}: ${getResponse.status()}`);
   }
 
   return (await getResponse.json()) as StoryBundle;
@@ -90,7 +86,7 @@ export function buildStoryBundleEnvelope(input: {
   presetIds?: string[];
 }) {
   return {
-    type: 'marinara_story_bundle',
+    type: "marinara_story_bundle",
     version: 1,
     exportedAt: new Date().toISOString(),
     data: {

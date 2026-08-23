@@ -585,7 +585,12 @@ export function StoryBundleEditor() {
       {/* Body */}
       <div className="mari-editor-body min-h-0 flex-1">
         <div className="border-b px-4 py-2">
-          <EditorTabNavigation tabs={TABS} activeId={activeTab} onChange={setActiveTab} tabTestId="story-bundle-editor-tab" />
+          <EditorTabNavigation
+            tabs={TABS}
+            activeId={activeTab}
+            onChange={setActiveTab}
+            tabTestId="story-bundle-editor-tab"
+          />
         </div>
 
         <div className="mari-editor-content @max-5xl:p-4">
