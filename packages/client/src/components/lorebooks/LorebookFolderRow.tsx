@@ -206,6 +206,7 @@ export function LorebookFolderRow({
       )}
       ref={rowRef}
       data-lorebook-folder-row-id={folder.id}
+      data-testid={`lorebook-editor-folder-row-${folder.id}`}
       draggable={draggable && isDragReady}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
@@ -250,6 +251,7 @@ export function LorebookFolderRow({
             e.stopPropagation();
             if (draggable) onDragHandleTouchStart?.(e, rowRef.current);
           }}
+          data-testid="lorebook-editor-folder-drag-handle"
         >
           <GripVertical size="0.875rem" />
         </button>
@@ -293,6 +295,7 @@ export function LorebookFolderRow({
             e.stopPropagation();
             onToggleCollapse();
           }}
+          data-testid="lorebook-editor-folder-collapse-button"
         >
           <ChevronDown
             size="0.875rem"
@@ -315,6 +318,7 @@ export function LorebookFolderRow({
             checked={localEnabled}
             onChange={handleEnabledChange}
             className="p-0 hover:bg-transparent"
+            testId="lorebook-editor-folder-enabled-switch"
           />
         </div>
 
@@ -332,6 +336,7 @@ export function LorebookFolderRow({
           onClick={(e) => e.stopPropagation()}
           placeholder={localizeUi("ui.lorebooks.lorebookfolderrow.untitledFolder")}
           className="min-w-0 flex-1 truncate bg-transparent px-1 text-sm font-semibold outline-none transition-colors hover:bg-[var(--accent)]/40 focus:bg-[var(--accent)]/40 focus:ring-1 focus:ring-[var(--ring)] rounded"
+          data-testid="lorebook-editor-folder-name-input"
         />
 
         {/* Parent folder picker — nest this folder under another (cycle-safe options) */}
@@ -343,6 +348,7 @@ export function LorebookFolderRow({
             title={localizeUi("ui.lorebooks.lorebookfolderrow.nestThisFolderUnderAnotherFolder")}
             aria-label={localizeUi("ui.lorebooks.lorebookfolderrow.parentFolder")}
             className="mari-editor-field shrink-0 max-w-[4.75rem] truncate px-1 py-0.5 text-[0.625rem] text-[var(--marinara-editor-muted)] sm:max-w-[7rem] sm:px-1.5"
+            data-testid="lorebook-editor-folder-parent-select"
           >
             <option value="">{localizeUi("ui.lorebooks.lorebookfolderrow.topLevel")}</option>
             {parentOptions.map((candidate) => (
@@ -372,6 +378,7 @@ export function LorebookFolderRow({
             cloneFolder.mutate({ lorebookId, folderId: folder.id });
           }}
           className="shrink-0 rounded p-0.5 opacity-0 transition-all hover:bg-[var(--accent)] group-hover:opacity-100 max-md:opacity-100 disabled:cursor-not-allowed disabled:opacity-40 sm:p-1"
+          data-testid="lorebook-editor-folder-clone-button"
         >
           <Copy size="0.75rem" className="text-[var(--muted-foreground)]" />
         </button>
@@ -382,6 +389,7 @@ export function LorebookFolderRow({
           aria-label={localizeUi("ui.lorebooks.lorebookfolderrow.deleteFolder")}
           onClick={handleDelete}
           className="shrink-0 rounded p-0.5 text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--accent)] hover:text-[var(--foreground)] group-hover:opacity-100 max-md:opacity-100 sm:p-1"
+          data-testid="lorebook-editor-folder-delete-button"
         >
           <Trash2 size="0.75rem" />
         </button>

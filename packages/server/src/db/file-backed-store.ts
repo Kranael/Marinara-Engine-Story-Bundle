@@ -328,6 +328,7 @@ export const FILE_BACKED_TABLES = [
   "prompt_overrides",
   "installed_extensions",
   "library_folders",
+  "story_bundles",
   "mari_instructions",
   "mari_workspace_context",
 ] as const;

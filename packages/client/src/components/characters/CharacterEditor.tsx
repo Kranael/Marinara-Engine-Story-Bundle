@@ -925,6 +925,7 @@ export function CharacterEditor() {
         onClick={() => updateExtension("fav", !formData.extensions.fav)}
         data-character-favorite-toggle
         data-favorite={formData.extensions.fav ? "true" : "false"}
+        data-testid="character-editor-favorite-button"
         className="mari-editor-action mari-editor-action--favorite inline-flex"
         title={
           formData.extensions.fav
@@ -940,6 +941,7 @@ export function CharacterEditor() {
         onClick={() => setExportDialogOpen(true)}
         className={headerActionButtonClass}
         title={localizeUi("ui.characters.charactereditor.exportCharacter")}
+        data-testid="character-editor-export-button"
       >
         <svg width="1rem" height="1rem" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -959,6 +961,7 @@ export function CharacterEditor() {
         disabled={createPersona.isPending || uploadPersonaAvatar.isPending}
         className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("ui.characters.charactereditor.importCharacterAsPersona")}
+        data-testid="character-editor-import-as-persona-button"
       >
         {createPersona.isPending || uploadPersonaAvatar.isPending ? (
           <Loader2 size="1rem" className="animate-spin" />
@@ -979,6 +982,7 @@ export function CharacterEditor() {
         }}
         className="mari-editor-action inline-flex"
         title={localizeUi("ui.characters.charactereditor.duplicateCharacter")}
+        data-testid="character-editor-duplicate-button"
       >
         <Copy size="1rem" />
       </button>
@@ -988,6 +992,7 @@ export function CharacterEditor() {
         onClick={handleDelete}
         className="mari-editor-action inline-flex"
         title={localizeUi("ui.characters.charactereditor.deleteCharacter")}
+        data-testid="character-editor-delete-button"
       >
         <Trash2 size="1rem" />
       </button>
@@ -1047,6 +1052,7 @@ export function CharacterEditor() {
             onClick={handleClose}
             className="mari-editor-action inline-flex"
             title={localizeUi("ui.noodle.noodlerframe.back")}
+            data-testid="character-editor-back-button"
           >
             <ArrowLeft size="1.125rem" />
           </button>
@@ -1073,7 +1079,14 @@ export function CharacterEditor() {
               generationAvailable={imageGenerationAvailable}
               onGenerate={() => setAvatarGeneratorOpen(true)}
             />
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+              data-testid="character-editor-avatar-file-input"
+            />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -1088,6 +1101,7 @@ export function CharacterEditor() {
                 className="mari-editor-title-input"
                 placeholder={localizeUi("ui.characters.charactereditor.characterName")}
                 size={Math.max(1, Math.min(formData.name.length || 14, 80))}
+                data-testid="character-editor-name-input"
               />
               <p
                 className="mari-editor-meta mari-editor-byline"
@@ -1116,12 +1130,13 @@ export function CharacterEditor() {
                 onChange={(e) => updateCharacterComment(e.target.value)}
                 className="mari-editor-subtitle-input"
                 placeholder={localizeUi("ui.characters.charactereditor.titleCommentEGModernAuVersion")}
+                data-testid="character-editor-comment-input"
               />
             </div>
           </div>
         </div>
 
-        <EditorTabNavigation tabs={TABS} activeId={activeTab} onChange={setActiveTab} />
+        <EditorTabNavigation tabs={TABS} activeId={activeTab} onChange={setActiveTab} tabTestId="character-editor-tab" />
 
         <div className="mari-editor-actions flex">
           <button
@@ -1131,6 +1146,7 @@ export function CharacterEditor() {
             className={saveButtonClass}
             aria-label={saveLabel}
             title={saveLabel}
+            data-testid="character-editor-save-button"
           >
             <Save size="0.9375rem" />
             <span className="mari-editor-save-label">{saveLabel}</span>
@@ -1150,6 +1166,7 @@ export function CharacterEditor() {
             type="button"
             onClick={() => setShowUnsavedWarning(false)}
             className="rounded-lg px-3 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)]"
+            data-testid="character-editor-unsaved-keep-editing-button"
           >
             {localizeUi("ui.characters.charactereditor.keepEditing")}
           </button>
@@ -1158,6 +1175,7 @@ export function CharacterEditor() {
             onClick={forceClose}
             disabled={avatarUploading}
             className="rounded-lg bg-amber-500/15 px-3 py-1 text-xs font-medium text-amber-500 transition-all hover:bg-amber-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+            data-testid="character-editor-unsaved-discard-button"
           >
             {localizeUi("ui.characters.charactereditor.discardClose")}
           </button>
@@ -1170,6 +1188,7 @@ export function CharacterEditor() {
             }}
             disabled={saving || avatarUploading}
             className="mari-editor-action mari-editor-action--primary mari-editor-action--compact inline-flex rounded-lg px-3 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+            data-testid="character-editor-unsaved-save-close-button"
           >
             {localizeUi("ui.characters.charactereditor.saveClose")}
           </button>
@@ -1327,6 +1346,7 @@ function CharacterCardTab({
               "ui.characters.charactercardtab.energeticCuriousAndFiercelyLoyalSpeaksInShortBursts",
             )}
             rows={8}
+            testId="character-editor-card-personality-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="character-card-backstory">
@@ -1338,6 +1358,7 @@ function CharacterCardTab({
             onChange={(v) => updateExtension("backstory", v)}
             placeholder={localizeUi("ui.characters.charactercardtab.bornInASmallVillageOnTheOutskirtsOf")}
             rows={12}
+            testId="character-editor-card-backstory-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="character-card-appearance">
@@ -1351,6 +1372,7 @@ function CharacterCardTab({
             onChange={(v) => updateExtension("appearance", v)}
             placeholder={localizeUi("ui.characters.charactercardtab.tallAndWillowyWithSilverStreakedDarkHairWears")}
             rows={8}
+            testId="character-editor-card-appearance-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="character-card-scenario">
@@ -1364,6 +1386,7 @@ function CharacterCardTab({
             onChange={(v) => updateField("scenario", v)}
             placeholder={localizeUi("ui.characters.charactercardtab.aBustlingPortCityDuringATradeFestivalThe")}
             rows={8}
+            testId="character-editor-card-scenario-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="character-card-dialogue">
@@ -1398,6 +1421,7 @@ function CharacterDescriptionTab({
         title={localizeUi("chat.settings.inlineEditor.fields.description")}
         showMarkdownPreview
         selfCharacterId={selfCharacterId}
+        testId="character-editor-card-description-textarea"
         className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
       />
       <p className="mt-1.5 text-right text-[0.625rem] text-[var(--muted-foreground)]">
@@ -1415,6 +1439,7 @@ function TextareaTab({
   placeholder,
   rows = 8,
   helpText,
+  testId,
 }: {
   title: string;
   subtitle: string;
@@ -1423,6 +1448,7 @@ function TextareaTab({
   onChange: (v: string) => void;
   placeholder: string;
   rows?: number;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const selfCharacterId = useUIStore((s) => s.characterDetailId);
@@ -1437,6 +1463,7 @@ function TextareaTab({
         title={title}
         showMarkdownPreview
         selfCharacterId={selfCharacterId}
+        testId={testId}
         className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
       />
       <p className="mt-1.5 text-right text-[0.625rem] text-[var(--muted-foreground)]">
@@ -1623,6 +1650,7 @@ function MetadataTab({
             }}
             className="mari-editor-action inline-flex h-8 px-2 text-[0.6875rem]"
             title={localizeUi("ui.characters.metadatatab.copyCharacterId")}
+            data-testid="character-editor-metadata-copy-id-button"
           >
             <Copy size="0.75rem" />
             {localizeUi("lorebook.editor.batch.copy")}
@@ -1656,6 +1684,7 @@ function MetadataTab({
               if (trimmedName !== formData.name) updateField("name", trimmedName);
             }}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
+            data-testid="character-editor-metadata-name-input"
           />
         </label>
         <label className="space-y-1.5 sm:col-span-2">
@@ -1668,6 +1697,7 @@ function MetadataTab({
             onChange={(e) => updateCharacterComment(e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={localizeUi("ui.characters.metadatatab.modernAuVersion")}
+            data-testid="character-editor-metadata-comment-input"
           />
         </label>
         <label className="space-y-1.5">
@@ -1682,6 +1712,7 @@ function MetadataTab({
             onChange={(e) => updateExtension("phoneticName", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={formData.name}
+            data-testid="character-editor-metadata-phonetic-name-input"
           />
         </label>
         <label className="space-y-1.5">
@@ -1694,6 +1725,7 @@ function MetadataTab({
             onChange={(e) => updateField("creator", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={localizeUi("ui.characters.metadatatab.yourName")}
+            data-testid="character-editor-metadata-creator-input"
           />
         </label>
         <div className="space-y-1.5">
@@ -1715,6 +1747,7 @@ function MetadataTab({
               title={localizeUi("ui.cardversionhistory.automaticVersioningDescription")}
               className="min-h-11 gap-2 rounded-md px-1 py-0"
               labelClassName="text-xs font-medium text-[var(--muted-foreground)]"
+              testId="character-editor-metadata-versioning-switch"
             />
           </div>
           <input
@@ -1723,6 +1756,7 @@ function MetadataTab({
             disabled={formData.extensions.versioningEnabled === false}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="1.0"
+            data-testid="character-editor-metadata-version-input"
           />
           <CharacterVersionHistoryPanel
             characterId={characterId}
@@ -1745,6 +1779,7 @@ function MetadataTab({
             value={formData.extensions.talkativeness}
             onChange={(e) => updateExtension("talkativeness", parseFloat(e.target.value))}
             className="w-full accent-[var(--primary)]"
+            data-testid="character-editor-metadata-talkativeness-slider"
           />
           <span className="text-[0.625rem] text-[var(--muted-foreground)]">
             {Math.round(formData.extensions.talkativeness * 100)}%
@@ -1766,13 +1801,14 @@ function MetadataTab({
               type="button"
               onClick={removeAllTags}
               className="mari-chrome-accent-surface mari-accent-animated rounded-lg border px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
+              data-testid="character-editor-metadata-tags-remove-all-button"
             >
               {localizeUi("ui.characters.metadatatab.removeAll")}
             </button>
           )}
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {formData.tags.map((tag) => (
+          {formData.tags.map((tag, tagIndex) => (
             <span key={tag} className="mari-chrome-control mari-chrome-control--compact group/tag">
               <Tag size="0.625rem" />
               {tag}
@@ -1781,6 +1817,7 @@ function MetadataTab({
                 onClick={() => removeTag(tag)}
                 className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
                 title={localizeUi("ui.characters.metadatatab.removeTagValue1", { value1: tag })}
+                data-testid={`character-editor-metadata-tag-${tagIndex}-remove-button`}
               >
                 <X size="0.625rem" />
               </button>
@@ -1799,11 +1836,13 @@ function MetadataTab({
             }}
             placeholder={localizeUi("ui.characters.metadatatab.addTag")}
             className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5 text-xs outline-none focus:border-[var(--primary)]/40"
+            data-testid="character-editor-metadata-tag-input"
           />
           <button
             type="button"
             onClick={addTag}
             className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected px-3 py-1.5"
+            data-testid="character-editor-metadata-tag-add-button"
           >
             {localizeUi("ui.characters.metadatatab.add")}
           </button>
@@ -1823,6 +1862,7 @@ function MetadataTab({
           title={localizeUi("ui.characters.metadatatab.creatorNotes")}
           showMarkdownPreview
           selfCharacterId={characterId}
+          testId="character-editor-metadata-creator-notes-textarea"
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-3 text-sm outline-none placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
           placeholder={localizeUi("ui.characters.metadatatab.notesAboutThisCharacterIntendedUseTipsForBest")}
         />
@@ -2273,6 +2313,7 @@ function DialogueTab({
           title={localizeUi("ui.characters.dialoguetab.firstMessage")}
           showMarkdownPreview
           selfCharacterId={selfCharacterId}
+          testId="character-editor-dialogue-first-message-textarea"
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-relaxed outline-none placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
           placeholder={localizeUi("ui.characters.dialoguetab.whatIsTheCharacterSFirstMessageWhenA")}
         />
@@ -2292,6 +2333,7 @@ function DialogueTab({
             type="button"
             onClick={addGreeting}
             className="mari-editor-action mari-editor-action--accent mari-editor-action--compact inline-flex rounded-lg px-3 py-1 text-xs"
+            data-testid="character-editor-dialogue-add-greeting-button"
           >
             {localizeUi("ui.characters.dialoguetab.add")}
           </button>
@@ -2314,6 +2356,7 @@ function DialogueTab({
                   className={greetingActionButtonClassName}
                   aria-label={localizeUi("ui.characters.dialoguetab.moveAlternateGreetingValue1Up", { value1: i + 1 })}
                   title={localizeUi("ui.characters.dialoguetab.moveUp")}
+                  data-testid={`character-editor-dialogue-greeting-${i}-move-up-button`}
                 >
                   <ArrowUp size="0.75rem" />
                 </button>
@@ -2326,6 +2369,7 @@ function DialogueTab({
                     value1: i + 1,
                   })}
                   title={localizeUi("ui.characters.dialoguetab.moveDown")}
+                  data-testid={`character-editor-dialogue-greeting-${i}-move-down-button`}
                 >
                   <ArrowDown size="0.75rem" />
                 </button>
@@ -2335,6 +2379,7 @@ function DialogueTab({
                   className={cn(greetingActionButtonClassName, "mari-editor-action--danger")}
                   aria-label={localizeUi("ui.characters.dialoguetab.removeAlternateGreetingValue1", { value1: i + 1 })}
                   title={localizeUi("ui.characters.dialoguetab.removeGreeting")}
+                  data-testid={`character-editor-dialogue-greeting-${i}-remove-button`}
                 >
                   <Trash2 size="0.75rem" />
                 </button>
@@ -2347,6 +2392,7 @@ function DialogueTab({
               title={localizeUi("ui.characters.dialoguetab.alternateGreetingValue1", { value1: i + 1 })}
               showMarkdownPreview
               selfCharacterId={selfCharacterId}
+              testId={`character-editor-dialogue-greeting-${i}-textarea`}
               className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-3 text-sm outline-none placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40"
               placeholder={localizeUi("ui.characters.dialoguetab.greetingValue1", { value1: i + 1 })}
             />
@@ -2372,6 +2418,7 @@ function DialogueTab({
           title={localizeUi("chat.settings.inlineEditor.fields.exampleDialogue")}
           showMarkdownPreview
           selfCharacterId={selfCharacterId}
+          testId="character-editor-dialogue-example-messages-textarea"
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 font-mono text-xs leading-relaxed outline-none placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
           placeholder={localizeUi("ui.characters.dialoguetab.startUserHelloCharWavesExcitedlyHeyThere")}
         />
@@ -2416,6 +2463,7 @@ function AdvancedTab({
           title={localizeUi("ui.characters.advancedtab.systemPrompt")}
           showMarkdownPreview
           selfCharacterId={characterId}
+          testId="character-editor-advanced-system-prompt-textarea"
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm outline-none placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
           placeholder={localizeUi(
             "ui.characters.advancedtab.characterSpecificInstructionsInsertedThroughCharsysinfoOrTheCharacter",
@@ -2435,6 +2483,7 @@ function AdvancedTab({
           title={localizeUi("ui.characters.advancedtab.postHistoryInstructions")}
           showMarkdownPreview
           selfCharacterId={characterId}
+          testId="character-editor-advanced-post-history-textarea"
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm outline-none placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
           placeholder={localizeUi("ui.characters.advancedtab.textInsertedAfterTheChatHistoryButBeforeGeneration")}
         />
@@ -2453,6 +2502,7 @@ function AdvancedTab({
           title={localizeUi("ui.characters.advancedtab.depthPrompt")}
           showMarkdownPreview
           selfCharacterId={characterId}
+          testId="character-editor-advanced-depth-prompt-textarea"
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-3 text-sm outline-none focus:border-[var(--primary)]/40"
           placeholder={localizeUi("ui.characters.advancedtab.promptInjectedAtASpecificDepthInTheChat")}
         />
@@ -2468,6 +2518,7 @@ function AdvancedTab({
                 updateExtension("depth_prompt", { ...depthPrompt, depth: parseInt(e.target.value) || 0 })
               }
               className="w-16 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 text-center text-xs outline-none"
+              data-testid="character-editor-advanced-depth-input"
             />
           </label>
           <label className="flex items-center gap-2 text-xs">
@@ -2476,6 +2527,7 @@ function AdvancedTab({
               value={depthPrompt.role}
               onChange={(e) => updateExtension("depth_prompt", { ...depthPrompt, role: e.target.value })}
               className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 text-xs outline-none"
+              data-testid="character-editor-advanced-depth-role-select"
             >
               <option value="system">{localizeUi("ui.characters.advancedtab.system")}</option>
               <option value="user">{localizeUi("ui.characters.advancedtab.user")}</option>

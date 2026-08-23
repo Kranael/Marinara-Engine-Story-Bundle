@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import type { Message, SpriteSide } from "@marinara-engine/shared";
 import { ConversationView } from "./ConversationView";
 import { ChatCommonOverlays } from "./ChatCommonOverlays";
+import { useChatStore } from "../../stores/chat.store";
 import { useRenderTimer } from "../../lib/perf-diagnostics";
 import type { CharacterMap, MessageSelectionToggle, PeekPromptData, PersonaInfo } from "./chat-area.types";
 
@@ -207,6 +208,10 @@ export function ChatConversationSurface({
         galleryOpen={galleryOpen}
         galleryAnchor={galleryAnchor}
         wizardOpen={wizardOpen}
+        presetVariablesPrompt={useChatStore.getState().presetVariablesPrompt}
+        onClosePresetVariablesPrompt={() => {
+          useChatStore.getState().setPresetVariablesPrompt(null);
+        }}
         peekPromptData={peekPromptData}
         deleteDialogMessageId={deleteDialogMessageId}
         deleteDialogCanDeleteSwipe={deleteDialogCanDeleteSwipe}

@@ -56,7 +56,7 @@ import {
   uploadConversationCallCharacterVideoClip,
 } from "../services/conversation/call-character-videos.service.js";
 import { removeSavedVideoFromDisk } from "../services/video/video-generation.js";
-import { writeFile, mkdir, readFile, readdir, stat, unlink } from "fs/promises";
+import { writeFile, mkdir, readFile, unlink } from "fs/promises";
 import { join } from "path";
 import { DATA_DIR } from "../utils/data-dir.js";
 import { createWriteStream, existsSync, rmSync, unlinkSync } from "fs";
@@ -71,7 +71,6 @@ import { logger, logDebugOverride } from "../lib/logger.js";
 import { isDebugAgentsEnabled } from "../config/runtime-config.js";
 import { parseLibraryPageQuery } from "../utils/list-pagination.js";
 import { importSTLorebook } from "../services/import/st-lorebook.importer.js";
-import { embeddedSpriteSizesAreWithinLimits, MAX_EMBEDDED_SPRITE_COUNT } from "../services/import/marinara.importer.js";
 import {
   clearEmbeddedLorebookFromCharacter,
   embedLorebookIntoCharacter,
@@ -88,6 +87,7 @@ import {
   resolveStoredGalleryFile,
   unlinkGalleryFileIfUnreferenced,
 } from "../services/image/gallery-file-lifecycle.js";
+import { readAvatarDataUrl, readGalleryForOwner, readSpritesForId } from "../services/export/export-image-helpers.js";
 import {
   collectCharacterAvatarPaths,
   collectPersonaAvatarPaths,
@@ -529,39 +529,6 @@ async function resolveAvatarGenerationConnection(app: FastifyInstance, body: Ava
 
 type ExportFormat = "native" | "compatible";
 
-// Read an image file and return it as a base64 data URL, or null if the file
-// is missing, outside the expected dir, or not a recognized image type. Used
-// by native exports to embed binary data (avatars, sprites, gallery shots)
-// directly into the JSON envelope so personas/characters round-trip with
-// every image intact.
-async function readImageAsDataUrl(rootDir: string, filename: string): Promise<string | null> {
-  if (!filename || filename.includes("..") || filename.includes("/") || filename.includes("\\")) return null;
-  let filepath: string;
-  try {
-    filepath = assertInsideDir(rootDir, join(rootDir, filename));
-  } catch {
-    return null;
-  }
-  if (!existsSync(filepath)) return null;
-  try {
-    const buf = await readFile(filepath);
-    const info = isAllowedImageBuffer(buf, extname(filename));
-    if (!info) return null;
-    return `data:${info.mimeType};base64,${buf.toString("base64")}`;
-  } catch {
-    return null;
-  }
-}
-
-// Pull the avatar off disk for the persona/character row's avatarPath
-// (format: /api/avatars/file/<filename>). Returns null if missing/invalid.
-async function readAvatarDataUrl(avatarPath: string | null | undefined): Promise<string | null> {
-  if (!avatarPath || typeof avatarPath !== "string") return null;
-  const filename = avatarPath.split("?")[0]!.split("/").pop();
-  if (!filename) return null;
-  return readImageAsDataUrl(join(DATA_DIR, "avatars"), filename);
-}
-
 async function copyGalleryImageToAvatar(
   entityKind: "character" | "persona",
   entityId: string,
@@ -583,89 +550,6 @@ async function copyGalleryImageToAvatar(
     throw error;
   }
   return `/api/avatars/file/${filename}`;
-}
-
-// Read every sprite file in data/sprites/<id>/ and return it as
-// { filename, data } so import can restore the same expression set under a
-// new id.
-async function readSpritesForId(id: string): Promise<Array<{ filename: string; data: string }>>;
-async function readSpritesForId(
-  id: string,
-  enforcePortableLimits: true,
-): Promise<Array<{ filename: string; data: string }> | null>;
-async function readSpritesForId(
-  id: string,
-  enforcePortableLimits = false,
-): Promise<Array<{ filename: string; data: string }> | null> {
-  const dir = join(DATA_DIR, "sprites", id);
-  if (!existsSync(dir)) return [];
-  let entries: string[];
-  try {
-    entries = await readdir(dir);
-  } catch {
-    return [];
-  }
-  const sprites: Array<{ filename: string; data: string }> = [];
-  const byteLengths: number[] = [];
-  let totalBytes = 0;
-  for (const entry of entries) {
-    if (enforcePortableLimits) {
-      try {
-        const fileSize = (await stat(assertInsideDir(dir, join(dir, entry)))).size;
-        if (fileSize > MAX_FILE_SIZES.SPRITE || totalBytes + fileSize > MAX_FILE_SIZES.CHARACTER_CARD) {
-          return null;
-        }
-      } catch {
-        continue;
-      }
-    }
-    const dataUrl = await readImageAsDataUrl(dir, entry);
-    if (dataUrl) {
-      if (enforcePortableLimits) {
-        if (sprites.length >= MAX_EMBEDDED_SPRITE_COUNT) return null;
-        const byteLength = Buffer.byteLength(dataUrl.slice(dataUrl.indexOf(",") + 1), "base64");
-        if (!embeddedSpriteSizesAreWithinLimits([...byteLengths, byteLength])) return null;
-        byteLengths.push(byteLength);
-        totalBytes += byteLength;
-      }
-      sprites.push({ filename: entry, data: dataUrl });
-    }
-  }
-  return sprites;
-}
-
-// Read every gallery image for a character (metadata row + binary on disk),
-// returning a serializable list that import can rebuild the gallery from.
-async function readGalleryForOwner(
-  ownerId: string,
-  listImages: (id: string) => Promise<any[]>,
-  characterSheetImageId?: string | null,
-): Promise<Array<Record<string, unknown>>> {
-  const images = await listImages(ownerId);
-  const result: Array<Record<string, unknown>> = [];
-  for (const img of images) {
-    // img.filePath is stored relative to data/gallery/ — usually
-    // "characters/<id>/<filename>", but GENERATED images keep their canonical
-    // chat-scoped or "shared/<filename>" path. Resolve through the same helper
-    // the serving route uses so those rows export their bytes too instead of
-    // being silently dropped (which stranded card://self refs to them).
-    const relPath: string = typeof img.filePath === "string" ? img.filePath : "";
-    const storedFile = relPath ? resolveStoredGalleryFile(relPath) : null;
-    if (!storedFile) continue;
-    const dataUrl = await readImageAsDataUrl(storedFile.directory, storedFile.filename);
-    if (!dataUrl) continue;
-    result.push({
-      filename: storedFile.filename,
-      data: dataUrl,
-      prompt: img.prompt ?? "",
-      provider: img.provider ?? "",
-      model: img.model ?? "",
-      width: img.width ?? null,
-      height: img.height ?? null,
-      ...(img.id === characterSheetImageId ? { isCharacterSheet: true } : {}),
-    });
-  }
-  return result;
 }
 
 async function buildNativeCharacterEnvelope(

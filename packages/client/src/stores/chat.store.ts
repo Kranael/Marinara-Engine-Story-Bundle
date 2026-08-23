@@ -241,6 +241,8 @@ interface ChatState {
   shouldOpenWizard: boolean;
   /** When true (and the wizard opens), it should land directly on the Quick Setup shortcut view. */
   shouldOpenWizardInShortcutMode: boolean;
+  /** When set, ChatArea should show the ChoiceSelectionModal for preset variables instead of the full wizard. */
+  presetVariablesPrompt: { chatId: string; presetId: string } | null;
   /** Pending new-chat mode for first-run connection setup gating. */
   pendingNewChatMode: ChatMode | null;
   /** Where the pending first-run chat was launched, for post-create navigation. */
@@ -294,6 +296,7 @@ interface ChatState {
   setShouldOpenSettings: (v: boolean) => void;
   setShouldOpenWizard: (v: boolean) => void;
   setShouldOpenWizardInShortcutMode: (v: boolean) => void;
+  setPresetVariablesPrompt: (v: { chatId: string; presetId: string } | null) => void;
   setPendingNewChatMode: (mode: ChatMode | null, origin?: "home" | "sidebar" | null) => void;
   setInputDraft: (chatId: string, text: string) => void;
   clearInputDraft: (chatId: string) => void;
@@ -371,6 +374,7 @@ export const useChatStore = create<ChatState>()(
     shouldOpenSettings: false,
     shouldOpenWizard: false,
     shouldOpenWizardInShortcutMode: false,
+    presetVariablesPrompt: null,
     pendingNewChatMode: null,
     pendingNewChatOrigin: null,
     inputDrafts: loadDrafts(),
@@ -715,6 +719,8 @@ export const useChatStore = create<ChatState>()(
     setShouldOpenWizard: (v) => set({ shouldOpenWizard: v }),
 
     setShouldOpenWizardInShortcutMode: (v) => set({ shouldOpenWizardInShortcutMode: v }),
+
+    setPresetVariablesPrompt: (v) => set({ presetVariablesPrompt: v }),
 
     setPendingNewChatMode: (mode, origin = null) =>
       set({

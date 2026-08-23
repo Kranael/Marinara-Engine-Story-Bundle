@@ -85,6 +85,9 @@ const ToolEditor = lazy(() => import("../agents/ToolEditor").then((module) => ({
 const PersonaEditor = lazy(() =>
   import("../personas/PersonaEditor").then((module) => ({ default: module.PersonaEditor })),
 );
+const StoryBundleEditor = lazy(() =>
+  import("../story-bundles/StoryBundleEditor").then((module) => ({ default: module.StoryBundleEditor })),
+);
 const RegexScriptEditor = lazy(() =>
   import("../agents/RegexScriptEditor").then((module) => ({ default: module.RegexScriptEditor })),
 );
@@ -547,6 +550,7 @@ export function AppShell() {
   const toolDetailId = useUIStore((s) => s.toolDetailId);
   const personaDetailId = useUIStore((s) => s.personaDetailId);
   const regexDetailId = useUIStore((s) => s.regexDetailId);
+  const storyBundleDetailId = useUIStore((s) => s.storyBundleDetailId);
   const botBrowserOpen = useUIStore((s) => s.botBrowserOpen);
   const gameAssetsBrowserOpen = useUIStore((s) => s.gameAssetsBrowserOpen);
   const hasCompletedOnboarding = useUIStore((s) => s.hasCompletedOnboarding);
@@ -802,6 +806,8 @@ export function AppShell() {
     <AgentCatalogView />
   ) : lorebookDetailId ? (
     <LorebookEditor />
+  ) : storyBundleDetailId ? (
+    <StoryBundleEditor />
   ) : null;
 
   const showAmbientDecor = isPageActive && !activeChatId && !detailView && !botBrowserOpen && !gameAssetsBrowserOpen;
@@ -1202,7 +1208,7 @@ export function AppShell() {
         data-tracker-size-profile={trackerPanelSizeProfile}
         aria-label={localizeUi("ui.layout.appshell.trackerDataPanel")}
         className={cn(
-          "mari-tracker-panel fixed z-30 hidden overflow-hidden bg-zinc-950/95 shadow-2xl ring-1 ring-zinc-700/80 backdrop-blur-2xl transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity] md:block",
+          "mari-tracker-panel fixed z-30 hidden overflow-hidden bg-zinc-950/95 shadow-2xl ring-1 ring-[var(--marinara-app-accent-static)] backdrop-blur-2xl transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity] md:block",
           side === "left" ? "rounded-r-xl" : "rounded-l-xl",
         )}
         style={{
@@ -1414,7 +1420,7 @@ export function AppShell() {
               data-component="TrackerDataSidebarMobile"
               aria-label={localizeUi("ui.layout.appshell.trackerDataPanel")}
               className={cn(
-                "mari-tracker-panel !fixed bottom-0 z-50 w-screen max-w-none overflow-hidden bg-zinc-950/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] shadow-2xl ring-1 ring-zinc-700/80 backdrop-blur-xl",
+                "mari-tracker-panel !fixed bottom-0 z-50 w-screen max-w-none overflow-hidden bg-zinc-950/95 pb-[max(env(safe-area-inset-bottom),0.5rem)] shadow-2xl ring-1 ring-[var(--marinara-app-accent-static)] backdrop-blur-xl",
                 MOBILE_SHELL_PANEL_TOP_CLASS,
                 trackerPanelSide === "left" ? "left-0" : "right-0",
               )}

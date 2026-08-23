@@ -1,12 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 import { fileURLToPath } from "node:url";
-import { forceColorValueEnablesColor } from "./e2e/playwright-color-environment.js";
+import { forceColorValueEnablesColor } from "./tests/e2e/playwright-color-environment.js";
 
 const callerDisabledColors = process.env.NO_COLOR !== undefined && process.env.NO_COLOR !== "";
 const shouldPreventPlaywrightColorOverride =
   callerDisabledColors && !forceColorValueEnablesColor(process.env.FORCE_COLOR);
 if (shouldPreventPlaywrightColorOverride) {
-  const noColorPreload = `--require=${JSON.stringify(fileURLToPath(new URL("./e2e/respect-no-color.cjs", import.meta.url)))}`;
+  const noColorPreload = `--require=${JSON.stringify(fileURLToPath(new URL("./tests/e2e/respect-no-color.cjs", import.meta.url)))}`;
   const nodeOptions = process.env.NODE_OPTIONS?.trim();
   if (!nodeOptions?.includes(noColorPreload)) {
     process.env.NODE_OPTIONS = nodeOptions ? `${nodeOptions} ${noColorPreload}` : noColorPreload;
@@ -20,6 +20,8 @@ function parsePort(name: string, fallback: number) {
   return Number.isInteger(parsed) && parsed >= 1 && parsed <= 65535 ? parsed : fallback;
 }
 
+const slowMo = parsePort("PLAYWRIGHT_SLOW_MO", 100);
+
 const clientPort = parsePort("PLAYWRIGHT_CLIENT_PORT", 5178);
 const serverPort = parsePort("PLAYWRIGHT_SERVER_PORT", 7971);
 const mobileClientPort = parsePort("PLAYWRIGHT_MOBILE_CLIENT_PORT", 5179);
@@ -28,26 +30,30 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${clientPor
 const mobileBaseURL = process.env.PLAYWRIGHT_MOBILE_BASE_URL ?? `http://127.0.0.1:${mobileClientPort}`;
 
 export default defineConfig({
-  testDir: "./e2e",
-  testMatch: "**/*.e2e.ts",
+  testDir: "./tests",
+  testMatch: ["**/*.e2e.ts", "**/*.test.ts"],
   timeout: 60_000,
   expect: {
     timeout: 10_000,
   },
   fullyParallel: false,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
-  globalSetup: "./e2e/global-setup.mjs",
+  globalSetup: "./tests/e2e/global-setup.mjs",
+  workers: process.env.CI ? 4 : 8,
   use: {
     baseURL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    launchOptions: {
+      slowMo,
+    },
   },
   webServer:
     process.env.PLAYWRIGHT_SKIP_WEBSERVER === "true"
       ? undefined
       : {
-          command: "node ./e2e/start-servers.mjs",
+          command: "node ./tests/e2e/start-servers.mjs",
           url: baseURL,
           reuseExistingServer: false,
           timeout: 180_000,

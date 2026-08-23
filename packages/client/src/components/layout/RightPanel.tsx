@@ -2,7 +2,19 @@
 // Layout: Right Panel (polished with panel transitions)
 // ──────────────────────────────────────────────
 import { lazy, Suspense, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
-import { X, Users, BookOpen, FileText, Link, Sparkles, Settings, VenetianMask, Bot, Puzzle } from "lucide-react";
+import {
+  X,
+  Users,
+  BookOpen,
+  FileText,
+  Link,
+  Sparkles,
+  Settings,
+  VenetianMask,
+  Bot,
+  Puzzle,
+  BookMarked,
+} from "lucide-react";
 import { useUIStore } from "../../stores/ui.store";
 import { cn } from "../../lib/utils";
 import { usePersonalExtensionContributions } from "../../lib/personal-extension-contributions";
@@ -34,6 +46,9 @@ const BotBrowserPanel = lazy(() =>
 const PersonalExtensionPanel = lazy(() =>
   import("../panels/PersonalExtensionPanel").then((module) => ({ default: module.PersonalExtensionPanel })),
 );
+const StoryBundlesPanel = lazy(() =>
+  import("../panels/StoryBundlesPanel").then((module) => ({ default: module.StoryBundlesPanel })),
+);
 
 const PANEL_CONFIG: Record<string, { title: string; icon: ReactNode; gradient?: string; gradientClass?: string }> = {
   "bot-browser": {
@@ -59,6 +74,11 @@ const PANEL_CONFIG: Record<string, { title: string; icon: ReactNode; gradient?: 
     icon: <VenetianMask size="0.875rem" />,
     gradient: "from-emerald-400 to-teal-500",
   },
+  "story-bundles": {
+    title: "Story Bundles",
+    icon: <BookMarked size="0.875rem" />,
+    gradientClass: "mari-panel-gradient-surface mari-panel-gradient--story-bundles",
+  },
   settings: { title: "Settings", icon: <Settings size="0.875rem" />, gradient: "from-gray-400 to-gray-500" },
   extensions: { title: "Extensions", icon: <Puzzle size="0.875rem" /> },
 };
@@ -71,6 +91,7 @@ const PANELS: Record<string, LazyExoticComponent<ComponentType>> = {
   connections: ConnectionsPanel,
   agents: AgentsPanel,
   personas: PersonasPanel,
+  "story-bundles": StoryBundlesPanel,
   settings: SettingsPanel,
   extensions: PersonalExtensionPanel,
 };

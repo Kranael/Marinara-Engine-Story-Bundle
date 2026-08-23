@@ -25,7 +25,10 @@ This file is a thin maintainer note for contributors using Codex. Canonical work
 
 ## Temporary Tests
 
-- Do not keep `.test.ts` files in the repo. If an agent creates one for local proof, remove it after the test is done.
+- Do not add temporary or exploratory test files to the repository.
+- Tests created solely for local proof, debugging, or experimentation must be removed after use.
+- Permanent automated tests belong under `tests/` and its subdirectories.
+- Permanent test files may use the `*.test.ts`, `*.spec.ts`, or `*.e2e.ts` naming conventions.
 
 ## Repo-Specific Cautions
 

@@ -41,6 +41,8 @@ interface ModalProps {
   closeDisabled?: boolean;
   /** Let drag hit-testing reach content behind the modal while keeping the panel interactive. */
   dragThrough?: boolean;
+  /** Optional test id applied to the modal panel (close button gets `${testId}-close-button`). */
+  testId?: string;
 }
 
 export function Modal({
@@ -60,6 +62,7 @@ export function Modal({
   panelStyle,
   closeDisabled = false,
   dragThrough = false,
+  testId,
 }: ModalProps) {
   const { t: localizeUi } = useUiTranslation();
   const localize = useLocalizedUiText();
@@ -173,6 +176,7 @@ export function Modal({
       <div
         ref={panelRef}
         tabIndex={-1}
+        data-testid={testId}
         className={`mari-modal-panel ${NEUTRAL_PANEL_SHELL} relative flex w-full flex-col ${dragThrough ? "pointer-events-auto" : ""} ${width} max-h-[calc(100dvh-1.5rem)] sm:max-h-[min(90dvh,52rem)]${
           mobileFullscreen
             ? " max-sm:h-full max-sm:max-h-none max-sm:max-w-none max-sm:rounded-none max-sm:border-0 max-sm:pt-[env(safe-area-inset-top)] max-sm:pb-[env(safe-area-inset-bottom)]"
@@ -192,6 +196,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             disabled={closeDisabled}
+            data-testid={testId ? `${testId}-close-button` : undefined}
             aria-label={localizeUi("ui.ui.modal.value1Value2", { value1: localize("Close"), value2: localizedTitle })}
             className="rounded-lg p-1.5 text-[var(--marinara-chat-chrome-panel-muted)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-highlight-text)] disabled:cursor-wait disabled:opacity-40"
           >

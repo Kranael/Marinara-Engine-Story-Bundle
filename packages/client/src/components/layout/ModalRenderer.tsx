@@ -40,6 +40,9 @@ const CreateConnectionModal = lazy(() =>
 const ImportConnectionModal = lazy(() =>
   import("../modals/ImportConnectionModal").then((module) => ({ default: module.ImportConnectionModal })),
 );
+const ImportStoryBundleModal = lazy(() =>
+  import("../modals/ImportStoryBundleModal").then((module) => ({ default: module.ImportStoryBundleModal })),
+);
 const CreatePersonaModal = lazy(() =>
   import("../modals/CreatePersonaModal").then((module) => ({ default: module.CreatePersonaModal })),
 );
@@ -110,6 +113,9 @@ export function ModalRenderer() {
       break;
     case "import-connection":
       content = <ImportConnectionModal open onClose={closeModal} />;
+      break;
+    case "import-story-bundle":
+      content = <ImportStoryBundleModal open onClose={closeModal} />;
       break;
     case "create-persona":
       content = <CreatePersonaModal open onClose={closeModal} />;

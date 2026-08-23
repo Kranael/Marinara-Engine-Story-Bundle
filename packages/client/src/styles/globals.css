@@ -932,6 +932,14 @@
   filter: none;
 }
 
+/* Compact variant for dense toolbars/headers — same height as the
+   icon-only chrome controls (2rem) instead of the default 2.5rem. */
+.mari-panel-gradient-button--compact {
+  min-height: 2rem;
+  border-radius: 0.625rem;
+  padding: 0.25rem 0.625rem;
+}
+
 .mari-panel-gradient--characters {
   --mari-panel-gradient-start: #f472b6;
   --mari-panel-gradient-end: #f43f5e;
@@ -966,6 +974,121 @@
   --mari-panel-gradient-start: #34d399;
   --mari-panel-gradient-end: #14b8a6;
   --mari-panel-gradient-text: #ecfdf5;
+}
+
+.mari-panel-gradient--story-bundles {
+  --mari-panel-gradient-start: #f472b6;
+  --mari-panel-gradient-end: #a855f7;
+  --mari-panel-gradient-text: #fdf4ff;
+}
+
+/* ── Story Bundle Description Preview ── */
+.mari-description-preview {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.mari-description-preview h1,
+.mari-description-preview h2,
+.mari-description-preview h3,
+.mari-description-preview h4,
+.mari-description-preview h5,
+.mari-description-preview h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin-top: 0.75em;
+  margin-bottom: 0.35em;
+}
+
+.mari-description-preview h1 { font-size: 1.5em; }
+.mari-description-preview h2 { font-size: 1.3em; }
+.mari-description-preview h3 { font-size: 1.15em; }
+.mari-description-preview h4 { font-size: 1em; }
+.mari-description-preview h5 { font-size: 0.9em; }
+.mari-description-preview h6 { font-size: 0.85em; }
+
+.mari-description-preview p {
+  margin-bottom: 0.5em;
+}
+
+.mari-description-preview ul,
+.mari-description-preview ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.mari-description-preview li {
+  margin-bottom: 0.15em;
+}
+
+.mari-description-preview blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 0.75em;
+  margin: 0.5em 0;
+  color: var(--muted-foreground);
+}
+
+.mari-description-preview code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85em;
+  background: var(--accent);
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+}
+
+.mari-description-preview pre {
+  background: var(--accent);
+  padding: 0.75em;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 0.5em;
+}
+
+.mari-description-preview pre code {
+  background: none;
+  padding: 0;
+}
+
+.mari-description-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.5em;
+}
+
+.mari-description-preview th,
+.mari-description-preview td {
+  border: 1px solid var(--border);
+  padding: 0.35em 0.6em;
+  text-align: start;
+}
+
+.mari-description-preview th {
+  background: var(--accent);
+  font-weight: 600;
+}
+
+.mari-description-preview hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0.75em 0;
+}
+
+.mari-description-preview a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.mari-description-preview img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 0.25em 0;
+}
+
+.mari-description-preview mark {
+  background: var(--primary) / 0.2;
+  color: inherit;
+  padding: 0.05em 0.2em;
+  border-radius: 0.15rem;
 }
 
 .mari-panel-gradient--settings {
@@ -2108,6 +2231,10 @@
   color: var(--marinara-editor-text);
 }
 
+.mari-editor-navigation-compact {
+  display: none;
+}
+
 .mari-editor-navigation-select:hover {
   border-color: var(--marinara-editor-border-strong);
   background: var(--marinara-editor-control-bg-hover);
@@ -2493,7 +2620,7 @@
   }
 }
 
-@container (min-width: 64.001rem) and (max-width: 96rem) {
+@container (min-width: 96.001rem) and (max-width: 108rem) {
   .mari-editor-tab {
     gap: 0.125rem;
     padding-inline: 0.25rem;
@@ -2533,7 +2660,15 @@
   }
 }
 
-@container (max-width: 64rem) {
+@container (max-width: 96rem) {
+  .mari-editor-navigation-tabs {
+    display: none;
+  }
+
+  .mari-editor-navigation-compact {
+    display: block;
+  }
+
   .mari-editor-header--with-nav {
     height: auto;
     min-height: 3.8125rem;
@@ -3651,6 +3786,13 @@ strong {
   max-width: 100%;
   overflow-wrap: anywhere;
   color: var(--foreground);
+}
+
+.mari-md-rule {
+  margin: 0.75em 0;
+  border: 0;
+  border-top: 1px solid currentcolor;
+  opacity: 0.3;
 }
 
 /* Hide <style> text inside inline SVGs (browser renders CSS text as visible SVG content) */

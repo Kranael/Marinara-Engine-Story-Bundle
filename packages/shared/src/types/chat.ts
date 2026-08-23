@@ -438,6 +438,8 @@ export interface ChatMetadata {
   excludedLorebookIds?: string[];
   /** ID of the settings profile most recently applied to this chat (drives the profile dropdown). */
   appliedChatPresetId?: string | null;
+  /** ID of the story bundle this chat was started from (drives the bundle picture in the chat sidebar). */
+  storyBundleId?: string | null;
   /** Custom prompt prefix used by the /impersonate slash command. */
   impersonatePrompt?: string | null;
   /** Show a manual draft translation button beside the send control. */

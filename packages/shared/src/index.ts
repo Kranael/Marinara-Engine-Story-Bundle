@@ -35,6 +35,7 @@ export * from "./types/spatial-context.js";
 export * from "./types/capability-runtime.js";
 export * from "./types/localization.js";
 export * from "./types/personal-extension.js";
+export * from "./types/story-bundle.js";
 export * from "./types/home-feed.js";
 
 // Schemas
@@ -62,6 +63,7 @@ export * from "./schemas/personal-extension.schema.js";
 export * from "./schemas/folder.schema.js";
 export * from "./schemas/scene-analysis.schema.js";
 export * from "./schemas/library-folder.schema.js";
+export * from "./schemas/story-bundle.schema.js";
 export * from "./schemas/home-widget.schema.js";
 
 // Constants

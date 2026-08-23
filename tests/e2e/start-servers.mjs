@@ -2,10 +2,10 @@ import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { resolvePlaywrightProjectStdio, resolvePnpmRunner } from "../scripts/pnpm-runner.mjs";
+import { resolvePlaywrightProjectStdio, resolvePnpmRunner } from "../../scripts/pnpm-runner.mjs";
 import { resetPlaywrightData } from "./global-setup.mjs";
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const dataRoot = resolve(repoRoot, ".tmp/playwright-data");
 const children = new Set();
 let shuttingDown = false;
@@ -40,6 +40,7 @@ function spawnChild(command, args, env = process.env, stdio = "inherit") {
 function runPnpm(args) {
   return new Promise((resolvePromise, reject) => {
     const child = spawnChild(pnpmRunner.command, [...pnpmRunner.args, ...args]);
+    child.once("error", reject);
     child.once("exit", (code, signal) => {
       if (code === 0) {
         resolvePromise();

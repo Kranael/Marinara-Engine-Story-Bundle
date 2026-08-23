@@ -26,6 +26,10 @@ Create a new Roleplay chat to open the setup wizard. The wizard has five steps. 
 
 After you finish the wizard, your scene opens and you can send your first message.
 
+### Quick-start with a Story Bundle
+
+If you have saved a [Story Bundle](../chats/story-bundles.md), you can skip the wizard entirely. Click the **Play** button on any bundle to create a new Roleplay chat with all its characters, persona, and lorebooks already set. The chat opens right away and you can start typing.
+
 ## The stage: background, sprites, and HUD
 
 The Roleplay stage is the scene area behind and around your messages. It has three main parts.

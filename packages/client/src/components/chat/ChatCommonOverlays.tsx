@@ -34,6 +34,11 @@ const ChatSetupWizard = lazy(async () => {
   return { default: module.ChatSetupWizard };
 });
 
+const ChoiceSelectionModal = lazy(async () => {
+  const module = await import("../presets/ChoiceSelectionModal");
+  return { default: module.ChoiceSelectionModal };
+});
+
 const PeekPromptModal = lazy(async () => {
   const module = await import("./PeekPromptModal");
   return { default: module.PeekPromptModal };
@@ -250,6 +255,8 @@ type ChatCommonOverlaysProps = {
   galleryOpen: boolean;
   galleryAnchor: ChatFloatingPanelAnchor;
   wizardOpen: boolean;
+  presetVariablesPrompt: { chatId: string; presetId: string } | null;
+  onClosePresetVariablesPrompt: () => void;
   peekPromptData: PeekPromptData | null;
   deleteDialogMessageId: string | null;
   deleteDialogCanDeleteSwipe: boolean;
@@ -300,6 +307,8 @@ export function ChatCommonOverlays({
   galleryOpen,
   galleryAnchor,
   wizardOpen,
+  presetVariablesPrompt,
+  onClosePresetVariablesPrompt,
   peekPromptData,
   deleteDialogMessageId,
   deleteDialogCanDeleteSwipe,
@@ -378,6 +387,16 @@ export function ChatCommonOverlays({
       )}
       {chat && (
         <Suspense fallback={null}>{wizardOpen && <ChatSetupWizard chat={chat} onFinish={onWizardFinish} />}</Suspense>
+      )}
+      {chat && presetVariablesPrompt && (
+        <Suspense fallback={null}>
+          <ChoiceSelectionModal
+            open
+            onClose={onClosePresetVariablesPrompt}
+            presetId={presetVariablesPrompt.presetId}
+            chatId={presetVariablesPrompt.chatId}
+          />
+        </Suspense>
       )}
       <Suspense fallback={null}>
         {peekPromptData && <PeekPromptModal data={peekPromptData} onClose={onClosePeekPrompt} />}

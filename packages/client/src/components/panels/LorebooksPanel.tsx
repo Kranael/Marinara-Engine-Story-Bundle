@@ -1251,6 +1251,7 @@ function LorebookRow({
   return (
     <div
       data-touch-drag-card="lorebook"
+      data-testid={`lorebook-row-${lorebook.id}`}
       className={cn(
         "group relative flex touch-pan-y cursor-pointer items-center gap-3 rounded-xl p-2.5 transition-all hover:bg-[var(--sidebar-accent)]",
         selectionMode &&

@@ -1861,6 +1861,7 @@ export function LorebookEditor() {
               onChange={(event) => setEntryTransferTargetId(event.target.value)}
               aria-label={t("lorebook.editor.batch.transfer.destination")}
               className="mari-editor-field w-full px-3 py-2 text-sm"
+              data-testid="lorebook-editor-transfer-target-select"
             >
               {transferTargetLorebooks.map((book) => (
                 <option key={book.id} value={book.id}>
@@ -1875,6 +1876,7 @@ export function LorebookEditor() {
               onClick={() => setEntryTransferOperation(null)}
               disabled={transferEntries.isPending}
               className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-40"
+              data-testid="lorebook-editor-transfer-cancel-button"
             >
               {t("lorebook.editor.batch.transfer.cancel")}
             </button>
@@ -1883,6 +1885,7 @@ export function LorebookEditor() {
               onClick={() => void handleTransferEntries()}
               disabled={!entryTransferTargetId || transferEntries.isPending}
               className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-colors hover:bg-[var(--primary)]/85 disabled:opacity-40"
+              data-testid="lorebook-editor-transfer-confirm-button"
             >
               {transferEntries.isPending ? <Loader2 size="0.8125rem" className="animate-spin" /> : null}
               {t(
@@ -1905,6 +1908,7 @@ export function LorebookEditor() {
           <button
             onClick={() => setShowUnsavedWarning(false)}
             className="mari-editor-action mari-editor-action--compact px-3 py-1 text-[0.6875rem]"
+            data-testid="lorebook-editor-unsaved-keep-editing-button"
           >
             {localizeUi("ui.lorebooks.lorebookeditor.keepEditing")}
           </button>
@@ -1916,6 +1920,7 @@ export function LorebookEditor() {
             }}
             disabled={saving}
             className="rounded-lg px-3 py-1 text-[0.6875rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
+            data-testid="lorebook-editor-unsaved-discard-button"
           >
             {localizeUi("ui.lorebooks.lorebookeditor.discardClose")}
           </button>
@@ -1928,6 +1933,7 @@ export function LorebookEditor() {
             }}
             disabled={saving}
             className="mari-editor-action mari-editor-action--primary mari-editor-action--compact px-3 py-1 text-[0.6875rem] disabled:opacity-50"
+            data-testid="lorebook-editor-unsaved-save-close-button"
           >
             {localizeUi("ui.lorebooks.lorebookeditor.saveClose")}
           </button>
@@ -1941,6 +1947,7 @@ export function LorebookEditor() {
             onClick={handleClose}
             disabled={saving}
             className="mari-editor-action inline-flex disabled:opacity-50"
+            data-testid="lorebook-editor-back-button"
           >
             <ArrowLeft size="1rem" />
           </button>
@@ -1960,6 +1967,7 @@ export function LorebookEditor() {
           activeId={activeTab}
           onChange={setActiveTab}
           getBadge={(tabId) => (tabId === "entries" ? entries.length : null)}
+          tabTestId="lorebook-editor-tab"
         />
 
         <div className="mari-editor-actions flex">
@@ -1971,6 +1979,7 @@ export function LorebookEditor() {
               saving ? localizeUi("chat.settings.inlineEditor.saving") : localizeUi("ui.noodle.noodlehome.save")
             }
             title={saving ? localizeUi("chat.settings.inlineEditor.saving") : localizeUi("ui.noodle.noodlehome.save")}
+            data-testid="lorebook-editor-save-button"
           >
             <Save size="0.8125rem" />
             <span className="mari-editor-save-label">
@@ -1981,6 +1990,7 @@ export function LorebookEditor() {
             onClick={() => setExportDialogOpen(true)}
             className="mari-editor-action inline-flex"
             title={localizeUi("ui.lorebooks.lorebookeditor.exportLorebook_8e0ea30")}
+            data-testid="lorebook-editor-export-button"
           >
             <svg width="0.875rem" height="0.875rem" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -1997,6 +2007,7 @@ export function LorebookEditor() {
             onClick={handleDelete}
             className="mari-editor-action inline-flex"
             title={localizeUi("ui.lorebooks.lorebookeditor.deleteLorebook")}
+            data-testid="lorebook-editor-delete-button"
           >
             <Trash2 size="0.875rem" />
           </button>
@@ -2022,6 +2033,7 @@ export function LorebookEditor() {
                       markLorebookDirty();
                     }}
                     className="mari-editor-field w-full px-3 py-2.5 text-sm"
+                    data-testid="lorebook-editor-name-input"
                   />
                 </div>
 
@@ -2038,6 +2050,7 @@ export function LorebookEditor() {
                     }}
                     rows={3}
                     title={localizeUi("ui.lorebooks.lorebookeditor.editLorebookDescription")}
+                    testId="lorebook-editor-description-textarea"
                   />
                 </div>
 
@@ -2059,6 +2072,7 @@ export function LorebookEditor() {
                     className="mari-editor-action inline-flex h-8 px-2 text-[0.6875rem]"
                     aria-label={localizeUi("ui.lorebooks.lorebookeditor.copyLorebookId")}
                     title={localizeUi("ui.lorebooks.lorebookeditor.copyLorebookId")}
+                    data-testid="lorebook-editor-copy-id-button"
                   >
                     <Copy size="0.75rem" />
                     {localizeUi("lorebook.editor.batch.copy")}
@@ -2080,6 +2094,7 @@ export function LorebookEditor() {
                             markLorebookDirty();
                           }}
                           className="ml-0.5 rounded-full p-0.5 text-[var(--marinara-editor-muted)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
+                          data-testid={`lorebook-editor-tag-${tag}-remove-button`}
                         >
                           <X size="0.625rem" />
                         </button>
@@ -2098,8 +2113,13 @@ export function LorebookEditor() {
                       }}
                       placeholder={localizeUi("ui.lorebooks.lorebookeditor.addTag")}
                       className="mari-editor-field flex-1 px-3 py-2 text-xs"
+                      data-testid="lorebook-editor-tag-input"
                     />
-                    <button onClick={handleAddTags} className="mari-editor-action px-3 py-2">
+                    <button
+                      onClick={handleAddTags}
+                      className="mari-editor-action px-3 py-2"
+                      data-testid="lorebook-editor-tag-add-button"
+                    >
                       <Plus size="0.75rem" />
                     </button>
                   </div>
@@ -2119,6 +2139,7 @@ export function LorebookEditor() {
                         markLorebookDirty();
                       }}
                       className="mari-editor-field h-10 w-full min-w-0 appearance-none truncate px-3 py-0 pr-9 text-xs"
+                      data-testid="lorebook-editor-category-select"
                     >
                       {CATEGORY_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -2149,6 +2170,7 @@ export function LorebookEditor() {
                               ? "mari-chrome-accent-surface mari-accent-animated"
                               : "mari-editor-action text-[var(--marinara-editor-muted)]",
                           )}
+                          data-testid={`lorebook-editor-category-${opt.value}-button`}
                         >
                           <Icon size="0.8125rem" />
                           {opt.label}
@@ -2243,6 +2265,7 @@ export function LorebookEditor() {
                         markLorebookDirty();
                       }}
                       className="p-0 hover:bg-transparent"
+                      testId="lorebook-editor-enabled-switch"
                     />
                   </div>
 
@@ -2297,6 +2320,7 @@ export function LorebookEditor() {
                         markLorebookDirty();
                       }}
                       className="p-0 hover:bg-transparent"
+                      testId="lorebook-editor-global-switch"
                     />
                   </div>
                 </div>
@@ -2319,6 +2343,7 @@ export function LorebookEditor() {
                       }}
                       min={0}
                       className="mari-editor-field h-10 w-full px-3 py-2.5 text-sm"
+                      data-testid="lorebook-editor-scan-depth-input"
                     />
                   </div>
                   <div>
@@ -2337,6 +2362,7 @@ export function LorebookEditor() {
                       }}
                       min={0}
                       className="mari-editor-field h-10 w-full px-3 py-2.5 text-sm"
+                      data-testid="lorebook-editor-token-budget-input"
                     />
                   </div>
                   <div>
@@ -2365,6 +2391,7 @@ export function LorebookEditor() {
                       min={LIMITS.LOREBOOK_ENTRY_LIMIT_MIN}
                       max={LIMITS.LOREBOOK_ENTRY_LIMIT_MAX}
                       className="mari-editor-field h-10 w-full px-3 py-2.5 text-sm"
+                      data-testid="lorebook-editor-entry-limit-input"
                     />
                   </div>
                   <div className="flex min-w-0 flex-col justify-end">
@@ -2385,6 +2412,7 @@ export function LorebookEditor() {
                           markLorebookDirty();
                         }}
                         className="p-0 hover:bg-transparent"
+                        testId="lorebook-editor-recursive-switch"
                       />
                     </div>
                   </div>
@@ -2406,6 +2434,7 @@ export function LorebookEditor() {
                           markLorebookDirty();
                         }}
                         className="p-0 hover:bg-transparent"
+                        testId="lorebook-editor-vectors-switch"
                       />
                     </div>
                   </div>
@@ -2431,6 +2460,7 @@ export function LorebookEditor() {
                       min={1}
                       max={10}
                       className="mari-editor-field h-10 w-full px-3 py-2.5 text-sm"
+                      data-testid="lorebook-editor-max-depth-input"
                     />
                   </div>
                 )}
@@ -2473,6 +2503,7 @@ export function LorebookEditor() {
                     onClick={() => setKeywordPreviewOpen((open) => !open)}
                     className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium transition-colors hover:bg-[var(--accent)]/30"
                     aria-expanded={keywordPreviewOpen}
+                    data-testid="lorebook-editor-keyword-test-toggle"
                   >
                     <FlaskConical size="0.8125rem" className="mari-chrome-accent-icon mari-accent-animated shrink-0" />
                     <span className="flex-1">{localizeUi("ui.lorebooks.lorebookeditor.keywordTest")}</span>
@@ -2502,6 +2533,7 @@ export function LorebookEditor() {
                           placeholder={localizeUi("ui.lorebooks.lorebookeditor.pasteAParagraphOrSampleMessagesHere")}
                           rows={4}
                           className="mari-editor-field w-full resize-y px-3 py-2 pr-8 text-xs"
+                          data-testid="lorebook-editor-keyword-test-textarea"
                         />
                         {keywordPreviewText && (
                           <button
@@ -2510,6 +2542,7 @@ export function LorebookEditor() {
                             className="absolute right-2 top-2 rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                             title={localizeUi("ui.lorebooks.lorebookeditor.clearKeywordTest")}
                             aria-label={localizeUi("ui.lorebooks.lorebookeditor.clearKeywordTest")}
+                            data-testid="lorebook-editor-keyword-test-clear-button"
                           >
                             <X size="0.75rem" />
                           </button>
@@ -2545,6 +2578,7 @@ export function LorebookEditor() {
                       value={entrySearch}
                       onChange={(e) => setEntrySearch(e.target.value)}
                       className="mari-editor-field w-full py-2.5 pl-8 pr-3 text-xs"
+                      data-testid="lorebook-editor-entry-search-input"
                     />
                   </div>
                   <div className="relative shrink-0">
@@ -2556,6 +2590,7 @@ export function LorebookEditor() {
                       value={entrySort}
                       onChange={(e) => setEntrySort(e.target.value as EntrySortKey)}
                       className="mari-editor-field h-full appearance-none py-2.5 pl-8 pr-6 text-xs"
+                      data-testid="lorebook-editor-entry-sort-select"
                     >
                       {SORT_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -2575,6 +2610,7 @@ export function LorebookEditor() {
                         "border-[var(--marinara-chat-chrome-button-border-active)] bg-[var(--marinara-chat-chrome-highlight-bg)] text-[var(--marinara-chat-chrome-button-text-active)]",
                     )}
                     title={t("lorebook.editor.batch.selectTitle")}
+                    data-testid="lorebook-editor-entry-select-mode-button"
                   >
                     <CheckSquare2 size="0.8125rem" />
                     {localizeUi("settings.common.select")}
@@ -2583,6 +2619,7 @@ export function LorebookEditor() {
                     onClick={handleAddFolder}
                     className="mari-editor-action flex shrink-0 items-center gap-1.5 px-3 py-2.5 text-xs"
                     title={localizeUi("ui.lorebooks.lorebookeditor.createANewFolderToGroupEntries")}
+                    data-testid="lorebook-editor-add-folder-button"
                   >
                     <FolderPlus size="0.8125rem" />
                     {localizeUi("ui.lorebooks.lorebookeditor.addFolder")}
@@ -2590,6 +2627,7 @@ export function LorebookEditor() {
                   <button
                     onClick={handleAddEntry}
                     className="mari-editor-action mari-editor-action--primary inline-flex shrink-0"
+                    data-testid="lorebook-editor-add-entry-button"
                   >
                     <Plus size="0.8125rem" />
                     {localizeUi("ui.lorebooks.lorebookeditor.addEntry")}
@@ -2625,6 +2663,7 @@ export function LorebookEditor() {
                       onClick={() => setSelectedEntryIds(new Set(visibleEntryIds))}
                       disabled={visibleEntryIds.length === 0}
                       className="mari-editor-action mari-editor-action--compact px-2.5 py-1 text-[0.625rem] disabled:opacity-40"
+                      data-testid="lorebook-editor-batch-select-all-button"
                     >
                       {t("lorebook.editor.batch.selectAll")}
                     </button>
@@ -2632,6 +2671,7 @@ export function LorebookEditor() {
                       onClick={() => setSelectedEntryIds(new Set())}
                       disabled={selectedEntryIds.size === 0}
                       className="rounded-lg px-2.5 py-1 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-40"
+                      data-testid="lorebook-editor-batch-clear-button"
                     >
                       {t("lorebook.editor.batch.clear")}
                     </button>
@@ -2645,6 +2685,7 @@ export function LorebookEditor() {
                         deleteEntry.isPending
                       }
                       className="mari-editor-action mari-editor-action--primary mari-editor-action--compact inline-flex items-center gap-1 px-2.5 py-1.5 text-[0.625rem] disabled:opacity-40"
+                      data-testid="lorebook-editor-batch-copy-button"
                     >
                       {transferEntries.isPending ? (
                         <Loader2 size="0.6875rem" className="animate-spin" />
@@ -2663,6 +2704,7 @@ export function LorebookEditor() {
                         deleteEntry.isPending
                       }
                       className="mari-editor-action mari-editor-action--compact inline-flex items-center gap-1 px-2.5 py-1.5 text-[0.625rem] disabled:opacity-40"
+                      data-testid="lorebook-editor-batch-move-button"
                     >
                       {transferEntries.isPending ? (
                         <Loader2 size="0.6875rem" className="animate-spin" />
@@ -2680,6 +2722,7 @@ export function LorebookEditor() {
                         deleteEntry.isPending
                       }
                       className="mari-editor-action mari-editor-action--compact inline-flex items-center gap-1 px-2.5 py-1.5 text-[0.625rem] disabled:opacity-40"
+                      data-testid="lorebook-editor-batch-delete-button"
                     >
                       {deleteEntry.isPending ? (
                         <Loader2 size="0.6875rem" className="animate-spin" />
@@ -2691,6 +2734,7 @@ export function LorebookEditor() {
                     <button
                       onClick={exitEntrySelectionMode}
                       className="rounded-lg px-2.5 py-1.5 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                      data-testid="lorebook-editor-batch-done-button"
                     >
                       {t("lorebook.editor.batch.done")}
                     </button>

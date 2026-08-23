@@ -120,8 +120,13 @@ To leave selection mode without acting, click the select button again. Switching
 
 The Home screen shows a compact **Recent Chats** row with your three most recently active chats. Each chat appears as a small chip with an avatar, a mode badge, and the chat name. Click a chip to open that chat. If you have no chats yet, the row reads **No chats yet**.
 
+## Story Bundles
+
+A Story Bundle is a pre-packaged story kit that groups characters, personas, and lorebooks together. You can start a roleplay from a bundle with one click instead of picking everything by hand. See [Story Bundles](story-bundles.md) for the full guide.
+
 ## Related guides
 
+- [Story Bundles](story-bundles.md)
 - [Chat Branches](branches.md)
 - [Exporting and Importing Chats](export-import.md)
 - [Chat Settings Overview](chat-settings.md)

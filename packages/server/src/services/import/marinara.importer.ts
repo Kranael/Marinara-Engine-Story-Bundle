@@ -17,6 +17,7 @@ import {
   personaCreateInputSchema,
   lorebookFilterModeSchema,
   MAX_FILE_SIZES,
+  BUILT_IN_AGENT_MANIFESTS,
 } from "@marinara-engine/shared";
 import type {
   CharacterData,
@@ -30,7 +31,10 @@ import { createCharacterGalleryStorage } from "../storage/character-gallery.stor
 import { createPersonaGalleryStorage } from "../storage/persona-gallery.storage.js";
 import { createLorebooksStorage } from "../storage/lorebooks.storage.js";
 import { createPromptsStorage } from "../storage/prompts.storage.js";
+import { createStoryBundlesStorage } from "../storage/story-bundles.storage.js";
+import { createAgentsStorage } from "../storage/agents.storage.js";
 import { normalizeTimestampOverrides, type TimestampOverrides } from "./import-timestamps.js";
+import { newId } from "../../utils/id-generator.js";
 import { resolveLorebookEntryRole } from "./lorebook-role.js";
 import { access, mkdir, writeFile } from "fs/promises";
 import { join } from "path";
@@ -133,6 +137,25 @@ async function saveAvatarFromDataUrl(dataUrl: unknown, prefix: string, id: strin
     throw error;
   }
   return { avatarPath: `/api/avatars/file/${filename}`, filePath: filepath };
+}
+
+// Decode a `bundleImage` data URL carried in a story bundle export, validate
+// it as a real image, and write it under data/story-bundles/images/. Returns
+// the public API path so the imported bundle keeps its picture across
+// machines. Returns null when the payload is absent or invalid.
+async function saveStoryBundleImageFromDataUrl(dataUrl: unknown, id: string): Promise<string | null> {
+  if (dataUrl === undefined || dataUrl === null || dataUrl === "") return null;
+  const decoded = decodeImageDataUrl(dataUrl);
+  if (!decoded) {
+    logger.warn("Skipped invalid story bundle image data for %s", id);
+    return null;
+  }
+  const imagesDir = join(DATA_DIR, "story-bundles", "images");
+  await mkdir(imagesDir, { recursive: true });
+  const filename = `story-bundle-${id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${decoded.ext}`;
+  const filepath = assertInsideDir(imagesDir, join(imagesDir, filename));
+  await writeFile(filepath, decoded.buffer);
+  return `/api/story-bundles/images/file/${filename}`;
 }
 
 function readLorebookScope(value: unknown): { mode: "all" | "disabled" | "specific"; chatIds: string[] } {
@@ -373,7 +396,16 @@ function readFilterMode(value: unknown): LorebookFilterMode {
 export async function importMarinara(
   envelope: ExportEnvelope,
   db: DB,
-): Promise<{ success: boolean; type: ExportType; id?: string; name?: string; error?: string }> {
+): Promise<{
+  success: boolean;
+  type: ExportType;
+  id?: string;
+  name?: string;
+  error?: string;
+  embeddedImported?: number;
+  embeddedSkipped?: number;
+  missingAgents?: Array<{ id: string; name: string }>;
+}> {
   const normalizedEnvelope = unwrapFolderManifestEnvelope(envelope) ?? envelope;
   if (
     !normalizedEnvelope ||
@@ -393,6 +425,8 @@ export async function importMarinara(
       return importLorebook(normalizedEnvelope.data, db);
     case "marinara_preset":
       return importPreset(normalizedEnvelope.data, db);
+    case "marinara_story_bundle":
+      return importStoryBundle(normalizedEnvelope.data, db);
     default:
       return {
         success: false,
@@ -967,6 +1001,331 @@ async function importPreset(data: unknown, db: DB) {
     type: "marinara_preset" as const,
     id: newPreset.id,
     name: String(p.name ?? "Imported Preset"),
+  };
+}
+
+// ── Story Bundle ────────────────────────────
+
+async function importStoryBundle(data: unknown, db: DB) {
+  const storage = createStoryBundlesStorage(db);
+  const charactersStorage = createCharactersStorage(db);
+  const lorebooksStorage = createLorebooksStorage(db);
+  const promptsStorage = createPromptsStorage(db);
+  const d = data as {
+    name?: unknown;
+    description?: unknown;
+    imagePath?: unknown;
+    avatarCrop?: unknown;
+    bundleImage?: unknown;
+    comment?: unknown;
+    creator?: unknown;
+    version?: unknown;
+    tags?: unknown;
+    characterIds?: unknown;
+    personaIds?: unknown;
+    lorebookIds?: unknown;
+    presetIds?: unknown;
+    agentIds?: unknown;
+    intros?: unknown;
+    embeddedCharacters?: unknown;
+    embeddedPersonas?: unknown;
+    embeddedLorebooks?: unknown;
+    embeddedPresets?: unknown;
+    embeddedAgents?: unknown;
+    importEmbedded?: unknown;
+  };
+  if (!d || typeof d !== "object") {
+    return { success: false, type: "marinara_story_bundle" as const, error: "Invalid story bundle data" };
+  }
+  const name = typeof d.name === "string" ? d.name.trim() : "";
+  if (!name) {
+    return { success: false, type: "marinara_story_bundle" as const, error: "Story bundle name is required" };
+  }
+  const stringArray = (value: unknown): string[] =>
+    Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
+
+  const shouldImportEmbedded = d.importEmbedded !== false;
+
+  // Pre-load existing entities for dedup by name
+  const existingCharacters = await charactersStorage.list();
+  const existingPersonas = await charactersStorage.listPersonas();
+  const existingLorebooks = await lorebooksStorage.list();
+
+  // Build name→id lookup maps for dedup
+  const existingCharNameMap = new Map<string, string>();
+  for (const char of existingCharacters) {
+    try {
+      const parsed = JSON.parse((char as Record<string, unknown>).data as string);
+      const charName = typeof parsed.name === "string" ? parsed.name.trim().toLowerCase() : "";
+      if (charName) existingCharNameMap.set(charName, (char as Record<string, unknown>).id as string);
+    } catch {
+      /* skip unparseable */
+    }
+  }
+  const existingPersonaNameMap = new Map<string, string>();
+  for (const persona of existingPersonas) {
+    const pName =
+      typeof (persona as Record<string, unknown>).name === "string"
+        ? ((persona as Record<string, unknown>).name as string).trim().toLowerCase()
+        : "";
+    if (pName) existingPersonaNameMap.set(pName, (persona as Record<string, unknown>).id as string);
+  }
+  const existingLorebookNameMap = new Map<string, string>();
+  for (const lb of existingLorebooks) {
+    const lbName =
+      typeof (lb as Record<string, unknown>).name === "string"
+        ? ((lb as Record<string, unknown>).name as string).trim().toLowerCase()
+        : "";
+    if (lbName) existingLorebookNameMap.set(lbName, (lb as Record<string, unknown>).id as string);
+  }
+  const existingPresets = await promptsStorage.list();
+  const existingPresetNameMap = new Map<string, string>();
+  for (const preset of existingPresets) {
+    const pName =
+      typeof (preset as Record<string, unknown>).name === "string"
+        ? ((preset as Record<string, unknown>).name as string).trim().toLowerCase()
+        : "";
+    if (pName) existingPresetNameMap.set(pName, (preset as Record<string, unknown>).id as string);
+  }
+
+  // ID remapping: old exported IDs → new imported IDs
+  const characterIdMap = new Map<string, string>();
+  const personaIdMap = new Map<string, string>();
+  const lorebookIdMap = new Map<string, string>();
+  const presetIdMap = new Map<string, string>();
+
+  let embeddedImported = 0;
+  let embeddedSkipped = 0;
+
+  // Import embedded characters (skip if one with the same name already exists)
+  if (shouldImportEmbedded && Array.isArray(d.embeddedCharacters)) {
+    for (const embedded of d.embeddedCharacters) {
+      if (!embedded || typeof embedded !== "object") continue;
+      const ec = embedded as Record<string, unknown>;
+      const oldId = typeof ec.id === "string" ? ec.id : "";
+      const charData = ec.data;
+      if (!charData || typeof charData !== "object") continue;
+
+      // Dedup: check if a character with the same name already exists
+      const charName =
+        typeof (charData as Record<string, unknown>).name === "string"
+          ? ((charData as Record<string, unknown>).name as string).trim().toLowerCase()
+          : "";
+      if (charName && existingCharNameMap.has(charName)) {
+        const existingId = existingCharNameMap.get(charName)!;
+        characterIdMap.set(oldId, existingId);
+        embeddedSkipped++;
+        continue;
+      }
+
+      try {
+        const result = await importCharacter(
+          {
+            data: charData as Record<string, unknown>,
+            metadata: { comment: `[Story Bundle: ${name}]` },
+            avatar: ec.avatar,
+            sprites: ec.sprites,
+            gallery: ec.gallery,
+          },
+          db,
+        );
+        if (result.success && result.id) {
+          characterIdMap.set(oldId, result.id);
+          embeddedImported++;
+          // Track newly imported name so duplicates within the same bundle are also skipped
+          if (charName) existingCharNameMap.set(charName, result.id);
+        }
+      } catch {
+        // Skip failed imports
+      }
+    }
+  }
+
+  // Import embedded personas (skip if one with the same name already exists)
+  if (shouldImportEmbedded && Array.isArray(d.embeddedPersonas)) {
+    for (const embedded of d.embeddedPersonas) {
+      if (!embedded || typeof embedded !== "object") continue;
+      const ep = embedded as Record<string, unknown>;
+      const oldId = typeof ep.id === "string" ? ep.id : "";
+
+      // Dedup: check if a persona with the same name already exists
+      const personaName = typeof ep.name === "string" ? (ep.name as string).trim().toLowerCase() : "";
+      if (personaName && existingPersonaNameMap.has(personaName)) {
+        const existingId = existingPersonaNameMap.get(personaName)!;
+        personaIdMap.set(oldId, existingId);
+        embeddedSkipped++;
+        continue;
+      }
+
+      try {
+        const { id: _id, ...personaData } = ep;
+        void _id;
+        const result = await importPersona(personaData, db);
+        if (result.success && result.id) {
+          personaIdMap.set(oldId, result.id);
+          embeddedImported++;
+          if (personaName) existingPersonaNameMap.set(personaName, result.id);
+        }
+      } catch {
+        // Skip failed imports
+      }
+    }
+  }
+
+  // Import embedded lorebooks (skip if one with the same name already exists)
+  if (shouldImportEmbedded && Array.isArray(d.embeddedLorebooks)) {
+    for (const embedded of d.embeddedLorebooks) {
+      if (!embedded || typeof embedded !== "object") continue;
+      const el = embedded as Record<string, unknown>;
+      const oldId = typeof el.id === "string" ? el.id : "";
+
+      // Dedup: check if a lorebook with the same name already exists
+      const lbName =
+        typeof (el.lorebook as Record<string, unknown> | null)?.name === "string"
+          ? ((el.lorebook as Record<string, unknown>).name as string).trim().toLowerCase()
+          : "";
+      if (lbName && existingLorebookNameMap.has(lbName)) {
+        const existingId = existingLorebookNameMap.get(lbName)!;
+        lorebookIdMap.set(oldId, existingId);
+        embeddedSkipped++;
+        continue;
+      }
+
+      try {
+        const result = await importLorebookPayload(el, db);
+        if (result.success && result.id) {
+          lorebookIdMap.set(oldId, result.id);
+          embeddedImported++;
+          if (lbName) existingLorebookNameMap.set(lbName, result.id);
+        }
+      } catch {
+        // Skip failed imports
+      }
+    }
+  }
+
+  // Import embedded presets (skip if one with the same name already exists)
+  if (shouldImportEmbedded && Array.isArray(d.embeddedPresets)) {
+    for (const embedded of d.embeddedPresets) {
+      if (!embedded || typeof embedded !== "object") continue;
+      const ep = embedded as Record<string, unknown>;
+      const oldId = typeof ep.id === "string" ? ep.id : "";
+
+      // Dedup: check if a preset with the same name already exists
+      const presetName =
+        typeof (ep.preset as Record<string, unknown> | null)?.name === "string"
+          ? ((ep.preset as Record<string, unknown>).name as string).trim().toLowerCase()
+          : "";
+      if (presetName && existingPresetNameMap.has(presetName)) {
+        const existingId = existingPresetNameMap.get(presetName)!;
+        presetIdMap.set(oldId, existingId);
+        embeddedSkipped++;
+        continue;
+      }
+
+      try {
+        const result = await importPreset(ep, db);
+        if (result.success && result.id) {
+          presetIdMap.set(oldId, result.id);
+          embeddedImported++;
+          if (presetName) existingPresetNameMap.set(presetName, result.id);
+        }
+      } catch {
+        // Skip failed imports
+      }
+    }
+  }
+
+  // Remap IDs: use new IDs for entities that were imported, keep old IDs for
+  // entities that already exist in this database.
+  const remapIds = (ids: string[], map: Map<string, string>): string[] => ids.map((id) => map.get(id) ?? id);
+
+  const finalCharacterIds = remapIds(stringArray(d.characterIds), characterIdMap);
+  const finalPersonaIds = remapIds(stringArray(d.personaIds), personaIdMap);
+  const finalLorebookIds = remapIds(stringArray(d.lorebookIds), lorebookIdMap);
+  const finalPresetIds = remapIds(stringArray(d.presetIds), presetIdMap);
+  const finalAgentIds = stringArray(d.agentIds);
+
+  // Detect agents referenced by the bundle that are not available locally, so
+  // the client can offer to install the capability package that provides them.
+  // An agent is "present" if it is a built-in (from an installed capability
+  // package) or a custom agent config. Anything else is missing.
+  const agentsStorage = createAgentsStorage(db);
+  const agentConfigs = await agentsStorage.list();
+  const knownAgentIds = new Set<string>();
+  for (const manifest of BUILT_IN_AGENT_MANIFESTS) knownAgentIds.add(manifest.id);
+  for (const config of agentConfigs) knownAgentIds.add((config as Record<string, unknown>).type as string);
+
+  // Embedded agent metadata carried in the export (id → display name) so the
+  // missing-agent prompt can show a friendly label instead of a raw id.
+  const embeddedAgentNames = new Map<string, string>();
+  if (Array.isArray(d.embeddedAgents)) {
+    for (const entry of d.embeddedAgents) {
+      if (!entry || typeof entry !== "object") continue;
+      const ea = entry as Record<string, unknown>;
+      if (typeof ea.id === "string" && typeof ea.name === "string" && ea.name.trim()) {
+        embeddedAgentNames.set(ea.id, ea.name.trim());
+      }
+    }
+  }
+
+  const missingAgents = finalAgentIds
+    .filter((agentId) => !knownAgentIds.has(agentId))
+    .map((agentId) => ({ id: agentId, name: embeddedAgentNames.get(agentId) ?? agentId }));
+
+  // Intros are inline data — parse and validate, generating new IDs for each.
+  const finalIntros = Array.isArray(d.intros)
+    ? d.intros
+        .filter((entry): entry is Record<string, unknown> => typeof entry === "object" && entry !== null)
+        .map((entry) => ({
+          id: typeof entry.id === "string" && entry.id.length > 0 ? entry.id : newId(),
+          name: typeof entry.name === "string" ? entry.name : "",
+          text: typeof entry.text === "string" ? entry.text : "",
+        }))
+        .filter((entry) => entry.name.length > 0 && entry.text.length > 0)
+    : [];
+
+  const result = await storage.create({
+    name,
+    description: typeof d.description === "string" ? d.description : null,
+    imagePath: null,
+    comment: typeof d.comment === "string" ? d.comment : "",
+    creator: typeof d.creator === "string" ? d.creator : "",
+    version: typeof d.version === "string" ? d.version : "",
+    tags: Array.isArray(d.tags) ? d.tags.filter((t): t is string => typeof t === "string") : [],
+    characterIds: finalCharacterIds,
+    personaIds: finalPersonaIds,
+    lorebookIds: finalLorebookIds,
+    presetIds: finalPresetIds,
+    agentIds: finalAgentIds,
+    intros: finalIntros,
+  });
+  if (!result) {
+    return { success: false, type: "marinara_story_bundle" as const, error: "Failed to create story bundle" };
+  }
+
+  // Restore the bundle picture from the embedded data URL. The exported
+  // imagePath points at the source machine's file, so it is only kept when no
+  // embedded image is available.
+  const importedId = result.id as string;
+  let imagePath: string | null = typeof d.imagePath === "string" ? d.imagePath : null;
+  if (d.bundleImage !== undefined && d.bundleImage !== null && d.bundleImage !== "") {
+    const restored = await saveStoryBundleImageFromDataUrl(d.bundleImage, importedId);
+    if (restored) imagePath = restored;
+  }
+  const avatarCrop = normalizeAvatarCrop(d.avatarCrop);
+  if (imagePath !== null || avatarCrop !== null) {
+    await storage.update(importedId, { imagePath, avatarCrop });
+  }
+
+  return {
+    success: true,
+    type: "marinara_story_bundle" as const,
+    id: importedId,
+    name,
+    embeddedImported,
+    embeddedSkipped,
+    missingAgents,
   };
 }
 

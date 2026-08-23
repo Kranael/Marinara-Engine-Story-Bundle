@@ -1874,6 +1874,7 @@ export function PersonaEditor() {
         onClick={() => setExportDialogOpen(true)}
         className={headerActionButtonClass}
         title={localizeUi("ui.personas.personaeditor.exportPersona")}
+        data-testid="persona-editor-export-button"
       >
         <svg width="1rem" height="1rem" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -1893,6 +1894,7 @@ export function PersonaEditor() {
         disabled={createCharacter.isPending || uploadCharacterAvatar.isPending}
         className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("ui.personas.personaeditor.addPersonaAsCharacter")}
+        data-testid="persona-editor-add-as-character-button"
       >
         {createCharacter.isPending || uploadCharacterAvatar.isPending ? (
           <Loader2 size="1rem" className="animate-spin" />
@@ -1914,6 +1916,7 @@ export function PersonaEditor() {
         disabled={duplicatePersona.isPending}
         className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("ui.personas.personaeditor.duplicatePersona")}
+        data-testid="persona-editor-duplicate-button"
       >
         {duplicatePersona.isPending ? <Loader2 size="1rem" className="animate-spin" /> : <Copy size="1rem" />}
       </button>
@@ -1924,6 +1927,7 @@ export function PersonaEditor() {
         disabled={mutationBusy}
         className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("ui.personas.personaeditor.deletePersona")}
+        data-testid="persona-editor-delete-button"
       >
         <Trash2 size="1rem" />
       </button>
@@ -1975,6 +1979,7 @@ export function PersonaEditor() {
             disabled={mutationBusy}
             className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
             title={localizeUi("ui.noodle.noodlerframe.back")}
+            data-testid="persona-editor-back-button"
           >
             <ArrowLeft size="1.125rem" />
           </button>
@@ -2006,7 +2011,14 @@ export function PersonaEditor() {
                 if (!mutationBusy) setAvatarGeneratorOpen(true);
               }}
             />
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+              data-testid="persona-editor-avatar-file-input"
+            />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -2017,6 +2029,7 @@ export function PersonaEditor() {
                 className="mari-editor-title-input"
                 placeholder={localizeUi("ui.personas.personaeditor.personaName")}
                 size={Math.max(1, Math.min(formData.name.length || 12, 80))}
+                data-testid="persona-editor-name-input"
               />
               <p
                 className="mari-editor-meta mari-editor-byline"
@@ -2045,12 +2058,13 @@ export function PersonaEditor() {
                 onChange={(e) => updateField("comment", e.target.value)}
                 className="mari-editor-subtitle-input"
                 placeholder={localizeUi("ui.personas.personaeditor.titleCommentEGModernAuVersion")}
+                data-testid="persona-editor-comment-input"
               />
             </div>
           </div>
         </div>
 
-        <EditorTabNavigation tabs={TABS} activeId={activeTab} onChange={setActiveTab} />
+        <EditorTabNavigation tabs={TABS} activeId={activeTab} onChange={setActiveTab} tabTestId="persona-editor-tab" />
 
         <div className="mari-editor-actions flex">
           <button
@@ -2060,6 +2074,7 @@ export function PersonaEditor() {
             className={saveButtonClass}
             aria-label={saveLabel}
             title={saveLabel}
+            data-testid="persona-editor-save-button"
           >
             <Save size="0.9375rem" />
             <span className="mari-editor-save-label">{saveLabel}</span>
@@ -2079,6 +2094,7 @@ export function PersonaEditor() {
             type="button"
             onClick={keepEditing}
             className="rounded-lg px-3 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)]"
+            data-testid="persona-editor-unsaved-keep-editing-button"
           >
             {localizeUi("ui.personas.personaeditor.keepEditing")}
           </button>
@@ -2089,6 +2105,7 @@ export function PersonaEditor() {
             onClick={discardAndNavigate}
             disabled={mutationBusy}
             className="rounded-lg bg-amber-500/15 px-3 py-1 text-xs font-medium text-amber-500 transition-all hover:bg-amber-500/25 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-amber-500/15"
+            data-testid="persona-editor-unsaved-discard-button"
           >
             {localizeUi("ui.personas.personaeditor.discardClose")}
           </button>
@@ -2097,6 +2114,7 @@ export function PersonaEditor() {
             onClick={() => void handleSaveAndClose()}
             disabled={mutationBusy}
             className="mari-editor-action mari-editor-action--primary mari-editor-action--compact inline-flex rounded-lg px-3 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+            data-testid="persona-editor-unsaved-save-close-button"
           >
             {localizeUi("ui.personas.personaeditor.saveClose")}
           </button>
@@ -3286,6 +3304,7 @@ function PersonaStatsTab({
         labelPosition="start"
         className="justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
         labelClassName="text-sm"
+        testId="persona-editor-stats-enable-switch"
       />
 
       {parsed.enabled && (
@@ -3297,6 +3316,7 @@ function PersonaStatsTab({
               <button
                 type="button"
                 onClick={addBar}
+                data-testid="persona-editor-stats-add-bar-button"
                 className="mari-chrome-accent-surface mari-accent-animated flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
               >
                 <Plus size="0.75rem" />
@@ -3337,6 +3357,7 @@ function PersonaStatsTab({
                       onChange={(e) => updateBar(i, "name", e.target.value)}
                       className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-xs font-medium"
                       placeholder={localizeUi("ui.personas.personastatstab.statName")}
+                      data-testid={`persona-editor-stats-bar-${i}-name-input`}
                     />
                     <span className="text-[0.625rem] text-[var(--muted-foreground)]">
                       {localizeUi("ui.personas.personastatstab.max")}
@@ -3347,11 +3368,13 @@ function PersonaStatsTab({
                       onChange={(e) => updateBar(i, "max", parseInt(e.target.value) || 1)}
                       className="w-14 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-center text-xs"
                       min={1}
+                      data-testid={`persona-editor-stats-bar-${i}-max-input`}
                     />
                     <button
                       type="button"
                       onClick={() => removeBar(i)}
                       className="rounded-lg p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
+                      data-testid={`persona-editor-stats-bar-${i}-remove-button`}
                     >
                       <X size="0.75rem" />
                     </button>
@@ -3379,6 +3402,7 @@ function PersonaStatsTab({
           labelPosition="start"
           className="justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
           labelClassName="text-sm"
+          testId="persona-editor-rpg-enable-switch"
         />
 
         {rpgStats.enabled && (
@@ -3390,6 +3414,7 @@ function PersonaStatsTab({
                 <button
                   type="button"
                   onClick={() => updateRpgPools([...rpgPools, createNewRpgPool(rpgPools)])}
+                  data-testid="persona-editor-rpg-add-pool-button"
                   className="mari-chrome-accent-surface mari-accent-animated flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
                 >
                   <Plus size="0.75rem" />
@@ -3416,6 +3441,7 @@ function PersonaStatsTab({
                       onChange={(e) => updateRpgPool(i, { name: e.target.value })}
                       className="min-w-0 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-xs font-medium"
                       placeholder={localizeUi("ui.personas.personastatstab.name")}
+                      data-testid={`persona-editor-rpg-pool-${i}-name-input`}
                     />
                     <input
                       type="number"
@@ -3423,6 +3449,7 @@ function PersonaStatsTab({
                       onChange={(e) => updateRpgPool(i, { value: Math.max(0, parseInt(e.target.value) || 0) })}
                       className="w-full rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-center text-xs"
                       min={0}
+                      data-testid={`persona-editor-rpg-pool-${i}-value-input`}
                       aria-label={localizeUi("ui.personas.personastatstab.value1Value", {
                         value1: pool.name || localizeUi("ui.personas.personastatstab.pool"),
                       })}
@@ -3433,6 +3460,7 @@ function PersonaStatsTab({
                       onChange={(e) => updateRpgPool(i, { max: Math.max(1, parseInt(e.target.value) || 1) })}
                       className="w-full rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-center text-xs"
                       min={1}
+                      data-testid={`persona-editor-rpg-pool-${i}-max-input`}
                       aria-label={localizeUi("ui.personas.personastatstab.value1Max", {
                         value1: pool.name || localizeUi("ui.personas.personastatstab.pool"),
                       })}
@@ -3440,6 +3468,7 @@ function PersonaStatsTab({
                     <button
                       type="button"
                       onClick={() => updateRpgPools(rpgPools.filter((_, poolIndex) => poolIndex !== i))}
+                      data-testid={`persona-editor-rpg-pool-${i}-remove-button`}
                       className="rounded-lg p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
                       aria-label={localizeUi("ui.personas.personastatstab.removeValue1", {
                         value1: pool.name || localizeUi("ui.personas.personastatstab.pool_51a4b13"),
@@ -3459,6 +3488,7 @@ function PersonaStatsTab({
                 <button
                   type="button"
                   onClick={addRpgAttribute}
+                  data-testid="persona-editor-rpg-add-attribute-button"
                   className="mari-chrome-accent-surface mari-accent-animated flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
                 >
                   <Plus size="0.75rem" />
@@ -3477,17 +3507,20 @@ function PersonaStatsTab({
                       onChange={(e) => updateRpgAttribute(i, "name", e.target.value)}
                       className="w-20 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-xs font-medium"
                       placeholder={localizeUi("ui.personas.personastatstab.name")}
+                      data-testid={`persona-editor-rpg-attribute-${i}-name-input`}
                     />
                     <input
                       type="number"
                       value={attr.value}
                       onChange={(e) => updateRpgAttribute(i, "value", parseInt(e.target.value) || 0)}
                       className="w-16 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-center text-xs"
+                      data-testid={`persona-editor-rpg-attribute-${i}-value-input`}
                     />
                     <button
                       type="button"
                       onClick={() => removeRpgAttribute(i)}
                       className="rounded-lg p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
+                      data-testid={`persona-editor-rpg-attribute-${i}-remove-button`}
                     >
                       <X size="0.75rem" />
                     </button>
@@ -3594,6 +3627,7 @@ function PersonaMetadataTab({
             }}
             className="mari-editor-action inline-flex h-8 px-2 text-[0.6875rem]"
             title={localizeUi("ui.personas.personametadatatab.copyPersonaId")}
+            data-testid="persona-editor-metadata-copy-id-button"
           >
             <Copy size="0.75rem" />
             {localizeUi("lorebook.editor.batch.copy")}
@@ -3631,6 +3665,7 @@ function PersonaMetadataTab({
             onChange={(e) => updateField("name", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={localizeUi("ui.personas.personaeditor.personaName")}
+            data-testid="persona-editor-metadata-name-input"
           />
         </label>
         <label className="space-y-1.5 sm:col-span-2">
@@ -3643,6 +3678,7 @@ function PersonaMetadataTab({
             onChange={(e) => updateField("comment", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={localizeUi("ui.personas.personametadatatab.modernAuVersion")}
+            data-testid="persona-editor-metadata-comment-input"
           />
         </label>
         <label className="space-y-1.5">
@@ -3659,6 +3695,7 @@ function PersonaMetadataTab({
             onChange={(e) => updateField("phoneticName", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={formData.name}
+            data-testid="persona-editor-metadata-phonetic-name-input"
           />
         </label>
         <label className="space-y-1.5">
@@ -3673,6 +3710,7 @@ function PersonaMetadataTab({
             onChange={(e) => updateField("creator", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={localizeUi("ui.personas.personametadatatab.yourName")}
+            data-testid="persona-editor-metadata-creator-input"
           />
         </label>
         <div className="space-y-1.5">
@@ -3698,6 +3736,7 @@ function PersonaMetadataTab({
               title={localizeUi("ui.cardversionhistory.automaticVersioningDescription")}
               className="min-h-11 gap-2 rounded-md px-1 py-0"
               labelClassName="text-xs font-medium text-[var(--muted-foreground)]"
+              testId="persona-editor-metadata-versioning-switch"
             />
           </div>
           <input
@@ -3706,6 +3745,7 @@ function PersonaMetadataTab({
             disabled={!formData.versioningEnabled}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="1.0"
+            data-testid="persona-editor-metadata-version-input"
           />
           <PersonaVersionHistoryPanel
             personaId={personaId}
@@ -3729,13 +3769,14 @@ function PersonaMetadataTab({
               type="button"
               onClick={removeAllTags}
               className="mari-chrome-accent-surface mari-accent-animated rounded-lg border px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
+              data-testid="persona-editor-metadata-tags-remove-all-button"
             >
               {localizeUi("ui.personas.personametadatatab.removeAll")}
             </button>
           )}
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {formData.tags.map((tag) => (
+          {formData.tags.map((tag, tagIndex) => (
             <span key={tag} className="mari-chrome-control mari-chrome-control--compact group/tag">
               <Tag size="0.625rem" />
               {tag}
@@ -3744,6 +3785,7 @@ function PersonaMetadataTab({
                 onClick={() => removeTag(tag)}
                 className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
                 title={localizeUi("ui.personas.personametadatatab.removeTagValue1", { value1: tag })}
+                data-testid={`persona-editor-metadata-tag-${tagIndex}-remove-button`}
               >
                 <X size="0.625rem" />
               </button>
@@ -3762,11 +3804,13 @@ function PersonaMetadataTab({
             }}
             placeholder={localizeUi("ui.personas.personametadatatab.addTag")}
             className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5 text-xs outline-none focus:border-[var(--primary)]/40"
+            data-testid="persona-editor-metadata-tag-input"
           />
           <button
             type="button"
             onClick={addTag}
             className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected px-3 py-1.5"
+            data-testid="persona-editor-metadata-tag-add-button"
           >
             {localizeUi("ui.personas.personastatstab.add")}
           </button>
@@ -3786,6 +3830,7 @@ function PersonaMetadataTab({
           rows={4}
           title={localizeUi("ui.personas.personametadatatab.creatorNotes")}
           showMarkdownPreview
+          testId="persona-editor-metadata-creator-notes-textarea"
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-3 text-sm outline-none placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
           placeholder={localizeUi("ui.personas.personametadatatab.notesAboutThisPersonaIntendedUseTipsForBest")}
         />
@@ -4380,6 +4425,7 @@ function PersonaCardTab({
             onChange={(v) => updateField("personality", v)}
             placeholder={localizeUi("ui.personas.personacardtab.calmAndAnalyticalButQuickToActWhenSomeone")}
             rows={8}
+            testId="persona-editor-card-personality-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="persona-card-backstory">
@@ -4391,6 +4437,7 @@ function PersonaCardTab({
             onChange={(v) => updateField("backstory", v)}
             placeholder={localizeUi("ui.personas.personacardtab.grewUpInAFrontierTownApprenticedUnderA")}
             rows={12}
+            testId="persona-editor-card-backstory-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="persona-card-appearance">
@@ -4406,6 +4453,7 @@ function PersonaCardTab({
               "ui.personas.personacardtab.averageHeightDarkHairWornLoosePrefersPracticalClothing",
             )}
             rows={8}
+            testId="persona-editor-card-appearance-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="persona-card-scenario">
@@ -4419,6 +4467,7 @@ function PersonaCardTab({
               "ui.personas.personacardtab.aWanderingAdventurerSeekingAnswersAboutAMysteriousArtifact",
             )}
             rows={8}
+            testId="persona-editor-card-scenario-textarea"
           />
         </EditorSectionAnchor>
       </div>
@@ -4464,6 +4513,7 @@ function DescriptionTab({
         rows={12}
         title={localizeUi("chat.settings.inlineEditor.fields.description")}
         showMarkdownPreview
+        testId="persona-editor-card-description-textarea"
         className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-emerald-400/40 focus:ring-1 focus:ring-emerald-400/20"
       />
       <p className="mt-1.5 text-right text-[0.625rem] text-[var(--muted-foreground)]">
@@ -4503,6 +4553,7 @@ function TextareaTab({
   placeholder,
   rows = 8,
   helpText,
+  testId,
 }: {
   title: string;
   subtitle: string;
@@ -4511,6 +4562,7 @@ function TextareaTab({
   onChange: (v: string) => void;
   placeholder: string;
   rows?: number;
+  testId?: string;
 }) {
   return (
     <div className="mari-editor-panel space-y-3 p-3">
@@ -4522,6 +4574,7 @@ function TextareaTab({
         rows={rows}
         title={title}
         showMarkdownPreview
+        testId={testId}
         className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-emerald-400/40 focus:ring-1 focus:ring-emerald-400/20"
       />
       <p className="mt-1.5 text-right text-[0.625rem] text-[var(--muted-foreground)]">

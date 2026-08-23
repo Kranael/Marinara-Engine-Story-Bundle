@@ -16,12 +16,15 @@ export function EditorTabNavigation<T extends string>({
   onChange,
   getBadge,
   className,
+  tabTestId,
 }: {
   tabs: readonly EditorTabItem<T>[];
   activeId: T;
   onChange: (id: T) => void;
   getBadge?: (id: T) => string | number | null;
   className?: string;
+  /** Prefix for data-testid on each tab button: `${tabTestId}-${tab.id}` */
+  tabTestId?: string;
 }) {
   const { t } = useTranslation();
   const localize = useLocalizedUiText();
@@ -68,6 +71,7 @@ export function EditorTabNavigation<T extends string>({
               aria-label={localize(tab.label)}
               aria-current={active ? "page" : undefined}
               data-active={active ? "true" : undefined}
+              data-testid={tabTestId ? `${tabTestId}-${tab.id}` : undefined}
               key={tab.id}
               onClick={() => onChange(tab.id)}
               className="mari-editor-action mari-editor-tab flex min-w-0 shrink items-center justify-center whitespace-nowrap px-2.5 text-center @max-7xl:gap-1 @max-7xl:px-2 @max-7xl:text-[0.6875rem]"

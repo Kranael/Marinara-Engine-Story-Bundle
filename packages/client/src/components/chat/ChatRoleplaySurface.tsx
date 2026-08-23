@@ -2424,6 +2424,10 @@ export function ChatRoleplaySurface({
         galleryOpen={galleryOpen}
         galleryAnchor={galleryAnchor}
         wizardOpen={wizardOpen}
+        presetVariablesPrompt={useChatStore.getState().presetVariablesPrompt}
+        onClosePresetVariablesPrompt={() => {
+          useChatStore.getState().setPresetVariablesPrompt(null);
+        }}
         peekPromptData={peekPromptData}
         deleteDialogMessageId={deleteDialogMessageId}
         deleteDialogCanDeleteSwipe={deleteDialogCanDeleteSwipe}
