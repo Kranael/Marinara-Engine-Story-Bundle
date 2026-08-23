@@ -164,6 +164,7 @@ export function AdvancedParametersSection({
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
+        data-testid="chat-settings-section-advanced-parameters"
         onClick={toggleExpanded}
         onKeyDown={handleHeaderKeyDown}
         className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-[var(--accent)]/50"

@@ -38,6 +38,10 @@ export async function prepareFreshClient(page: Page) {
           hasCompletedOnboarding: true,
           rightPanelOpen: false,
           sidebarOpen: false,
+          // The Music DJ "download to configure" banner floats over the top
+          // bar and intercepts clicks on editor action buttons; e2e runs do
+          // not exercise the music player, so keep it off.
+          musicPlayerEnabled: false,
         },
         version: uiStoreVersion,
       }),

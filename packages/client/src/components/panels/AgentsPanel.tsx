@@ -1021,6 +1021,7 @@ export function AgentsPanel() {
         type="button"
         onClick={openAgentCatalog}
         className="mari-chrome-control mari-chrome-control--primary w-full text-xs"
+        data-testid="agent-download-button"
       >
         <Sparkles size="0.875rem" />
         {localizeUi("ui.agents.agentcatalogview.downloadAgents")}

@@ -109,6 +109,7 @@ export function LorebooksSection({
             return (
               <Fragment key={lorebook.id}>
                 <div
+                  data-testid={`chat-settings-lorebook-${lorebook.id}`}
                   className={
                     lorebook.isExcluded
                       ? "flex items-center gap-2.5 rounded-lg bg-[var(--secondary)]/50 px-3 py-2 opacity-60 ring-1 ring-[var(--border)]"

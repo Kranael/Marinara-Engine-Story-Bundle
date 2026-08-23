@@ -4037,6 +4037,7 @@ export function ChatSettingsDrawer({
         label={localizeUi("ui.panels.agentspanel.customAgents")}
         icon={<Settings2 size="0.75rem" />}
         description={localizeUi("ui.chat.chatsettingsdrawer.addYourCustomCreatedAgentsToThisChat")}
+        testId="chat-settings-agents-category-custom"
         count={activeCustomAgents.length}
       >
         {inactiveCustomAgents.length > 0 ? (
@@ -4387,6 +4388,7 @@ export function ChatSettingsDrawer({
       <div
         ref={panelRef}
         data-chat-floating-panel
+        data-testid="chat-settings-drawer"
         className={cn(
           NEUTRAL_PANEL_SHELL,
           "mari-chat-settings-popover",
@@ -4997,7 +4999,10 @@ export function ChatSettingsDrawer({
               {/* Currently selected persona */}
               {chat.personaId ? (
                 <>
-                  <div className="flex items-center gap-2.5 rounded-lg bg-[var(--primary)]/10 px-2.5 py-2">
+                  <div
+                    data-testid={`chat-settings-persona-${chat.personaId}`}
+                    className="flex items-center gap-2.5 rounded-lg bg-[var(--primary)]/10 px-2.5 py-2"
+                  >
                     {(() => {
                       const p = personas.find((p) => p.id === chat.personaId);
                       return p ? (
@@ -5174,6 +5179,7 @@ export function ChatSettingsDrawer({
                           <div className="h-0.5 rounded-full bg-[var(--primary)] mx-2 mb-1" />
                         )}
                         <div
+                          data-testid={`chat-settings-character-${c.id}`}
                           data-touch-reorder-item="chat-settings-character"
                           data-touch-reorder-index={i}
                           draggable
@@ -8678,6 +8684,7 @@ export function ChatSettingsDrawer({
                                 label={cat.label}
                                 icon={cat.icon}
                                 description={cat.description}
+                                testId={`chat-settings-agents-category-${cat.key}`}
                                 count={activeInCat.length}
                                 openRequest={catAgents.some(
                                   (agent) => getAgentSettingsMenuId(chat.id, agent.id) === pendingAgentMenuTargetId,
@@ -8691,6 +8698,7 @@ export function ChatSettingsDrawer({
                                       return (
                                         <div
                                           key={agent.id}
+                                          data-testid={`chat-settings-agent-${agent.id}`}
                                           id={
                                             agent.id === "hierarchical-maps" ||
                                             agent.id === "long-term-memory" ||
