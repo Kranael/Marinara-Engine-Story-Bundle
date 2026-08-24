@@ -115,18 +115,6 @@ function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle;
             </div>
           )}
 
-          {sanitizedDescription ? (
-            <div
-              data-story-bundle-gallery-detail-description
-              className="mari-prose prose-sm max-w-none rounded-[1.5rem] border border-[var(--marinara-chat-chrome-panel-border)] bg-[var(--marinara-chat-chrome-highlight-bg)] px-4 py-3 text-sm leading-6 text-[var(--marinara-chat-chrome-panel-text)]"
-              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
-            />
-          ) : (
-            <p className="rounded-[1.5rem] border border-dashed border-[var(--marinara-chat-chrome-panel-border)] px-4 py-3 text-sm text-[var(--marinara-chat-chrome-panel-muted)]">
-              {t("storyBundles.descriptionEmpty", "No description yet.")}
-            </p>
-          )}
-
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
@@ -197,6 +185,18 @@ function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle;
               {t("storyBundles.delete", "Delete")}
             </button>
           </div>
+
+          {sanitizedDescription ? (
+            <div
+              data-story-bundle-gallery-detail-description
+              className="mari-prose prose-sm max-w-none rounded-[1.5rem] border border-[var(--marinara-chat-chrome-panel-border)] bg-[var(--marinara-chat-chrome-highlight-bg)] px-4 py-3 text-sm leading-6 text-[var(--marinara-chat-chrome-panel-text)]"
+              dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+            />
+          ) : (
+            <p className="rounded-[1.5rem] border border-dashed border-[var(--marinara-chat-chrome-panel-border)] px-4 py-3 text-sm text-[var(--marinara-chat-chrome-panel-muted)]">
+              {t("storyBundles.descriptionEmpty", "No description yet.")}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -214,6 +214,7 @@ export function StoryBundleGalleryView() {
 
   const [search, setSearch] = useState("");
   const { data: bundles, isLoading } = useStoryBundles();
+  const { play, playingId } = useStoryBundleActions();
   const galleryRootScrollRef = useRef<HTMLDivElement | null>(null);
   const galleryListScrollRef = useRef<HTMLElement | null>(null);
   const pendingGalleryScrollTopRef = useRef(0);
@@ -484,7 +485,7 @@ export function StoryBundleGalleryView() {
                           />
                         ) : null}
                         {bundle.tags.length > 0 && (
-                          <div className="mt-auto flex flex-wrap gap-1 sm:gap-1.5">
+                          <div className="flex flex-wrap gap-1 sm:gap-1.5">
                             {bundle.tags.slice(0, 2).map((tag) => (
                               <span
                                 key={tag}
@@ -500,6 +501,51 @@ export function StoryBundleGalleryView() {
                             )}
                           </div>
                         )}
+
+                        <div className="mt-auto grid grid-cols-3 gap-1.5" onClick={(event) => event.stopPropagation()}>
+                          <button
+                            type="button"
+                            disabled
+                            data-testid={`story-bundle-gallery-card-mode-conversation-${bundle.id}`}
+                            className="mari-editor-action justify-center px-1.5 py-1"
+                            title={t("storyBundles.modeComingSoon", "Coming soon")}
+                          >
+                            <ChatModeIcon
+                              mode="conversation"
+                              size="0.75rem"
+                              style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }}
+                            />
+                          </button>
+                          <button
+                            data-testid={`story-bundle-gallery-card-play-${bundle.id}`}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void play(bundle);
+                            }}
+                            disabled={playingId === bundle.id}
+                            className="mari-editor-action justify-center px-1.5 py-1"
+                            title={t("storyBundles.playTitle", "Start roleplay from this story bundle")}
+                          >
+                            {playingId === bundle.id ? (
+                              <Loader2 size="0.75rem" className="animate-spin" />
+                            ) : (
+                              <ChatModeIcon
+                                mode="roleplay"
+                                size="0.75rem"
+                                style={{ color: HOME_CHAT_MODE_ACCENTS.roleplay }}
+                              />
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            disabled
+                            data-testid={`story-bundle-gallery-card-mode-game-${bundle.id}`}
+                            className="mari-editor-action justify-center px-1.5 py-1"
+                            title={t("storyBundles.modeComingSoon", "Coming soon")}
+                          >
+                            <ChatModeIcon mode="game" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.game }} />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
