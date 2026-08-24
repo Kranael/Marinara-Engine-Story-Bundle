@@ -615,6 +615,14 @@ interface UIState {
   regexDetailId: string | null;
   /** When set, the main area shows the full-page story bundle editor */
   storyBundleDetailId: string | null;
+  /** When true, the main area shows the full-page story bundle gallery */
+  storyBundleGalleryOpen: boolean;
+  /** Last selected story bundle card inside the full-page gallery */
+  storyBundleGallerySelectedId: string | null;
+  /** Last selected sort order for the full-page story bundle gallery */
+  storyBundleGallerySort: ResourcePanelSort;
+  /** Last scroll offset for the full-page story bundle gallery list */
+  storyBundleGalleryScrollTop: number;
   /** When set, the main area shows the hierarchical map editor for this chat */
   spatialMapDetailChatId: string | null;
   /** One-shot generated map preview handed from Game setup into the spatial editor. Never persisted. */
@@ -1035,6 +1043,11 @@ interface UIState {
   closeRegexDetail: () => void;
   openStoryBundleDetail: (id: string) => void;
   closeStoryBundleDetail: () => void;
+  openStoryBundleGallery: () => void;
+  closeStoryBundleGallery: () => void;
+  setStoryBundleGallerySelectedId: (id: string | null) => void;
+  setStoryBundleGallerySort: (sort: ResourcePanelSort) => void;
+  setStoryBundleGalleryScrollTop: (scrollTop: number) => void;
   openSpatialMapDetail: (chatId: string) => void;
   openSpatialMapDraftReview: (review: PendingSpatialMapDraftReview) => void;
   clearPendingSpatialMapDraftReview: () => void;
@@ -1218,6 +1231,7 @@ function normalizePersistedMainSurface(persisted: Record<string, unknown>) {
   const surfaceKeys = [
     "regexDetailId",
     "storyBundleDetailId",
+    "storyBundleGalleryOpen",
     "personaDetailId",
     "toolDetailId",
     "agentDetailId",
@@ -1448,6 +1462,10 @@ export const useUIStore = create<UIState>()(
       personaDetailId: null,
       regexDetailId: null,
       storyBundleDetailId: null,
+      storyBundleGalleryOpen: false,
+      storyBundleGallerySelectedId: null,
+      storyBundleGallerySort: "name-asc" as ResourcePanelSort,
+      storyBundleGalleryScrollTop: 0,
       spatialMapDetailChatId: null,
       pendingSpatialMapDraftReview: null,
       regexDetailDefaultCharacterIds: null,
@@ -1763,6 +1781,10 @@ export const useUIStore = create<UIState>()(
       setCharacterPanelScrollTop: (scrollTop) => set({ characterPanelScrollTop: normalizeScrollTop(scrollTop) }),
       setCharacterLibraryScrollTop: (scrollTop) => set({ characterLibraryScrollTop: normalizeScrollTop(scrollTop) }),
       setPersonaLibraryScrollTop: (scrollTop) => set({ personaLibraryScrollTop: normalizeScrollTop(scrollTop) }),
+      setStoryBundleGallerySelectedId: (id) => set({ storyBundleGallerySelectedId: id }),
+      setStoryBundleGallerySort: (sort) => set({ storyBundleGallerySort: normalizeBasicPanelSort(sort) }),
+      setStoryBundleGalleryScrollTop: (scrollTop) =>
+        set({ storyBundleGalleryScrollTop: normalizeScrollTop(scrollTop) }),
       setLorebookPanelCategory: (category) => set({ lorebookPanelCategory: normalizeLorebookPanelCategory(category) }),
       setLorebookPanelSearch: (search) => set({ lorebookPanelSearch: normalizePanelText(search) }),
       setLorebookPanelSort: (sort) => set({ lorebookPanelSort: normalizeLorebookPanelSort(sort) }),
@@ -1787,6 +1809,7 @@ export const useUIStore = create<UIState>()(
             personaDetailId: null,
             regexDetailId: null,
             storyBundleDetailId: null,
+            storyBundleGalleryOpen: false,
             spatialMapDetailChatId: null,
             characterLibraryOpen: preserveCharacterLibrary ? s.characterLibraryOpen : false,
             agentCatalogOpen: false,
@@ -1820,6 +1843,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           ...getMobileDetailReturnState(s),
         })),
@@ -1846,6 +1870,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           ...getMobileDetailReturnState(s),
         })),
@@ -1872,6 +1897,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           ...getMobileDetailReturnState(s),
         })),
@@ -1897,6 +1923,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           ...getMobileDetailReturnState(s),
         })),
@@ -1922,6 +1949,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           ...getMobileDetailReturnState(s),
         })),
@@ -1952,6 +1980,7 @@ export const useUIStore = create<UIState>()(
             toolDetailId: null,
             regexDetailId: null,
             storyBundleDetailId: null,
+            storyBundleGalleryOpen: false,
             spatialMapDetailChatId: null,
             ...getMobileDetailReturnState(s),
           };
@@ -1980,6 +2009,7 @@ export const useUIStore = create<UIState>()(
           agentDetailId: null,
           toolDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           ...getMobileDetailReturnState(s),
         })),
@@ -2020,6 +2050,7 @@ export const useUIStore = create<UIState>()(
           toolDetailId: null,
           personaDetailId: null,
           regexDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           ...getMobileDetailReturnState(s),
         })),
@@ -2029,6 +2060,30 @@ export const useUIStore = create<UIState>()(
           editorDirty: false,
           ...restoreMobileDetailReturnPanel(s.detailReturnRightPanel),
         })),
+      openStoryBundleGallery: () =>
+        set((state) => ({
+          storyBundleGalleryOpen: true,
+          storyBundleDetailId: null,
+          characterLibraryOpen: false,
+          agentCatalogOpen: false,
+          botBrowserOpen: false,
+          gameAssetsBrowserOpen: false,
+          noodleOpen: false,
+          characterDetailId: null,
+          lorebookDetailId: null,
+          presetDetailId: null,
+          connectionDetailId: null,
+          agentDetailId: null,
+          toolDetailId: null,
+          personaDetailId: null,
+          regexDetailId: null,
+          spatialMapDetailChatId: null,
+          pendingSpatialMapDraftReview: null,
+          editorDirty: false,
+          detailReturnRightPanel: null,
+          rightPanelOpen: isMobileShellViewport() ? false : state.rightPanelOpen,
+        })),
+      closeStoryBundleGallery: () => set({ storyBundleGalleryOpen: false }),
       openSpatialMapDetail: (chatId) =>
         set((s) => ({
           spatialMapDetailChatId: chatId,
@@ -2041,6 +2096,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           characterLibraryOpen: false,
           agentCatalogOpen: false,
           botBrowserOpen: false,
@@ -2061,6 +2117,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           characterLibraryOpen: false,
           agentCatalogOpen: false,
           botBrowserOpen: false,
@@ -2090,6 +2147,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           pendingSpatialMapDraftReview: null,
           botBrowserOpen: false,
@@ -2113,6 +2171,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           pendingSpatialMapDraftReview: null,
           botBrowserOpen: false,
@@ -2136,6 +2195,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           pendingSpatialMapDraftReview: null,
           botBrowserOpen: false,
@@ -2156,6 +2216,7 @@ export const useUIStore = create<UIState>()(
           detailReturnRightPanel: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           personaDetailId: null,
           characterDetailId: null,
@@ -2177,6 +2238,7 @@ export const useUIStore = create<UIState>()(
           detailReturnRightPanel: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           personaDetailId: null,
           characterDetailId: null,
@@ -2198,6 +2260,7 @@ export const useUIStore = create<UIState>()(
           detailReturnRightPanel: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           personaDetailId: null,
           characterDetailId: null,
@@ -2225,6 +2288,7 @@ export const useUIStore = create<UIState>()(
           s.personaDetailId ||
           s.regexDetailId ||
           s.storyBundleDetailId ||
+          s.storyBundleGalleryOpen ||
           s.spatialMapDetailChatId ||
           s.characterLibraryOpen ||
           s.agentCatalogOpen ||
@@ -2244,6 +2308,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           characterLibraryOpen: false,
           agentCatalogOpen: false,
@@ -2267,6 +2332,7 @@ export const useUIStore = create<UIState>()(
           personaDetailId: null,
           regexDetailId: null,
           storyBundleDetailId: null,
+          storyBundleGalleryOpen: false,
           spatialMapDetailChatId: null,
           characterLibraryOpen: false,
           agentCatalogOpen: false,
@@ -3067,6 +3133,13 @@ export const useUIStore = create<UIState>()(
         persisted.characterPanelScrollTop = normalizeScrollTop(persisted.characterPanelScrollTop);
         persisted.characterLibraryScrollTop = normalizeScrollTop(persisted.characterLibraryScrollTop);
         persisted.personaLibraryScrollTop = normalizeScrollTop(persisted.personaLibraryScrollTop);
+        persisted.storyBundleGalleryOpen = persisted.storyBundleGalleryOpen === true;
+        persisted.storyBundleGallerySelectedId =
+          typeof persisted.storyBundleGallerySelectedId === "string" && persisted.storyBundleGallerySelectedId.trim()
+            ? persisted.storyBundleGallerySelectedId
+            : null;
+        persisted.storyBundleGallerySort = normalizeBasicPanelSort(persisted.storyBundleGallerySort);
+        persisted.storyBundleGalleryScrollTop = normalizeScrollTop(persisted.storyBundleGalleryScrollTop);
         persisted.lorebookPanelCategory = normalizeLorebookPanelCategory(persisted.lorebookPanelCategory);
         persisted.lorebookPanelSearch = normalizePanelText(persisted.lorebookPanelSearch);
         persisted.lorebookPanelSort = normalizeLorebookPanelSort(persisted.lorebookPanelSort);
@@ -3270,6 +3343,10 @@ export const useUIStore = create<UIState>()(
         personaLibrarySort: state.personaLibrarySort,
         characterLibraryScrollTop: state.characterLibraryScrollTop,
         personaLibraryScrollTop: state.personaLibraryScrollTop,
+        storyBundleGalleryOpen: state.storyBundleGalleryOpen,
+        storyBundleGallerySelectedId: state.storyBundleGallerySelectedId,
+        storyBundleGallerySort: state.storyBundleGallerySort,
+        storyBundleGalleryScrollTop: state.storyBundleGalleryScrollTop,
         lorebookPanelCategory: state.lorebookPanelCategory,
         lorebookPanelSearch: state.lorebookPanelSearch,
         lorebookPanelSort: state.lorebookPanelSort,

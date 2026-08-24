@@ -88,6 +88,9 @@ const PersonaEditor = lazy(() =>
 const StoryBundleEditor = lazy(() =>
   import("../story-bundles/StoryBundleEditor").then((module) => ({ default: module.StoryBundleEditor })),
 );
+const StoryBundleGalleryView = lazy(() =>
+  import("../story-bundles/StoryBundleGalleryView").then((module) => ({ default: module.StoryBundleGalleryView })),
+);
 const RegexScriptEditor = lazy(() =>
   import("../agents/RegexScriptEditor").then((module) => ({ default: module.RegexScriptEditor })),
 );
@@ -551,6 +554,7 @@ export function AppShell() {
   const personaDetailId = useUIStore((s) => s.personaDetailId);
   const regexDetailId = useUIStore((s) => s.regexDetailId);
   const storyBundleDetailId = useUIStore((s) => s.storyBundleDetailId);
+  const storyBundleGalleryOpen = useUIStore((s) => s.storyBundleGalleryOpen);
   const botBrowserOpen = useUIStore((s) => s.botBrowserOpen);
   const gameAssetsBrowserOpen = useUIStore((s) => s.gameAssetsBrowserOpen);
   const hasCompletedOnboarding = useUIStore((s) => s.hasCompletedOnboarding);
@@ -806,6 +810,8 @@ export function AppShell() {
     <AgentCatalogView />
   ) : lorebookDetailId ? (
     <LorebookEditor />
+  ) : storyBundleGalleryOpen ? (
+    <StoryBundleGalleryView />
   ) : storyBundleDetailId ? (
     <StoryBundleEditor />
   ) : null;

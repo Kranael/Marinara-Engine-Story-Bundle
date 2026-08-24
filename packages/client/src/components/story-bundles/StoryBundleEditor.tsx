@@ -20,7 +20,6 @@ import {
   UserRound,
   Users,
 } from "lucide-react";
-import DOMPurify from "dompurify";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
@@ -32,6 +31,7 @@ import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
 import { api } from "../../lib/api-client";
 import { showChoiceDialog, showConfirmDialog } from "../../lib/app-dialogs";
+import { sanitizeStoryBundleDescription } from "../../lib/story-bundle-html";
 import { cn } from "../../lib/utils";
 import { EditorTabNavigation } from "../ui/EditorTabNavigation";
 import { StoryBundleDescription } from "./StoryBundleDescription";
@@ -42,74 +42,6 @@ import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
 import { StoryBundlePresets } from "./StoryBundlePresets";
 import { StoryBundleAgents } from "./StoryBundleAgents";
 import { StoryBundleIntros } from "./StoryBundleIntros";
-
-/** Allowed HTML tags for the description preview. */
-const ALLOWED_DESCRIPTION_TAGS = [
-  "a",
-  "abbr",
-  "b",
-  "blockquote",
-  "br",
-  "code",
-  "dd",
-  "del",
-  "div",
-  "dl",
-  "dt",
-  "em",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "hr",
-  "i",
-  "img",
-  "ins",
-  "li",
-  "mark",
-  "ol",
-  "p",
-  "pre",
-  "s",
-  "small",
-  "span",
-  "strong",
-  "sub",
-  "sup",
-  "table",
-  "tbody",
-  "td",
-  "th",
-  "thead",
-  "tr",
-  "u",
-  "ul",
-];
-
-/** Sanitize HTML for safe rendering in the description preview. */
-function sanitizeDescription(html: string): string {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ALLOWED_DESCRIPTION_TAGS,
-    ALLOWED_ATTR: [
-      "href",
-      "target",
-      "rel",
-      "src",
-      "alt",
-      "width",
-      "height",
-      "class",
-      "id",
-      "style",
-      "colspan",
-      "rowspan",
-      "start",
-      "type",
-    ],
-  });
-}
 
 /** Parse a JSON string or array into a string[] of character IDs. */
 function parseCharacterFolderIds(value: unknown): string[] {
@@ -282,7 +214,10 @@ export function StoryBundleEditor() {
     introsDirty ||
     avatarCropDirty;
 
-  const sanitizedDescription = useMemo(() => (description ? sanitizeDescription(description) : ""), [description]);
+  const sanitizedDescription = useMemo(
+    () => (description ? sanitizeStoryBundleDescription(description) : ""),
+    [description],
+  );
 
   const handleSave = useCallback(async () => {
     if (!storyBundleDetailId || !isDirty || saving) return;

@@ -8,31 +8,22 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { BookMarked, Download, Loader2, Play, Plus, Trash2, Upload } from "lucide-react";
-import { useStoryBundles, useCreateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
-import { useCreateChat, useUpdateChatMetadata } from "../../hooks/use-chats";
-import { useConnections } from "../../hooks/use-connections";
+import { BookMarked, Download, Images, Loader2, Play, Plus, Trash2, Upload } from "lucide-react";
+import { useStoryBundles, useCreateStoryBundle } from "../../hooks/use-story-bundles";
+import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
 import { useUIStore } from "../../stores/ui.store";
-import { useChatStore } from "../../stores/chat.store";
-import { showChoiceDialog, showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
-import { api } from "../../lib/api-client";
+import { showPromptDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
 
 export function StoryBundlesPanel() {
   const { t } = useTranslation();
   const openStoryBundleDetail = useUIStore((s) => s.openStoryBundleDetail);
+  const openStoryBundleGallery = useUIStore((s) => s.openStoryBundleGallery);
   const openModal = useUIStore((s) => s.openModal);
   const { data: bundles, isLoading } = useStoryBundles();
   const createMutation = useCreateStoryBundle();
-  const deleteMutation = useDeleteStoryBundle();
   const [creating, setCreating] = useState(false);
-  const [exportingId, setExportingId] = useState<string | null>(null);
-  const [playingId, setPlayingId] = useState<string | null>(null);
-
-  // RP chat creation hook for the Play button
-  const createChat = useCreateChat();
-  const updateChatMetadata = useUpdateChatMetadata();
-  const { data: connections } = useConnections();
+  const { play, exportBundle, remove, playingId, exportingId } = useStoryBundleActions();
 
   const handleCreate = useCallback(async () => {
     if (creating) return;
@@ -61,173 +52,9 @@ export function StoryBundlesPanel() {
 
   const handleDelete = useCallback(
     async (id: string, name: string) => {
-      const confirmed = await showConfirmDialog({
-        title: t("storyBundles.deleteConfirmTitle", "Delete story bundle?"),
-        message: t("storyBundles.deleteConfirmBody", {
-          defaultValue: "“{{name}}” will be permanently deleted.",
-          name,
-        }),
-        confirmLabel: t("storyBundles.delete", "Delete"),
-        tone: "destructive",
-        testId: "story-bundle-delete-dialog",
-      });
-      if (!confirmed) return;
-      try {
-        await deleteMutation.mutateAsync(id);
-      } catch {
-        toast.error(t("storyBundles.deleteFailed", "Failed to delete the story bundle."));
-      }
+      await remove(id, name);
     },
-    [deleteMutation, t],
-  );
-
-  const handlePlay = useCallback(
-    async (id: string, _name: string) => {
-      if (playingId) return;
-      setPlayingId(id);
-      try {
-        // Fetch the full bundle to get character/persona/preset/intro IDs
-        const bundle = await api.get<{
-          id: string;
-          name: string;
-          characterIds: string[];
-          personaIds: string[];
-          lorebookIds: string[];
-          presetIds: string[];
-          agentIds: string[];
-          intros?: Array<{ id: string; name: string; text: string }>;
-        }>(`/story-bundles/${id}`);
-
-        // If the bundle has intros, let the user pick one first.
-        let selectedIntroText: string | null = null;
-        const bundleIntros = bundle.intros ?? [];
-        if (bundleIntros.length > 0) {
-          const choice = await showChoiceDialog({
-            title: t("storyBundles.introPickTitle", "Choose an Intro"),
-            message: t("storyBundles.introPickMessage", "Select an intro to use as the first message."),
-            choices: bundleIntros.map((intro) => ({
-              key: intro.id,
-              label: intro.name,
-            })),
-          });
-          if (!choice) {
-            setPlayingId(null);
-            return;
-          }
-          const picked = bundleIntros.find((i) => i.id === choice);
-          selectedIntroText = picked?.text ?? null;
-        }
-
-        const conns = (connections ?? []) as Array<{ id: string }>;
-
-        createChat.mutate(
-          {
-            name: bundle.name,
-            mode: "roleplay",
-            characterIds: bundle.characterIds ?? [],
-            personaId: bundle.personaIds?.[0] ?? null,
-            connectionId: conns[0]?.id,
-            promptPresetId: bundle.presetIds?.[0] ?? null,
-          },
-          {
-            onSuccess: async (chat) => {
-              useChatStore.getState().setActiveChatId(chat.id);
-
-              // Tag the chat with the story bundle it was started from so the
-              // chat sidebar can show the bundle's picture on this RP's row.
-              try {
-                await updateChatMetadata.mutateAsync({ id: chat.id, storyBundleId: bundle.id });
-              } catch (err) {
-                console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
-              }
-
-              // Activate the bundle's lorebooks on the new chat.
-              const lorebookIds = bundle.lorebookIds ?? [];
-              if (lorebookIds.length > 0) {
-                try {
-                  await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
-                } catch (err) {
-                  console.error("[playStoryBundle] Failed to activate lorebooks:", err);
-                }
-              }
-
-              // Activate the bundle's pre-configured agents on the new chat.
-              const agentIds = bundle.agentIds ?? [];
-              if (agentIds.length > 0) {
-                try {
-                  await api.patch(`/chats/${chat.id}/metadata`, {
-                    enableAgents: true,
-                    activeAgentIds: agentIds,
-                  });
-                } catch (err) {
-                  console.error("[playStoryBundle] Failed to activate agents:", err);
-                }
-              }
-
-              // If an intro was selected, insert it as the first assistant message.
-              if (selectedIntroText) {
-                try {
-                  await api.post(`/chats/${chat.id}/messages`, {
-                    role: "assistant",
-                    content: selectedIntroText,
-                  });
-                } catch (err) {
-                  console.error("[playStoryBundle] Failed to insert intro message:", err);
-                }
-              }
-
-              // Check if the preset has configurable variables — if so, show
-              // only the ChoiceSelectionModal instead of the full setup wizard.
-              const presetId = bundle.presetIds?.[0] ?? null;
-              let hasPresetVariables = false;
-              if (presetId) {
-                try {
-                  const presetFull = await api.get<{ choiceBlocks?: Array<{ id: string }> }>(
-                    `/prompts/${presetId}/full`,
-                  );
-                  hasPresetVariables = (presetFull?.choiceBlocks?.length ?? 0) > 0;
-                } catch {
-                  // If we can't fetch the preset, fall through to settings.
-                }
-              }
-
-              useChatStore.getState().setShouldOpenSettings(true);
-              if (hasPresetVariables && presetId) {
-                useChatStore.getState().setPresetVariablesPrompt({ chatId: chat.id, presetId });
-              }
-              toast.success(t("storyBundles.playStarted", "Roleplay started!"));
-              setPlayingId(null);
-            },
-            onError: (err) => {
-              console.error("[playStoryBundle]", err);
-              toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
-              setPlayingId(null);
-            },
-          },
-        );
-      } catch (err) {
-        console.error("[playStoryBundle]", err);
-        toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
-        setPlayingId(null);
-      }
-    },
-    [playingId, connections, createChat, updateChatMetadata, t],
-  );
-
-  const handleExport = useCallback(
-    async (id: string, name: string) => {
-      if (exportingId) return;
-      setExportingId(id);
-      try {
-        await api.download(`/story-bundles/${id}/export`, `${name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json`);
-        toast.success(t("storyBundles.exportSuccess", "Story bundle exported."));
-      } catch {
-        toast.error(t("storyBundles.exportFailed", "Failed to export the story bundle."));
-      } finally {
-        setExportingId(null);
-      }
-    },
-    [exportingId, t],
+    [remove],
   );
 
   return (
@@ -238,6 +65,14 @@ export function StoryBundlesPanel() {
           {t("storyBundles.count", { count: bundles?.length ?? 0, defaultValue: "{{count}} bundles" })}
         </span>
         <div className="flex items-center gap-1.5">
+          <button
+            data-testid="story-bundles-gallery-button"
+            onClick={openStoryBundleGallery}
+            className="mari-chrome-control mari-chrome-control--primary text-xs"
+            title={t("storyBundles.openGallery", "Open Gallery")}
+          >
+            <Images size="0.8125rem" />
+          </button>
           <button
             data-testid="story-bundles-import-button"
             onClick={() => openModal("import-story-bundle")}
@@ -312,7 +147,7 @@ export function StoryBundlesPanel() {
                       data-testid={`story-bundle-play-button-${bundle.id}`}
                       onClick={(event) => {
                         event.stopPropagation();
-                        void handlePlay(bundle.id, bundle.name);
+                        void play(bundle);
                       }}
                       disabled={playingId === bundle.id}
                       className="rounded-md p-1 transition-transform hover:bg-[var(--sidebar-accent)] active:scale-90"
@@ -328,7 +163,7 @@ export function StoryBundlesPanel() {
                       data-testid={`story-bundle-export-button-${bundle.id}`}
                       onClick={(event) => {
                         event.stopPropagation();
-                        void handleExport(bundle.id, bundle.name);
+                        void exportBundle(bundle.id, bundle.name);
                       }}
                       disabled={exportingId === bundle.id}
                       className="rounded-md p-1 transition-transform hover:bg-[var(--sidebar-accent)] active:scale-90"

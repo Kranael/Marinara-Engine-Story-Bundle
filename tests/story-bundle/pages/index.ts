@@ -6,6 +6,7 @@ export { CreateStoryBundleDialogPage as CreateDialog } from "./create-story-bund
 export { DeleteStoryBundleDialogPage as DeleteDialog } from "./delete-story-bundle-dialog.page.js";
 export { ImportStoryBundleModalPage as ImportModal } from "./import-story-bundle-modal.page.js";
 export { StoryBundleEditorPage as StoryBundleEditor } from "./story-bundle-editor.page.js";
+export { StoryBundleGalleryPage as StoryBundleGallery } from "./story-bundle-gallery.page.js";
 export { StoryBundleDescriptionTabPage } from "./story-bundle-description-tab.page.js";
 export { StoryBundleCharactersTabPage } from "./story-bundle-characters-tab.page.js";
 export { StoryBundlePersonasTabPage } from "./story-bundle-personas-tab.page.js";

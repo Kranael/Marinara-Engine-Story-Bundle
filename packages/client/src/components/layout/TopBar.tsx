@@ -121,6 +121,7 @@ export function TopBar() {
   const personaDetailId = useUIStore((s) => s.personaDetailId);
   const regexDetailId = useUIStore((s) => s.regexDetailId);
   const storyBundleDetailId = useUIStore((s) => s.storyBundleDetailId);
+  const storyBundleGalleryOpen = useUIStore((s) => s.storyBundleGalleryOpen);
   const botBrowserOpen = useUIStore((s) => s.botBrowserOpen);
   const gameAssetsBrowserOpen = useUIStore((s) => s.gameAssetsBrowserOpen);
   const characterLibraryOpen = useUIStore((s) => s.characterLibraryOpen);
@@ -154,7 +155,8 @@ export function TopBar() {
       (rightPanelOpen && rightPanel === "personas") ||
       Boolean(personaDetailId) ||
       (characterLibraryOpen && cardLibraryKind === "personas"),
-    "story-bundles": (rightPanelOpen && rightPanel === "story-bundles") || Boolean(storyBundleDetailId),
+    "story-bundles":
+      (rightPanelOpen && rightPanel === "story-bundles") || Boolean(storyBundleDetailId) || storyBundleGalleryOpen,
   };
   const isMobileOverlayActive = mobileTopbarNavigation && (sidebarOpen || rightPanelOpen);
   const isHomeActive =
@@ -168,6 +170,7 @@ export function TopBar() {
     !toolDetailId &&
     !personaDetailId &&
     !regexDetailId &&
+    !storyBundleGalleryOpen &&
     !storyBundleDetailId &&
     !botBrowserOpen &&
     !gameAssetsBrowserOpen &&
