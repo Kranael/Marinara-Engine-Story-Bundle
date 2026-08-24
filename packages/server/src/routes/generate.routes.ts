@@ -3693,6 +3693,7 @@ export async function generateRoutes(app: FastifyInstance) {
               characterSprites: gmCtx.characterSprites,
               language: gmCtx.language,
               rating: gmCtx.rating,
+              enableQuickTimeEvents: gmCtx.enableQuickTimeEvents,
               gameSpecialInstructions: gmCtx.gameSpecialInstructions,
               canGenerateBackgrounds: gmCtx.canGenerateBackgrounds,
               artStylePrompt: gmCtx.artStylePrompt,
@@ -4076,6 +4077,7 @@ export async function generateRoutes(app: FastifyInstance) {
                 }
               : null,
           memory: {},
+          lorebookEntryCounts: promptMacroContext.lorebookEntryCounts,
           writableLorebookIds: null,
           chatSummary: activeChatSummary,
           authorNotes: authorNotes || null,

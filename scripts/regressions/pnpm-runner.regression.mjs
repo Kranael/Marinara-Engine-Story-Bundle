@@ -59,6 +59,19 @@ assert.deepEqual(
 );
 
 assert.deepEqual(
+  resolvePnpmRunner({
+    platform: "linux",
+    execPath: "/usr/local/bin/node",
+    environment: {
+      npm_config_user_agent: "pnpm/10.34.5 npm/? node/v24.15.0 linux x64",
+      npm_execpath: "/opt/pnpm/pnpm",
+    },
+  }),
+  { command: "/usr/local/bin/node", args: ["/opt/pnpm/pnpm"] },
+  "POSIX must keep reusing an extensionless pnpm CLI path with the current Node process.",
+);
+
+assert.deepEqual(
   resolvePlaywrightProjectStdio("win32"),
   ["ignore", "inherit", "inherit"],
   "Windows Playwright project children must not inherit Playwright's piped stdin while preserving output.",
