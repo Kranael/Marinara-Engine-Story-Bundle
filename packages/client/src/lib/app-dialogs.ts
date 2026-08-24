@@ -15,6 +15,12 @@ type ActiveDialogResolver = {
 
 let activeResolver: ActiveDialogResolver | null = null;
 
+/**
+ * Resolved key prefix for the scenario dialog's "Custom Scenario" option — the
+ * remainder of the string is the user's free-text starting-situation description.
+ */
+export const CUSTOM_SCENARIO_CHOICE_PREFIX = "__marinara_custom_scenario__:";
+
 function resolveFallback(kind: AppDialogState["kind"]) {
   if (kind === "confirm") return false;
   if (kind === "prompt") return null;

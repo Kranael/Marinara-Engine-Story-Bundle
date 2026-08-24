@@ -4,6 +4,7 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   BookMarked,
@@ -24,12 +25,14 @@ import { useCharacters, useCharacterGroups, usePersonas } from "../../hooks/use-
 import { useLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
 import type { Lorebook, PromptPreset, StoryBundleScenario } from "@marinara-engine/shared";
-import { useCreateChat, useUpdateChatMetadata } from "../../hooks/use-chats";
+import { buildNarratorInstructionMessage } from "@marinara-engine/shared";
+import { useCreateChat, useUpdateChatMetadata, chatKeys } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
+import { useGenerate } from "../../hooks/use-generate";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
 import { api } from "../../lib/api-client";
-import { showConfirmDialog, showScenarioDialog } from "../../lib/app-dialogs";
+import { showConfirmDialog, showScenarioDialog, CUSTOM_SCENARIO_CHOICE_PREFIX } from "../../lib/app-dialogs";
 import { sanitizeStoryBundleDescription } from "../../lib/story-bundle-html";
 import { cn } from "../../lib/utils";
 import { EditorTabNavigation } from "../ui/EditorTabNavigation";
@@ -151,6 +154,8 @@ export function StoryBundleEditor() {
   const createChat = useCreateChat();
   const updateChatMetadata = useUpdateChatMetadata();
   const { data: connections } = useConnections();
+  const { generate } = useGenerate();
+  const qc = useQueryClient();
 
   // Keep the local draft in sync with the loaded bundle. useLayoutEffect so
   // the draft is populated synchronously before paint — Play must never read
@@ -296,129 +301,168 @@ export function StoryBundleEditor() {
   const handlePlay = useCallback(async () => {
     if (!bundle || playing) return;
     setPlaying(true);
+    let loadingToastId: string | number | undefined;
 
-    // Play what the user sees: use the current editor draft rather than the
-    // last saved server state, so unsaved changes (e.g. a freshly added
-    // preset) are honored when starting the roleplay.
-    const draftName = name.trim() || bundle.name;
-    const draftCharacterIds = characterIds;
-    const draftPersonaId = personaIds[0] ?? null;
-    const draftLorebookIds = lorebookIds;
-    const draftPresetId = presetIds[0] ?? null;
-    const draftAgentIds = agentIds;
-    const draftScenarios = scenarios;
+    try {
+      // Play what the user sees: use the current editor draft rather than the
+      // last saved server state, so unsaved changes (e.g. a freshly added
+      // preset) are honored when starting the roleplay.
+      const draftName = name.trim() || bundle.name;
+      const draftCharacterIds = characterIds;
+      const draftPersonaId = personaIds[0] ?? null;
+      const draftLorebookIds = lorebookIds;
+      const draftPresetId = presetIds[0] ?? null;
+      const draftAgentIds = agentIds;
+      const draftScenarios = scenarios;
 
-    // If the bundle has scenarios, let the user pick one first.
-    let selectedOpeningMessage: string | null = null;
-    if (draftScenarios.length > 0) {
-      const choice = await showScenarioDialog({
-        title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
-        message: t("storyBundles.scenarioPickMessage", "Select a scenario to use as the first message."),
-        scenarios: draftScenarios.map((scenario) => ({
-          key: scenario.id,
-          title: scenario.title,
-          imagePath: scenario.imagePath,
-          avatarCrop: scenario.avatarCrop,
-        })),
-        cancelLabel: t("storyBundles.cancel", "Cancel"),
-      });
-      if (!choice) {
-        setPlaying(false);
-        return;
+      // If the bundle has scenarios, let the user pick one — or describe a
+      // custom one — first.
+      let selectedOpeningMessage: string | null = null;
+      let customScenarioText: string | null = null;
+      if (draftScenarios.length > 0) {
+        const choice = await showScenarioDialog({
+          title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
+          message: t("storyBundles.scenarioPickMessage", "Select a scenario to use as the first message."),
+          scenarios: draftScenarios.map((scenario) => ({
+            key: scenario.id,
+            title: scenario.title,
+            imagePath: scenario.imagePath,
+            avatarCrop: scenario.avatarCrop,
+          })),
+          cancelLabel: t("storyBundles.cancel", "Cancel"),
+          allowCustomScenario: true,
+          customScenarioLabel: t("storyBundles.customScenario", "Custom Scenario"),
+          customScenarioPlaceholder: t(
+            "storyBundles.customScenarioPlaceholder",
+            "Describe how the story should begin…",
+          ),
+          customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
+        });
+        if (!choice) {
+          setPlaying(false);
+          return;
+        }
+        if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
+          customScenarioText = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
+        } else {
+          const picked = draftScenarios.find((s) => s.id === choice);
+          selectedOpeningMessage = picked?.openingMessage ?? null;
+        }
       }
-      const picked = draftScenarios.find((s) => s.id === choice);
-      selectedOpeningMessage = picked?.openingMessage ?? null;
-    }
 
-    const conns = (connections ?? []) as Array<{ id: string }>;
-    createChat.mutate(
-      {
+      if (customScenarioText) {
+        loadingToastId = toast.loading(
+          t("storyBundles.customScenarioGenerating", "Starting your scenario… this may take a moment."),
+        );
+      }
+
+      const conns = (connections ?? []) as Array<{ id: string }>;
+      const chat = await createChat.mutateAsync({
         name: draftName,
         mode: "roleplay",
         characterIds: draftCharacterIds,
         personaId: draftPersonaId,
         connectionId: conns[0]?.id,
         promptPresetId: draftPresetId,
-      },
-      {
-        onSuccess: async (chat) => {
-          useChatStore.getState().setActiveChatId(chat.id);
+      });
 
-          // Tag the chat with the story bundle it was started from so the
-          // chat sidebar can show the bundle's picture on this RP's row.
-          try {
-            await updateChatMetadata.mutateAsync({ id: chat.id, storyBundleId: bundle.id });
-          } catch (err) {
-            console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
-          }
+      // Tag the chat with the story bundle it was started from so the
+      // chat sidebar can show the bundle's picture on this RP's row.
+      try {
+        await updateChatMetadata.mutateAsync({ id: chat.id, storyBundleId: bundle.id });
+      } catch (err) {
+        console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
+      }
 
-          // Activate the bundle's lorebooks on the new chat.
-          if (draftLorebookIds.length > 0) {
-            try {
-              await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: draftLorebookIds });
-            } catch (err) {
-              console.error("[playStoryBundle] Failed to activate lorebooks:", err);
-            }
-          }
+      // Activate the bundle's lorebooks on the new chat.
+      if (draftLorebookIds.length > 0) {
+        try {
+          await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: draftLorebookIds });
+        } catch (err) {
+          console.error("[playStoryBundle] Failed to activate lorebooks:", err);
+        }
+      }
 
-          // Activate the bundle's pre-configured agents on the new chat.
-          if (draftAgentIds.length > 0) {
-            try {
-              await api.patch(`/chats/${chat.id}/metadata`, {
-                enableAgents: true,
-                activeAgentIds: draftAgentIds,
-              });
-            } catch (err) {
-              console.error("[playStoryBundle] Failed to activate agents:", err);
-            }
-          }
+      // Activate the bundle's pre-configured agents on the new chat.
+      if (draftAgentIds.length > 0) {
+        try {
+          await api.patch(`/chats/${chat.id}/metadata`, {
+            enableAgents: true,
+            activeAgentIds: draftAgentIds,
+          });
+        } catch (err) {
+          console.error("[playStoryBundle] Failed to activate agents:", err);
+        }
+      }
 
-          // If a scenario was selected, insert its opening message as the first assistant message.
-          if (selectedOpeningMessage) {
-            try {
-              await api.post(`/chats/${chat.id}/messages`, {
-                role: "assistant",
-                content: selectedOpeningMessage,
-              });
-            } catch (err) {
-              console.error("[playStoryBundle] Failed to insert scenario opening message:", err);
-            }
-          }
+      // If a scenario was selected, insert its opening message as the first
+      // assistant message and refresh the messages cache so it is visible
+      // the moment we navigate in.
+      if (selectedOpeningMessage) {
+        try {
+          await api.post(`/chats/${chat.id}/messages`, {
+            role: "assistant",
+            content: selectedOpeningMessage,
+          });
+          await qc.invalidateQueries({ queryKey: chatKeys.messages(chat.id) });
+        } catch (err) {
+          console.error("[playStoryBundle] Failed to insert scenario opening message:", err);
+        }
+      } else if (customScenarioText) {
+        // Generate the opening message from the user's free-text description
+        // using the same narrator-guided generation the "/narrator" command
+        // uses — no separate AI/preset system, just an unmounted (silent)
+        // run of the existing generation pipeline.
+        try {
+          await generate({
+            chatId: chat.id,
+            connectionId: null,
+            generationGuide: buildNarratorInstructionMessage(customScenarioText),
+            generationGuideSource: "narrator",
+          });
+        } catch (err) {
+          console.error("[playStoryBundle] Failed to generate custom scenario opening message:", err);
+        }
+      }
 
-          // Check if the preset has configurable variables — if so, show
-          // only the ChoiceSelectionModal instead of the full setup wizard.
-          const presetId = draftPresetId;
-          let hasPresetVariables = false;
-          if (presetId) {
-            try {
-              const presetFull = await api.get<{ choiceBlocks?: Array<{ id: string }> }>(`/prompts/${presetId}/full`);
-              hasPresetVariables = (presetFull?.choiceBlocks?.length ?? 0) > 0;
-            } catch {
-              // If we can't fetch the preset, fall through to settings.
-            }
-          }
+      // Check if the preset has configurable variables — if so, show
+      // only the ChoiceSelectionModal instead of the full setup wizard.
+      const presetId = draftPresetId;
+      let hasPresetVariables = false;
+      if (presetId) {
+        try {
+          const presetFull = await api.get<{ choiceBlocks?: Array<{ id: string }> }>(`/prompts/${presetId}/full`);
+          hasPresetVariables = (presetFull?.choiceBlocks?.length ?? 0) > 0;
+        } catch {
+          // If we can't fetch the preset, fall through to settings.
+        }
+      }
 
-          useChatStore.getState().setShouldOpenSettings(true);
-          if (hasPresetVariables && presetId) {
-            useChatStore.getState().setPresetVariablesPrompt({ chatId: chat.id, presetId });
-          }
-          closeStoryBundleDetail();
-          toast.success(t("storyBundles.playStarted", "Roleplay started!"));
-          setPlaying(false);
-        },
-        onError: (err) => {
-          console.error("[playStoryBundle]", err);
-          toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
-          setPlaying(false);
-        },
-      },
-    );
+      useChatStore.getState().setShouldOpenSettings(true);
+      if (hasPresetVariables && presetId) {
+        useChatStore.getState().setPresetVariablesPrompt({ chatId: chat.id, presetId });
+      }
+      // Navigate into the chat only once the first message (static or
+      // AI-generated) is ready — entering earlier is what left mobile on an
+      // empty RP screen while the message was still in flight.
+      useChatStore.getState().setActiveChatId(chat.id);
+      closeStoryBundleDetail();
+      toast.success(t("storyBundles.playStarted", "Roleplay started!"));
+    } catch (err) {
+      console.error("[playStoryBundle]", err);
+      toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
+    } finally {
+      if (loadingToastId !== undefined) toast.dismiss(loadingToastId);
+      setPlaying(false);
+    }
   }, [
     bundle,
     playing,
     connections,
     createChat,
     updateChatMetadata,
+    generate,
+    qc,
     closeStoryBundleDetail,
     t,
     name,

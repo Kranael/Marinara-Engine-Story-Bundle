@@ -38,6 +38,11 @@ export type ScenarioDialogState = AppDialogCommon & {
   kind: "scenario";
   /** Visual cards shown in a grid; resolves the chosen key. */
   scenarios: Array<{ key: string; title: string; imagePath?: string | null; avatarCrop?: unknown }>;
+  /** When true, shows a "Custom Scenario" option that switches to a free-text description input. */
+  allowCustomScenario?: boolean;
+  customScenarioLabel?: string;
+  customScenarioPlaceholder?: string;
+  customScenarioConfirmLabel?: string;
 };
 
 export type AppDialogState =

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Sparkles } from "lucide-react";
 import { normalizeAvatarCrop } from "@marinara-engine/shared";
 import { Modal } from "./Modal";
-import { dismissActiveDialog, resolveActiveDialog } from "../../lib/app-dialogs";
+import { CUSTOM_SCENARIO_CHOICE_PREFIX, dismissActiveDialog, resolveActiveDialog } from "../../lib/app-dialogs";
 import { useDialogStore } from "../../stores/dialog.store";
 import { getAvatarCropStyle } from "../../lib/utils";
 import { useTranslation as useUiTranslation } from "react-i18next";
@@ -19,6 +19,8 @@ export function AppDialogRenderer() {
   const dialog = useDialogStore((state) => state.dialog);
   const [promptValue, setPromptValue] = useState("");
   const promptInputRef = useRef<HTMLInputElement>(null);
+  const [customScenarioMode, setCustomScenarioMode] = useState(false);
+  const [customScenarioText, setCustomScenarioText] = useState("");
 
   useEffect(() => {
     if (dialog?.kind !== "prompt") {
@@ -27,6 +29,13 @@ export function AppDialogRenderer() {
     }
 
     setPromptValue(dialog.defaultValue ?? "");
+  }, [dialog]);
+
+  useEffect(() => {
+    if (dialog?.kind !== "scenario") {
+      setCustomScenarioMode(false);
+      setCustomScenarioText("");
+    }
   }, [dialog]);
 
   useEffect(() => {
@@ -174,7 +183,7 @@ export function AppDialogRenderer() {
           </div>
         )}
 
-        {dialog.kind === "scenario" && (
+        {dialog.kind === "scenario" && !customScenarioMode && (
           <div className="space-y-3">
             <div className="grid max-h-[60vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
               {dialog.scenarios.map((scenario) => (
@@ -203,6 +212,17 @@ export function AppDialogRenderer() {
                 </button>
               ))}
             </div>
+            {dialog.allowCustomScenario && (
+              <button
+                type="button"
+                data-testid="app-dialog-custom-scenario-button"
+                onClick={() => setCustomScenarioMode(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--ring)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
+              >
+                <Sparkles size="0.875rem" />
+                {dialog.customScenarioLabel ?? "Custom Scenario"}
+              </button>
+            )}
             <button
               type="button"
               onClick={dismissActiveDialog}
@@ -210,6 +230,39 @@ export function AppDialogRenderer() {
             >
               {dialog.cancelLabel ?? "Cancel"}
             </button>
+          </div>
+        )}
+
+        {dialog.kind === "scenario" && customScenarioMode && (
+          <div className="space-y-3">
+            <textarea
+              data-testid="app-dialog-custom-scenario-input"
+              value={customScenarioText}
+              onChange={(event) => setCustomScenarioText(event.target.value)}
+              placeholder={dialog.customScenarioPlaceholder ?? "Describe how the story should begin…"}
+              rows={5}
+              autoFocus
+              className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]"
+            />
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                data-testid="app-dialog-custom-scenario-back-button"
+                onClick={() => setCustomScenarioMode(false)}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+              >
+                {dialog.cancelLabel ?? "Cancel"}
+              </button>
+              <button
+                type="button"
+                data-testid="app-dialog-custom-scenario-confirm-button"
+                disabled={!customScenarioText.trim()}
+                onClick={() => resolveActiveDialog(`${CUSTOM_SCENARIO_CHOICE_PREFIX}${customScenarioText.trim()}`)}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${confirmToneClass}`}
+              >
+                {dialog.customScenarioConfirmLabel ?? "Start Scenario"}
+              </button>
+            </div>
           </div>
         )}
       </div>
