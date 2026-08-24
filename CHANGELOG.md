@@ -49,6 +49,7 @@ This file is the release-notes source of truth for Marinara Engine. Reuse these 
 - Story Bundles now play exactly one persona: the Personas tab in the bundle editor is single-select, and picking a persona replaces any previously selected one instead of adding to a list.
 - Story Bundles now play exactly one prompt preset: the Presets tab in the bundle editor is single-select, and picking a preset replaces any previously selected one instead of adding to a list.
 - Made the Story Bundles panel's New Bundle button compact so it matches the height of the small icon buttons (Import, Delete) for a tidier toolbar.
+- Replaced the Story Bundle Play button in the editor header and the Story Bundle Gallery detail card with the same Conversation, Roleplay, and Game mode buttons used on Home. Roleplay keeps the exact existing Play behavior; Conversation and Game are visible but disabled placeholders for future Story Bundle modes. The Story Bundles panel row no longer shows a Play action, only Export and Delete.
 
 ### Fixed
 - The Story Bundle editor now wears the same chrome as the Character, Persona, Lorebook, and Preset editors: its section tabs sit in the header next to the actions, and the Back, Save, and Delete buttons use the shared editor button design, so it no longer looks like a foreign screen next to the other object editors.

@@ -78,9 +78,10 @@ test.describe("Story Bundles Panel — Positive", () => {
 
     await panel.hoverRow(bundle.name);
 
-    await expect(panel.playButtonLocator(bundle.name)).toBeVisible();
+    // Play was removed from the action pill — only Export and Delete remain.
     await expect(panel.exportButtonLocator(bundle.name)).toBeVisible();
     await expect(panel.deleteButtonLocator(bundle.name)).toBeVisible();
+    await expect(row.locator('[data-testid^="story-bundle-play-button-"]')).toHaveCount(0);
 
     await api.delete(bundle.id);
   });

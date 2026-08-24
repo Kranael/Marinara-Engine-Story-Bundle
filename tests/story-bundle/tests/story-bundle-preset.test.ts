@@ -157,6 +157,7 @@ test.describe("Story Bundle Presets — Positive", () => {
     const base = new BasePage(page);
     const home = new HomePage(page);
     const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
 
     let chatId: string | null = null;
     try {
@@ -164,9 +165,10 @@ test.describe("Story Bundle Presets — Positive", () => {
       await home.openStoryBundlesPanel();
       await panel.waitFor();
 
-      // Play directly from the panel action pill (no editor).
-      await panel.hoverRow(bundle.name);
-      await panel.clickPlay(bundle.name);
+      // Play was removed from the panel row action pill — start from the editor.
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+      await editor.playButton.click();
 
       // The "Configure Preset Variables" dialog should appear directly
       const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
@@ -216,6 +218,7 @@ test.describe("Story Bundle Presets — Positive", () => {
     const base = new BasePage(page);
     const home = new HomePage(page);
     const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
 
     let chatId: string | null = null;
     try {
@@ -223,8 +226,10 @@ test.describe("Story Bundle Presets — Positive", () => {
       await home.openStoryBundlesPanel();
       await panel.waitFor();
 
-      await panel.hoverRow(bundle.name);
-      await panel.clickPlay(bundle.name);
+      // Play was removed from the panel row action pill — start from the editor.
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+      await editor.playButton.click();
 
       // The "Configure Preset Variables" dialog should appear directly
       const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
@@ -292,6 +297,7 @@ test.describe("Story Bundle Presets — Positive", () => {
     const base = new BasePage(page);
     const home = new HomePage(page);
     const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
 
     let chatId: string | null = null;
     try {
@@ -299,8 +305,10 @@ test.describe("Story Bundle Presets — Positive", () => {
       await home.openStoryBundlesPanel();
       await panel.waitFor();
 
-      await panel.hoverRow(bundle.name);
-      await panel.clickPlay(bundle.name);
+      // Play was removed from the panel row action pill — start from the editor.
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+      await editor.playButton.click();
 
       // Step 1: the intro pick dialog appears first.
       await page.getByRole("button", { name: introName, exact: true }).click();

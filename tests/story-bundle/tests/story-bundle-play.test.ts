@@ -1,8 +1,9 @@
 /**
  * Story Bundle Play → Roleplay — Playwright E2E Tests
  *
- * Covers: Play button integration (panel + editor)
- * - Play button in panel action pill is visible on hover
+ * Covers: Roleplay button integration (editor + gallery only — the panel
+ * row action pill no longer exposes a Play/Roleplay action, only Export
+ * and Delete)
  * - Play button in editor header is visible
  * - Clicking play starts a roleplay chat (toast confirms)
  *
@@ -21,7 +22,7 @@ import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
 test.describe("Story Bundle Play — Positive", () => {
-  test("play button is visible in the row action pill on hover", async ({ page }) => {
+  test("row action pill on hover shows export and delete (play was removed)", async ({ page }) => {
     const base = new BasePage(page);
     const home = new HomePage(page);
     const panel = new StoryBundlesPanelPage(page);
@@ -34,27 +35,9 @@ test.describe("Story Bundle Play — Positive", () => {
     await panel.waitFor();
 
     await panel.hoverRow(bundle.name);
-    await expect(panel.playButtonLocator(bundle.name)).toBeVisible();
-
-    await api.delete(bundle.id);
-  });
-
-  test("clicking play from panel starts a roleplay and shows success toast", async ({ page }) => {
-    const base = new BasePage(page);
-    const home = new HomePage(page);
-    const panel = new StoryBundlesPanelPage(page);
-    const api = new StoryBundleAPI(page);
-
-    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
-
-    await base.goto();
-    await home.openStoryBundlesPanel();
-    await panel.waitFor();
-
-    await panel.hoverRow(bundle.name);
-    await panel.clickPlay(bundle.name);
-
-    await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
+    await expect(panel.exportButtonLocator(bundle.name)).toBeVisible();
+    await expect(panel.deleteButtonLocator(bundle.name)).toBeVisible();
+    await expect(panel.rowLocator(bundle.name).locator('[data-testid^="story-bundle-play-button-"]')).toHaveCount(0);
 
     await api.delete(bundle.id);
   });
@@ -158,12 +141,13 @@ test.describe("Story Bundle Play — Positive", () => {
 });
 
 test.describe("Story Bundle Play — Negative", () => {
-  test("play button is disabled when no connection is configured", async ({ page }) => {
-    // Play succeeds even without a connection — the button is always enabled.
+  test("roleplay button is enabled when no connection is configured", async ({ page }) => {
+    // Roleplay succeeds even without a connection — the button is always enabled.
     // This test verifies the button remains functional in the default state.
     const base = new BasePage(page);
     const home = new HomePage(page);
     const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
     const api = new StoryBundleAPI(page);
 
     const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
@@ -172,8 +156,9 @@ test.describe("Story Bundle Play — Negative", () => {
     await home.openStoryBundlesPanel();
     await panel.waitFor();
 
-    await panel.hoverRow(bundle.name);
-    await expect(panel.playButtonLocator(bundle.name)).toBeEnabled();
+    await panel.clickRow(bundle.name);
+    await editor.waitFor();
+    await expect(editor.playButton).toBeEnabled();
 
     await api.delete(bundle.id);
   });
@@ -187,6 +172,7 @@ test.describe("Story Bundle Play — Sidebar Image", () => {
     const base = new BasePage(page);
     const home = new HomePage(page);
     const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
     const api = new StoryBundleAPI(page);
 
     const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
@@ -205,8 +191,9 @@ test.describe("Story Bundle Play — Sidebar Image", () => {
       await home.openStoryBundlesPanel();
       await panel.waitFor();
 
-      await panel.hoverRow(bundle.name);
-      await panel.clickPlay(bundle.name);
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+      await editor.playButton.click();
 
       await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 
@@ -292,6 +279,7 @@ test.describe("Story Bundle Play — Preset Loading", () => {
     const base = new BasePage(page);
     const home = new HomePage(page);
     const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
     const api = new StoryBundleAPI(page);
 
     // Create a prompt preset via API (no variables, so no choice dialog).
@@ -315,8 +303,9 @@ test.describe("Story Bundle Play — Preset Loading", () => {
       await home.openStoryBundlesPanel();
       await panel.waitFor();
 
-      await panel.hoverRow(bundle.name);
-      await panel.clickPlay(bundle.name);
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+      await editor.playButton.click();
 
       await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 

@@ -6,7 +6,6 @@
  *   story-bundles-create-button
  *   story-bundles-import-button
  *   story-bundle-row-{id}
- *   story-bundle-play-button-{id}
  *   story-bundle-export-button-{id}
  *   story-bundle-delete-button-{id}
  */
@@ -38,11 +37,6 @@ export class StoryBundlesPanelPage {
       .filter({ has: this.page.getByText(name, { exact: true }) });
   }
 
-  /** Locate the play button inside a row's action pill. */
-  playButtonLocator(name: string): Locator {
-    return this.rowLocator(name).locator('[data-testid^="story-bundle-play-button-"]');
-  }
-
   /** Locate the export button inside a row's action pill. */
   exportButtonLocator(name: string): Locator {
     return this.rowLocator(name).locator('[data-testid^="story-bundle-export-button-"]');
@@ -68,11 +62,6 @@ export class StoryBundlesPanelPage {
   /** Hover a row to reveal the action pill. */
   async hoverRow(name: string): Promise<void> {
     await this.rowLocator(name).hover();
-  }
-
-  /** Click the play button for a bundle. */
-  async clickPlay(name: string): Promise<void> {
-    await this.playButtonLocator(name).click();
   }
 
   /** Click the export button for a bundle. */
