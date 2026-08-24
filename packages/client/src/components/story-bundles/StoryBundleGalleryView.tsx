@@ -507,14 +507,16 @@ export function StoryBundleGalleryView() {
                             type="button"
                             disabled
                             data-testid={`story-bundle-gallery-card-mode-conversation-${bundle.id}`}
-                            className="mari-editor-action justify-center px-1.5 py-1"
+                            className="mari-editor-action justify-center gap-1 px-1 py-1 text-[0.5625rem]"
                             title={t("storyBundles.modeComingSoon", "Coming soon")}
                           >
                             <ChatModeIcon
                               mode="conversation"
-                              size="0.75rem"
+                              size="0.6875rem"
+                              className="shrink-0"
                               style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }}
                             />
+                            <span className="truncate">{t("settings.modes.conversation", "Conversation")}</span>
                           </button>
                           <button
                             data-testid={`story-bundle-gallery-card-play-${bundle.id}`}
@@ -523,27 +525,35 @@ export function StoryBundleGalleryView() {
                               void play(bundle);
                             }}
                             disabled={playingId === bundle.id}
-                            className="mari-editor-action justify-center px-1.5 py-1"
+                            className="mari-editor-action justify-center gap-1 px-1 py-1 text-[0.5625rem]"
                             title={t("storyBundles.playTitle", "Start roleplay from this story bundle")}
                           >
                             {playingId === bundle.id ? (
-                              <Loader2 size="0.75rem" className="animate-spin" />
+                              <Loader2 size="0.6875rem" className="shrink-0 animate-spin" />
                             ) : (
                               <ChatModeIcon
                                 mode="roleplay"
-                                size="0.75rem"
+                                size="0.6875rem"
+                                className="shrink-0"
                                 style={{ color: HOME_CHAT_MODE_ACCENTS.roleplay }}
                               />
                             )}
+                            <span className="truncate">{t("settings.modes.roleplay", "Roleplay")}</span>
                           </button>
                           <button
                             type="button"
                             disabled
                             data-testid={`story-bundle-gallery-card-mode-game-${bundle.id}`}
-                            className="mari-editor-action justify-center px-1.5 py-1"
+                            className="mari-editor-action justify-center gap-1 px-1 py-1 text-[0.5625rem]"
                             title={t("storyBundles.modeComingSoon", "Coming soon")}
                           >
-                            <ChatModeIcon mode="game" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.game }} />
+                            <ChatModeIcon
+                              mode="game"
+                              size="0.6875rem"
+                              className="shrink-0"
+                              style={{ color: HOME_CHAT_MODE_ACCENTS.game }}
+                            />
+                            <span className="truncate">{t("settings.modes.game", "Game")}</span>
                           </button>
                         </div>
                       </div>
