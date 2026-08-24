@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { prepareFreshClient } from "../helpers/fresh-client.js";
+import { switchEditorTab } from "../helpers/editor-tabs.js";
 
 // E2E Test Happy Path  ### Full Flow from fresh start
 
@@ -63,7 +64,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
     });
 
     await test.step("Switch to Card Tab", async () => {
-      await page.getByTestId("character-editor-tab-card").click();
+      await switchEditorTab(page, "character-editor-tab-card");
     });
 
     await test.step("Add Character Prompt", async () => {
@@ -260,7 +261,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
       });
 
       await test.step("Switch to Description Tab", async () => {
-        await page.getByTestId("persona-editor-tab-card").click();
+        await switchEditorTab(page, "persona-editor-tab-card");
       });
 
       await test.step("Add Character Prompt", async () => {
@@ -338,7 +339,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
     });
 
     await test.step("Switch to entry tab", async () => {
-      await page.getByTestId("lorebook-editor-tab-entries").click();
+      await switchEditorTab(page, "lorebook-editor-tab-entries");
     });
 
     await test.step("Add Lorebook Entry", async () => {
@@ -458,7 +459,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
   });
 
   await test.step("Switch to Description Tab", async () => {
-    await page.getByTestId("story-bundle-editor-tab-description").click();
+    await switchEditorTab(page, "story-bundle-editor-tab-description");
   });
 
   await test.step("Enter story bundle description", async () => {
@@ -492,7 +493,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
   });
 
   await test.step("Add created characters", async () => {
-    await page.getByTestId("story-bundle-editor-tab-characters").click();
+    await switchEditorTab(page, "story-bundle-editor-tab-characters");
 
     // Use the ids captured during creation/import of this run. The picker
     // paginates (20 rows per page), so on a busy shared storage our entries
@@ -513,7 +514,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
   });
 
   await test.step("Add created persona", async () => {
-    await page.getByTestId("story-bundle-editor-tab-personas").click();
+    await switchEditorTab(page, "story-bundle-editor-tab-personas");
 
     // Use the persona id captured during creation of this run.
     expect(persona, "persona id should have been captured").toBeDefined();
@@ -522,7 +523,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
   });
 
   await test.step("Add pre installed marinara preset", async () => {
-    await page.getByTestId("story-bundle-editor-tab-presets").click();
+    await switchEditorTab(page, "story-bundle-editor-tab-presets");
 
     // Use the preset id resolved earlier in this run.
     expect(preset, "preset id should have been captured").toBeDefined();
@@ -531,7 +532,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
   });
 
   await test.step("Add created lorebook", async () => {
-    await page.getByTestId("story-bundle-editor-tab-lorebooks").click();
+    await switchEditorTab(page, "story-bundle-editor-tab-lorebooks");
 
     // Use the lorebook id captured during creation of this run.
     expect(lorebook.length, "lorebook id should have been captured").toBeGreaterThan(0);
@@ -544,7 +545,7 @@ test("Story Bundle Happy Path", async ({ page }) => {
   });
 
   await test.step("Add installed agents", async () => {
-    await page.getByTestId("story-bundle-editor-tab-agents").click();
+    await switchEditorTab(page, "story-bundle-editor-tab-agents");
 
     // The agent list loads asynchronously (install detection); wait until the
     // loading state is gone before clicking the id-based add buttons.

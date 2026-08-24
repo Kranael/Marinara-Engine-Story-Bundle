@@ -128,6 +128,7 @@ export function EditorTabNavigation<T extends string>({
                   role="menuitemradio"
                   aria-label={localize(tab.label)}
                   aria-checked={active}
+                  data-testid={tabTestId ? `${tabTestId}-${tab.id}` : undefined}
                   key={tab.id}
                   onClick={() => {
                     onChange(tab.id);

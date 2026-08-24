@@ -18,6 +18,7 @@
  *   story-bundle-editor-tab-intros
  */
 import { type Locator, type Page } from "@playwright/test";
+import { switchEditorTab } from "../helpers/editor-tabs.js";
 
 export class StoryBundleEditorPage {
   readonly page: Page;
@@ -63,41 +64,41 @@ export class StoryBundleEditorPage {
 
   /** Switch to the Metadata tab. */
   async switchToMetadata(): Promise<void> {
-    await this.metadataTab.click();
+    await switchEditorTab(this.page, "story-bundle-editor-tab-metadata");
   }
 
   /** Switch to the Description tab. */
   async switchToDescription(): Promise<void> {
-    await this.descriptionTab.click();
+    await switchEditorTab(this.page, "story-bundle-editor-tab-description");
   }
 
   /** Switch to the Characters tab. */
   async switchToCharacters(): Promise<void> {
-    await this.charactersTab.click();
+    await switchEditorTab(this.page, "story-bundle-editor-tab-characters");
   }
 
   /** Switch to the Personas tab. */
   async switchToPersonas(): Promise<void> {
-    await this.personasTab.click();
+    await switchEditorTab(this.page, "story-bundle-editor-tab-personas");
   }
 
   /** Switch to the Lorebooks tab. */
   async switchToLorebooks(): Promise<void> {
-    await this.lorebooksTab.click();
+    await switchEditorTab(this.page, "story-bundle-editor-tab-lorebooks");
   }
 
   /** Switch to the Presets tab. */
   async switchToPresets(): Promise<void> {
-    await this.presetsTab.click();
+    await switchEditorTab(this.page, "story-bundle-editor-tab-presets");
   }
 
   /** Switch to the Agents tab. */
   async switchToAgents(): Promise<void> {
-    await this.agentsTab.click();
+    await switchEditorTab(this.page, "story-bundle-editor-tab-agents");
   }
 
   /** Switch to the Intros tab. */
   async switchToIntros(): Promise<void> {
-    await this.introsTab.click();
+    await switchEditorTab(this.page, "story-bundle-editor-tab-intros");
   }
 }
