@@ -281,6 +281,7 @@ export function buildAgentPromptMacroContext(
           scenario: value(context.persona.scenario),
         }
       : undefined,
+    lorebookEntryCounts: context.lorebookEntryCounts,
   };
 }
 
@@ -1957,6 +1958,12 @@ function buildCustomAgentCapabilityBlock(config: AgentExecConfig, context: Agent
   if (capabilities.edit_messages) {
     parts.push(
       `Message editing is enabled. For Text Rewrite, replace only the assistant response provided in <assistant_response>.`,
+    );
+  }
+
+  if (capabilities.create_characters) {
+    parts.push(
+      `Character card creation is enabled. For Character Card Creation output, propose one card as {"data":{"name":"...","description":"...","personality":"...","scenario":"...","first_mes":"..."},"reason":"..."}. The user must review it before it is saved.`,
     );
   }
 

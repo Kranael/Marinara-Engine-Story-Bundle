@@ -1032,6 +1032,7 @@ async function buildRetryAgentContext(args: {
       : {}),
     streaming,
     memory: {},
+    lorebookEntryCounts: promptMacroContext.lorebookEntryCounts,
   };
 
   const previousBeholderState = await loadPriorBeholderState({
@@ -3887,6 +3888,8 @@ async function applyRetryResultEffects(args: {
 
 export type ActiveAgentRun = {
   abortController: AbortController;
+  /** Cancels only agent work when the main response shares this run. */
+  agentAbortController?: AbortController;
   backendUrl: string | null;
   messageId: string | null;
   swipeIndex: number | null;

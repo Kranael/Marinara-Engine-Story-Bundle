@@ -48,6 +48,7 @@ import {
 import { isDiceNotation, rollDice } from "../services/game/dice.service.js";
 import { jsonishLooksTruncated, parseGameJsonish } from "../services/game/jsonish.js";
 import {
+  formatInitialGameGmConnectionError,
   GAME_SETUP_GENERATION_TIMEOUT_MS,
   resolveInitialGameGmConnectionId,
 } from "../services/game/initial-game-setup.js";
@@ -1777,6 +1778,7 @@ const gameSetupConfigSchema = z.object({
     .optional(),
   sceneConnectionId: z.string().optional(),
   enableAgents: z.boolean().optional(),
+  enableQuickTimeEvents: z.boolean().optional(),
   enableSpriteGeneration: z.boolean().optional(),
   gameImageDynamicPromptEnabled: z.boolean().optional(),
   imageConnectionId: z.string().optional(),
@@ -6790,12 +6792,20 @@ export async function gameRoutes(app: FastifyInstance) {
     let setupFinishReason: ChatCompletionResult["finishReason"] | null = null;
 
     for (let attempt = 1; attempt <= 2; attempt++) {
-      const result = await runGameChatComplete(
-        provider,
-        messages,
-        setupOptions,
-        attempt === 1 ? "Game setup" : "Game setup retry",
-      );
+      let result: ChatCompletionResult;
+      try {
+        result = await runGameChatComplete(
+          provider,
+          messages,
+          setupOptions,
+          attempt === 1 ? "Game setup" : "Game setup retry",
+        );
+      } catch (error) {
+        const failure = formatInitialGameGmConnectionError(error);
+        logger.warn(error, "[game/setup] GM connection failed");
+        reply.code(failure.statusCode).send({ error: failure.message });
+        return;
+      }
       setupFinishReason = result.finishReason;
       const setupExtraction = extractLeadingThinkingBlocks(
         result.content ?? "",
@@ -10040,6 +10050,30 @@ export async function gameRoutes(app: FastifyInstance) {
         const entries = [...journal.entries];
         entries[entryIndex] = { ...entry, title, content };
         nextJournal = { ...journal, entries };
+        return { gameJournal: nextJournal };
+      });
+      if (!updated || !nextJournal) return reply.status(404).send({ error: "Chat not found" });
+
+      return { journal: nextJournal };
+    },
+  );
+
+  // ── DELETE /game/:chatId/journal/entries/:entryIndex ──
+  app.delete<{ Params: { chatId: string; entryIndex: string } }>(
+    "/:chatId/journal/entries/:entryIndex",
+    async (req, reply) => {
+      const entryIndex = z.coerce.number().int().nonnegative().parse(req.params.entryIndex);
+      const chats = createChatsStorage(app.db);
+      let nextJournal: Journal | null = null;
+      const updated = await chats.patchMetadata(req.params.chatId, (current) => {
+        const journal = (current.gameJournal as Journal) ?? createJournal();
+        if (!journal.entries[entryIndex]) {
+          throw Object.assign(new Error("Journal entry not found"), { statusCode: 404 });
+        }
+        nextJournal = {
+          ...journal,
+          entries: journal.entries.filter((_, index) => index !== entryIndex),
+        };
         return { gameJournal: nextJournal };
       });
       if (!updated || !nextJournal) return reply.status(404).send({ error: "Chat not found" });

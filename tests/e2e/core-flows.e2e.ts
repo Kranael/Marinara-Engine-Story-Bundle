@@ -1486,6 +1486,269 @@ test("message deletion uses unified chroma controls and selection states", async
   }
 });
 
+test("Conversation transcript dates and message numbers follow Chat Chrome Text Color", async ({ page }) => {
+  const chatResponse = await page.request.post("/api/chats", {
+    data: { name: "Conversation Transcript Chroma Smoke", mode: "conversation", characterIds: [] },
+  });
+  expect(chatResponse.ok()).toBeTruthy();
+  const chat = (await chatResponse.json()) as { id: string };
+  const messageResponse = await page.request.post(`/api/chats/${chat.id}/messages`, {
+    data: { role: "user", content: "Transcript chroma probe." },
+  });
+  expect(messageResponse.ok()).toBeTruthy();
+  const message = (await messageResponse.json()) as { id: string };
+
+  try {
+    await page.addInitScript((chatId) => localStorage.setItem("marinara-active-chat-id", chatId), chat.id);
+    await page.goto("/");
+    await page.evaluate(async () => {
+      const { useUIStore } = (await import("/src/stores/ui.store.ts")) as {
+        useUIStore: { getState: () => { setShowMessageNumbers: (value: boolean) => void } };
+      };
+      useUIStore.getState().setShowMessageNumbers(true);
+    });
+
+    const messageRow = page.locator(`[data-message-id="${message.id}"]`);
+    const timestamp = messageRow.locator(".mari-message-timestamp");
+    const messageNumber = messageRow.getByText(/^#1$/u);
+    const daySeparator = page.getByText(/^(Today|Yesterday)$/u);
+    await expect(timestamp).toBeVisible();
+    await expect(messageNumber).toBeVisible();
+    await expect(daySeparator).toBeVisible();
+
+    const transcriptLabels = page.locator(".mari-conversation-transcript-chrome-text");
+    const assertChromeText = async (color: string) => {
+      await page.evaluate(async (nextColor) => {
+        const { useUIStore } = (await import("/src/stores/ui.store.ts")) as {
+          useUIStore: { getState: () => { setChatChromeTextColor: (value: string) => void } };
+        };
+        useUIStore.getState().setChatChromeTextColor(nextColor);
+      }, color);
+      const expectedColor = await readCssVariableColor(page, "--marinara-chat-chrome-text");
+      for (const label of await transcriptLabels.all()) {
+        await expect(label).toHaveCSS("color", expectedColor);
+      }
+    };
+
+    await assertChromeText("");
+    await assertChromeText("#14b8a6");
+    await setAppAccentColor(page, "#ec4899");
+    await assertChromeText("#3b82f6");
+  } finally {
+    await page.request.delete(`/api/chats/${chat.id}`).catch(() => undefined);
+  }
+});
+
+test("Conversation message actions follow their messages on desktop and mobile", async ({ page }, testInfo) => {
+  const chatResponse = await page.request.post("/api/chats", {
+    data: { name: "Conversation Message Actions Smoke", mode: "conversation", characterIds: [] },
+  });
+  expect(chatResponse.ok()).toBeTruthy();
+  const chat = (await chatResponse.json()) as { id: string };
+  const userMessageResponse = await page.request.post(`/api/chats/${chat.id}/messages`, {
+    data: { role: "user", content: "User action placement probe." },
+  });
+  expect(userMessageResponse.ok()).toBeTruthy();
+  const assistantMessageResponse = await page.request.post(`/api/chats/${chat.id}/messages`, {
+    data: { role: "assistant", content: "Assistant action placement probe." },
+  });
+  expect(assistantMessageResponse.ok()).toBeTruthy();
+  const messages = (await Promise.all([userMessageResponse.json(), assistantMessageResponse.json()])) as Array<{
+    id: string;
+  }>;
+
+  try {
+    await page.addInitScript((chatId) => localStorage.setItem("marinara-active-chat-id", chatId), chat.id);
+    await page.goto("/");
+    await setAppAccentColor(page, "#ec4899");
+    await page.evaluate(async () => {
+      const { useUIStore } = (await import("/src/stores/ui.store.ts")) as {
+        useUIStore: { getState: () => { setChatChromeTextColor: (value: string) => void } };
+      };
+      useUIStore.getState().setChatChromeTextColor("#14b8a6");
+    });
+    const expectedActionColor = await readCssVariableColor(page, "--marinara-chat-message-action-text");
+    const accentActionColor = await readCssVariableColor(page, "--marinara-chat-chrome-button-text");
+    expect(expectedActionColor).not.toBe(accentActionColor);
+
+    for (const style of ["classic", "bubble"] as const) {
+      await page.evaluate(async (messageStyle) => {
+        const { useUIStore } = (await import("/src/stores/ui.store.ts")) as {
+          useUIStore: {
+            getState: () => { setConversationMessageStyle: (value: "classic" | "bubble") => void };
+          };
+        };
+        useUIStore.getState().setConversationMessageStyle(messageStyle);
+      }, style);
+
+      for (const message of messages) {
+        const messageRow = page.locator(`[data-message-id="${message.id}"]`);
+        const content = messageRow.locator(':scope > [data-component="ConversationMessage.Content"]');
+        const actions = messageRow.locator(':scope > [data-component="ConversationMessage.Actions"]');
+        const bubble = content.locator(".texting-bubble").first();
+        if (style === "bubble") await expect(bubble).toBeVisible();
+        else await expect(bubble).toHaveCount(0);
+        await expect(content).toBeVisible();
+
+        if (testInfo.project.name.includes("mobile")) {
+          await content.click({ position: { x: 8, y: 8 } });
+        } else {
+          await messageRow.hover();
+        }
+        await expect(actions).toHaveCSS("opacity", "1");
+        await expect(actions.locator('[title="Copy"]')).toHaveCSS("color", expectedActionColor);
+
+        const metrics = await messageRow.evaluate((element) => {
+          const contentElement = element.querySelector<HTMLElement>(
+            ':scope > [data-component="ConversationMessage.Content"]',
+          );
+          const actionElement = element.querySelector<HTMLElement>(
+            ':scope > [data-component="ConversationMessage.Actions"]',
+          );
+          const firstButton = actionElement?.querySelector<HTMLElement>("button");
+          if (!contentElement || !actionElement || !firstButton) return null;
+          const contentBox = contentElement.getBoundingClientRect();
+          const actionBox = actionElement.getBoundingClientRect();
+          const buttonBox = firstButton.getBoundingClientRect();
+          return {
+            position: getComputedStyle(actionElement).position,
+            verticalGap: actionBox.top - contentBox.bottom,
+            leftOffset: Math.abs(buttonBox.left - contentBox.left),
+            actionBottom: actionBox.bottom,
+            rowBottom: element.getBoundingClientRect().bottom,
+          };
+        });
+        expect(metrics).not.toBeNull();
+        expect(metrics!.position).toBe("static");
+        expect(metrics!.verticalGap).toBeGreaterThanOrEqual(0);
+        expect(metrics!.verticalGap).toBeLessThanOrEqual(5);
+        expect(metrics!.leftOffset).toBeLessThanOrEqual(6);
+        expect(metrics!.actionBottom).toBeLessThanOrEqual(metrics!.rowBottom);
+      }
+
+      const messageGap = await page.evaluate(
+        ([firstId, secondId]) => {
+          const first = document.querySelector<HTMLElement>(`[data-message-id="${firstId}"]`);
+          const second = document.querySelector<HTMLElement>(`[data-message-id="${secondId}"]`);
+          if (!first || !second) return null;
+          return second.getBoundingClientRect().top - first.getBoundingClientRect().bottom;
+        },
+        [messages[0]!.id, messages[1]!.id] as const,
+      );
+      expect(messageGap).not.toBeNull();
+      expect(messageGap!).toBeGreaterThanOrEqual(0);
+      expect(messageGap!).toBeLessThanOrEqual(4);
+    }
+  } finally {
+    await page.request.delete(`/api/chats/${chat.id}`).catch(() => undefined);
+  }
+});
+
+test("Conversation Calls matches the participant control and sits beside it", async ({ page, request }) => {
+  const characterResponse = await request.post("/api/characters", {
+    data: { data: { name: "Call Toolbar Height" } },
+  });
+  expect(characterResponse.ok()).toBeTruthy();
+  const character = (await characterResponse.json()) as { id: string };
+  const chatResponse = await request.post("/api/chats", {
+    data: { name: "Call Toolbar Height Smoke", mode: "conversation", characterIds: [character.id] },
+  });
+  expect(chatResponse.ok()).toBeTruthy();
+  const chat = (await chatResponse.json()) as { id: string };
+
+  try {
+    const metadataResponse = await request.patch(`/api/chats/${chat.id}/metadata`, {
+      data: { conversationCallsEnabled: true },
+    });
+    expect(metadataResponse.ok()).toBeTruthy();
+    await page.route("**/api/capability-packages/installed", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          {
+            id: "conversation-calls",
+            version: "1.0.11",
+            manifest: {
+              schemaVersion: 1,
+              id: "conversation-calls",
+              name: "Calls",
+              version: "1.0.11",
+              description: "Conversation call toolbar sizing fixture.",
+              engine: { min: "2.4.1", maxExclusive: "4.0.0" },
+              kind: ["agent", "conversation-calls"],
+              entrypoints: { client: "client.js" },
+              files: [],
+              permissions: ["ui"],
+              restartRequired: true,
+            },
+            installedAt: "2026-08-22T00:00:00.000Z",
+            status: "active",
+            error: null,
+            readiness: "ready",
+            readinessError: null,
+            legacy: false,
+          },
+        ]),
+      });
+    });
+    await page.route("**/api/capability-packages/conversation-calls/client*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/javascript",
+        body: `customElements.define("marinara-capability-conversation-calls", class extends HTMLElement {
+          connectedCallback() {
+            const render = () => {
+              if (this.getAttribute("view") !== "toolbar") return this.replaceChildren();
+              const button = document.createElement("button");
+              button.title = "Start call";
+              const toolbarButtonClass = this.capabilityProps?.toolbarButtonClass;
+              button.className = typeof toolbarButtonClass === "string"
+                ? "mari-chrome-control flex items-center justify-center p-0 " + toolbarButtonClass
+                : "mari-chrome-control flex h-9 w-9 items-center justify-center p-0";
+              this.replaceChildren(button);
+            };
+            this.addEventListener("marinara-capability-props", render);
+            render();
+          }
+        });`,
+      });
+    });
+    await page.addInitScript((chatId) => localStorage.setItem("marinara-active-chat-id", chatId), chat.id);
+    await page.goto("/");
+
+    const presenceButton = page.locator('button[title^="Call Toolbar Height:"]');
+    const callHost = page.locator("marinara-capability-conversation-calls[view=toolbar]");
+    const callButton = callHost.locator('button[title="Start call"]');
+    const headerIdentity = page.locator("[data-conversation-header-identity]");
+    await expect(presenceButton).toBeVisible();
+    await expect(callButton).toBeVisible();
+    await expect(headerIdentity.locator('button[title^="Call Toolbar Height:"]')).toHaveCount(1);
+    await expect(headerIdentity.locator("marinara-capability-conversation-calls[view=toolbar]")).toHaveCount(1);
+    await expect
+      .poll(() =>
+        callHost.evaluate((element) =>
+          String(
+            (element as HTMLElement & { capabilityProps?: { toolbarButtonClass?: unknown } }).capabilityProps
+              ?.toolbarButtonClass ?? "",
+          ),
+        ),
+      )
+      .toContain("h-8 w-8");
+    const [presenceBox, callBox] = await Promise.all([presenceButton.boundingBox(), callButton.boundingBox()]);
+    expect(presenceBox).not.toBeNull();
+    expect(callBox).not.toBeNull();
+    expect(callBox!.height).toBeCloseTo(presenceBox!.height, 1);
+    expect(callBox!.x).toBeGreaterThanOrEqual(presenceBox!.x + presenceBox!.width);
+    expect(callBox!.x - (presenceBox!.x + presenceBox!.width)).toBeLessThanOrEqual(8);
+  } finally {
+    await Promise.all([
+      request.delete(`/api/chats/${chat.id}`).catch(() => undefined),
+      request.delete(`/api/characters/${character.id}`).catch(() => undefined),
+    ]);
+  }
+});
+
 test("bulk chat deletion uses the shared primary accent control", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.includes("mobile"), "Desktop chat-sidebar selection chrome is covered here.");
 
@@ -2845,6 +3108,8 @@ test("Character Chat actions reuse mode selection and seed the chosen setup wiza
 });
 
 test("Character and Persona avatar actions stay separated and visually balanced", async ({ page }) => {
+  const mobileProject = (page.viewportSize()?.width ?? 768) < 768;
+  if (!mobileProject) await page.setViewportSize({ width: 2560, height: 900 });
   const suffix = Date.now().toString(36);
   const connectionResponse = await page.request.post("/api/connections", {
     data: {
@@ -2918,6 +3183,104 @@ test("Character and Persona avatar actions stay separated and visually balanced"
     await expect(titleInput).toHaveValue(resourceName);
     await expect(byline).toHaveText(`by ${creator}·v${version}`);
     await expect(editor.locator(".mari-editor-secondary-line .mari-editor-meta")).toHaveCount(0);
+
+    const header = editor.locator(".mari-editor-header--with-nav");
+    const navigation = header.locator(".mari-editor-navigation");
+    const actions = header.locator(".mari-editor-actions");
+    const compactMenuButton = navigation.getByRole("button", { name: "Editor sections" });
+    const desktopTabs = navigation.getByRole("navigation", { name: "Editor sections" });
+    const verifyCompactNavigation = async () => {
+      await expect(compactMenuButton).toBeVisible();
+      await expect(desktopTabs).toBeHidden();
+      await expect(compactMenuButton).toHaveClass(/mari-editor-action/u);
+      const [menuButtonBox, firstActionBox] = await Promise.all([
+        compactMenuButton.boundingBox(),
+        actions.locator(".mari-editor-action").first().boundingBox(),
+      ]);
+      expect(menuButtonBox).not.toBeNull();
+      expect(firstActionBox).not.toBeNull();
+      if (menuButtonBox && firstActionBox) {
+        expect(menuButtonBox.width).toBeLessThanOrEqual(137);
+        expect(Math.abs(menuButtonBox.height - firstActionBox.height)).toBeLessThanOrEqual(1);
+        expect(
+          Math.abs(menuButtonBox.y + menuButtonBox.height / 2 - (firstActionBox.y + firstActionBox.height / 2)),
+        ).toBeLessThanOrEqual(1);
+        expect(menuButtonBox.x + menuButtonBox.width).toBeLessThanOrEqual(firstActionBox.x);
+      }
+      await compactMenuButton.click();
+      const compactMenu = navigation.getByRole("menu", { name: "Editor sections" });
+      const compactMenuBox = await compactMenu.boundingBox();
+      expect(compactMenuBox).not.toBeNull();
+      if (menuButtonBox && compactMenuBox) {
+        expect(compactMenuBox.y).toBeGreaterThanOrEqual(menuButtonBox.y + menuButtonBox.height - 1);
+      }
+      const selectedMenuItem = compactMenu.getByRole("menuitemradio", { checked: true });
+      await expect(selectedMenuItem).toBeFocused();
+      await selectedMenuItem.press("ArrowDown");
+      await expect(compactMenu.getByRole("menuitemradio").nth(1)).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(compactMenu).toHaveCount(0);
+      await expect(compactMenuButton).toBeFocused();
+      await expect(header.evaluate((element) => element.scrollWidth <= element.clientWidth)).resolves.toBe(true);
+    };
+
+    if (mobileProject) {
+      await verifyCompactNavigation();
+    } else {
+      await page.setViewportSize({ width: 1800, height: 900 });
+      await verifyCompactNavigation();
+
+      let compactTabsWidth: number | null = null;
+      for (const width of [1900, 2000, 2100, 2200, 2300, 2400]) {
+        await page.setViewportSize({ width, height: 900 });
+        if ((await desktopTabs.isVisible()) && (await desktopTabs.locator(".mari-editor-tab svg").first().isHidden())) {
+          compactTabsWidth = width;
+          break;
+        }
+      }
+      expect(compactTabsWidth).not.toBeNull();
+      await expect(desktopTabs).toBeVisible();
+      await expect(compactMenuButton).toBeHidden();
+      const compactTabBoxes = await desktopTabs.locator(".mari-editor-tab").evaluateAll((tabs) =>
+        tabs.map((tab) => {
+          const box = tab.getBoundingClientRect();
+          return { left: box.left, right: box.right };
+        }),
+      );
+      for (let index = 1; index < compactTabBoxes.length; index += 1) {
+        expect(compactTabBoxes[index].left - compactTabBoxes[index - 1].right).toBeGreaterThanOrEqual(-0.5);
+      }
+      await expect(header.evaluate((element) => element.scrollWidth <= element.clientWidth)).resolves.toBe(true);
+
+      await page.setViewportSize({ width: 2560, height: 900 });
+      await expect(desktopTabs).toBeVisible();
+      await expect(compactMenuButton).toBeHidden();
+      await expect(desktopTabs.locator(".mari-editor-tab svg").first()).toBeVisible();
+      const [headerBox, navigationBox, firstActionBox, tabBoxes] = await Promise.all([
+        header.boundingBox(),
+        navigation.boundingBox(),
+        actions.locator(".mari-editor-action").first().boundingBox(),
+        desktopTabs.locator(".mari-editor-tab").evaluateAll((tabs) =>
+          tabs.map((tab) => {
+            const box = tab.getBoundingClientRect();
+            return { left: box.left, right: box.right, height: box.height };
+          }),
+        ),
+      ]);
+      expect(headerBox).not.toBeNull();
+      expect(navigationBox).not.toBeNull();
+      if (headerBox && navigationBox) {
+        expect(navigationBox.width).toBeLessThan(headerBox.width * 0.65);
+      }
+      for (let index = 1; index < tabBoxes.length; index += 1) {
+        expect(tabBoxes[index].left - tabBoxes[index - 1].right).toBeGreaterThanOrEqual(-0.5);
+        expect(tabBoxes[index].left - tabBoxes[index - 1].right).toBeLessThanOrEqual(5);
+      }
+      if (firstActionBox) {
+        for (const tabBox of tabBoxes) expect(Math.abs(tabBox.height - firstActionBox.height)).toBeLessThanOrEqual(1);
+      }
+      await expect(header.evaluate((element) => element.scrollWidth <= element.clientWidth)).resolves.toBe(true);
+    }
 
     const [titleLineBox, titleInputBox, bylineBox] = await Promise.all([
       titleLine.boundingBox(),
@@ -6428,6 +6791,360 @@ test("chat toolbar panels close when their trigger is clicked again across modes
   }
 });
 
+test("chat Help overlay labels visible controls in every mode", async ({ page, request }, testInfo) => {
+  const mobile = testInfo.project.name.includes("mobile");
+  const chats: Array<{ id: string; mode: "conversation" | "roleplay" | "game" }> = [];
+
+  try {
+    for (const mode of ["roleplay", "conversation", "game"] as const) {
+      const response = await request.post("/api/chats", {
+        data: { name: `${mode} Help Overlay Smoke`, mode, characterIds: [] },
+      });
+      expect(response.ok()).toBeTruthy();
+      const chat = (await response.json()) as { id: string };
+      chats.push({ id: chat.id, mode });
+
+      if (mode === "game") {
+        const metadataResponse = await request.patch(`/api/chats/${chat.id}/metadata`, {
+          data: {
+            gameId: "help-overlay-smoke-game",
+            gameSessionStatus: "active",
+            gameSessionNumber: 1,
+            gameIntroPresented: true,
+          },
+        });
+        expect(metadataResponse.ok()).toBeTruthy();
+        const messageResponse = await request.post(`/api/chats/${chat.id}/messages`, {
+          data: { role: "assistant", content: "The Help overlay test game begins." },
+        });
+        expect(messageResponse.ok()).toBeTruthy();
+      }
+    }
+
+    await page.addInitScript((activeChatId) => {
+      localStorage.setItem("marinara-active-chat-id", activeChatId);
+      const storageKey = "marinara-engine-ui";
+      const persisted = JSON.parse(localStorage.getItem(storageKey) ?? "{}") as {
+        state?: Record<string, unknown>;
+        version?: number;
+      };
+      persisted.state = {
+        ...(persisted.state ?? {}),
+        chatHelpSeenModes: ["conversation", "roleplay", "game"],
+      };
+      localStorage.setItem(storageKey, JSON.stringify(persisted));
+    }, chats[0]!.id);
+    await page.goto("/");
+
+    const setActiveChat = async (chatId: string) => {
+      await page.evaluate(async (nextChatId) => {
+        const module = await import("/src/stores/chat.store.ts");
+        module.useChatStore.getState().setActiveChatId(nextChatId);
+      }, chatId);
+    };
+
+    for (const [index, chat] of chats.entries()) {
+      if (index > 0) await setActiveChat(chat.id);
+      await expect(page.locator(`[data-chat-mode="${chat.mode}"]`)).toBeVisible();
+
+      if (chat.mode === "conversation") {
+        await page.evaluate(() => {
+          const root = document.querySelector<HTMLElement>('[data-chat-mode="conversation"]');
+          if (!root || root.querySelector('[data-chat-help="call"]')) return;
+          const optionalCall = document.createElement("button");
+          optionalCall.type = "button";
+          optionalCall.dataset.chatHelp = "call";
+          optionalCall.setAttribute("aria-label", "Optional voice call fixture");
+          optionalCall.style.cssText = "position:absolute;top:3.5rem;left:1rem;width:2rem;height:2rem";
+          root.append(optionalCall);
+        });
+      }
+
+      if (mobile) {
+        const overflowName = chat.mode === "game" ? "Game actions" : "More options";
+        await page.getByRole("button", { name: overflowName, exact: true }).filter({ visible: true }).click();
+      }
+
+      const helpButton = page.getByRole("button", { name: "Help", exact: true }).filter({ visible: true });
+      await expect(helpButton).toHaveCount(1);
+      if (mobile) {
+        await expect(
+          page.locator("[data-chat-toolbar-overflow-menu]").getByRole("button").first(),
+        ).toHaveAccessibleName("Help");
+      } else {
+        const helpBox = await helpButton.boundingBox();
+        const branchesBox = await page
+          .locator(`[data-chat-mode="${chat.mode}"] [data-chat-help="branches"]`)
+          .filter({ visible: true })
+          .boundingBox();
+        expect(helpBox).not.toBeNull();
+        expect(branchesBox).not.toBeNull();
+        expect(helpBox!.x).toBeLessThan(branchesBox!.x);
+      }
+      await helpButton.click();
+
+      const overlay = page.locator(`[data-chat-help-overlay="${chat.mode}"]`);
+      await expect(overlay).toBeVisible();
+      if (mobile) {
+        await expect(
+          overlay.getByRole("button", {
+            name: "Tap a section you want to learn more about or this button to exit the help overlay.",
+            exact: true,
+          }),
+        ).toBeVisible();
+        await expect(overlay.locator("[data-chat-help-legend]")).toHaveCount(0);
+        await expect(overlay.locator("[data-chat-help-mobile-detail]")).toHaveCount(0);
+      } else {
+        await expect(
+          overlay.getByText("Click or tap anywhere to exit the help overlay.", { exact: true }),
+        ).toBeVisible();
+      }
+      await expect(overlay.locator('[data-chat-help-highlight="branches"]')).toBeVisible();
+      await expect(overlay.locator('[data-chat-help-highlight="settings"]')).toBeVisible();
+      await expect(overlay.locator('[data-chat-help-highlight="help"]')).toBeVisible();
+
+      if (mobile) {
+        const firstToolbarTargets = await page
+          .locator("[data-chat-toolbar-overflow-menu] [data-chat-help]")
+          .filter({ visible: true })
+          .evaluateAll((elements) =>
+            [...new Set(elements.map((element) => element.getAttribute("data-chat-help")).filter(Boolean))].slice(0, 3),
+          );
+        for (const target of firstToolbarTargets) {
+          const box = await overlay.locator(`[data-chat-help-highlight="${target}"]`).boundingBox();
+          expect(box).not.toBeNull();
+          expect(box!.width, `${target} highlight width`).toBe(32);
+          expect(box!.height, `${target} highlight height`).toBe(32);
+        }
+      }
+
+      if (chat.mode === "conversation") {
+        await expect(overlay.locator('[data-chat-help-highlight="call"]')).toBeVisible();
+        await expect(overlay.locator('[data-chat-help-highlight="messages"]')).toBeVisible();
+        await expect(overlay.locator('[data-chat-help-highlight="composer"]')).toBeVisible();
+      } else if (chat.mode === "roleplay") {
+        await expect(overlay.locator('[data-chat-help-highlight="summary"]')).toBeVisible();
+        await expect(overlay.locator('[data-chat-help-highlight="messages"]')).toBeVisible();
+        await expect(overlay.locator('[data-chat-help-highlight="composer"]')).toBeVisible();
+      } else {
+        await expect(overlay.locator('[data-chat-help-highlight="retry"]')).toBeVisible();
+        await expect(overlay.locator('[data-chat-help-highlight="session"]')).toBeVisible();
+        await expect(overlay.locator('[data-chat-help-highlight="dialogue"]')).toBeVisible();
+      }
+
+      const highlightBoxes = await overlay.locator("[data-chat-help-highlight]").evaluateAll((elements) =>
+        elements.map((element) => {
+          const rect = element.getBoundingClientRect();
+          return { id: element.getAttribute("data-chat-help-highlight"), ...rect.toJSON() };
+        }),
+      );
+      for (let firstIndex = 0; firstIndex < highlightBoxes.length; firstIndex += 1) {
+        for (let secondIndex = firstIndex + 1; secondIndex < highlightBoxes.length; secondIndex += 1) {
+          const first = highlightBoxes[firstIndex]!;
+          const second = highlightBoxes[secondIndex]!;
+          const overlapX = Math.min(first.right, second.right) - Math.max(first.left, second.left);
+          const overlapY = Math.min(first.bottom, second.bottom) - Math.max(first.top, second.top);
+          expect(overlapX <= 0 || overlapY <= 0, `Help highlights ${first.id} and ${second.id} overlap`).toBe(true);
+        }
+      }
+
+      const dialogButtons = overlay.getByRole("button");
+      const firstDialogButton = dialogButtons.first();
+      const lastDialogButton = dialogButtons.last();
+      await firstDialogButton.focus();
+      await page.keyboard.press("Shift+Tab");
+      await expect(lastDialogButton).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(firstDialogButton).toBeFocused();
+
+      if (mobile) {
+        const messageTarget = chat.mode === "game" ? "dialogue" : "messages";
+        const keyboardTarget = overlay.locator('[data-chat-help-highlight="branches"]');
+        await keyboardTarget.focus();
+        await page.keyboard.press("Enter");
+        await expect(overlay.locator('[data-chat-help-mobile-detail="branches"]')).toBeVisible();
+        await overlay.locator(`[data-chat-help-highlight="${messageTarget}"]`).click();
+        const detail = overlay.locator(`[data-chat-help-mobile-detail="${messageTarget}"]`);
+        await expect(detail).toBeVisible();
+        await expect(detail.locator(`[data-chat-help-action-legend="${chat.mode}"]`)).toBeVisible();
+        await overlay
+          .getByRole("button", {
+            name: "Tap a section you want to learn more about or this button to exit the help overlay.",
+            exact: true,
+          })
+          .click();
+      } else {
+        const legend = overlay.locator("[data-chat-help-legend]");
+        const legendBox = await legend.boundingBox();
+        expect(legendBox).not.toBeNull();
+        expect(legendBox!.x).toBeGreaterThanOrEqual(0);
+        expect(legendBox!.y).toBeGreaterThanOrEqual(0);
+        expect(legendBox!.x + legendBox!.width).toBeLessThanOrEqual(testInfo.project.use.viewport!.width);
+        expect(legendBox!.y + legendBox!.height).toBeLessThanOrEqual(testInfo.project.use.viewport!.height);
+        expect(await overlay.locator("[data-chat-help-entry]").count()).toBeGreaterThanOrEqual(7);
+        await expect(legend.locator(`[data-chat-help-action-legend="${chat.mode}"]`)).toBeVisible();
+        await legend.click({ position: { x: 8, y: 8 } });
+        await expect(overlay).toBeVisible();
+
+        const branchesHighlight = overlay.locator('[data-chat-help-highlight="branches"]');
+        await branchesHighlight.hover();
+        await expect(overlay.locator('[data-chat-help-hover-card="branches"]')).toContainText(
+          "Create and switch branches.",
+        );
+
+        if (chat.mode === "roleplay") {
+          const rootBox = await page.locator('[data-chat-mode="roleplay"]').boundingBox();
+          const columnBox = await page.locator("[data-roleplay-chat-column]").boundingBox();
+          const messagesBox = await overlay.locator('[data-chat-help-highlight="messages"]').boundingBox();
+          expect(rootBox).not.toBeNull();
+          expect(columnBox).not.toBeNull();
+          expect(messagesBox).not.toBeNull();
+          expect(messagesBox!.width).toBeLessThan(rootBox!.width);
+          expect(messagesBox!.x).toBeGreaterThanOrEqual(columnBox!.x - 1);
+          expect(messagesBox!.x + messagesBox!.width).toBeLessThanOrEqual(columnBox!.x + columnBox!.width + 1);
+          expect(
+            Math.abs(messagesBox!.x + messagesBox!.width / 2 - (columnBox!.x + columnBox!.width / 2)),
+          ).toBeLessThan(4);
+        }
+
+        await overlay.dispatchEvent("pointerdown");
+      }
+      await expect(overlay).toHaveCount(0);
+    }
+  } finally {
+    const cleanupResponses = await Promise.all(chats.map((chat) => request.delete(`/api/chats/${chat.id}?force=true`)));
+    for (const response of cleanupResponses) expect(response.ok()).toBeTruthy();
+  }
+});
+
+test("the first conversation opens Help once after setup", async ({ page, request }, testInfo) => {
+  const response = await request.post("/api/chats", {
+    data: { name: "First Conversation Help Smoke", mode: "conversation", characterIds: [] },
+  });
+  expect(response.ok()).toBeTruthy();
+  const chat = (await response.json()) as { id: string };
+
+  await page.route(/\/api\/chats(?:\?.*)?$/, async (route) => {
+    if (route.request().method() !== "GET") {
+      await route.continue();
+      return;
+    }
+    const upstream = await route.fetch();
+    const chats = (await upstream.json()) as Array<{ id: string }>;
+    await route.fulfill({ response: upstream, json: chats.filter((candidate) => candidate.id === chat.id) });
+  });
+  await page.addInitScript((activeChatId) => {
+    localStorage.setItem("marinara-active-chat-id", activeChatId);
+    const storageKey = "marinara-engine-ui";
+    const persisted = JSON.parse(localStorage.getItem(storageKey) ?? "{}") as {
+      state?: Record<string, unknown>;
+      version?: number;
+    };
+    persisted.state = {
+      ...(persisted.state ?? {}),
+      chatHelpSeenModes: ["roleplay", "game"],
+    };
+    localStorage.setItem(storageKey, JSON.stringify(persisted));
+  }, chat.id);
+
+  try {
+    await page.goto("/");
+    await expect(page.locator('[data-chat-mode="conversation"]')).toBeVisible();
+    await page.evaluate(async () => {
+      const module = await import("/src/stores/ui.store.ts");
+      module.useUIStore.setState({ chatHelpSeenModes: ["roleplay", "game"] });
+    });
+    const overlay = page.locator('[data-chat-help-overlay="conversation"]');
+    await expect(overlay).toBeVisible({ timeout: 5_000 });
+    await expect(overlay.locator('[data-chat-help-highlight="help"]')).toBeVisible();
+    if (testInfo.project.name.includes("mobile")) {
+      await expect(page.locator("[data-chat-toolbar-overflow-menu]")).toBeVisible();
+    }
+
+    if (testInfo.project.name.includes("mobile")) {
+      await overlay
+        .getByRole("button", {
+          name: "Tap a section you want to learn more about or this button to exit the help overlay.",
+          exact: true,
+        })
+        .click();
+    } else {
+      await overlay.dispatchEvent("pointerdown");
+    }
+    await expect(overlay).toHaveCount(0);
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const module = await import("/src/stores/ui.store.ts");
+          return module.useUIStore.getState().chatHelpSeenModes.includes("conversation");
+        }),
+      )
+      .toBe(true);
+
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const persisted = JSON.parse(localStorage.getItem("marinara-engine-ui") ?? "{}") as {
+            state?: { chatHelpSeenModes?: string[] };
+          };
+          return persisted.state?.chatHelpSeenModes?.includes("conversation") ?? false;
+        }),
+      )
+      .toBe(true);
+    await page.reload();
+    await expect(page.locator('[data-chat-mode="conversation"]')).toBeVisible();
+    await expect(overlay).toHaveCount(0);
+  } finally {
+    await request.delete(`/api/chats/${chat.id}`);
+  }
+});
+
+test("chat Help can be hidden permanently from the overlay or App Behavior", async ({ page, request }, testInfo) => {
+  const response = await request.post("/api/chats", {
+    data: { name: "Hide Conversation Help Smoke", mode: "conversation", characterIds: [] },
+  });
+  expect(response.ok()).toBeTruthy();
+  const chat = (await response.json()) as { id: string };
+  await page.addInitScript((activeChatId) => localStorage.setItem("marinara-active-chat-id", activeChatId), chat.id);
+
+  try {
+    await page.goto("/");
+    await expect(page.locator('[data-chat-mode="conversation"]')).toBeVisible();
+    if (testInfo.project.name.includes("mobile")) {
+      await page.getByRole("button", { name: "More options", exact: true }).filter({ visible: true }).click();
+    }
+
+    await page.getByRole("button", { name: "Help", exact: true }).filter({ visible: true }).click();
+    const overlay = page.locator('[data-chat-help-overlay="conversation"]');
+    await expect(overlay).toBeVisible();
+    await overlay.getByRole("button", { name: "Hide Help button permanently", exact: true }).click();
+    await expect(overlay).toHaveCount(0);
+    await expect(page.locator('[data-chat-mode="conversation"] [data-chat-help="help"]')).toHaveCount(0);
+
+    const settingsButton = page.locator('[data-tour="panel-settings"]');
+    await settingsButton.click();
+    const settingRow = page.locator("#settings-control-hide-chat-help-button");
+    await expect(settingRow).toBeVisible();
+    const settingToggle = settingRow.locator('input[type="checkbox"]');
+    await expect(settingToggle).toBeChecked();
+    const rowBox = await settingRow.boundingBox();
+    const confirmBox = await page.locator("#settings-control-confirm-before-delete").boundingBox();
+    expect(rowBox).not.toBeNull();
+    expect(confirmBox).not.toBeNull();
+    expect(rowBox!.y).toBeGreaterThan(confirmBox!.y);
+
+    await settingRow.getByText("Hide chat Help button", { exact: true }).click();
+    await expect(settingToggle).not.toBeChecked();
+    await expect(page.locator('[data-chat-mode="conversation"] [data-chat-help="help"]')).toHaveCount(1);
+
+    await settingRow.getByText("Hide chat Help button", { exact: true }).click();
+    await expect(settingToggle).toBeChecked();
+    await expect(page.locator('[data-chat-mode="conversation"] [data-chat-help="help"]')).toHaveCount(0);
+  } finally {
+    await request.delete(`/api/chats/${chat.id}`);
+  }
+});
+
 test("message search stays before Chat Settings and jumps to unloaded history", async ({ page, request }) => {
   const chats: Array<{ id: string; mode: "conversation" | "roleplay" }> = [];
 
@@ -9228,12 +9945,88 @@ test("custom Agent prompts preview the selected result format", async ({ page })
   await expect(promptEditor).toHaveAttribute("placeholder", /This result type returns plain text/u);
   await expect(promptEditor).toHaveAttribute("placeholder", /Plain text to inject into the main prompt/u);
 
+  const characterCardResult = editor.getByRole("button", { name: /^Character Card Creation/u });
+  await expect(characterCardResult).toBeDisabled();
+  await editor.getByText("Create character cards", { exact: true }).click();
+  await expect(characterCardResult).toBeEnabled();
+  await characterCardResult.click();
+  await expect(promptEditor).toHaveAttribute("placeholder", /"name": "Character name"/u);
+  await expect(promptEditor).toHaveAttribute(
+    "placeholder",
+    /"reason": "Why this recurring character deserves a card"/u,
+  );
+
   await editor.getByText("Edit lorebooks", { exact: true }).click();
   await editor.getByRole("button", { name: /^Lorebook Update/u }).click();
 
   await expect(promptEditor).toHaveAttribute("placeholder", /Its response must match this example JSON/u);
   await expect(promptEditor).toHaveAttribute("placeholder", /"updates": \[/u);
   await expect(promptEditor).toHaveAttribute("placeholder", /"order": 200/u);
+});
+
+test("custom Agent character cards are created only after approval", async ({ page }) => {
+  const name = `Approved Agent Character ${Date.now().toString(36)}`;
+  let createdId: string | null = null;
+
+  try {
+    await page.goto("/");
+    await page.evaluate(async (characterName) => {
+      const [{ useAgentStore }, { useUIStore }] = await Promise.all([
+        import("/src/stores/agent.store.ts"),
+        import("/src/stores/ui.store.ts"),
+      ]);
+      useAgentStore.getState().enqueuePendingAgentWriteApproval({
+        id: `card-create-${Date.now()}`,
+        kind: "character_card_create",
+        chatId: "approval-proof-chat",
+        agentType: "custom-card-maker",
+        agentName: "Card Maker",
+        title: `Card Maker: ${characterName}`,
+        text: JSON.stringify(
+          {
+            data: {
+              name: characterName,
+              description: "A recurring NPC proposed by a custom Agent.",
+            },
+            reason: "This character recurs in the roleplay.",
+          },
+          null,
+          2,
+        ),
+        canRegenerate: true,
+        timestamp: Date.now(),
+      });
+      useUIStore.getState().openModal("agent-write-approval");
+    }, name);
+
+    const beforeResponse = await page.request.get("/api/characters");
+    expect(beforeResponse.ok()).toBeTruthy();
+    const before = (await beforeResponse.json()) as Array<{ data?: unknown }>;
+    expect(
+      before.some((row) => {
+        const data = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+        return (data as { name?: unknown } | null)?.name === name;
+      }),
+    ).toBe(false);
+
+    const modal = page.getByRole("dialog");
+    await expect(modal.getByText("Review Character Card", { exact: true })).toBeVisible();
+    expect(await modal.locator("textarea").inputValue()).toContain(name);
+    await modal.getByRole("button", { name: "Accept", exact: true }).click();
+    await expect(modal).toBeHidden();
+
+    const afterResponse = await page.request.get("/api/characters");
+    expect(afterResponse.ok()).toBeTruthy();
+    const after = (await afterResponse.json()) as Array<{ id: string; data?: unknown }>;
+    const created = after.find((row) => {
+      const data = typeof row.data === "string" ? JSON.parse(row.data) : row.data;
+      return (data as { name?: unknown } | null)?.name === name;
+    });
+    expect(created).toBeTruthy();
+    createdId = created?.id ?? null;
+  } finally {
+    if (createdId) await page.request.delete(`/api/characters/${createdId}`).catch(() => undefined);
+  }
 });
 
 test("Storyboard Agent settings stay organized and contained at phone widths", async ({ page }, testInfo) => {

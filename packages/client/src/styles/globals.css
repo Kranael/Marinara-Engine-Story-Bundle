@@ -1652,6 +1652,10 @@
   font-weight: 600;
 }
 
+.mari-chrome-tag {
+  border-radius: 0.25rem;
+}
+
 .mari-chat-option-field {
   border: 1px solid var(--marinara-chat-option-field-border);
   background: var(--marinara-chat-option-field-bg);
@@ -2620,10 +2624,7 @@
   }
 }
 
-/* Between the compact-dropdown breakpoint (64rem) and 108rem the tab row
-   shrinks (no icons, tighter padding) so every editor's sections stay on one
-   line next to the header actions instead of overflowing into them. */
-@container (min-width: 64.001rem) and (max-width: 108rem) {
+@container (min-width: 96.001rem) and (max-width: 108rem) {
   .mari-editor-tab {
     gap: 0.125rem;
     padding-inline: 0.25rem;
@@ -2668,10 +2669,15 @@
   }
 }
 
-/* Below the compact-dropdown breakpoint (64rem, where EditorTabNavigation
-   swaps the tab row for the section menu) the header stacks: identity row on
-   top, menu and actions share the second row. */
-@container (max-width: 64rem) {
+@container (max-width: 96rem) {
+  .mari-editor-navigation-tabs {
+    display: none;
+  }
+
+  .mari-editor-navigation-compact {
+    display: block;
+  }
+
   .mari-editor-header--with-nav {
     height: auto;
     min-height: 3.8125rem;
