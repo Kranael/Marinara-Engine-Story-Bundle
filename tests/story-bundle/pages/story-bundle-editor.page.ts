@@ -15,7 +15,7 @@
  *   story-bundle-editor-tab-lorebooks
  *   story-bundle-editor-tab-presets
  *   story-bundle-editor-tab-agents
- *   story-bundle-editor-tab-intros
+ *   story-bundle-editor-tab-scenarios
  */
 import { type Locator, type Page } from "@playwright/test";
 import { switchEditorTab } from "../helpers/editor-tabs.js";
@@ -35,7 +35,7 @@ export class StoryBundleEditorPage {
   readonly lorebooksTab: Locator;
   readonly presetsTab: Locator;
   readonly agentsTab: Locator;
-  readonly introsTab: Locator;
+  readonly scenariosTab: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -52,7 +52,7 @@ export class StoryBundleEditorPage {
     this.lorebooksTab = page.getByTestId("story-bundle-editor-tab-lorebooks");
     this.presetsTab = page.getByTestId("story-bundle-editor-tab-presets");
     this.agentsTab = page.getByTestId("story-bundle-editor-tab-agents");
-    this.introsTab = page.getByTestId("story-bundle-editor-tab-intros");
+    this.scenariosTab = page.getByTestId("story-bundle-editor-tab-scenarios");
   }
 
   // ── Actions ───────────────────────────────────────────────
@@ -97,8 +97,8 @@ export class StoryBundleEditorPage {
     await switchEditorTab(this.page, "story-bundle-editor-tab-agents");
   }
 
-  /** Switch to the Intros tab. */
-  async switchToIntros(): Promise<void> {
-    await switchEditorTab(this.page, "story-bundle-editor-tab-intros");
+  /** Switch to the Scenarios tab. */
+  async switchToScenarios(): Promise<void> {
+    await switchEditorTab(this.page, "story-bundle-editor-tab-scenarios");
   }
 }

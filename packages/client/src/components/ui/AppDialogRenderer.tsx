@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { BookOpen } from "lucide-react";
+import { normalizeAvatarCrop } from "@marinara-engine/shared";
 import { Modal } from "./Modal";
 import { dismissActiveDialog, resolveActiveDialog } from "../../lib/app-dialogs";
 import { useDialogStore } from "../../stores/dialog.store";
+import { getAvatarCropStyle } from "../../lib/utils";
 import { useTranslation as useUiTranslation } from "react-i18next";
 
-function getDialogTitle(kind: "alert" | "confirm" | "prompt" | "choice", title?: string) {
+function getDialogTitle(kind: "alert" | "confirm" | "prompt" | "choice" | "scenario", title?: string) {
   if (title) return title;
   if (kind === "alert") return "Notice";
   if (kind === "prompt") return "Input Required";
@@ -52,7 +55,7 @@ export function AppDialogRenderer() {
       open
       onClose={dismissActiveDialog}
       title={getDialogTitle(dialog.kind, dialog.title)}
-      width="max-w-sm"
+      width={dialog.kind === "scenario" ? "max-w-2xl" : "max-w-sm"}
       chatFloatingPanel
       testId={dialog.testId}
     >
@@ -158,6 +161,45 @@ export function AppDialogRenderer() {
                   }`}
                 >
                   {choice.label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={dismissActiveDialog}
+              className="w-full rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+            >
+              {dialog.cancelLabel ?? "Cancel"}
+            </button>
+          </div>
+        )}
+
+        {dialog.kind === "scenario" && (
+          <div className="space-y-3">
+            <div className="grid max-h-[60vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
+              {dialog.scenarios.map((scenario) => (
+                <button
+                  key={scenario.key}
+                  type="button"
+                  data-testid={`app-dialog-scenario-${scenario.key}`}
+                  onClick={() => resolveActiveDialog(scenario.key)}
+                  className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--border)] text-left transition-transform hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  {scenario.imagePath ? (
+                    <img
+                      src={scenario.imagePath}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      style={getAvatarCropStyle(normalizeAvatarCrop(scenario.avatarCrop))}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--primary)]/25 to-[var(--primary)]/5 text-[var(--muted-foreground)]">
+                      <BookOpen size="1.5rem" />
+                    </div>
+                  )}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-2 pb-2 pt-6">
+                    <span className="line-clamp-2 text-xs font-semibold text-white drop-shadow">{scenario.title}</span>
+                  </div>
                 </button>
               ))}
             </div>

@@ -18,7 +18,7 @@ export const storyBundles = fileTable("story_bundles", {
   lorebookIds: text("lorebook_ids"),
   presetIds: text("preset_ids"),
   agentIds: text("agent_ids"),
-  intros: text("intros"),
+  scenarios: text("scenarios"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

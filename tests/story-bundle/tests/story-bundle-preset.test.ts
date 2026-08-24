@@ -256,7 +256,7 @@ test.describe("Story Bundle Presets — Positive", () => {
     }
   });
 
-  test("playing a bundle with an intro and a variable preset from the panel shows the choice dialog after the intro pick", async ({
+  test("playing a bundle with a scenario and a variable preset from the panel shows the choice dialog after the scenario pick", async ({
     page,
     request,
   }) => {
@@ -264,32 +264,32 @@ test.describe("Story Bundle Presets — Positive", () => {
 
     // Create a preset with variables
     const presetResponse = await request.post("/api/prompts", {
-      data: { name: `SB Intro Preset ${suffix}`, description: "Intro + variables play test fixture." },
+      data: { name: `SB Scenario Preset ${suffix}`, description: "Scenario + variables play test fixture." },
     });
     expect(presetResponse.ok()).toBeTruthy();
     const preset = (await presetResponse.json()) as { id: string };
 
     const variableResponse = await request.post(`/api/prompts/${preset.id}/variables`, {
       data: {
-        variableName: `SB_INTRO_VAR_${suffix}`,
+        variableName: `SB_SCENARIO_VAR_${suffix}`,
         question: "Choose an option",
         options: [
-          { id: `sb_intro_${suffix}_a`, label: "Option A", value: "value_a" },
-          { id: `sb_intro_${suffix}_b`, label: "Option B", value: "value_b" },
+          { id: `sb_scenario_${suffix}_a`, label: "Option A", value: "value_a" },
+          { id: `sb_scenario_${suffix}_b`, label: "Option B", value: "value_b" },
         ],
       },
     });
     expect(variableResponse.ok()).toBeTruthy();
 
-    // Create a bundle with the preset AND an intro.
+    // Create a bundle with the preset AND a scenario.
     const api = new StoryBundleAPI(page);
-    const bundle = await api.create({ name: `SB Intro Preset Test ${suffix}` });
+    const bundle = await api.create({ name: `SB Scenario Preset Test ${suffix}` });
 
-    const introName = `Intro ${suffix}`;
+    const scenarioTitle = `Scenario ${suffix}`;
     const updateResponse = await page.request.patch(`/api/story-bundles/${bundle.id}`, {
       data: {
         presetIds: [preset.id],
-        intros: [{ id: `intro_${suffix}`, name: introName, text: "The story begins..." }],
+        scenarios: [{ id: `scenario_${suffix}`, title: scenarioTitle, openingMessage: "The story begins..." }],
       },
     });
     expect(updateResponse.ok()).toBeTruthy();
@@ -310,8 +310,8 @@ test.describe("Story Bundle Presets — Positive", () => {
       await editor.waitFor();
       await editor.playButton.click();
 
-      // Step 1: the intro pick dialog appears first.
-      await page.getByRole("button", { name: introName, exact: true }).click();
+      // Step 1: the scenario pick dialog appears first.
+      await page.getByRole("button", { name: scenarioTitle, exact: true }).click();
 
       // Step 2: the "Configure Preset Variables" dialog must follow.
       const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });

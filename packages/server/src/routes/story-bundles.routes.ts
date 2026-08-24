@@ -11,7 +11,7 @@ import {
   updateStoryBundleSchema,
   BUILT_IN_AGENT_MANIFESTS,
 } from "@marinara-engine/shared";
-import type { ExportEnvelope, StoryBundle, StoryBundleIntro } from "@marinara-engine/shared";
+import type { ExportEnvelope, StoryBundle, StoryBundleScenario } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
 import { createCharactersStorage } from "../services/storage/characters.storage.js";
 import { createCharacterGalleryStorage } from "../services/storage/character-gallery.storage.js";
@@ -63,19 +63,19 @@ function parseJsonArray(value: unknown): string[] {
   }
 }
 
-/** Parse a JSON text column into a typed intro array. */
-function parseIntroArray(value: unknown): StoryBundleIntro[] {
+/** Parse a JSON text column into a typed scenario array. */
+function parseScenarioArray(value: unknown): StoryBundleScenario[] {
   if (typeof value !== "string") return [];
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed)
       ? parsed.filter(
-          (entry): entry is StoryBundleIntro =>
+          (entry): entry is StoryBundleScenario =>
             typeof entry === "object" &&
             entry !== null &&
             typeof entry.id === "string" &&
-            typeof entry.name === "string" &&
-            typeof entry.text === "string",
+            typeof entry.title === "string" &&
+            typeof entry.openingMessage === "string",
         )
       : [];
   } catch {
@@ -111,7 +111,7 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
     lorebookIds: parseJsonArray(row.lorebookIds),
     presetIds: parseJsonArray(row.presetIds),
     agentIds: parseJsonArray(row.agentIds),
-    intros: parseIntroArray(row.intros),
+    scenarios: parseScenarioArray(row.scenarios),
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
   };
@@ -366,7 +366,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
         lorebookIds: serialized.lorebookIds,
         presetIds: serialized.presetIds,
         agentIds: serialized.agentIds,
-        intros: serialized.intros,
+        scenarios: serialized.scenarios,
         embeddedCharacters,
         embeddedPersonas,
         embeddedLorebooks,

@@ -3,16 +3,24 @@
 // ──────────────────────────────────────────────
 import type { AvatarCrop } from "./avatar-crop.js";
 
-/** An intro is a named first message that can be selected when starting a roleplay from a story bundle. */
-export interface StoryBundleIntro {
+/**
+ * A Scenario is only a starting situation: a title, an opening chat message,
+ * and an optional picture. Selecting one when playing a Story Bundle seeds
+ * the new chat's first message — there are no branches, paths, or choices.
+ */
+export interface StoryBundleScenario {
   id: string;
-  name: string;
-  text: string;
+  title: string;
+  openingMessage: string;
+  /** Optional picture shown as the scenario's thumbnail and card artwork. */
+  imagePath?: string | null;
+  /** Avatar crop settings for the scenario image, same shape as the bundle picture. */
+  avatarCrop?: AvatarCrop | null;
 }
 
 /**
  * A Story Bundle is a named container that groups characters, personas,
- * lorebooks, presets, and intro messages into a ready-to-play story.
+ * lorebooks, presets, and scenarios into a ready-to-play story.
  */
 export interface StoryBundle {
   id: string;
@@ -44,8 +52,8 @@ export interface StoryBundle {
   presetIds: string[];
   /** IDs of agents pre-configured for this story bundle. */
   agentIds: string[];
-  /** Inline intro messages that can be selected as the first RP message. */
-  intros: StoryBundleIntro[];
+  /** Starting-situation scenarios that can be selected as the first RP message. */
+  scenarios: StoryBundleScenario[];
   createdAt: string;
   updatedAt: string;
 }

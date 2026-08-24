@@ -34,6 +34,7 @@ import { inArray, isFileCondition, isFileOrdering, type FileCondition, type File
 import { migrateLegacyNoodleAccountRow } from "./noodle-platform-migration.js";
 import { migrateLegacyNoodlePostAccessRow } from "./noodle-access-migration.js";
 import { migrateRetiredChatModeRow, RETIRED_CHAT_MODE_TABLES } from "./retired-chat-mode-migration.js";
+import { migrateLegacyStoryBundleScenariosRow } from "./story-bundle-scenario-migration.js";
 import {
   getFileTableConfig,
   FileUniqueConstraintError,
@@ -456,6 +457,7 @@ function migrateFileBackedRow(table: string, row: Row): Row {
   if (table === "noodle_accounts") return migrateLegacyNoodleAccountRow(row);
   if (table === "noodle_posts") return migrateLegacyNoodlePostAccessRow(row);
   if ((RETIRED_CHAT_MODE_TABLES as readonly string[]).includes(table)) return migrateRetiredChatModeRow(row);
+  if (table === "story_bundles") return migrateLegacyStoryBundleScenariosRow(row);
   return row;
 }
 
@@ -465,6 +467,7 @@ function fileBackedRowNeedsMigration(table: string, row: Row): boolean {
   if (table === "noodle_posts") {
     return (row.access !== "public" && row.access !== "locked") || "ppvPrice" in row || "ppv_price" in row;
   }
+  if (table === "story_bundles") return "intros" in row;
   return false;
 }
 

@@ -6,10 +6,12 @@ import { z } from "zod";
 const nonEmptyIdSchema = z.string().min(1);
 const storyBundleNameSchema = z.string().trim().min(1, "Title is required").max(200);
 
-export const storyBundleIntroSchema = z.object({
+export const storyBundleScenarioSchema = z.object({
   id: nonEmptyIdSchema,
-  name: z.string().trim().min(1, "Intro name is required").max(200),
-  text: z.string().min(1, "Intro text is required"),
+  title: z.string().trim().min(1, "Scenario title is required").max(200),
+  openingMessage: z.string().min(1, "Scenario opening message is required"),
+  imagePath: z.string().nullable().optional(),
+  avatarCrop: z.unknown().nullable().optional(),
 });
 
 export const storyBundleIdParamsSchema = z.object({
@@ -30,7 +32,7 @@ export const createStoryBundleSchema = z.object({
   lorebookIds: z.array(z.string()).optional(),
   presetIds: z.array(z.string()).optional(),
   agentIds: z.array(z.string()).optional(),
-  intros: z.array(storyBundleIntroSchema).optional(),
+  scenarios: z.array(storyBundleScenarioSchema).optional(),
 });
 
 export const updateStoryBundleSchema = z.object({
@@ -47,7 +49,7 @@ export const updateStoryBundleSchema = z.object({
   personaIds: z.array(z.string()).optional(),
   presetIds: z.array(z.string()).optional(),
   agentIds: z.array(z.string()).optional(),
-  intros: z.array(storyBundleIntroSchema).optional(),
+  scenarios: z.array(storyBundleScenarioSchema).optional(),
 });
 
 export type CreateStoryBundleInput = z.input<typeof createStoryBundleSchema>;

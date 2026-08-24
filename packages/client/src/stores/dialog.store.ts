@@ -34,7 +34,18 @@ export type ChoiceDialogState = AppDialogCommon & {
   choices: Array<{ key: string; label: string; tone?: AppDialogTone }>;
 };
 
-export type AppDialogState = AlertDialogState | ConfirmDialogState | PromptDialogState | ChoiceDialogState;
+export type ScenarioDialogState = AppDialogCommon & {
+  kind: "scenario";
+  /** Visual cards shown in a grid; resolves the chosen key. */
+  scenarios: Array<{ key: string; title: string; imagePath?: string | null; avatarCrop?: unknown }>;
+};
+
+export type AppDialogState =
+  | AlertDialogState
+  | ConfirmDialogState
+  | PromptDialogState
+  | ChoiceDialogState
+  | ScenarioDialogState;
 
 interface DialogStoreState {
   dialog: AppDialogState | null;

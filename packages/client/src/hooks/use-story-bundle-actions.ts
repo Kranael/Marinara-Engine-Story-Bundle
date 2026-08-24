@@ -7,7 +7,7 @@
 // logic: create a roleplay chat seeded with the bundle's characters,
 // persona, preset and first connection, tag the chat with the bundle,
 // activate the bundle's lorebooks and agents, and insert the chosen
-// intro message.
+// scenario's opening message.
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -15,7 +15,7 @@ import { useCreateChat, useUpdateChatMetadata } from "./use-chats";
 import { useConnections } from "./use-connections";
 import { useDeleteStoryBundle } from "./use-story-bundles";
 import { useChatStore } from "../stores/chat.store";
-import { showChoiceDialog, showConfirmDialog } from "../lib/app-dialogs";
+import { showScenarioDialog, showConfirmDialog } from "../lib/app-dialogs";
 import { api } from "../lib/api-client";
 
 export interface PlayableStoryBundle {
@@ -26,7 +26,13 @@ export interface PlayableStoryBundle {
   lorebookIds: string[];
   presetIds: string[];
   agentIds: string[];
-  intros?: Array<{ id: string; name: string; text: string }>;
+  scenarios?: Array<{
+    id: string;
+    title: string;
+    openingMessage: string;
+    imagePath?: string | null;
+    avatarCrop?: unknown;
+  }>;
 }
 
 /**
@@ -49,24 +55,26 @@ export function useStoryBundleActions() {
       if (playingId) return;
       setPlayingId(bundle.id);
       try {
-        // If the bundle has intros, let the user pick one first.
-        let selectedIntroText: string | null = null;
-        const bundleIntros = bundle.intros ?? [];
-        if (bundleIntros.length > 0) {
-          const choice = await showChoiceDialog({
-            title: t("storyBundles.introPickTitle", "Choose an Intro"),
-            message: t("storyBundles.introPickMessage", "Select an intro to use as the first message."),
-            choices: bundleIntros.map((intro) => ({
-              key: intro.id,
-              label: intro.name,
+        // If the bundle has scenarios, let the user pick one first.
+        let selectedOpeningMessage: string | null = null;
+        const bundleScenarios = bundle.scenarios ?? [];
+        if (bundleScenarios.length > 0) {
+          const choice = await showScenarioDialog({
+            title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
+            message: t("storyBundles.scenarioPickMessage", "Select a scenario to use as the first message."),
+            scenarios: bundleScenarios.map((scenario) => ({
+              key: scenario.id,
+              title: scenario.title,
+              imagePath: scenario.imagePath,
+              avatarCrop: scenario.avatarCrop,
             })),
           });
           if (!choice) {
             setPlayingId(null);
             return;
           }
-          const picked = bundleIntros.find((i) => i.id === choice);
-          selectedIntroText = picked?.text ?? null;
+          const picked = bundleScenarios.find((s) => s.id === choice);
+          selectedOpeningMessage = picked?.openingMessage ?? null;
         }
 
         const conns = (connections ?? []) as Array<{ id: string }>;
@@ -115,15 +123,15 @@ export function useStoryBundleActions() {
                 }
               }
 
-              // If an intro was selected, insert it as the first assistant message.
-              if (selectedIntroText) {
+              // If a scenario was selected, insert its opening message as the first assistant message.
+              if (selectedOpeningMessage) {
                 try {
                   await api.post(`/chats/${chat.id}/messages`, {
                     role: "assistant",
-                    content: selectedIntroText,
+                    content: selectedOpeningMessage,
                   });
                 } catch (err) {
-                  console.error("[playStoryBundle] Failed to insert intro message:", err);
+                  console.error("[playStoryBundle] Failed to insert scenario opening message:", err);
                 }
               }
 

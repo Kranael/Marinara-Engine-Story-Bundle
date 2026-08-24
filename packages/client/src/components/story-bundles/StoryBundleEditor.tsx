@@ -23,13 +23,13 @@ import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../.
 import { useCharacters, useCharacterGroups, usePersonas } from "../../hooks/use-characters";
 import { useLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
-import type { Lorebook, PromptPreset, StoryBundleIntro } from "@marinara-engine/shared";
+import type { Lorebook, PromptPreset, StoryBundleScenario } from "@marinara-engine/shared";
 import { useCreateChat, useUpdateChatMetadata } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
 import { api } from "../../lib/api-client";
-import { showChoiceDialog, showConfirmDialog } from "../../lib/app-dialogs";
+import { showConfirmDialog, showScenarioDialog } from "../../lib/app-dialogs";
 import { sanitizeStoryBundleDescription } from "../../lib/story-bundle-html";
 import { cn } from "../../lib/utils";
 import { EditorTabNavigation } from "../ui/EditorTabNavigation";
@@ -42,7 +42,7 @@ import { StoryBundlePersonas } from "./StoryBundlePersonas";
 import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
 import { StoryBundlePresets } from "./StoryBundlePresets";
 import { StoryBundleAgents } from "./StoryBundleAgents";
-import { StoryBundleIntros } from "./StoryBundleIntros";
+import { StoryBundleScenarios } from "./StoryBundleScenarios";
 
 /** Parse a JSON string or array into a string[] of character IDs. */
 function parseCharacterFolderIds(value: unknown): string[] {
@@ -68,7 +68,7 @@ const TABS = [
   { id: "lorebooks", label: "Lorebooks", icon: BookOpen },
   { id: "presets", label: "Presets", icon: SlidersHorizontal },
   { id: "agents", label: "Agents", icon: Sparkles },
-  { id: "intros", label: "Intros", icon: MessageSquare },
+  { id: "scenarios", label: "Scenarios", icon: MessageSquare },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -141,7 +141,7 @@ export function StoryBundleEditor() {
   const [lorebookIds, setLorebookIds] = useState<string[]>([]);
   const [presetIds, setPresetIds] = useState<string[]>([]);
   const [agentIds, setAgentIds] = useState<string[]>([]);
-  const [intros, setIntros] = useState<StoryBundleIntro[]>([]);
+  const [scenarios, setScenarios] = useState<StoryBundleScenario[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("metadata");
   const [saving, setSaving] = useState(false);
@@ -171,7 +171,7 @@ export function StoryBundleEditor() {
       setLorebookIds(bundle.lorebookIds ?? []);
       setPresetIds(bundle.presetIds ?? []);
       setAgentIds(bundle.agentIds ?? []);
-      setIntros(bundle.intros ?? []);
+      setScenarios(bundle.scenarios ?? []);
     }
   }, [bundle]);
 
@@ -198,7 +198,7 @@ export function StoryBundleEditor() {
   const agentIdsDirty = bundle
     ? JSON.stringify([...(agentIds ?? [])].sort()) !== JSON.stringify([...(bundle.agentIds ?? [])].sort())
     : false;
-  const introsDirty = bundle ? JSON.stringify(intros) !== JSON.stringify(bundle.intros ?? []) : false;
+  const scenariosDirty = bundle ? JSON.stringify(scenarios) !== JSON.stringify(bundle.scenarios ?? []) : false;
   const avatarCropDirty = bundle ? JSON.stringify(avatarCrop) !== JSON.stringify(bundle.avatarCrop ?? null) : false;
   const isDirty =
     nameDirty ||
@@ -212,7 +212,7 @@ export function StoryBundleEditor() {
     lorebookIdsDirty ||
     presetIdsDirty ||
     agentIdsDirty ||
-    introsDirty ||
+    scenariosDirty ||
     avatarCropDirty;
 
   const sanitizedDescription = useMemo(
@@ -237,7 +237,7 @@ export function StoryBundleEditor() {
         lorebookIds?: string[];
         presetIds?: string[];
         agentIds?: string[];
-        intros?: StoryBundleIntro[];
+        scenarios?: StoryBundleScenario[];
       } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
@@ -251,7 +251,7 @@ export function StoryBundleEditor() {
       if (lorebookIdsDirty) payload.lorebookIds = lorebookIds;
       if (presetIdsDirty) payload.presetIds = presetIds;
       if (agentIdsDirty) payload.agentIds = agentIds;
-      if (introsDirty) payload.intros = intros;
+      if (scenariosDirty) payload.scenarios = scenarios;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
@@ -275,7 +275,7 @@ export function StoryBundleEditor() {
     lorebookIdsDirty,
     presetIdsDirty,
     agentIdsDirty,
-    introsDirty,
+    scenariosDirty,
     updateMutation,
     name,
     description,
@@ -289,7 +289,7 @@ export function StoryBundleEditor() {
     lorebookIds,
     presetIds,
     agentIds,
-    intros,
+    scenarios,
     t,
   ]);
 
@@ -306,17 +306,19 @@ export function StoryBundleEditor() {
     const draftLorebookIds = lorebookIds;
     const draftPresetId = presetIds[0] ?? null;
     const draftAgentIds = agentIds;
-    const draftIntros = intros;
+    const draftScenarios = scenarios;
 
-    // If the bundle has intros, let the user pick one first.
-    let selectedIntroText: string | null = null;
-    if (draftIntros.length > 0) {
-      const choice = await showChoiceDialog({
-        title: t("storyBundles.introPickTitle", "Choose an Intro"),
-        message: t("storyBundles.introPickMessage", "Select an intro to use as the first message."),
-        choices: draftIntros.map((intro) => ({
-          key: intro.id,
-          label: intro.name,
+    // If the bundle has scenarios, let the user pick one first.
+    let selectedOpeningMessage: string | null = null;
+    if (draftScenarios.length > 0) {
+      const choice = await showScenarioDialog({
+        title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
+        message: t("storyBundles.scenarioPickMessage", "Select a scenario to use as the first message."),
+        scenarios: draftScenarios.map((scenario) => ({
+          key: scenario.id,
+          title: scenario.title,
+          imagePath: scenario.imagePath,
+          avatarCrop: scenario.avatarCrop,
         })),
         cancelLabel: t("storyBundles.cancel", "Cancel"),
       });
@@ -324,8 +326,8 @@ export function StoryBundleEditor() {
         setPlaying(false);
         return;
       }
-      const picked = draftIntros.find((i) => i.id === choice);
-      selectedIntroText = picked?.text ?? null;
+      const picked = draftScenarios.find((s) => s.id === choice);
+      selectedOpeningMessage = picked?.openingMessage ?? null;
     }
 
     const conns = (connections ?? []) as Array<{ id: string }>;
@@ -371,15 +373,15 @@ export function StoryBundleEditor() {
             }
           }
 
-          // If an intro was selected, insert it as the first assistant message.
-          if (selectedIntroText) {
+          // If a scenario was selected, insert its opening message as the first assistant message.
+          if (selectedOpeningMessage) {
             try {
               await api.post(`/chats/${chat.id}/messages`, {
                 role: "assistant",
-                content: selectedIntroText,
+                content: selectedOpeningMessage,
               });
             } catch (err) {
-              console.error("[playStoryBundle] Failed to insert intro message:", err);
+              console.error("[playStoryBundle] Failed to insert scenario opening message:", err);
             }
           }
 
@@ -425,7 +427,7 @@ export function StoryBundleEditor() {
     lorebookIds,
     presetIds,
     agentIds,
-    intros,
+    scenarios,
   ]);
 
   const handleDelete = useCallback(async () => {
@@ -619,7 +621,9 @@ export function StoryBundleEditor() {
 
             {activeTab === "agents" && <StoryBundleAgents agentIds={agentIds} onAgentIdsChange={setAgentIds} />}
 
-            {activeTab === "intros" && <StoryBundleIntros intros={intros} onIntrosChange={setIntros} />}
+            {activeTab === "scenarios" && (
+              <StoryBundleScenarios scenarios={scenarios} onScenariosChange={setScenarios} />
+            )}
           </div>
         </div>
       </div>

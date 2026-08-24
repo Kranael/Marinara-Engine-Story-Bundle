@@ -1,10 +1,10 @@
 /**
- * Story Bundle Intros — Extra Coverage Playwright E2E Tests
+ * Story Bundle Scenarios — Extra Coverage Playwright E2E Tests
  *
- * Extends story-bundle-intro.test.ts with validation edge cases:
- * - Save button is disabled while the intro name is empty
- * - Save button is disabled while the intro text is empty
- * - Cancel during edit discards changes and keeps the original intro
+ * Extends story-bundle-scenario.test.ts with validation edge cases:
+ * - Save button is disabled while the scenario title is empty
+ * - Save button is disabled while the scenario opening message is empty
+ * - Cancel during edit discards changes and keeps the original scenario
  *
  * Each test imports its own bundle fixture and cleans it up in a finally
  * block so cleanup survives failures.
@@ -15,7 +15,7 @@ import { BasePage } from "../pages/base.page.js";
 import { HomePage } from "../../pages/home.page.js";
 import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
-import { StoryBundleIntrosTabPage } from "../pages/story-bundle-intros-tab.page.js";
+import { StoryBundleScenariosTabPage } from "../pages/story-bundle-scenarios-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
@@ -40,59 +40,59 @@ async function openEditorForBundle(page: Parameters<typeof importStoryBundleFixt
   return { bundle, editor };
 }
 
-test.describe("Story Bundle Intros Extra — Negative", () => {
-  test("save button is disabled while the intro name is empty", async ({ page }) => {
+test.describe("Story Bundle Scenarios Extra — Negative", () => {
+  test("save button is disabled while the scenario title is empty", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
 
     try {
-      await editor.switchToIntros();
-      await introsTab.waitFor();
+      await editor.switchToScenarios();
+      await scenariosTab.waitFor();
 
-      await introsTab.clickAdd();
-      await introsTab.fillText("Text without a name.");
+      await scenariosTab.clickAdd();
+      await scenariosTab.fillMessage("Text without a title.");
 
-      await expect(introsTab.saveButton).toBeDisabled();
+      await expect(scenariosTab.saveButton).toBeDisabled();
     } finally {
       await page.request.delete(`/api/story-bundles/${bundle.id}`);
     }
   });
 
-  test("save button is disabled while the intro text is empty", async ({ page }) => {
+  test("save button is disabled while the scenario opening message is empty", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
 
     try {
-      await editor.switchToIntros();
-      await introsTab.waitFor();
+      await editor.switchToScenarios();
+      await scenariosTab.waitFor();
 
-      await introsTab.clickAdd();
-      await introsTab.fillName("Name Without Text");
+      await scenariosTab.clickAdd();
+      await scenariosTab.fillTitle("Title Without Message");
 
-      await expect(introsTab.saveButton).toBeDisabled();
+      await expect(scenariosTab.saveButton).toBeDisabled();
     } finally {
       await page.request.delete(`/api/story-bundles/${bundle.id}`);
     }
   });
 
-  test("cancel during edit discards changes and keeps the original intro", async ({ page }) => {
+  test("cancel during edit discards changes and keeps the original scenario", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
 
     try {
-      await editor.switchToIntros();
-      await introsTab.waitFor();
+      await editor.switchToScenarios();
+      await scenariosTab.waitFor();
 
-      await introsTab.addIntro("Keep Me", "Original text stays.");
+      await scenariosTab.addScenario("Keep Me", "Original text stays.");
 
-      await introsTab.clickEdit();
-      await introsTab.fillName("Discarded Name");
-      await introsTab.fillText("Discarded text.");
-      await introsTab.clickCancel();
+      await scenariosTab.clickEdit();
+      await scenariosTab.fillTitle("Discarded Title");
+      await scenariosTab.fillMessage("Discarded text.");
+      await scenariosTab.clickCancel();
 
       await expect(page.getByText("Keep Me", { exact: true })).toBeVisible();
       await expect(page.getByText("Original text stays.")).toBeVisible();
-      await expect(page.getByText("Discarded Name", { exact: true })).toBeHidden();
+      await expect(page.getByText("Discarded Title", { exact: true })).toBeHidden();
       await expect(page.getByText("Discarded text.")).toBeHidden();
     } finally {
       await page.request.delete(`/api/story-bundles/${bundle.id}`);

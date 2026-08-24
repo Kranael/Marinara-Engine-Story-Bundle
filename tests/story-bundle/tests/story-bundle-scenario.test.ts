@@ -1,11 +1,11 @@
 /**
- * Story Bundle Intros Tab — Playwright E2E Tests
+ * Story Bundle Scenarios Tab — Playwright E2E Tests
  *
- * Covers: StoryBundleIntros component within the editor
- * - Intros tab renders with add button and empty state
- * - Adding an intro shows it in the list
- * - Editing an intro updates its name and text
- * - Deleting an intro removes it from the list
+ * Covers: StoryBundleScenarios component within the editor
+ * - Scenarios tab renders with add button and empty state
+ * - Adding a scenario shows it in the list
+ * - Editing a scenario updates its title and opening message
+ * - Deleting a scenario removes it from the list
  * - Cancel button dismisses the add form without saving
  *
  * Each test imports its own data via importStoryBundleFixture and cleans up.
@@ -16,7 +16,7 @@ import { BasePage } from "../pages/base.page.js";
 import { HomePage } from "../../pages/home.page.js";
 import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
-import { StoryBundleIntrosTabPage } from "../pages/story-bundle-intros-tab.page.js";
+import { StoryBundleScenariosTabPage } from "../pages/story-bundle-scenarios-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
 
@@ -42,55 +42,55 @@ async function openEditorForBundle(page: Parameters<typeof importStoryBundleFixt
   return { bundle, editor };
 }
 
-test.describe("Story Bundle Intros — Positive", () => {
-  test("intros tab renders with add button and empty state", async ({ page }) => {
+test.describe("Story Bundle Scenarios — Positive", () => {
+  test("scenarios tab renders with add button and empty state", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
     const api = new StoryBundleAPI(page);
 
-    await editor.switchToIntros();
-    await introsTab.waitFor();
+    await editor.switchToScenarios();
+    await scenariosTab.waitFor();
 
-    await expect(introsTab.addButton).toBeVisible();
-    await expect(introsTab.emptyState).toBeVisible();
+    await expect(scenariosTab.addButton).toBeVisible();
+    await expect(scenariosTab.emptyState).toBeVisible();
 
     await api.delete(bundle.id);
   });
 
-  test("adding an intro shows it in the list", async ({ page }) => {
+  test("adding a scenario shows it in the list", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
     const api = new StoryBundleAPI(page);
 
-    await editor.switchToIntros();
-    await introsTab.waitFor();
+    await editor.switchToScenarios();
+    await scenariosTab.waitFor();
 
-    await introsTab.addIntro("Greeting", "Hello there, traveler!");
+    await scenariosTab.addScenario("Greeting", "Hello there, traveler!");
 
-    // The empty state should be gone and the intro should appear
-    await expect(introsTab.emptyState).not.toBeVisible();
+    // The empty state should be gone and the scenario should appear
+    await expect(scenariosTab.emptyState).not.toBeVisible();
     await expect(page.getByText("Greeting", { exact: true })).toBeVisible();
     await expect(page.getByText("Hello there, traveler!")).toBeVisible();
 
     await api.delete(bundle.id);
   });
 
-  test("editing an intro updates its name and text", async ({ page }) => {
+  test("editing a scenario updates its title and opening message", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
     const api = new StoryBundleAPI(page);
 
-    await editor.switchToIntros();
-    await introsTab.waitFor();
+    await editor.switchToScenarios();
+    await scenariosTab.waitFor();
 
-    // Add an intro first
-    await introsTab.addIntro("Original", "Original text.");
+    // Add a scenario first
+    await scenariosTab.addScenario("Original", "Original text.");
 
     // Edit it
-    await introsTab.clickEdit();
-    await introsTab.fillName("Updated");
-    await introsTab.fillText("Updated text.");
-    await introsTab.clickSave();
+    await scenariosTab.clickEdit();
+    await scenariosTab.fillTitle("Updated");
+    await scenariosTab.fillMessage("Updated text.");
+    await scenariosTab.clickSave();
 
     await expect(page.getByText("Updated", { exact: true })).toBeVisible();
     await expect(page.getByText("Updated text.")).toBeVisible();
@@ -99,57 +99,57 @@ test.describe("Story Bundle Intros — Positive", () => {
     await api.delete(bundle.id);
   });
 
-  test("deleting an intro removes it from the list", async ({ page }) => {
+  test("deleting a scenario removes it from the list", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
     const api = new StoryBundleAPI(page);
 
-    await editor.switchToIntros();
-    await introsTab.waitFor();
+    await editor.switchToScenarios();
+    await scenariosTab.waitFor();
 
-    // Add an intro first
-    await introsTab.addIntro("ToDelete", "Will be removed.");
+    // Add a scenario first
+    await scenariosTab.addScenario("ToDelete", "Will be removed.");
 
     // Delete it
-    await introsTab.clickDelete();
+    await scenariosTab.clickDelete();
 
     await expect(page.getByText("ToDelete", { exact: true })).not.toBeVisible();
-    await expect(introsTab.emptyState).toBeVisible();
+    await expect(scenariosTab.emptyState).toBeVisible();
 
     await api.delete(bundle.id);
   });
 
   test("cancel button dismisses the add form without saving", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
     const api = new StoryBundleAPI(page);
 
-    await editor.switchToIntros();
-    await introsTab.waitFor();
+    await editor.switchToScenarios();
+    await scenariosTab.waitFor();
 
-    await introsTab.clickAdd();
-    await introsTab.fillName("Cancelled");
-    await introsTab.fillText("Should not appear.");
-    await introsTab.clickCancel();
+    await scenariosTab.clickAdd();
+    await scenariosTab.fillTitle("Cancelled");
+    await scenariosTab.fillMessage("Should not appear.");
+    await scenariosTab.clickCancel();
 
     // The empty state should still be visible
-    await expect(introsTab.emptyState).toBeVisible();
+    await expect(scenariosTab.emptyState).toBeVisible();
     await expect(page.getByText("Cancelled", { exact: true })).not.toBeVisible();
 
     await api.delete(bundle.id);
   });
 });
 
-test.describe("Story Bundle Intros — Negative", () => {
-  test("empty intros tab shows empty state", async ({ page }) => {
+test.describe("Story Bundle Scenarios — Negative", () => {
+  test("empty scenarios tab shows empty state", async ({ page }) => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
-    const introsTab = new StoryBundleIntrosTabPage(page);
+    const scenariosTab = new StoryBundleScenariosTabPage(page);
     const api = new StoryBundleAPI(page);
 
-    await editor.switchToIntros();
-    await introsTab.waitFor();
+    await editor.switchToScenarios();
+    await scenariosTab.waitFor();
 
-    await expect(introsTab.emptyState).toBeVisible();
+    await expect(scenariosTab.emptyState).toBeVisible();
 
     await api.delete(bundle.id);
   });

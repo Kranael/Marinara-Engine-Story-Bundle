@@ -1026,6 +1026,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     lorebookIds?: unknown;
     presetIds?: unknown;
     agentIds?: unknown;
+    scenarios?: unknown;
     intros?: unknown;
     embeddedCharacters?: unknown;
     embeddedPersonas?: unknown;
@@ -1273,17 +1274,25 @@ async function importStoryBundle(data: unknown, db: DB) {
     .filter((agentId) => !knownAgentIds.has(agentId))
     .map((agentId) => ({ id: agentId, name: embeddedAgentNames.get(agentId) ?? agentId }));
 
-  // Intros are inline data — parse and validate, generating new IDs for each.
-  const finalIntros = Array.isArray(d.intros)
-    ? d.intros
-        .filter((entry): entry is Record<string, unknown> => typeof entry === "object" && entry !== null)
-        .map((entry) => ({
-          id: typeof entry.id === "string" && entry.id.length > 0 ? entry.id : newId(),
-          name: typeof entry.name === "string" ? entry.name : "",
-          text: typeof entry.text === "string" ? entry.text : "",
-        }))
-        .filter((entry) => entry.name.length > 0 && entry.text.length > 0)
-    : [];
+  // Scenarios are inline data — parse and validate, generating new IDs for
+  // each. Older exports carry the legacy `intros` field with `name`/`text`;
+  // accept both shapes so bundles exported before the rename still import.
+  const legacyOrCurrentScenarios = Array.isArray(d.scenarios) ? d.scenarios : Array.isArray(d.intros) ? d.intros : [];
+  const finalScenarios = legacyOrCurrentScenarios
+    .filter((entry): entry is Record<string, unknown> => typeof entry === "object" && entry !== null)
+    .map((entry) => ({
+      id: typeof entry.id === "string" && entry.id.length > 0 ? entry.id : newId(),
+      title: typeof entry.title === "string" ? entry.title : typeof entry.name === "string" ? entry.name : "",
+      openingMessage:
+        typeof entry.openingMessage === "string"
+          ? entry.openingMessage
+          : typeof entry.text === "string"
+            ? entry.text
+            : "",
+      imagePath: typeof entry.imagePath === "string" ? entry.imagePath : null,
+      avatarCrop: entry.avatarCrop ?? null,
+    }))
+    .filter((entry) => entry.title.length > 0 && entry.openingMessage.length > 0);
 
   const result = await storage.create({
     name,
@@ -1298,7 +1307,7 @@ async function importStoryBundle(data: unknown, db: DB) {
     lorebookIds: finalLorebookIds,
     presetIds: finalPresetIds,
     agentIds: finalAgentIds,
-    intros: finalIntros,
+    scenarios: finalScenarios,
   });
   if (!result) {
     return { success: false, type: "marinara_story_bundle" as const, error: "Failed to create story bundle" };

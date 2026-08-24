@@ -5,6 +5,7 @@ import {
   type ConfirmDialogState,
   type PromptDialogState,
   type ChoiceDialogState,
+  type ScenarioDialogState,
 } from "../stores/dialog.store";
 
 type ActiveDialogResolver = {
@@ -18,6 +19,7 @@ function resolveFallback(kind: AppDialogState["kind"]) {
   if (kind === "confirm") return false;
   if (kind === "prompt") return null;
   if (kind === "choice") return null;
+  if (kind === "scenario") return null;
   return undefined;
 }
 
@@ -88,6 +90,15 @@ export function showPromptDialog(options: Omit<PromptDialogState, "kind">): Prom
 export function showChoiceDialog(options: Omit<ChoiceDialogState, "kind">): Promise<string | null> {
   return openDialog<string | null>({
     kind: "choice",
+    cancelLabel: "Cancel",
+    ...options,
+  });
+}
+
+/** A visual-card scenario picker. Resolves the chosen `key`, or null if dismissed. */
+export function showScenarioDialog(options: Omit<ScenarioDialogState, "kind">): Promise<string | null> {
+  return openDialog<string | null>({
+    kind: "scenario",
     cancelLabel: "Cancel",
     ...options,
   });
