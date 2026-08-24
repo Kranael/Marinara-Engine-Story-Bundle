@@ -2620,7 +2620,10 @@
   }
 }
 
-@container (min-width: 96.001rem) and (max-width: 108rem) {
+/* Between the compact-dropdown breakpoint (64rem) and 108rem the tab row
+   shrinks (no icons, tighter padding) so every editor's sections stay on one
+   line next to the header actions instead of overflowing into them. */
+@container (min-width: 64.001rem) and (max-width: 108rem) {
   .mari-editor-tab {
     gap: 0.125rem;
     padding-inline: 0.25rem;
@@ -2637,6 +2640,11 @@
     height: 2.25rem;
     min-height: 2.25rem;
     line-height: 1;
+  }
+
+  .mari-editor-header--with-nav .mari-panel-gradient-button {
+    height: 2.25rem;
+    min-height: 2.25rem;
   }
 
   .mari-editor-header--with-nav .mari-editor-header-main--identity {
@@ -2660,15 +2668,10 @@
   }
 }
 
-@container (max-width: 96rem) {
-  .mari-editor-navigation-tabs {
-    display: none;
-  }
-
-  .mari-editor-navigation-compact {
-    display: block;
-  }
-
+/* Below the compact-dropdown breakpoint (64rem, where EditorTabNavigation
+   swaps the tab row for the section menu) the header stacks: identity row on
+   top, menu and actions share the second row. */
+@container (max-width: 64rem) {
   .mari-editor-header--with-nav {
     height: auto;
     min-height: 3.8125rem;
@@ -2690,6 +2693,11 @@
     max-width: 8rem;
   }
 
+  .mari-editor-header--with-nav .mari-panel-gradient-button {
+    height: 2.25rem;
+    min-height: 2.25rem;
+  }
+
   .mari-editor-header--with-nav .mari-editor-actions {
     width: auto;
     margin-left: 0;
@@ -2705,6 +2713,15 @@
 
   .mari-editor-header--with-nav .mari-editor-save-label {
     display: none;
+  }
+}
+
+/* On phones the shared header actions shrink to 2rem; gradient CTAs inside a
+   with-nav header follow so every header button stays the same height. */
+@media (max-width: 767px) {
+  .mari-editor-header--with-nav .mari-panel-gradient-button {
+    height: 2rem;
+    min-height: 2rem;
   }
 }
 

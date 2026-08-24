@@ -48,9 +48,11 @@ This file is the release-notes source of truth for Marinara Engine. Reuse these 
 
 - Story Bundles now play exactly one persona: the Personas tab in the bundle editor is single-select, and picking a persona replaces any previously selected one instead of adding to a list.
 - Story Bundles now play exactly one prompt preset: the Presets tab in the bundle editor is single-select, and picking a preset replaces any previously selected one instead of adding to a list.
-- Made the Story Bundle editor's Play and Save buttons and the panel's New Bundle button compact so they match the height of the small icon buttons (Import, Delete) for a tidier toolbar.
+- Made the Story Bundles panel's New Bundle button compact so it matches the height of the small icon buttons (Import, Delete) for a tidier toolbar.
 
 ### Fixed
+- The Story Bundle editor now wears the same chrome as the Character, Persona, Lorebook, and Preset editors: its section tabs sit in the header next to the actions, and the Back, Save, and Delete buttons use the shared editor button design, so it no longer looks like a foreign screen next to the other object editors.
+- Object editor headers no longer overflow at medium desktop widths: between the compact section-menu breakpoint and 108rem the section tabs shrink instead of colliding with the header actions, and gradient call-to-action buttons inside editor headers share the standard editor-action height.
 - Fixed the Story Bundle editor's Play button ignoring unsaved changes: playing from the editor now starts the roleplay with the content currently shown in the editor (preset, characters, persona, lorebooks, agents, intros, and name) instead of the last saved version, so a preset added in the Presets tab is applied to the new chat even before saving.
 - Fixed the Story Bundle import dialog's Install button for missing agents: it now resolves the providing capability package by package id first (falling back to the package's declared agent list), so agents whose id matches their package id install correctly instead of showing "No capability package provides this agent".
 

@@ -67,8 +67,9 @@ test.describe("Story Bundle Editor — Positive", () => {
     const { bundle, editor } = await openEditorForBundle(page, "empty.json");
     const api = new StoryBundleAPI(page);
 
-    // Play/Save are compact gradient buttons; Delete is the 2rem (h-8 w-8)
-    // icon button they should visually match.
+    // The header's with-nav chrome gives every header button — the gradient
+    // Play CTA, the primary Save action, and the icon-only Delete action —
+    // the same shared editor-action height.
     const deleteBox = await editor.deleteButton.boundingBox();
     const playBox = await editor.playButton.boundingBox();
     const saveBox = await editor.saveButton.boundingBox();

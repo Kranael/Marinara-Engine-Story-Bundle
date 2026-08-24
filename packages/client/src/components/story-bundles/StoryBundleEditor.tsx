@@ -458,40 +458,45 @@ export function StoryBundleEditor() {
   }
 
   return (
-    <div data-testid="story-bundle-editor" className="flex h-full min-h-0 flex-col">
+    <div
+      data-testid="story-bundle-editor"
+      className="mari-editor-shell mari-editor-legacy-bridge flex h-full min-h-0 flex-col overflow-hidden"
+    >
       {/* Header */}
-      <div
-        data-testid="story-bundle-editor-header"
-        className="sticky top-0 z-10 flex h-12 shrink-0 items-center justify-between gap-2 border-b border-[var(--border)]/30 bg-[var(--card)]/80 px-4 backdrop-blur-sm"
-      >
-        <div className="flex min-w-0 items-center gap-2.5">
+      <div data-testid="story-bundle-editor-header" className="mari-editor-header mari-editor-header--with-nav">
+        <div className="mari-editor-header-main">
           <button
             data-testid="story-bundle-editor-back-button"
             onClick={closeStoryBundleDetail}
-            className="mari-topbar-action flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)] active:scale-95"
+            className="mari-editor-action inline-flex"
             title={t("storyBundles.back", "Back")}
           >
-            <ArrowLeft size="1rem" />
+            <ArrowLeft size="1.125rem" />
           </button>
-          <div className="mari-panel-gradient-surface mari-panel-gradient--story-bundles flex h-6 w-6 items-center justify-center rounded-md text-white shadow-sm">
-            <BookMarked size="0.875rem" />
+          <div className="mari-editor-icon-tile mari-panel-gradient-surface mari-panel-gradient--story-bundles">
+            <BookMarked size="1.125rem" />
           </div>
-          <h2 className="mari-chrome-text-strong truncate text-sm font-semibold">
-            {t("storyBundles.editorTitle", "Edit Story Bundle")}
-          </h2>
+          <h2 className="mari-editor-title truncate">{t("storyBundles.editorTitle", "Edit Story Bundle")}</h2>
         </div>
-        <div className="flex items-center gap-1.5">
+        <EditorTabNavigation
+          tabs={TABS}
+          activeId={activeTab}
+          onChange={setActiveTab}
+          tabTestId="story-bundle-editor-tab"
+        />
+
+        <div className="mari-editor-actions flex">
           <button
             data-testid="story-bundle-editor-play-button"
             onClick={handlePlay}
             disabled={playing}
             className={cn(
-              "mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium",
+              "mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles",
               playing && "cursor-not-allowed opacity-45",
             )}
             title={t("storyBundles.playTitle", "Start game from this story bundle")}
           >
-            {playing ? <Loader2 size="0.75rem" className="animate-spin" /> : <Play size="0.75rem" />}
+            {playing ? <Loader2 size="0.8125rem" className="animate-spin" /> : <Play size="0.8125rem" />}
             {t("storyBundles.play", "Play")}
           </button>
           <button
@@ -499,35 +504,28 @@ export function StoryBundleEditor() {
             onClick={handleSave}
             disabled={!isDirty || saving}
             className={cn(
-              "mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium",
-              (!isDirty || saving) && "cursor-not-allowed opacity-45",
+              "mari-editor-action mari-editor-action--primary inline-flex",
+              (!isDirty || saving) && "cursor-not-allowed opacity-50",
             )}
+            aria-label={t("storyBundles.save", "Save")}
+            title={t("storyBundles.save", "Save")}
           >
-            {saving ? <Loader2 size="0.75rem" className="animate-spin" /> : <Save size="0.75rem" />}
-            {t("storyBundles.save", "Save")}
+            {saving ? <Loader2 size="0.8125rem" className="animate-spin" /> : <Save size="0.8125rem" />}
+            <span className="mari-editor-save-label">{t("storyBundles.save", "Save")}</span>
           </button>
           <button
             data-testid="story-bundle-editor-delete-button"
             onClick={handleDelete}
-            className="mari-topbar-action flex h-8 w-8 items-center justify-center rounded-lg text-[var(--destructive)] transition-all hover:bg-[var(--accent)] active:scale-95"
+            className="mari-editor-action inline-flex"
             title={t("storyBundles.delete", "Delete")}
           >
-            <Trash2 size="0.875rem" />
+            <Trash2 size="1rem" />
           </button>
         </div>
       </div>
 
       {/* Body */}
       <div className="mari-editor-body min-h-0 flex-1">
-        <div className="border-b px-4 py-2">
-          <EditorTabNavigation
-            tabs={TABS}
-            activeId={activeTab}
-            onChange={setActiveTab}
-            tabTestId="story-bundle-editor-tab"
-          />
-        </div>
-
         <div className="mari-editor-content @max-5xl:p-4">
           <div className="mari-editor-content-inner">
             {activeTab === "metadata" && (
