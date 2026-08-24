@@ -1309,6 +1309,7 @@
   "storyBundles.missingAgentNoPackage": "No capability package provides this agent",
   "storyBundles.missingAgentsFound": "This bundle references agents that are not installed",
   "storyBundles.missingAgentsFoundHint": "Agents are provided by capability packages. Install the matching package to use these agents.",
+  "storyBundles.modeComingSoon": "Coming soon",
   "storyBundles.nameLabel": "Name",
   "storyBundles.namePlaceholder": "Title of this story bundle…",
   "storyBundles.newBundle": "New Bundle",

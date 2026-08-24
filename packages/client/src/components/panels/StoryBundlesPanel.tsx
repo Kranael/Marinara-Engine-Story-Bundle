@@ -8,7 +8,7 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { BookMarked, Download, Images, Loader2, Play, Plus, Trash2, Upload } from "lucide-react";
+import { BookMarked, Download, Images, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { useStoryBundles, useCreateStoryBundle } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
 import { useUIStore } from "../../stores/ui.store";
@@ -23,7 +23,7 @@ export function StoryBundlesPanel() {
   const { data: bundles, isLoading } = useStoryBundles();
   const createMutation = useCreateStoryBundle();
   const [creating, setCreating] = useState(false);
-  const { play, exportBundle, remove, playingId, exportingId } = useStoryBundleActions();
+  const { exportBundle, remove, exportingId } = useStoryBundleActions();
 
   const handleCreate = useCallback(async () => {
     if (creating) return;
@@ -143,22 +143,6 @@ export function StoryBundlesPanel() {
                   </div>
                   {/* Row action pill (visible on hover / always on mobile) */}
                   <div className="absolute right-2 top-1/2 flex shrink-0 -translate-y-1/2 items-center gap-0.5 rounded-lg bg-[var(--sidebar)] px-1 py-0.5 opacity-0 shadow-sm ring-1 ring-[var(--border)] transition-opacity group-hover:opacity-100 max-md:opacity-100">
-                    <button
-                      data-testid={`story-bundle-play-button-${bundle.id}`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        void play(bundle);
-                      }}
-                      disabled={playingId === bundle.id}
-                      className="rounded-md p-1 transition-transform hover:bg-[var(--sidebar-accent)] active:scale-90"
-                      title={t("storyBundles.playTitle", "Start game from this story bundle")}
-                    >
-                      {playingId === bundle.id ? (
-                        <Loader2 size="0.75rem" className="animate-spin" />
-                      ) : (
-                        <Play size="0.75rem" />
-                      )}
-                    </button>
                     <button
                       data-testid={`story-bundle-export-button-${bundle.id}`}
                       onClick={(event) => {

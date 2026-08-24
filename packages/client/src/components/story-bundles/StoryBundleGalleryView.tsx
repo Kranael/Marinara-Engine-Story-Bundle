@@ -4,12 +4,24 @@
 // Mirrors the Character Library layout, but renders Story Bundles:
 // artwork, title, and the safely-sanitized HTML description. Play,
 // export, and delete reuse the shared Story Bundle action hook.
-import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type UIEvent } from "react";
-import { ArrowLeft, ArrowUpDown, BookMarked, Loader2, Pencil, Play, Search, Trash2, Upload } from "lucide-react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type UIEvent,
+} from "react";
+import { ArrowLeft, ArrowUpDown, BookMarked, Loader2, Pencil, Search, Trash2, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { StoryBundle } from "@marinara-engine/shared";
 import { useStoryBundles } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
+import { ChatModeIcon } from "../chat/ChatModeIcon";
+import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 import {
   formatCardLibraryMeta,
   matchesCardLibrarySearch,
@@ -115,21 +127,44 @@ function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle;
             </p>
           )}
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              disabled
+              data-testid={`story-bundle-gallery-mode-conversation-${bundle.id}`}
+              className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs sm:text-sm"
+              title={t("storyBundles.modeComingSoon", "Coming soon")}
+            >
+              <ChatModeIcon mode="conversation" size="0.875rem" />
+              {t("settings.modes.conversation", "Conversation")}
+            </button>
             <button
               data-testid={`story-bundle-gallery-play-${bundle.id}`}
               onClick={() => void play(bundle)}
               disabled={playingId === bundle.id}
-              className="mari-panel-gradient-button mari-panel-gradient-surface mari-panel-gradient--story-bundles flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium sm:text-sm"
+              style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.roleplay } as CSSProperties}
+              className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)] sm:text-sm"
               title={t("storyBundles.playTitle", "Start roleplay from this story bundle")}
             >
               {playingId === bundle.id ? (
                 <Loader2 size="0.875rem" className="animate-spin" />
               ) : (
-                <Play size="0.875rem" />
+                <ChatModeIcon mode="roleplay" size="0.875rem" />
               )}
-              {t("storyBundles.play", "Play")}
+              {t("settings.modes.roleplay", "Roleplay")}
             </button>
+            <button
+              type="button"
+              disabled
+              data-testid={`story-bundle-gallery-mode-game-${bundle.id}`}
+              className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs sm:text-sm"
+              title={t("storyBundles.modeComingSoon", "Coming soon")}
+            >
+              <ChatModeIcon mode="game" size="0.875rem" />
+              {t("settings.modes.game", "Game")}
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
             <button
               data-testid={`story-bundle-gallery-edit-${bundle.id}`}
               onClick={() => onEdit(bundle.id)}

@@ -12,7 +12,6 @@ import {
   Info,
   Loader2,
   MessageSquare,
-  Play,
   Save,
   SlidersHorizontal,
   Sparkles,
@@ -34,6 +33,8 @@ import { showChoiceDialog, showConfirmDialog } from "../../lib/app-dialogs";
 import { sanitizeStoryBundleDescription } from "../../lib/story-bundle-html";
 import { cn } from "../../lib/utils";
 import { EditorTabNavigation } from "../ui/EditorTabNavigation";
+import { ChatModeIcon } from "../chat/ChatModeIcon";
+import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 import { StoryBundleDescription } from "./StoryBundleDescription";
 import { StoryBundleMetadata } from "./StoryBundleMetadata";
 import { StoryBundleCharacters } from "./StoryBundleCharacters";
@@ -487,17 +488,39 @@ export function StoryBundleEditor() {
 
         <div className="mari-editor-actions flex">
           <button
+            type="button"
+            disabled
+            data-testid="story-bundle-editor-mode-conversation"
+            className="mari-editor-action inline-flex gap-1 px-2.5 text-[0.6875rem] font-semibold"
+            title={t("storyBundles.modeComingSoon", "Coming soon")}
+          >
+            <ChatModeIcon mode="conversation" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }} />
+            {t("settings.modes.conversation", "Conversation")}
+          </button>
+          <button
             data-testid="story-bundle-editor-play-button"
+            type="button"
             onClick={handlePlay}
             disabled={playing}
-            className={cn(
-              "mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles",
-              playing && "cursor-not-allowed opacity-45",
-            )}
-            title={t("storyBundles.playTitle", "Start game from this story bundle")}
+            className="mari-editor-action inline-flex gap-1 px-2.5 text-[0.6875rem] font-semibold"
+            title={t("storyBundles.playTitle", "Start roleplay from this story bundle")}
           >
-            {playing ? <Loader2 size="0.8125rem" className="animate-spin" /> : <Play size="0.8125rem" />}
-            {t("storyBundles.play", "Play")}
+            {playing ? (
+              <Loader2 size="0.75rem" className="animate-spin" />
+            ) : (
+              <ChatModeIcon mode="roleplay" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.roleplay }} />
+            )}
+            {t("settings.modes.roleplay", "Roleplay")}
+          </button>
+          <button
+            type="button"
+            disabled
+            data-testid="story-bundle-editor-mode-game"
+            className="mari-editor-action inline-flex gap-1 px-2.5 text-[0.6875rem] font-semibold"
+            title={t("storyBundles.modeComingSoon", "Coming soon")}
+          >
+            <ChatModeIcon mode="game" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.game }} />
+            {t("settings.modes.game", "Game")}
           </button>
           <button
             data-testid="story-bundle-editor-save-button"
