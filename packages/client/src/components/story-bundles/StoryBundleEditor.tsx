@@ -495,7 +495,7 @@ export function StoryBundleEditor() {
             title={t("storyBundles.modeComingSoon", "Coming soon")}
           >
             <ChatModeIcon mode="conversation" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }} />
-            {t("settings.modes.conversation", "Conversation")}
+            {t("storyBundles.modeConvo", "CONVO")}
           </button>
           <button
             data-testid="story-bundle-editor-play-button"
@@ -510,7 +510,7 @@ export function StoryBundleEditor() {
             ) : (
               <ChatModeIcon mode="roleplay" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.roleplay }} />
             )}
-            {t("settings.modes.roleplay", "Roleplay")}
+            {t("storyBundles.modeRp", "RP")}
           </button>
           <button
             type="button"
@@ -520,7 +520,7 @@ export function StoryBundleEditor() {
             title={t("storyBundles.modeComingSoon", "Coming soon")}
           >
             <ChatModeIcon mode="game" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.game }} />
-            {t("settings.modes.game", "Game")}
+            {t("storyBundles.modeGm", "GM")}
           </button>
           <button
             data-testid="story-bundle-editor-save-button"

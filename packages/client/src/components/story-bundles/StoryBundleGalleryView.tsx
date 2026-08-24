@@ -124,7 +124,7 @@ function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle;
               title={t("storyBundles.modeComingSoon", "Coming soon")}
             >
               <ChatModeIcon mode="conversation" size="0.875rem" />
-              {t("settings.modes.conversation", "Conversation")}
+              {t("storyBundles.modeConvo", "CONVO")}
             </button>
             <button
               data-testid={`story-bundle-gallery-play-${bundle.id}`}
@@ -139,7 +139,7 @@ function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle;
               ) : (
                 <ChatModeIcon mode="roleplay" size="0.875rem" />
               )}
-              {t("settings.modes.roleplay", "Roleplay")}
+              {t("storyBundles.modeRp", "RP")}
             </button>
             <button
               type="button"
@@ -149,7 +149,7 @@ function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle;
               title={t("storyBundles.modeComingSoon", "Coming soon")}
             >
               <ChatModeIcon mode="game" size="0.875rem" />
-              {t("settings.modes.game", "Game")}
+              {t("storyBundles.modeGm", "GM")}
             </button>
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -507,7 +507,8 @@ export function StoryBundleGalleryView() {
                             type="button"
                             disabled
                             data-testid={`story-bundle-gallery-card-mode-conversation-${bundle.id}`}
-                            className="mari-editor-action justify-center gap-1 px-1 py-1 text-[0.5625rem]"
+                            style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.conversation } as CSSProperties}
+                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))]"
                             title={t("storyBundles.modeComingSoon", "Coming soon")}
                           >
                             <ChatModeIcon
@@ -516,7 +517,7 @@ export function StoryBundleGalleryView() {
                               className="shrink-0"
                               style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }}
                             />
-                            <span className="truncate">{t("settings.modes.conversation", "Conversation")}</span>
+                            <span className="truncate">{t("storyBundles.modeConvo", "CONVO")}</span>
                           </button>
                           <button
                             data-testid={`story-bundle-gallery-card-play-${bundle.id}`}
@@ -525,7 +526,8 @@ export function StoryBundleGalleryView() {
                               void play(bundle);
                             }}
                             disabled={playingId === bundle.id}
-                            className="mari-editor-action justify-center gap-1 px-1 py-1 text-[0.5625rem]"
+                            style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.roleplay } as CSSProperties}
+                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
                             title={t("storyBundles.playTitle", "Start roleplay from this story bundle")}
                           >
                             {playingId === bundle.id ? (
@@ -538,13 +540,14 @@ export function StoryBundleGalleryView() {
                                 style={{ color: HOME_CHAT_MODE_ACCENTS.roleplay }}
                               />
                             )}
-                            <span className="truncate">{t("settings.modes.roleplay", "Roleplay")}</span>
+                            <span className="truncate">{t("storyBundles.modeRp", "RP")}</span>
                           </button>
                           <button
                             type="button"
                             disabled
                             data-testid={`story-bundle-gallery-card-mode-game-${bundle.id}`}
-                            className="mari-editor-action justify-center gap-1 px-1 py-1 text-[0.5625rem]"
+                            style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}
+                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))]"
                             title={t("storyBundles.modeComingSoon", "Coming soon")}
                           >
                             <ChatModeIcon
@@ -553,7 +556,7 @@ export function StoryBundleGalleryView() {
                               className="shrink-0"
                               style={{ color: HOME_CHAT_MODE_ACCENTS.game }}
                             />
-                            <span className="truncate">{t("settings.modes.game", "Game")}</span>
+                            <span className="truncate">{t("storyBundles.modeGm", "GM")}</span>
                           </button>
                         </div>
                       </div>
