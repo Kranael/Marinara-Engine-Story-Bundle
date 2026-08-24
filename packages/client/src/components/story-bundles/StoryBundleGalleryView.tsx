@@ -15,13 +15,26 @@ import {
   type CSSProperties,
   type UIEvent,
 } from "react";
-import { ArrowLeft, ArrowUpDown, BookMarked, Loader2, Pencil, Search, Trash2, Upload } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpDown,
+  BookMarked,
+  Download,
+  Loader2,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import type { StoryBundle } from "@marinara-engine/shared";
-import { useStoryBundles } from "../../hooks/use-story-bundles";
+import { useCreateStoryBundle, useStoryBundles } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
 import { ChatModeIcon } from "../chat/ChatModeIcon";
 import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
+import { showPromptDialog } from "../../lib/app-dialogs";
 import {
   formatCardLibraryMeta,
   matchesCardLibrarySearch,
@@ -33,6 +46,10 @@ import { cn, getAvatarCropStyle } from "../../lib/utils";
 import { useUIStore, type ResourcePanelSort } from "../../stores/ui.store";
 
 const galleryToolbarFieldClass = "mari-chrome-field h-10 w-full text-[0.75rem] md:h-9";
+const galleryToolbarButtonClass =
+  "mari-chrome-control mari-chrome-control--primary h-10 min-h-10 min-w-0 px-3 text-[0.75rem]";
+const galleryNewBundleButtonClass =
+  "mari-panel-gradient-button mari-panel-gradient--story-bundles h-10 min-h-10 min-w-0 px-3 text-[0.75rem]";
 
 /** Strip HTML tags so the raw description text is searchable and previewable. */
 function stripHtmlTags(html: string): string {
@@ -207,13 +224,16 @@ export function StoryBundleGalleryView() {
   const { t } = useTranslation();
   const closeGallery = useUIStore((s) => s.closeStoryBundleGallery);
   const openStoryBundleDetail = useUIStore((s) => s.openStoryBundleDetail);
+  const openModal = useUIStore((s) => s.openModal);
   const selectedId = useUIStore((s) => s.storyBundleGallerySelectedId);
   const setSelectedId = useUIStore((s) => s.setStoryBundleGallerySelectedId);
   const sort = useUIStore((s) => s.storyBundleGallerySort);
   const setSort = useUIStore((s) => s.setStoryBundleGallerySort);
 
   const [search, setSearch] = useState("");
+  const [creating, setCreating] = useState(false);
   const { data: bundles, isLoading } = useStoryBundles();
+  const createMutation = useCreateStoryBundle();
   const { play, playingId } = useStoryBundleActions();
   const galleryRootScrollRef = useRef<HTMLDivElement | null>(null);
   const galleryListScrollRef = useRef<HTMLElement | null>(null);
@@ -315,6 +335,31 @@ export function StoryBundleGalleryView() {
     setSort(value as ResourcePanelSort);
   };
 
+  const handleCreate = useCallback(async () => {
+    if (creating) return;
+    const title = await showPromptDialog({
+      title: t("storyBundles.createDialogTitle", "Create Story Bundle"),
+      message: t("storyBundles.createPromptMessage", "Enter a title for the new story bundle."),
+      placeholder: t("storyBundles.namePlaceholder", "Title of this story bundle…"),
+      confirmLabel: t("storyBundles.create", "Create"),
+      cancelLabel: t("storyBundles.cancel", "Cancel"),
+      tone: "accent",
+      testId: "story-bundle-create-dialog",
+    });
+    if (title === null) return;
+    const name = title.trim();
+    if (!name) return;
+    setCreating(true);
+    try {
+      const bundle = await createMutation.mutateAsync({ name });
+      openStoryBundleDetail(bundle.id);
+    } catch {
+      toast.error(t("storyBundles.createFailed", "Failed to create the story bundle."));
+    } finally {
+      setCreating(false);
+    }
+  }, [createMutation, creating, openStoryBundleDetail, t]);
+
   return (
     <div
       ref={galleryRootScrollRef}
@@ -349,6 +394,26 @@ export function StoryBundleGalleryView() {
           </div>
 
           <div className="grid w-full grid-cols-2 gap-1.5 sm:ml-auto sm:w-72 lg:w-80">
+            <button
+              data-testid="story-bundle-gallery-create-button"
+              onClick={handleCreate}
+              disabled={creating}
+              className={galleryNewBundleButtonClass}
+              title={t("storyBundles.newBundle", "New Bundle")}
+              aria-label={t("storyBundles.newBundle", "New Bundle")}
+            >
+              {creating ? <Loader2 size="0.75rem" className="animate-spin" /> : <Plus size="0.75rem" />}
+            </button>
+            <button
+              data-testid="story-bundle-gallery-import-button"
+              onClick={() => openModal("import-story-bundle")}
+              className={galleryToolbarButtonClass}
+              title={t("storyBundles.import", "Import")}
+              aria-label={t("storyBundles.import", "Import")}
+            >
+              <Download size="0.75rem" />
+            </button>
+
             <div className="relative min-w-0">
               <Search
                 size="0.75rem"

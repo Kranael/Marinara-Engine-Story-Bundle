@@ -8,7 +8,7 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { BookMarked, Download, Images, Loader2, Plus, Trash2, Upload } from "lucide-react";
+import { BookMarked, Download, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { useStoryBundles, useCreateStoryBundle } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
 import { useUIStore } from "../../stores/ui.store";
@@ -60,35 +60,51 @@ export function StoryBundlesPanel() {
   return (
     <div data-testid="story-bundles-panel" className="flex h-full min-h-0 flex-col">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-2 px-3 py-2">
+      <div className="flex flex-col gap-2 px-3 py-2">
         <span className="mari-chrome-text-muted text-xs">
           {t("storyBundles.count", { count: bundles?.length ?? 0, defaultValue: "{{count}} bundles" })}
         </span>
-        <div className="flex items-center gap-1.5">
+
+        <div
+          className="mari-chrome-segmented"
+          data-component="StoryBundleGalleryActions"
+          style={{ gridTemplateColumns: "1fr" }}
+        >
           <button
+            type="button"
             data-testid="story-bundles-gallery-button"
             onClick={openStoryBundleGallery}
-            className="mari-chrome-control mari-chrome-control--primary text-xs"
+            className="mari-chrome-segmented__button min-w-0 justify-center gap-1 overflow-hidden px-1.5 py-2 text-[0.625rem] leading-normal"
             title={t("storyBundles.openGallery", "Open Gallery")}
           >
-            <Images size="0.8125rem" />
+            <span className="shrink-0 leading-none">
+              <BookMarked size="0.875rem" />
+            </span>
+            <span className="inline-flex min-h-4 min-w-0 items-center justify-center truncate whitespace-nowrap pb-px leading-normal">
+              {t("storyBundles.openGallery", "Open Gallery")}
+            </span>
           </button>
-          <button
-            data-testid="story-bundles-import-button"
-            onClick={() => openModal("import-story-bundle")}
-            className="mari-chrome-control mari-chrome-control--primary text-xs"
-            title={t("storyBundles.import", "Import")}
-          >
-            <Download size="0.8125rem" />
-          </button>
+        </div>
+
+        <div className="flex gap-2">
           <button
             data-testid="story-bundles-create-button"
             onClick={handleCreate}
             disabled={creating}
-            className="mari-panel-gradient-button mari-panel-gradient-button--compact mari-panel-gradient-surface mari-panel-gradient--story-bundles flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium"
+            className="mari-panel-gradient-button mari-panel-gradient--story-bundles flex-1 text-xs"
+            title={t("storyBundles.newBundle", "New Bundle")}
+            aria-label={t("storyBundles.newBundle", "New Bundle")}
           >
-            {creating ? <Loader2 size="0.75rem" className="animate-spin" /> : <Plus size="0.75rem" />}
-            {t("storyBundles.newBundle", "New Bundle")}
+            {creating ? <Loader2 size="0.8125rem" className="animate-spin" /> : <Plus size="0.8125rem" />}
+          </button>
+          <button
+            data-testid="story-bundles-import-button"
+            onClick={() => openModal("import-story-bundle")}
+            className="mari-chrome-control mari-chrome-control--primary flex-1 text-xs"
+            title={t("storyBundles.import", "Import")}
+            aria-label={t("storyBundles.import", "Import")}
+          >
+            <Download size="0.8125rem" />
           </button>
         </div>
       </div>
