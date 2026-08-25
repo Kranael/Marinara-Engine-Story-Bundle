@@ -19,6 +19,7 @@ import { useConnections } from "./use-connections";
 import { useDeleteStoryBundle } from "./use-story-bundles";
 import { useGenerate } from "./use-generate";
 import { useChatStore } from "../stores/chat.store";
+import { useUIStore } from "../stores/ui.store";
 import { showScenarioDialog, showConfirmDialog, CUSTOM_SCENARIO_CHOICE_PREFIX } from "../lib/app-dialogs";
 import { api } from "../lib/api-client";
 
@@ -48,6 +49,7 @@ export function useStoryBundleActions() {
   const { t } = useTranslation();
   const [exportingId, setExportingId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [startingConversationId, setStartingConversationId] = useState<string | null>(null);
 
   const qc = useQueryClient();
   const createChat = useCreateChat();
@@ -209,6 +211,73 @@ export function useStoryBundleActions() {
     [playingId, connections, createChat, updateChatMetadata, generate, qc, t],
   );
 
+  // Start a Conversation-mode chat from a story bundle: persona, connection,
+  // preset, lorebooks, and agents come directly from the bundle — the only
+  // choice left to the user is which of the bundle's characters to message,
+  // via the existing Conversation setup wizard (restricted to the bundle's
+  // characters, persona/connection/preset steps skipped).
+  const startConversation = useCallback(
+    async (bundle: PlayableStoryBundle) => {
+      if (startingConversationId) return;
+      setStartingConversationId(bundle.id);
+      try {
+        const conns = (connections ?? []) as Array<{ id: string }>;
+        const chat = await createChat.mutateAsync({
+          name: bundle.name,
+          mode: "conversation",
+          characterIds: [],
+          personaId: bundle.personaIds?.[0] ?? null,
+          connectionId: conns[0]?.id,
+          promptPresetId: bundle.presetIds?.[0] ?? null,
+        });
+
+        try {
+          await updateChatMetadata.mutateAsync({
+            id: chat.id,
+            storyBundleId: bundle.id,
+            storyBundleCharacterIds: bundle.characterIds ?? [],
+          });
+        } catch (err) {
+          console.error("[startStoryBundleConversation] Failed to tag chat with story bundle:", err);
+        }
+
+        const lorebookIds = bundle.lorebookIds ?? [];
+        if (lorebookIds.length > 0) {
+          try {
+            await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
+          } catch (err) {
+            console.error("[startStoryBundleConversation] Failed to activate lorebooks:", err);
+          }
+        }
+
+        const agentIds = bundle.agentIds ?? [];
+        if (agentIds.length > 0) {
+          try {
+            await api.patch(`/chats/${chat.id}/metadata`, {
+              enableAgents: true,
+              activeAgentIds: agentIds,
+            });
+          } catch (err) {
+            console.error("[startStoryBundleConversation] Failed to activate agents:", err);
+          }
+        }
+
+        useChatStore.getState().setActiveChatId(chat.id);
+        useChatStore.getState().setShouldOpenSettings(true);
+        useChatStore.getState().setShouldOpenWizard(true);
+        // Close any open gallery/detail overlay so the wizard is visible —
+        // the Story Bundle panel has none of these open, so this is a no-op there.
+        useUIStore.getState().closeAllDetails();
+      } catch (err) {
+        console.error("[startStoryBundleConversation]", err);
+        toast.error(t("storyBundles.convoFailed", "Failed to start the conversation."));
+      } finally {
+        setStartingConversationId(null);
+      }
+    },
+    [startingConversationId, connections, createChat, updateChatMetadata, t],
+  );
+
   const exportBundle = useCallback(
     async (id: string, name: string) => {
       if (exportingId) return;
@@ -249,5 +318,5 @@ export function useStoryBundleActions() {
     [deleteMutation, t],
   );
 
-  return { play, exportBundle, remove, playingId, exportingId };
+  return { play, startConversation, exportBundle, remove, playingId, startingConversationId, exportingId };
 }

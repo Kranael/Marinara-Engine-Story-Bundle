@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
-import { Dices, Plus, Search, X } from "lucide-react";
+import { Check, Dices, Plus, Search, UserRound, X } from "lucide-react";
 import type { AvatarCrop } from "@marinara-engine/shared";
 import { normalizeAvatarCrop } from "@marinara-engine/shared";
 import { cn, getAvatarCropStyle } from "../../lib/utils";
@@ -136,6 +136,30 @@ export function StoryBundlePersonas({
         <h3 className="mari-chrome-text-strong mb-3 text-sm font-semibold">
           {t("storyBundles.addPersona", "Add Persona")}
         </h3>
+
+        <button
+          type="button"
+          data-testid="story-bundle-editor-personas-none"
+          onClick={() => onPersonaIdsChange([])}
+          aria-pressed={personaIds.length === 0}
+          className={cn(
+            "mb-3 flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left transition-all",
+            personaIds.length === 0
+              ? "border-[var(--ring)] bg-[var(--accent)] text-[var(--accent-foreground)]"
+              : "border-[var(--border)] bg-[var(--card)] hover:bg-[var(--accent)]/60",
+          )}
+        >
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--muted)] text-[var(--muted-foreground)]">
+            <UserRound size="0.875rem" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-medium">{t("storyBundles.personaNone", "None")}</div>
+            <div className="truncate text-xs text-[var(--muted-foreground)]">
+              {t("storyBundles.personaStayAnonymous", "Stay anonymous")}
+            </div>
+          </div>
+          {personaIds.length === 0 && <Check size="0.875rem" className="shrink-0" />}
+        </button>
 
         <div className="mb-3 flex items-center gap-2">
           <div className="relative flex-1">

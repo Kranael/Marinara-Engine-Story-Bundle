@@ -71,7 +71,8 @@ function toSearchDocument(bundle: StoryBundle) {
 
 function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle; onEdit: (id: string) => void }) {
   const { t } = useTranslation();
-  const { play, exportBundle, remove, playingId, exportingId } = useStoryBundleActions();
+  const { play, startConversation, exportBundle, remove, playingId, startingConversationId, exportingId } =
+    useStoryBundleActions();
   const meta = formatCardLibraryMeta(bundle.creator, bundle.version);
   const sanitizedDescription = useMemo(
     () => (bundle.description ? sanitizeStoryBundleDescription(bundle.description) : ""),
@@ -135,12 +136,17 @@ function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle;
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
-              disabled
               data-testid={`story-bundle-gallery-mode-conversation-${bundle.id}`}
+              onClick={() => void startConversation(bundle)}
+              disabled={startingConversationId === bundle.id}
               className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs sm:text-sm"
-              title={t("storyBundles.modeComingSoon", "Coming soon")}
+              title={t("storyBundles.convoTitle", "Start a conversation from this story bundle")}
             >
-              <ChatModeIcon mode="conversation" size="0.875rem" />
+              {startingConversationId === bundle.id ? (
+                <Loader2 size="0.875rem" className="animate-spin" />
+              ) : (
+                <ChatModeIcon mode="conversation" size="0.875rem" />
+              )}
               {t("storyBundles.modeConvo", "CONVO")}
             </button>
             <button
@@ -234,7 +240,7 @@ export function StoryBundleGalleryView() {
   const [creating, setCreating] = useState(false);
   const { data: bundles, isLoading } = useStoryBundles();
   const createMutation = useCreateStoryBundle();
-  const { play, playingId } = useStoryBundleActions();
+  const { play, startConversation, playingId, startingConversationId } = useStoryBundleActions();
   const galleryRootScrollRef = useRef<HTMLDivElement | null>(null);
   const galleryListScrollRef = useRef<HTMLElement | null>(null);
   const pendingGalleryScrollTopRef = useRef(0);
@@ -570,18 +576,26 @@ export function StoryBundleGalleryView() {
                         <div className="mt-auto grid grid-cols-3 gap-1.5" onClick={(event) => event.stopPropagation()}>
                           <button
                             type="button"
-                            disabled
                             data-testid={`story-bundle-gallery-card-mode-conversation-${bundle.id}`}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void startConversation(bundle);
+                            }}
+                            disabled={startingConversationId === bundle.id}
                             style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.conversation } as CSSProperties}
-                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))]"
-                            title={t("storyBundles.modeComingSoon", "Coming soon")}
+                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
+                            title={t("storyBundles.convoTitle", "Start a conversation from this story bundle")}
                           >
-                            <ChatModeIcon
-                              mode="conversation"
-                              size="0.6875rem"
-                              className="shrink-0"
-                              style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }}
-                            />
+                            {startingConversationId === bundle.id ? (
+                              <Loader2 size="0.6875rem" className="shrink-0 animate-spin" />
+                            ) : (
+                              <ChatModeIcon
+                                mode="conversation"
+                                size="0.6875rem"
+                                className="shrink-0"
+                                style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }}
+                              />
+                            )}
                             <span className="truncate">{t("storyBundles.modeConvo", "CONVO")}</span>
                           </button>
                           <button

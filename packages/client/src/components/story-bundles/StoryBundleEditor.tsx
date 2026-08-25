@@ -149,6 +149,7 @@ export function StoryBundleEditor() {
   const [activeTab, setActiveTab] = useState<TabId>("metadata");
   const [saving, setSaving] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [startingConversation, setStartingConversation] = useState(false);
 
   // RP chat creation hook for the Play button
   const createChat = useCreateChat();
@@ -474,6 +475,77 @@ export function StoryBundleEditor() {
     scenarios,
   ]);
 
+  // Start a Conversation chat from this bundle's current draft: persona,
+  // connection, preset, lorebooks, and agents are applied directly — the
+  // Conversation setup wizard then only asks which of the bundle's
+  // characters to message, restricted via storyBundleCharacterIds.
+  const handleStartConversation = useCallback(async () => {
+    if (!bundle || startingConversation) return;
+    setStartingConversation(true);
+    try {
+      const draftName = name.trim() || bundle.name;
+      const conns = (connections ?? []) as Array<{ id: string }>;
+      const chat = await createChat.mutateAsync({
+        name: draftName,
+        mode: "conversation",
+        characterIds: [],
+        personaId: personaIds[0] ?? null,
+        connectionId: conns[0]?.id,
+        promptPresetId: presetIds[0] ?? null,
+      });
+
+      try {
+        await updateChatMetadata.mutateAsync({
+          id: chat.id,
+          storyBundleId: bundle.id,
+          storyBundleCharacterIds: characterIds,
+        });
+      } catch (err) {
+        console.error("[startStoryBundleConversation] Failed to tag chat with story bundle:", err);
+      }
+
+      if (lorebookIds.length > 0) {
+        try {
+          await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
+        } catch (err) {
+          console.error("[startStoryBundleConversation] Failed to activate lorebooks:", err);
+        }
+      }
+
+      if (agentIds.length > 0) {
+        try {
+          await api.patch(`/chats/${chat.id}/metadata`, { enableAgents: true, activeAgentIds: agentIds });
+        } catch (err) {
+          console.error("[startStoryBundleConversation] Failed to activate agents:", err);
+        }
+      }
+
+      useChatStore.getState().setActiveChatId(chat.id);
+      useChatStore.getState().setShouldOpenSettings(true);
+      useChatStore.getState().setShouldOpenWizard(true);
+      closeStoryBundleDetail();
+    } catch (err) {
+      console.error("[startStoryBundleConversation]", err);
+      toast.error(t("storyBundles.convoFailed", "Failed to start the conversation."));
+    } finally {
+      setStartingConversation(false);
+    }
+  }, [
+    bundle,
+    startingConversation,
+    connections,
+    createChat,
+    updateChatMetadata,
+    closeStoryBundleDetail,
+    t,
+    name,
+    personaIds,
+    presetIds,
+    characterIds,
+    lorebookIds,
+    agentIds,
+  ]);
+
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;
     const confirmed = await showConfirmDialog({
@@ -535,12 +607,17 @@ export function StoryBundleEditor() {
         <div className="mari-editor-actions flex">
           <button
             type="button"
-            disabled
             data-testid="story-bundle-editor-mode-conversation"
+            onClick={handleStartConversation}
+            disabled={startingConversation}
             className="mari-editor-action inline-flex gap-1 px-2.5 text-[0.6875rem] font-semibold"
-            title={t("storyBundles.modeComingSoon", "Coming soon")}
+            title={t("storyBundles.convoTitle", "Start a conversation from this story bundle")}
           >
-            <ChatModeIcon mode="conversation" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }} />
+            {startingConversation ? (
+              <Loader2 size="0.75rem" className="animate-spin" />
+            ) : (
+              <ChatModeIcon mode="conversation" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }} />
+            )}
             {t("storyBundles.modeConvo", "CONVO")}
           </button>
           <button

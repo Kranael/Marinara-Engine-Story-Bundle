@@ -159,6 +159,17 @@ const CONVERSATION_STEPS: WizardStep[] = [
   },
 ];
 
+// A Story Bundle already fixes the persona, connection, and preset — the user
+// only picks which of the bundle's characters to message, then automation.
+const STORY_BUNDLE_CONVERSATION_STEPS: WizardStep[] = [
+  {
+    key: "participants",
+    title: "Characters",
+    body: "Choose who you want to message from this story bundle.",
+  },
+  CONVERSATION_STEPS.find((entry) => entry.key === "automation")!,
+];
+
 const CONVERSATION_COMMAND_TOGGLE_OPTIONS: Array<{
   id: ConversationCommandKey;
   label: string;
@@ -776,8 +787,18 @@ export function ChatSetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
 function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
   const { t: localizeUi } = useUiTranslation();
   const [step, setStep] = useState(0);
-  const currentStep = CONVERSATION_STEPS[step]!;
-  const isLast = step === CONVERSATION_STEPS.length - 1;
+  const storyBundleCharacterIds = useMemo(() => {
+    const ids = readChatMetadata(chat).storyBundleCharacterIds;
+    return Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : null;
+  }, [chat]);
+  const isStoryBundleMode = storyBundleCharacterIds !== null;
+  const allowedCharacterIds = useMemo(
+    () => (storyBundleCharacterIds ? new Set(storyBundleCharacterIds) : null),
+    [storyBundleCharacterIds],
+  );
+  const steps = isStoryBundleMode ? STORY_BUNDLE_CONVERSATION_STEPS : CONVERSATION_STEPS;
+  const currentStep = steps[step]!;
+  const isLast = step === steps.length - 1;
   const { data: connections } = useConnections();
   const sidecarModelDownloaded = useSidecarStore((state) => state.modelDownloaded);
   const sidecarModelDisplayName = useSidecarStore((state) => state.modelDisplayName);
@@ -1063,11 +1084,12 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
     const selected = new Set(chatCharIds);
     const pool = characters.filter((character) => {
       if (selected.has(character.id)) return false;
+      if (allowedCharacterIds && !allowedCharacterIds.has(character.id)) return false;
       return characterMatchesSearch(getCharacterInfo(character), search);
     });
     const character = pool[Math.floor(Math.random() * pool.length)];
     if (character) toggleCharacter(character.id);
-  }, [characters, chatCharIds, getCharacterInfo, search, toggleCharacter]);
+  }, [characters, chatCharIds, getCharacterInfo, search, toggleCharacter, allowedCharacterIds]);
 
   const setConnection = useCallback(
     (connectionId: string | null) => {
@@ -1131,9 +1153,10 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
     () =>
       characters.filter((c) => {
         if (chatCharIds.includes(c.id)) return false;
+        if (allowedCharacterIds && !allowedCharacterIds.has(c.id)) return false;
         return characterMatchesSearch(getCharacterInfo(c), search);
       }),
-    [characters, chatCharIds, getCharacterInfo, search],
+    [characters, chatCharIds, getCharacterInfo, search, allowedCharacterIds],
   );
   const visibleAvailable = available.slice(0, characterPickerLimit);
   const hasMoreAvailable = available.length > visibleAvailable.length;
@@ -1144,8 +1167,8 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
     setStep((value) => Math.max(0, value - 1));
   }, []);
   const goNext = useCallback(() => {
-    setStep((value) => Math.min(CONVERSATION_STEPS.length - 1, value + 1));
-  }, []);
+    setStep((value) => Math.min(steps.length - 1, value + 1));
+  }, [steps.length]);
 
   const handleStartChatting = useCallback(async () => {
     if (!hasConnection || !hasCharacters) return;
@@ -1374,10 +1397,12 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
 
   const renderParticipantsStep = () => (
     <div className="space-y-4">
-      <div className="space-y-1.5">
-        <label className={WIZARD_FIELD_LABEL}>{localizeUi("ui.chat.conversationquicksetup.yourPersona")}</label>
-        <PersonaPicker personas={personas} value={chat.personaId ?? null} onChange={setPersona} />
-      </div>
+      {!isStoryBundleMode && (
+        <div className="space-y-1.5">
+          <label className={WIZARD_FIELD_LABEL}>{localizeUi("ui.chat.conversationquicksetup.yourPersona")}</label>
+          <PersonaPicker personas={personas} value={chat.personaId ?? null} onChange={setPersona} />
+        </div>
+      )}
 
       <div className="space-y-1.5">
         <label className={WIZARD_FIELD_LABEL}>
@@ -1440,7 +1465,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
               className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
             />
           </div>
-          {characterFolders.length > 0 && (
+          {!isStoryBundleMode && characterFolders.length > 0 && (
             <div className="flex items-center gap-2 border-t border-[var(--border)] px-3 py-2">
               <FolderOpen size="0.75rem" className="shrink-0 text-[var(--muted-foreground)]" />
               <select
@@ -1759,7 +1784,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
       <WizardBackdrop onClose={onFinish} />
       <SetupWizardShell
         title={localizeUi("navigation.chatSidebar.new.conversation")}
-        steps={CONVERSATION_STEPS}
+        steps={steps}
         step={step}
         currentStep={currentStep}
         animationKey={`conversation-${currentStep.key}`}
