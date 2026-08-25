@@ -751,6 +751,7 @@ export function CharactersPanel() {
       >
         <button
           type="button"
+          data-testid="characters-panel-download-button"
           onClick={openBotBrowser}
           className="mari-chrome-segmented__button min-w-0 justify-center gap-1 overflow-hidden px-1.5 py-2 text-[0.625rem] leading-normal"
           title={localizeUi("ui.panels.resourceLibraryLauncher.downloadCards")}
@@ -764,6 +765,7 @@ export function CharactersPanel() {
         </button>
         <button
           type="button"
+          data-testid="characters-panel-open-library-button"
           onClick={openCharacterLibrary}
           className="mari-chrome-segmented__button min-w-0 justify-center gap-1 overflow-hidden px-1.5 py-2 text-[0.625rem] leading-normal"
           title={localizeUi("ui.panels.characterspanel.openCharactersLibrary")}
@@ -816,6 +818,7 @@ export function CharactersPanel() {
         <div className="relative flex-1">
           <Search size="0.8125rem" className="mari-chrome-field-icon absolute left-3 top-1/2 -translate-y-1/2" />
           <input
+            data-testid="characters-panel-search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("search.panels.charactersWithExcludedTag", { query: '-tag:"tag name"' })}
@@ -970,6 +973,7 @@ export function CharactersPanel() {
               {/* Folder header */}
               <div
                 role="button"
+                data-testid="character-folder-header"
                 tabIndex={0}
                 aria-expanded={isExpanded}
                 aria-label={localizeUi("ui.panels.agentspanel.value1FolderValue2DoubleTapOrPressF2To", {
@@ -1290,6 +1294,7 @@ export function CharactersPanel() {
                           />
                           <button
                             type="button"
+                            data-testid="character-row-duplicate-button"
                             onClick={(e) => {
                               e.stopPropagation();
                               duplicateCharacter.mutate(memberId, {
@@ -1310,6 +1315,7 @@ export function CharactersPanel() {
                           </button>
                           <button
                             type="button"
+                            data-testid="character-row-delete-button"
                             onClick={async (e) => {
                               e.stopPropagation();
                               if (
@@ -1334,6 +1340,7 @@ export function CharactersPanel() {
                           </button>
                           <button
                             type="button"
+                            data-testid="character-row-start-chat-button"
                             onClick={(e) => {
                               e.stopPropagation();
                               openModal("start-character-chat", {
@@ -1353,6 +1360,7 @@ export function CharactersPanel() {
                           </button>
                           <button
                             type="button"
+                            data-testid="character-row-remove-from-folder-button"
                             onClick={(e) => {
                               e.stopPropagation();
                               void moveCharactersToFolder([memberId], null);
@@ -1625,6 +1633,7 @@ export function CharactersPanel() {
                   />
                   <button
                     type="button"
+                    data-testid="character-row-duplicate-button"
                     onClick={(e) => {
                       e.stopPropagation();
                       duplicateCharacter.mutate(char.id, {
@@ -1645,6 +1654,7 @@ export function CharactersPanel() {
                   </button>
                   <button
                     type="button"
+                    data-testid="character-row-delete-button"
                     onClick={async (e) => {
                       e.stopPropagation();
                       if (
@@ -1669,6 +1679,7 @@ export function CharactersPanel() {
                   </button>
                   <button
                     type="button"
+                    data-testid="character-row-start-chat-button"
                     onClick={(e) => {
                       e.stopPropagation();
                       openModal("start-character-chat", {

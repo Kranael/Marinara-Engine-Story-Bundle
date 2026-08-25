@@ -384,6 +384,7 @@ export function TopBar() {
           {isCharactersPanelActive && (
             <span
               data-component="CharactersTopbarUnderline"
+              data-testid="characters-topbar-underline"
               className="mari-panel-gradient-surface mari-panel-gradient--characters absolute -bottom-0.5 left-1/2 h-0.5 w-3 -translate-x-1/2 rounded-full"
             />
           )}

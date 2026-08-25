@@ -168,6 +168,7 @@ export function ConvoProfileFields({
           placeholder={localizeUi("ui.characters.convoprofilefields.aLineOrTwoAnEmojiAJokeOr")}
           rows={5}
           title={localizeUi("ui.characters.convoprofilefields.aboutMe")}
+          testId="convo-about-me"
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-3 text-sm leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
           toolbarExtra={
             <button

@@ -1847,6 +1847,7 @@ export function SpriteGenerationModal({
         onClose={handleClose}
         title={localizeUi("ui.ui.spritegenerationmodal.generateSprites")}
         width="max-w-2xl"
+        testId="sprite-generation-dialog"
       >
         <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleReferenceUpload} />
 
@@ -2051,6 +2052,7 @@ export function SpriteGenerationModal({
             <label className="flex items-start gap-3 rounded-lg bg-[var(--secondary)]/60 p-2.5 text-xs text-[var(--foreground)] ring-1 ring-[var(--border)]/60">
               <input
                 type="checkbox"
+                data-testid="sprite-generation-transparent-background-checkbox"
                 checked={nativeTransparentPng}
                 onChange={(e) => {
                   const enabled = e.target.checked;
@@ -2152,6 +2154,7 @@ export function SpriteGenerationModal({
                   <label className="flex items-start gap-3 rounded-lg bg-[var(--secondary)]/60 p-2.5 text-xs text-[var(--foreground)] ring-1 ring-[var(--border)]/60">
                     <input
                       type="checkbox"
+                      data-testid="sprite-generation-match-existing-checkbox"
                       checked={matchExistingExpressions}
                       onChange={(e) => setMatchExistingExpressions(e.target.checked)}
                       className="mt-0.5 accent-[var(--primary)]"
@@ -2276,6 +2279,7 @@ export function SpriteGenerationModal({
               </button>
               <button
                 onClick={handleGenerate}
+                data-testid="sprite-generation-generate-button"
                 disabled={
                   generationUnavailable ||
                   !effectiveConnectionId ||
@@ -2379,6 +2383,7 @@ export function SpriteGenerationModal({
               <button
                 type="button"
                 onClick={handleAcceptNeutralFullBody}
+                data-testid="sprite-generation-use-neutral-button"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90"
               >
                 <Check size={14} />

@@ -327,6 +327,7 @@ export function ChatToolbarMenu({
       <div className={cn("relative shrink-0", overflowCollapsed ? "block" : "block md:hidden")} ref={btnRef}>
         <button
           type="button"
+          data-testid="chat-toolbar-overflow-button"
           onClick={() => setOpen(!open)}
           className={getChatToolbarButtonClass({ className: CHAT_TOOLBAR_OVERFLOW_BUTTON_SIZE_CLASS, open })}
           title={localizeUi("ui.chat.chattoolbarmenu.moreOptions")}

@@ -211,6 +211,7 @@ export function ChoiceSelectionModal({
       title={localizeUi("ui.presets.choiceselectionmodal.configurePresetVariables")}
       width="max-w-lg"
       chatFloatingPanel={chatFloatingPanel}
+      testId="preset-variables-dialog"
     >
       {variables.length === 0 ? (
         isLoading ? (
@@ -416,12 +417,14 @@ export function ChoiceSelectionModal({
             <div className="flex gap-2">
               <button
                 onClick={onClose}
+                data-testid="preset-variables-skip-button"
                 className="rounded-xl px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] hover:bg-[var(--accent)]"
               >
                 {localizeUi("onboarding.actions.skip")}
               </button>
               <button
                 onClick={handleConfirm}
+                data-testid="preset-variables-confirm-button"
                 disabled={!allSelected || updateMetadata.isPending}
                 className="rounded-xl bg-[var(--primary)] px-4 py-2 text-xs font-medium text-[var(--primary-foreground)] shadow-md transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
               >

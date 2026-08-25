@@ -38,12 +38,13 @@ export function ChatModeSelectorModal({ open, onClose, onSelectMode, isPending =
   const { t: localizeUi } = useUiTranslation();
 
   return (
-    <Modal open={open} onClose={onClose} title={localizeUi("home.newChat.chooseMode")} width="max-w-2xl">
+    <Modal open={open} onClose={onClose} title={localizeUi("home.newChat.chooseMode")} width="max-w-2xl" testId="chat-mode-selector-dialog">
       <div data-component="ChatModeSelectorModal" className="grid gap-2 sm:grid-cols-3">
         {CHAT_MODE_OPTIONS.map(({ mode, labelKey, descriptionKey }) => (
           <button
             key={mode}
             type="button"
+            data-testid={`chat-mode-option-${mode}`}
             onClick={() => onSelectMode(mode)}
             disabled={isPending}
             className="mari-chat-option-field group flex min-h-24 items-start gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] disabled:cursor-wait disabled:opacity-60"

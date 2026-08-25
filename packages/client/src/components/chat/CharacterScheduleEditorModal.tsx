@@ -635,6 +635,7 @@ export function CharacterScheduleEditorModal({
       title={localizeUi("ui.chat.characterscheduleeditormodal.editValue1Schedule", { value1: characterName })}
       width="max-w-5xl"
       chatFloatingPanel
+      testId="character-schedule-dialog"
     >
       <div className="space-y-4">
         <div className="rounded-lg bg-[var(--secondary)] p-3 ring-1 ring-[var(--border)]">
@@ -970,6 +971,7 @@ export function CharacterScheduleEditorModal({
               <section key={day} className="rounded-lg bg-[var(--secondary)] p-3 ring-1 ring-[var(--border)]">
                 <button
                   type="button"
+                  data-testid={`schedule-day-toggle-${day}`}
                   onClick={() => setExpandedDay(expanded ? null : day)}
                   className="grid w-full gap-3 text-left md:grid-cols-[8rem_minmax(0,1fr)] md:items-center"
                 >
@@ -1083,6 +1085,7 @@ export function CharacterScheduleEditorModal({
                               />
                               <input
                                 value={block.activity}
+                                data-testid={`schedule-block-activity-${day}-${index}`}
                                 onChange={(event) => updateBlock(day, index, { activity: event.target.value })}
                                 placeholder={STATUS_LABELS[status]}
                                 aria-label={localizeUi("ui.chat.characterscheduleeditormodal.value1BlockActivity", {
@@ -1161,12 +1164,14 @@ export function CharacterScheduleEditorModal({
             <input
               ref={scheduleFileInputRef}
               type="file"
+              data-testid="schedule-import-file-input"
               accept=".json,application/json"
               className="hidden"
               onChange={(event) => void importSchedule(event.target.files?.[0])}
             />
             <button
               type="button"
+              data-testid="schedule-import-button"
               onClick={() => scheduleFileInputRef.current?.click()}
               disabled={scheduleTransferDisabled}
               className="inline-flex min-h-9 items-center gap-1.5 rounded-md bg-[var(--background)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
@@ -1176,6 +1181,7 @@ export function CharacterScheduleEditorModal({
             </button>
             <button
               type="button"
+              data-testid="schedule-export-button"
               onClick={exportSchedule}
               disabled={scheduleTransferDisabled}
               className="inline-flex min-h-9 items-center gap-1.5 rounded-md bg-[var(--background)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
@@ -1187,6 +1193,7 @@ export function CharacterScheduleEditorModal({
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
+              data-testid="schedule-cancel-button"
               onClick={onClose}
               className="rounded-md px-4 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             >
@@ -1194,6 +1201,7 @@ export function CharacterScheduleEditorModal({
             </button>
             <button
               type="button"
+              data-testid="schedule-save-button"
               onClick={save}
               className="rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
             >

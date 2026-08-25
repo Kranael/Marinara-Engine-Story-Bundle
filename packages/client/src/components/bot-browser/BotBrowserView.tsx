@@ -2212,6 +2212,7 @@ export function BotBrowserView() {
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
+            data-testid="bot-browser-close-button"
             onClick={closeBotBrowser}
             className="mari-chrome-control h-9 w-9 shrink-0 rounded-2xl p-0 md:h-10 md:w-10"
             title={localizeUi("ui.characters.characterlibraryview.closeLibrary")}
@@ -2241,6 +2242,7 @@ export function BotBrowserView() {
           <div className="relative">
             <button
               ref={sourceButtonRef}
+              data-testid="bot-browser-source-button"
               onClick={() => setSourceOpen((v) => !v)}
               className="mari-chrome-control h-9 px-3 text-xs md:h-10"
             >
@@ -2271,6 +2273,7 @@ export function BotBrowserView() {
                   {ALL_PROVIDERS.map((p) => (
                     <button
                       key={p.id}
+                      data-testid={`bot-browser-source-option-${p.id}`}
                       onClick={() => switchProvider(p.id)}
                       className={cn(
                         "flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-xs transition-colors",
@@ -2467,6 +2470,7 @@ export function BotBrowserView() {
                   />
                   <input
                     type="text"
+                    data-testid="bot-browser-search-input"
                     value={query}
                     onChange={(e) => {
                       setQuery(e.target.value);
@@ -2582,6 +2586,7 @@ export function BotBrowserView() {
                     >
                       <input
                         type="checkbox"
+                        data-testid="bot-browser-nsfw-checkbox"
                         checked={nsfwGreyedOut ? true : nsfw}
                         disabled={nsfwGreyedOut || !effectiveNsfwAvailable}
                         onChange={(e) => {
@@ -2785,6 +2790,7 @@ export function BotBrowserView() {
                           {localizeUi("ui.botBrowser.botbrowserview.page")}
                           <select
                             aria-label={localizeUi("ui.botBrowser.botbrowserview.page")}
+                            data-testid="bot-browser-page-select"
                             value={page}
                             onChange={(event) => setPage(Number(event.target.value))}
                             className="mari-chrome-field mari-chrome-field--compact px-2 py-1 text-xs"
@@ -2826,6 +2832,7 @@ export function BotBrowserView() {
         title={localizeUi("ui.botBrowser.importDialog.importCard")}
         width="max-w-lg"
         closeDisabled={importing}
+        testId="bot-browser-import-dialog"
       >
         {pendingImport && (
           <div className="flex flex-col gap-4" data-component="BotBrowserImportDialog">
@@ -2935,6 +2942,7 @@ export function BotBrowserView() {
                   <div className="flex flex-col-reverse gap-2 sm:flex-row">
                     <button
                       type="button"
+                      data-testid="bot-browser-import-no-lorebook-button"
                       disabled={importing}
                       onClick={() => void finishImport(false)}
                       className="mari-chrome-control px-3 py-2 text-xs"
@@ -2943,6 +2951,7 @@ export function BotBrowserView() {
                     </button>
                     <button
                       type="button"
+                      data-testid="bot-browser-import-lorebook-button"
                       disabled={importing}
                       onClick={() => void finishImport(true)}
                       className="mari-panel-gradient-button mari-panel-gradient--lorebooks px-3 py-2 text-xs"
@@ -3289,6 +3298,7 @@ function CardTile({ card, onClick }: { card: BrowseCard; onClick: () => void }) 
   return (
     <button
       onClick={onClick}
+      data-testid={`bot-browser-card-${card.id}`}
       className="group flex flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] text-left transition-all hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:shadow-lg hover:shadow-[var(--glow-primary)] active:scale-[0.98]"
     >
       <div className="relative aspect-square w-full overflow-hidden bg-[var(--secondary)]">
@@ -3498,6 +3508,7 @@ function DetailView({
                 </div>
               </div>
               <button
+                data-testid="bot-browser-import-button"
                 onClick={() => onImport(card)}
                 disabled={importing}
                 className="mari-panel-gradient-button mari-panel-gradient--browser px-4 py-2.5 text-xs"

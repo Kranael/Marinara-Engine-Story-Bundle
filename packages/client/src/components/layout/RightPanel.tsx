@@ -148,6 +148,7 @@ export function RightPanel() {
           )}
           <button
             onClick={close}
+            data-testid="right-panel-close-button"
             aria-label={localizeUi("ui.layout.rightpanel.closePanel")}
             className="mari-chrome-control mari-chrome-control--small mari-accent-animated shrink-0 p-1.5 active:scale-90"
           >

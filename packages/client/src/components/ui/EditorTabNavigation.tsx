@@ -57,7 +57,11 @@ export function EditorTabNavigation<T extends string>({
 
   return (
     <div className={cn("mari-editor-navigation min-w-0", className)}>
-      <nav aria-label={navigationLabel} className="mari-editor-navigation-tabs flex min-w-0 items-center gap-1">
+      <nav
+        aria-label={navigationLabel}
+        data-testid="editor-sections-nav"
+        className="mari-editor-navigation-tabs flex min-w-0 items-center gap-1"
+      >
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = activeId === tab.id;
@@ -65,6 +69,7 @@ export function EditorTabNavigation<T extends string>({
           return (
             <button
               type="button"
+              data-testid={`editor-section-tab-${tab.id}`}
               aria-label={localize(tab.label)}
               aria-current={active ? "page" : undefined}
               data-active={active ? "true" : undefined}
@@ -84,6 +89,7 @@ export function EditorTabNavigation<T extends string>({
         <button
           ref={compactMenuButtonRef}
           type="button"
+          data-testid="editor-sections-menu-button"
           aria-label={navigationLabel}
           aria-haspopup="menu"
           aria-expanded={compactMenuOpen}
@@ -102,6 +108,7 @@ export function EditorTabNavigation<T extends string>({
           <div
             id={compactMenuId}
             role="menu"
+            data-testid="editor-sections-menu"
             aria-label={navigationLabel}
             onKeyDown={(event) => {
               if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
@@ -122,6 +129,7 @@ export function EditorTabNavigation<T extends string>({
                 <button
                   type="button"
                   role="menuitemradio"
+                  data-testid={`editor-section-menu-item-${tab.id}`}
                   aria-label={localize(tab.label)}
                   aria-checked={active}
                   key={tab.id}

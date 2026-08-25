@@ -6263,6 +6263,7 @@ export function ChatSettingsDrawer({
                           <button
                             key={charId}
                             type="button"
+                            data-testid={`character-schedule-open-button-${charId}`}
                             onClick={() => onOpenScheduleEditor(charId)}
                             className="flex w-full items-center justify-between gap-3 rounded-lg bg-[var(--secondary)] px-3 py-2.5 text-left transition-colors hover:bg-[var(--accent)]/50"
                           >

@@ -41,6 +41,8 @@ interface ModalProps {
   closeDisabled?: boolean;
   /** Let drag hit-testing reach content behind the modal while keeping the panel interactive. */
   dragThrough?: boolean;
+  /** Stable identifier for automated tests; rendered as data-testid on the dialog root. */
+  testId?: string;
 }
 
 export function Modal({
@@ -60,6 +62,7 @@ export function Modal({
   panelStyle,
   closeDisabled = false,
   dragThrough = false,
+  testId,
 }: ModalProps) {
   const { t: localizeUi } = useUiTranslation();
   const localize = useLocalizedUiText();
@@ -145,6 +148,7 @@ export function Modal({
       role="dialog"
       aria-modal="true"
       aria-label={localizedTitle}
+      data-testid={testId}
       data-chat-floating-panel={chatFloatingPanel ? "true" : undefined}
       data-component="Modal"
       className={`mari-modal fixed inset-0 z-[10000] flex items-center justify-center ${dragThrough ? "pointer-events-none" : ""} ${

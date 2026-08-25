@@ -566,6 +566,7 @@ export function PersonasPanel() {
       >
         <button
           type="button"
+          data-testid="personas-panel-download-button"
           onClick={openBotBrowser}
           className="mari-chrome-segmented__button min-w-0 justify-center gap-1 overflow-hidden px-1.5 py-2 text-[0.625rem] leading-normal"
           title={localizeUi("ui.panels.resourceLibraryLauncher.downloadCards")}
@@ -579,6 +580,7 @@ export function PersonasPanel() {
         </button>
         <button
           type="button"
+          data-testid="personas-panel-open-library-button"
           onClick={openPersonaLibrary}
           className="mari-chrome-segmented__button min-w-0 justify-center gap-1 overflow-hidden px-1.5 py-2 text-[0.625rem] leading-normal"
           title={localizeUi("ui.panels.personaspanel.openPersonasLibrary")}
@@ -629,6 +631,7 @@ export function PersonasPanel() {
           <Search size="0.8125rem" className="mari-chrome-field-icon absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             value={search}
+            data-testid="personas-panel-search-input"
             onChange={(e) => setSearch(e.target.value)}
             placeholder={localize("Search personas")}
             className="mari-chrome-field h-10 w-full py-0 pl-8 pr-3 text-xs md:h-9"

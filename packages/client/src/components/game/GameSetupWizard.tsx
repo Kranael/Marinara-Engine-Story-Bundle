@@ -1348,6 +1348,7 @@ export function GameSetupWizard({
           <motion.div
             key={currentStep.key}
             data-component="GameSetupWizard"
+            data-testid="game-setup-wizard"
             role="dialog"
             aria-modal="true"
             aria-labelledby="game-setup-wizard-title"
@@ -1363,6 +1364,7 @@ export function GameSetupWizard({
               </h3>
               <button
                 type="button"
+                data-testid="game-setup-wizard-close-button"
                 onClick={onCancel}
                 disabled={isLoading}
                 className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-wait disabled:opacity-40"
@@ -3645,6 +3647,7 @@ export function GameSetupWizard({
               <div className="flex items-center justify-between">
                 <button
                   type="button"
+                  data-testid="game-setup-wizard-back-button"
                   onClick={step === 0 ? onCancel : () => setStep(step - 1)}
                   disabled={isLoading}
                   className={cn(GAME_SETUP_GHOST_BUTTON_CLASS, "disabled:cursor-wait disabled:opacity-40")}
@@ -3656,6 +3659,7 @@ export function GameSetupWizard({
                 {step < steps.length - 1 ? (
                   <button
                     type="button"
+                    data-testid="game-setup-wizard-next-button"
                     onClick={() => setStep(step + 1)}
                     disabled={isLoading}
                     className={GAME_SETUP_PRIMARY_BUTTON_CLASS}

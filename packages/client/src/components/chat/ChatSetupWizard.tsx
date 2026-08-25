@@ -274,12 +274,14 @@ function WizardSelect({
   options,
   ariaLabel,
   onChange,
+  testId,
 }: {
   id?: string;
   value: string;
   options: WizardSelectOption[];
   ariaLabel: string;
   onChange: (value: string) => void;
+  testId?: string;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -318,6 +320,7 @@ function WizardSelect({
         id={id}
         type="button"
         role="combobox"
+        data-testid={testId}
         aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -341,6 +344,7 @@ function WizardSelect({
         <div
           id={listboxId}
           role="listbox"
+          data-testid={testId ? `${testId}-listbox` : undefined}
           aria-label={ariaLabel}
           className="mt-1 max-h-48 overflow-y-auto rounded-lg border border-[var(--border)] bg-[var(--secondary)] p-1 shadow-xl"
         >
@@ -351,6 +355,7 @@ function WizardSelect({
                 key={option.value}
                 type="button"
                 role="option"
+                data-testid={testId ? `${testId}-option-${option.value}` : undefined}
                 aria-selected={selected}
                 onClick={() => {
                   onChange(option.value);
@@ -474,6 +479,7 @@ function SetupWizardShell({
         <motion.div
           key={animationKey}
           data-component="ChatSetupWizard"
+          data-testid="chat-setup-wizard"
           initial={{ opacity: 0, y: 12, scale: 0.97 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -12, scale: 0.97 }}
@@ -484,6 +490,7 @@ function SetupWizardShell({
             <h3 className={NEUTRAL_PANEL_TITLE}>{title}</h3>
             <button
               onClick={onClose}
+              data-testid="chat-setup-wizard-close-button"
               className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               aria-label={localizeUi("ui.chat.setupwizardshell.closeSetup")}
             >
@@ -528,12 +535,12 @@ function SetupWizardShell({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                   {onBack && (
-                    <button type="button" onClick={onBack} className={WIZARD_GHOST_BUTTON_CLASS}>
+                    <button type="button" onClick={onBack} data-testid="chat-setup-wizard-back-button" className={WIZARD_GHOST_BUTTON_CLASS}>
                       {localizeUi("ui.noodle.noodlerframe.back")}
                     </button>
                   )}
                   {onSkip && (
-                    <button type="button" onClick={onSkip} className={WIZARD_GHOST_BUTTON_CLASS}>
+                    <button type="button" onClick={onSkip} data-testid="chat-setup-wizard-skip-button" className={WIZARD_GHOST_BUTTON_CLASS}>
                       {localizeUi("onboarding.actions.skip")}
                     </button>
                   )}
@@ -543,6 +550,7 @@ function SetupWizardShell({
                   <button
                     type="button"
                     onClick={onPrimary}
+                    data-testid="chat-setup-wizard-primary-button"
                     disabled={primaryDisabled}
                     className={WIZARD_PRIMARY_BUTTON_CLASS}
                   >
@@ -2432,6 +2440,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
             id={roleplayConnectionSelectId}
             value={chat.connectionId ?? ""}
             ariaLabel={localizeUi("ui.chat.conversationquicksetup.connection")}
+            testId="chat-setup-wizard-connection-select"
             options={[
               { value: "", label: localizeUi("ui.game.gamesurfacecomponent.none") },
               { value: "random", label: localizeUi("ui.game.gamesurfacecomponent.random") },
@@ -2468,6 +2477,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
       <WizardSelect
         value={chat.promptPresetId ?? ""}
         ariaLabel={localizeUi("chat.toolbar.preset")}
+        testId="chat-setup-wizard-preset-select"
         options={[
           { value: "", label: localizeUi("ui.game.gamesurfacecomponent.none") },
           ...((presets ?? []) as Array<{ id: string; name: string; isDefault?: boolean | string }>).map((preset) => ({

@@ -150,6 +150,7 @@ function ExpandedMacroEditor({
             </div>
             <button
               type="button"
+              data-testid="expanded-macro-editor-close-button"
               onClick={() => {
                 if (!readOnly) onChange(localValue);
                 onClose();
@@ -163,6 +164,7 @@ function ExpandedMacroEditor({
           </div>
           <textarea
             ref={textareaRef}
+            data-testid="expanded-macro-editor-textarea"
             value={localValue}
             onChange={handleChange}
             onKeyDown={handleTextareaTab}
@@ -324,6 +326,8 @@ export interface MacroTextareaProps {
   maxLength?: number;
   /** Optional ref to the underlying textarea (e.g. to insert emoji at the caret). */
   textareaRef?: Ref<HTMLTextAreaElement>;
+  /** Stable prefix used to build data-testid attributes on this instance's textarea and toolbar buttons. */
+  testId?: string;
 }
 
 export function MacroTextarea({
@@ -353,6 +357,7 @@ export function MacroTextarea({
   readOnly = false,
   maxLength,
   textareaRef,
+  testId,
 }: MacroTextareaProps) {
   const { t: localizeUi } = useUiTranslation();
   const [expanded, setExpanded] = useState(false);
@@ -398,6 +403,7 @@ export function MacroTextarea({
         {showMarkdownPreview && showPreview ? (
           <div
             role="region"
+            data-testid={testId ? `${testId}-preview-region` : undefined}
             aria-label={ariaLabel ?? localizeUi("ui.ui.macrotextarea.markdownPreview")}
             style={{ minHeight: `${rows * 1.5 + 1.25}rem` }}
             className={cn(
@@ -415,6 +421,7 @@ export function MacroTextarea({
         ) : (
           <textarea
             ref={textareaRef}
+            data-testid={testId ? `${testId}-textarea` : undefined}
             value={value}
             onChange={handleChange}
             onBlur={onBlur}
@@ -439,6 +446,7 @@ export function MacroTextarea({
             {showMarkdownPreview ? (
               <button
                 type="button"
+                data-testid={testId ? `${testId}-preview-toggle` : undefined}
                 onClick={() => setShowPreview((current) => !current)}
                 className={affordanceButtonClassName}
                 aria-pressed={showPreview}
@@ -455,6 +463,7 @@ export function MacroTextarea({
             {showExpand ? (
               <button
                 type="button"
+                data-testid={testId ? `${testId}-expand-button` : undefined}
                 onClick={() => setExpanded(true)}
                 className={affordanceButtonClassName}
                 aria-label={localizeUi("ui.ui.macrotextarea.expandEditor")}

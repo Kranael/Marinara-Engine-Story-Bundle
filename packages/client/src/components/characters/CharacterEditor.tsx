@@ -995,7 +995,10 @@ export function CharacterEditor() {
   );
 
   return (
-    <div className="mari-editor-shell mari-editor-legacy-bridge flex flex-1 flex-col overflow-hidden">
+    <div
+      data-testid="character-editor"
+      className="mari-editor-shell mari-editor-legacy-bridge flex flex-1 flex-col overflow-hidden"
+    >
       <ExportFormatDialog
         open={exportDialogOpen}
         title={localizeUi("ui.characters.charactereditor.exportCharacter_cdcda78")}
@@ -1044,6 +1047,7 @@ export function CharacterEditor() {
         <div className="mari-editor-header-main mari-editor-header-main--identity">
           <button
             type="button"
+            data-testid="character-editor-back-button"
             onClick={handleClose}
             className="mari-editor-action inline-flex"
             title={localizeUi("ui.noodle.noodlerframe.back")}
@@ -1079,6 +1083,7 @@ export function CharacterEditor() {
           <div className="min-w-0 flex-1">
             <div className="mari-editor-title-line">
               <input
+                data-testid="character-editor-title-input"
                 value={formData.name}
                 onChange={(e) => updateField("name", e.target.value)}
                 onBlur={() => {
@@ -1397,6 +1402,7 @@ function CharacterDescriptionTab({
         rows={12}
         title={localizeUi("chat.settings.inlineEditor.fields.description")}
         showMarkdownPreview
+        testId="character-card-description"
         selfCharacterId={selfCharacterId}
         className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
       />
@@ -4117,6 +4123,7 @@ function SpritesTab({
         <button
           key={tab.id}
           type="button"
+          data-testid={`sprites-category-tab-${tab.id}`}
           onClick={() => setCategory(tab.id)}
           aria-pressed={category === tab.id}
           className={cn(
@@ -4480,6 +4487,7 @@ function SpritesTab({
           <div className="flex flex-wrap items-center gap-2 md:justify-end">
             <button
               type="button"
+              data-testid="sprites-generate-button"
               onClick={() => setSpriteGenOpen(true)}
               disabled={spriteGenerationUnavailable}
               className="mari-chrome-accent-surface mari-accent-animated flex min-w-0 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-center text-[0.6875rem] font-medium leading-tight transition-all disabled:cursor-not-allowed disabled:opacity-40 max-md:flex-1 max-md:basis-[calc(50%-0.25rem)] max-md:px-2.5"

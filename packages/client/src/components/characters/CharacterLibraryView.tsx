@@ -288,6 +288,7 @@ function CardLibraryDetailCard({
 
             <div className={cn("mt-4 gap-2", onChat ? "grid grid-cols-2" : "flex flex-wrap")}>
               <button
+                data-testid="resource-library-edit-button"
                 onClick={() => onEdit(card.id)}
                 className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs sm:px-4 sm:text-sm"
               >
@@ -300,6 +301,7 @@ function CardLibraryDetailCard({
               {onChat && (
                 <button
                   type="button"
+                  data-testid="resource-library-chat-now-button"
                   onClick={() => onChat(card)}
                   className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs sm:px-4 sm:text-sm"
                 >
@@ -525,6 +527,7 @@ export function CharacterLibraryView() {
     <div
       ref={libraryRootScrollRef}
       data-component="CharacterLibraryView"
+      data-testid="resource-library"
       onScroll={handleLibraryScroll}
       className="mari-chrome-token-scope flex h-full min-h-0 flex-col overflow-y-auto overflow-x-hidden bg-[radial-gradient(circle_at_top_left,_color-mix(in_srgb,var(--marinara-chat-chrome-accent)_14%,transparent),_transparent_30%),radial-gradient(circle_at_top_right,_color-mix(in_srgb,var(--marinara-chat-chrome-text)_10%,transparent),_transparent_26%),var(--background)] text-[var(--marinara-chat-chrome-panel-text)] lg:overflow-hidden"
     >
@@ -533,6 +536,7 @@ export function CharacterLibraryView() {
           <div className="flex min-w-0 items-center gap-3">
             <button
               onClick={closeLibrary}
+              data-testid="resource-library-close-button"
               className="mari-chrome-control h-9 w-9 rounded-2xl p-0 md:h-10 md:w-10"
               title={localizeUi("ui.characters.characterlibraryview.closeLibrary")}
             >
@@ -577,6 +581,7 @@ export function CharacterLibraryView() {
                 className="mari-chrome-field-icon pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2"
               />
               <input
+                data-testid="resource-library-search-input"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder={
