@@ -89,13 +89,19 @@ function DeleteConfirmationDialog({
       title={t("chat.delete.dialog.title")}
       width="max-w-sm"
       chatFloatingPanel
+      testId="chat-delete-dialog"
     >
       <p className="mb-4 text-sm leading-relaxed text-[var(--marinara-chat-chrome-panel-muted)]">
         {t("chat.delete.dialog.description")}
       </p>
       <div className="grid gap-2" data-component="MessageDeleteActions">
         {canDeleteSwipe && (
-          <button type="button" onClick={onDeleteSwipe} className={DELETE_DIALOG_ACTION_CLASS}>
+          <button
+            type="button"
+            onClick={onDeleteSwipe}
+            data-testid="chat-delete-swipe-button"
+            className={DELETE_DIALOG_ACTION_CLASS}
+          >
             <Layers size="0.8rem" />
             <span>
               {t("chat.delete.dialog.swipe", {
@@ -106,20 +112,40 @@ function DeleteConfirmationDialog({
           </button>
         )}
         {canDeleteOtherSwipes && (
-          <button type="button" onClick={onDeleteOtherSwipes} className={DELETE_DIALOG_ACTION_CLASS}>
+          <button
+            type="button"
+            onClick={onDeleteOtherSwipes}
+            data-testid="chat-delete-other-swipes-button"
+            className={DELETE_DIALOG_ACTION_CLASS}
+          >
             <Layers size="0.8rem" />
             <span>{t("chat.delete.dialog.otherSwipes")}</span>
           </button>
         )}
-        <button type="button" onClick={onConfirm} className={DELETE_DIALOG_ACTION_CLASS}>
+        <button
+          type="button"
+          onClick={onConfirm}
+          data-testid="chat-delete-message-button"
+          className={DELETE_DIALOG_ACTION_CLASS}
+        >
           <Trash2 size="0.8rem" />
           <span>{t("chat.delete.dialog.message")}</span>
         </button>
-        <button type="button" onClick={onDeleteMore} className={DELETE_DIALOG_ACTION_CLASS}>
+        <button
+          type="button"
+          onClick={onDeleteMore}
+          data-testid="chat-delete-more-button"
+          className={DELETE_DIALOG_ACTION_CLASS}
+        >
           <ListChecks size="0.8rem" />
           <span>{t("chat.delete.dialog.more")}</span>
         </button>
-        <button type="button" onClick={onClose} className={DELETE_DIALOG_ACTION_CLASS}>
+        <button
+          type="button"
+          onClick={onClose}
+          data-testid="chat-delete-cancel-button"
+          className={DELETE_DIALOG_ACTION_CLASS}
+        >
           <X size="0.8rem" />
           <span>{t("chat.delete.dialog.cancel")}</span>
         </button>
@@ -166,12 +192,18 @@ function MultiSelectBar({
           type="button"
           onClick={onDelete}
           disabled={selectedCount === 0}
+          data-testid="chat-multiselect-delete-button"
           className="mari-chrome-control min-h-10 w-full px-3 py-2 text-xs"
         >
           <Trash2 size="0.75rem" />
           <span>{t("chat.delete.selection.delete")}</span>
         </button>
-        <button type="button" onClick={onCancel} className="mari-chrome-control min-h-10 w-full px-3 py-2 text-xs">
+        <button
+          type="button"
+          onClick={onCancel}
+          data-testid="chat-multiselect-cancel-button"
+          className="mari-chrome-control min-h-10 w-full px-3 py-2 text-xs"
+        >
           <X size="0.75rem" />
           <span>{t("chat.delete.selection.cancel")}</span>
         </button>
@@ -181,6 +213,7 @@ function MultiSelectBar({
           type="button"
           onClick={onSelectAllAbove}
           disabled={selectedCount === 0}
+          data-testid="chat-multiselect-select-above-button"
           title={t("chat.delete.selection.above")}
           aria-label={t("chat.delete.selection.above")}
           className="mari-chrome-control mari-chrome-control--small h-8 w-8 p-0"
@@ -191,6 +224,7 @@ function MultiSelectBar({
           type="button"
           onClick={onUnselectAll}
           disabled={selectedCount === 0}
+          data-testid="chat-multiselect-unselect-all-button"
           className="mari-chrome-control mari-chrome-control--small px-3 text-[0.6875rem]"
         >
           <span>{t("chat.delete.selection.unselectAll")}</span>
@@ -199,6 +233,7 @@ function MultiSelectBar({
           type="button"
           onClick={onSelectAllBelow}
           disabled={selectedCount === 0}
+          data-testid="chat-multiselect-select-below-button"
           title={t("chat.delete.selection.below")}
           aria-label={t("chat.delete.selection.below")}
           className="mari-chrome-control mari-chrome-control--small h-8 w-8 p-0"

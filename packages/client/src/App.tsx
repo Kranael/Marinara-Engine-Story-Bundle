@@ -187,6 +187,7 @@ export class AppRecoveryBoundary extends Component<{ children: ReactNode }, { er
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
+                  data-testid="app-recovery-reload-button"
                   className="mari-chrome-control mari-chrome-control--selected px-3 py-2 text-sm"
                 >
                   {t("ui.app.recovery.reload")}
@@ -194,6 +195,7 @@ export class AppRecoveryBoundary extends Component<{ children: ReactNode }, { er
                 <button
                   type="button"
                   onClick={this.resetLocalUiState}
+                  data-testid="app-recovery-reset-button"
                   className="mari-chrome-control px-3 py-2 text-sm"
                 >
                   {t("ui.app.recovery.reset")}

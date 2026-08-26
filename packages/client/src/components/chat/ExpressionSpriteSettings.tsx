@@ -112,6 +112,7 @@ export function ExpressionSpriteSettings({
         description={localizeUi("ui.chat.expressionsetupfields.replaceMessageAvatarsWithTheSelectedExpressionSprite")}
         enabled={expressionAvatarsEnabled}
         onToggle={onToggleExpressionAvatars}
+        testId="expression-sprite-settings-expression-avatars-toggle"
       />
 
       {ownerCount === 0 ? (
@@ -131,6 +132,7 @@ export function ExpressionSpriteSettings({
             >
               <button
                 type="button"
+                data-testid={`expression-sprite-settings-owner-${owner.kind}-${owner.id}-button`}
                 onClick={() => onOpenOwner(owner.kind, owner.id)}
                 className="flex min-w-0 flex-1 items-center gap-2.5 text-left transition-colors hover:opacity-80"
                 title={
@@ -176,7 +178,11 @@ export function ExpressionSpriteSettings({
                 </div>
               </button>
 
-              <SpriteToggleButton active={owner.active} onToggle={() => onToggleOwner(owner.id)} />
+              <SpriteToggleButton
+                active={owner.active}
+                onToggle={() => onToggleOwner(owner.id)}
+                testId={`expression-sprite-settings-owner-${owner.id}-sprite-toggle-button`}
+              />
             </div>
           ))}
         </div>
@@ -205,12 +211,17 @@ export function ExpressionSpriteSettings({
               onClick={onToggleSpriteArrange}
               disabled={!onToggleSpriteArrange}
               variant={spriteArrangeMode ? "primary" : "default"}
+              testId="expression-sprite-settings-arrange-button"
             >
               {spriteArrangeMode
                 ? localizeUi("lorebook.editor.batch.done")
                 : localizeUi("ui.chat.chatsettingsdrawer.arrange")}
             </AgentSettingsActionButton>
-            <AgentSettingsActionButton onClick={onResetSpritePlacements} disabled={!hasCustomSpritePlacements}>
+            <AgentSettingsActionButton
+              onClick={onResetSpritePlacements}
+              disabled={!hasCustomSpritePlacements}
+              testId="expression-sprite-settings-reset-placements-button"
+            >
               {localizeUi("ui.characters.charactercliptrimmodal.reset")}
             </AgentSettingsActionButton>
           </div>
@@ -224,6 +235,7 @@ export function ExpressionSpriteSettings({
             </label>
             <select
               id={`sprite-layout-apply-to-${chatId}`}
+              data-testid="expression-sprite-settings-layout-subject-select"
               value={selectedLayoutSubjectId ?? ""}
               onChange={(event) => onSelectLayoutSubject(event.target.value || null)}
               className="min-w-0 flex-1 rounded-md border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-[0.625rem] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/60"
@@ -239,6 +251,7 @@ export function ExpressionSpriteSettings({
               <AgentSettingsActionButton
                 onClick={onResetSelectedLayoutSubject}
                 disabled={!selectedLayoutSubjectHasOverride}
+                testId="expression-sprite-settings-reset-layout-subject-button"
               >
                 {localizeUi("ui.chat.chatsettingsdrawer.useAllSpriteLayoutSettings")}
               </AgentSettingsActionButton>
@@ -259,6 +272,7 @@ export function ExpressionSpriteSettings({
                   { id: "right", label: localizeUi("ui.chat.chatsettingsdrawer.right") },
                 ]}
                 onChange={onSpritePositionChange}
+                testIdPrefix="expression-sprite-settings-sprite-position"
               />
             </div>
           </div>
@@ -272,6 +286,7 @@ export function ExpressionSpriteSettings({
               step={5}
               suffix="%"
               onChange={onExpressionSpriteScaleChange}
+              testId="expression-sprite-settings-expression-scale-slider"
             />
             <SpriteRangeSlider
               label={localizeUi("ui.chat.expressionsetupfields.fullBodySize")}
@@ -281,6 +296,7 @@ export function ExpressionSpriteSettings({
               step={5}
               suffix="%"
               onChange={onFullBodySpriteScaleChange}
+              testId="expression-sprite-settings-full-body-scale-slider"
             />
             <SpriteRangeSlider
               label={localizeUi("ui.chat.expressionsetupfields.expressionOpacity")}
@@ -290,6 +306,7 @@ export function ExpressionSpriteSettings({
               step={5}
               suffix="%"
               onChange={onExpressionSpriteOpacityChange}
+              testId="expression-sprite-settings-expression-opacity-slider"
             />
             <SpriteRangeSlider
               label={localizeUi("ui.chat.expressionsetupfields.fullBodyOpacity")}
@@ -299,6 +316,7 @@ export function ExpressionSpriteSettings({
               step={5}
               suffix="%"
               onChange={onFullBodySpriteOpacityChange}
+              testId="expression-sprite-settings-full-body-opacity-slider"
             />
           </div>
 
@@ -342,6 +360,7 @@ function SpriteDisplayModeToggle({
             <button
               key={option.id}
               type="button"
+              data-testid={`expression-sprite-settings-display-mode-${option.id}-button`}
               onClick={() => onToggle(option.id)}
               disabled={isLastActive}
               className={cn(
@@ -367,11 +386,12 @@ function SpriteDisplayModeToggle({
   );
 }
 
-function SpriteToggleButton({ active, onToggle }: { active: boolean; onToggle: () => void }) {
+function SpriteToggleButton({ active, onToggle, testId }: { active: boolean; onToggle: () => void; testId?: string }) {
   const { t: localizeUi } = useTranslation();
   return (
     <button
       type="button"
+      data-testid={testId}
       onClick={onToggle}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[0.625rem] font-medium transition-colors ring-1",

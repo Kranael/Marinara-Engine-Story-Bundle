@@ -25,6 +25,7 @@ export function ChatResourceActionButton({
   return (
     <button
       type="button"
+      data-testid={`chat-resource-assign-${payload.kind}-button`}
       data-chat-resource-action={payload.kind}
       onClick={(event) => {
         event.stopPropagation();

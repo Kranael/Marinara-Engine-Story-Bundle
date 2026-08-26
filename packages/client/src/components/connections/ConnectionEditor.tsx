@@ -2552,6 +2552,7 @@ export function ConnectionEditor() {
                     setLocalMaxContext(nextValue);
                     markDirty();
                   }}
+                  testId="connection-editor-max-context-input"
                   className="w-40 rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                 />
                 <span className="text-xs text-[var(--muted-foreground)]">
@@ -2582,6 +2583,7 @@ export function ConnectionEditor() {
                     setLocalMaxTokensOverride(nextValue > 0 ? nextValue : null);
                     markDirty();
                   }}
+                  testId="connection-editor-max-tokens-override-input"
                   className="w-40 rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                 />
                 <span className="text-xs text-[var(--muted-foreground)]">
@@ -2750,6 +2752,7 @@ export function ConnectionEditor() {
                       setLocalDefaultParameters(next);
                       markDirty();
                     }}
+                    testIdPrefix="connection-editor-default-parameters"
                   />
                   <div className="mt-4 space-y-3 border-t border-[var(--border)] pt-4">
                     <SettingsSwitch
@@ -3638,6 +3641,7 @@ function ImageGenerationDefaultsPanel({
         <button
           type="button"
           onClick={() => onExpandedChange(!expanded)}
+          data-testid={`image-defaults-${service}-section-toggle-button`}
           className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[var(--accent)]"
         >
           <div className="min-w-0">
@@ -3998,6 +4002,7 @@ function ImageGenerationDefaultsPanel({
                         className="sr-only"
                         tabIndex={-1}
                         onChange={handleNovelAiStylePlateUpload}
+                        data-testid="image-defaults-novelai-style-plate-file-input"
                       />
                       {novelai.styleReferenceImage && (
                         <button

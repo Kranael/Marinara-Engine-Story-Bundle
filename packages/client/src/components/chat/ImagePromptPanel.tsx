@@ -44,6 +44,7 @@ export function ImagePromptPanel({ prompt, meta, className }: ImagePromptPanelPr
             </div>
             <button
               type="button"
+              data-testid="image-prompt-panel-copy-prompt-button"
               onPointerDown={(event) => event.stopPropagation()}
               onClick={(event) => {
                 event.preventDefault();

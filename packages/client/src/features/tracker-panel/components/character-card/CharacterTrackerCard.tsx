@@ -114,6 +114,7 @@ function CompactThoughtBubble({
             <button
               type="button"
               onClick={onToggleHidden}
+              data-testid="character-tracker-thought-visibility-toggle-button"
               title={
                 hidden
                   ? localizeUi("ui.trackerPanel.thoughtbubble.showThoughts")

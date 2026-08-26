@@ -621,6 +621,7 @@ function TtsSearchableSelect({
                     onChange("");
                     closePanel();
                   }}
+                  data-testid={testId ? `${testId}-default-option` : undefined}
                   className={cn(
                     "flex w-full min-w-0 items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs hover:bg-[var(--secondary)]",
                     !value && "bg-[var(--primary)]/10 text-[var(--primary)]",
@@ -645,6 +646,7 @@ function TtsSearchableSelect({
                       onChange(option.id);
                       closePanel();
                     }}
+                    data-testid={testId ? `${testId}-option-${option.id}` : undefined}
                     className={cn(
                       "flex w-full min-w-0 items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs hover:bg-[var(--secondary)] disabled:cursor-not-allowed disabled:opacity-40",
                       option.id === value && "bg-[var(--primary)]/10 text-[var(--primary)]",

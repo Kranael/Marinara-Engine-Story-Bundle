@@ -202,6 +202,7 @@ export function QuickReplyMenu({ actions, disabled = false }: QuickReplyMenuProp
     return (
       <button
         type="button"
+        data-testid={`quick-reply-${singleAction.id}-button`}
         onClick={() => void handleSelect(singleAction)}
         disabled={singleDisabled}
         aria-label={localizeUi("ui.chat.quickreplymenu.value1Value2", {
@@ -226,6 +227,7 @@ export function QuickReplyMenu({ actions, disabled = false }: QuickReplyMenuProp
       <button
         ref={triggerRef}
         type="button"
+        data-testid="quick-reply-toggle-button"
         onClick={() => setOpen((v) => !v)}
         onKeyDown={handleTriggerKeyDown}
         disabled={isDisabled}

@@ -73,6 +73,7 @@ export function HapticConnectionPanel({
           {localizeUi("ui.chat.hapticsetupfields.intifaceUrl")}
         </span>
         <input
+          data-testid="haptic-connection-intiface-url-input"
           value={intifaceUrl}
           onChange={(event) => setIntifaceUrl(event.target.value)}
           onBlur={saveIntifaceUrl}
@@ -129,7 +130,13 @@ export function HapticConnectionPanel({
       {connect.isError && !connected && (
         <p className="px-1 text-[0.625rem] text-[var(--primary)]">
           {localizeUi("ui.chat.hapticconnectionpanel.couldNotConnectMakeSure")}{" "}
-          <a href="https://intiface.com/central/" target="_blank" rel="noopener noreferrer" className="underline">
+          <a
+            data-testid="haptic-connection-intiface-central-link"
+            href="https://intiface.com/central/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
             {localizeUi("ui.chat.hapticconnectionpanel.intifaceCentral")}
           </a>{" "}
           {localizeUi("ui.chat.hapticconnectionpanel.isRunningAndTheServerIsStarted")}

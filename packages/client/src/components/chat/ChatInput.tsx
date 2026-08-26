@@ -1814,6 +1814,7 @@ export const ChatInput = memo(function ChatInput({
             focusAfterMobileRestoreRef.current = true;
             onMobileHistoryCollapsedChange?.(false);
           }}
+          data-testid="chat-input-mobile-collapsed-button"
           className={cn(
             getChatInputShellClass({ dragging: false, hasContent: false, layout: "roleplay" }),
             "min-h-10 w-full justify-start text-left text-sm text-foreground/55",
@@ -1845,6 +1846,7 @@ export const ChatInput = memo(function ChatInput({
                 }
                 setCompletions([]);
               }}
+              data-testid={`chat-input-slash-completion-${cmd.name}-button`}
               className={cn(
                 "flex w-full min-w-0 items-start gap-2 px-3 py-2.5 text-left text-sm transition-colors",
                 i === selectedCompletion
@@ -1897,6 +1899,7 @@ export const ChatInput = memo(function ChatInput({
                 aria-pressed={pushStoryMode !== null}
                 aria-expanded={pushStoryMenuOpen}
                 aria-haspopup="menu"
+                data-testid="chat-input-push-story-button"
                 className={cn(
                   ROLEPLAY_AGENT_ACTION_BUTTON_CLASS,
                   pushStoryMode
@@ -1930,6 +1933,7 @@ export const ChatInput = memo(function ChatInput({
                     type="button"
                     role="menuitem"
                     onClick={() => handleArmPushStory("natural")}
+                    data-testid="chat-input-push-story-natural-button"
                     className="flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-foreground/10"
                   >
                     <span className="text-sm font-medium text-foreground">
@@ -1943,6 +1947,7 @@ export const ChatInput = memo(function ChatInput({
                     type="button"
                     role="menuitem"
                     onClick={() => handleArmPushStory("random")}
+                    data-testid="chat-input-push-story-random-button"
                     className="flex w-full flex-col items-start gap-0.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-foreground/10"
                   >
                     <span className="text-sm font-medium text-foreground">
@@ -1961,6 +1966,7 @@ export const ChatInput = memo(function ChatInput({
               type="button"
               onClick={() => onStartEncounter?.()}
               disabled={isInputBusy}
+              data-testid="chat-input-encounter-button"
               className={cn(
                 ROLEPLAY_AGENT_ACTION_BUTTON_CLASS,
                 "text-foreground/50 hover:bg-foreground/10 hover:text-foreground/80 disabled:hover:bg-transparent disabled:hover:text-foreground/50",
@@ -1996,6 +2002,7 @@ export const ChatInput = memo(function ChatInput({
               <span className="max-w-[7.5rem] truncate">{att.name}</span>
               <button
                 onClick={() => removeAttachment(i)}
+                data-testid={`chat-input-attachment-${i}-remove-button`}
                 className="ml-0.5 rounded-full p-0.5 opacity-60 transition-opacity hover:opacity-100"
               >
                 <X size="0.75rem" />
@@ -2050,10 +2057,12 @@ export const ChatInput = memo(function ChatInput({
           multiple
           className="hidden"
           onChange={handleFileUpload}
+          data-testid="chat-input-file-input"
         />
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={!activeChatId || isInputBusy}
+          data-testid="chat-input-attach-button"
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-xl transition-all active:scale-90 disabled:cursor-not-allowed disabled:text-foreground/25 disabled:opacity-50 sm:h-8 sm:w-8",
             attachments.length
@@ -2076,6 +2085,7 @@ export const ChatInput = memo(function ChatInput({
         <textarea
           ref={textareaRef}
           data-chat-composer="true"
+          data-testid="chat-input-textarea"
           onInput={handleInput}
           onKeyDown={handleKeyDown}
           onKeyUp={handleKeyUp}
@@ -2097,6 +2107,7 @@ export const ChatInput = memo(function ChatInput({
           <button
             ref={emojiButtonRef}
             onClick={() => setEmojiOpen((v) => !v)}
+            data-testid="chat-input-emoji-button"
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full transition-colors active:scale-90",
               emojiOpen
@@ -2122,6 +2133,7 @@ export const ChatInput = memo(function ChatInput({
           <button
             ref={charPickerBtnRef}
             onClick={() => setCharPickerOpen((v) => !v)}
+            data-testid="chat-input-character-picker-button"
             className={cn(
               "flex h-11 w-11 items-center justify-center rounded-full transition-colors sm:h-8 sm:w-8",
               guideGenerations && hasInput
@@ -2145,6 +2157,7 @@ export const ChatInput = memo(function ChatInput({
             type="button"
             onClick={() => void handleTranslateDraft()}
             disabled={!activeChatId || !hasInput || isInputBusy || isTranslatingDraft}
+            data-testid="chat-input-translate-draft-button"
             className={cn(
               "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-200 sm:h-8 sm:w-8",
               hasInput && !isInputBusy && !isTranslatingDraft
@@ -2174,6 +2187,7 @@ export const ChatInput = memo(function ChatInput({
 
         <button
           onClick={isStreaming ? () => useChatStore.getState().stopGeneration(activeChatId ?? undefined) : handleSend}
+          data-testid="chat-input-send-button"
           disabled={
             (!isStreaming && (isInputBusy || isReadingAttachments)) ||
             (!hasInput && !attachments.length && !canSubmitSpatialMove && !isStreaming && !canRetry && !canContinue) ||
@@ -2222,6 +2236,7 @@ export const ChatInput = memo(function ChatInput({
                   <button
                     key={char.id}
                     onClick={() => handleCharacterResponse(char.id)}
+                    data-testid={`chat-input-character-response-${char.id}-button`}
                     className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-foreground/10"
                   >
                     {char.avatarUrl ? (

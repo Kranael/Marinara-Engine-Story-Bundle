@@ -2847,6 +2847,7 @@ export const ChatArea = memo(function ChatArea() {
           {hasOpenError && (
             <button
               type="button"
+              data-testid="chat-area-back-to-chats-button"
               onClick={() => setActiveChatId(null)}
               className="mari-chrome-control mari-chrome-control--small text-xs"
             >
@@ -3364,6 +3365,7 @@ function AgentInjectionReviewModal({
                 </div>
               </div>
               <textarea
+                data-testid={`agent-injection-review-${injection.agentType}-textarea`}
                 value={drafts[injection.agentType] ?? injection.text}
                 onChange={(event) => onDraftChange(injection.agentType, event.target.value)}
                 rows={6}
@@ -3376,6 +3378,7 @@ function AgentInjectionReviewModal({
         <div className="flex justify-end gap-2 border-t border-[var(--border)] pt-3">
           <button
             type="button"
+            data-testid="agent-injection-review-close-button"
             onClick={onClose}
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-2 text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
           >
@@ -3384,6 +3387,7 @@ function AgentInjectionReviewModal({
           </button>
           <button
             type="button"
+            data-testid="agent-injection-review-continue-button"
             onClick={onContinue}
             className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
           >

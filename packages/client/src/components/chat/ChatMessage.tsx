@@ -403,6 +403,7 @@ function HideFromAIAction({
     <div ref={rootRef} className="relative">
       <ActionBtn
         icon={hasRestriction ? <Eye size={MESSAGE_ACTION_ICON_SIZE} /> : <EyeOff size={MESSAGE_ACTION_ICON_SIZE} />}
+        testId="chat-message-hide-from-ai-button"
         onClick={() => {
           if (isGroupChat) {
             setOpen((value) => !value);
@@ -444,6 +445,7 @@ function HideFromAIAction({
             aria-checked={hiddenFromAll}
             aria-label={localizeUi("ui.chat.hidefromaiaction.hideFromAllCharacters")}
             title={localizeUi("ui.chat.hidefromaiaction.allCharacters")}
+            data-testid="chat-message-hide-from-all-button"
             onClick={() => onToggle(messageId, hiddenFromAll)}
             className={cn(
               "flex aspect-square w-[clamp(1.5rem,8vw,2.25rem)] shrink-0 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -467,6 +469,7 @@ function HideFromAIAction({
                 aria-checked={selected}
                 aria-label={localizeUi("ui.chat.hidefromaiaction.hideFromValue1", { value1: character.name })}
                 title={character.name}
+                data-testid={`chat-message-hide-from-character-${character.id}-button`}
                 onClick={() => toggleCharacter(character.id)}
                 className={cn(
                   "flex aspect-square w-[clamp(1.5rem,8vw,2.25rem)] shrink-0 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -535,6 +538,7 @@ function ConversationStartAction({
     <div ref={rootRef} className="relative">
       <ActionBtn
         icon={<Flag size={MESSAGE_ACTION_ICON_SIZE} />}
+        testId="chat-message-conversation-start-button"
         onClick={() => {
           if (isGroupChat) setOpen((value) => !value);
           else onToggle(messageId, !sharedStart, characterIds);
@@ -571,6 +575,7 @@ function ConversationStartAction({
             aria-checked={sharedStart}
             aria-label={localizeUi("ui.chat.conversationstartaction.newStartForAllCharacters")}
             title={localizeUi("ui.chat.hidefromaiaction.allCharacters")}
+            data-testid="chat-message-start-for-all-button"
             onClick={() => onToggle(messageId, !sharedStart, characterIds)}
             className={cn(
               "flex aspect-square w-[clamp(1.5rem,8vw,2.25rem)] shrink-0 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -596,6 +601,7 @@ function ConversationStartAction({
                   value1: character.name,
                 })}
                 title={character.name}
+                data-testid={`chat-message-start-for-character-${character.id}-button`}
                 onClick={() => toggleCharacter(character.id)}
                 className={cn(
                   "flex aspect-square w-[clamp(1.5rem,8vw,2.25rem)] shrink-0 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -723,6 +729,7 @@ function HiddenFromAIMessageButton({
       <button
         type="button"
         onClick={onExpand}
+        data-testid="chat-message-hidden-from-ai-toggle-button"
         className={cn(
           "inline-flex items-center gap-1 rounded px-1 py-0.5 text-[0.625rem] font-medium text-[var(--marinara-chat-chrome-highlight-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -768,6 +775,7 @@ function HiddenFromAIMessageSummary({
         event.stopPropagation();
         onExpand();
       }}
+      data-testid="chat-message-hidden-from-ai-summary-button"
       className={cn(
         "flex w-full items-center gap-2 rounded-lg border border-[var(--marinara-chat-chrome-button-border-active)] bg-[var(--marinara-chat-chrome-highlight-bg)] px-3 py-2 text-left text-[0.75rem] text-[var(--marinara-chat-chrome-highlight-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)]",
         roleplay && "opacity-85 hover:opacity-100",
@@ -834,6 +842,7 @@ const EditTextarea = memo(function EditTextarea({
         defaultValue={formatTextQuotes(initialContent, quoteFormat)}
         readOnly={saving}
         aria-busy={saving}
+        data-testid="chat-message-edit-textarea"
         aria-keyshortcuts="Control+Enter Meta+Enter"
         rows={1}
         onInput={(event) => {
@@ -853,6 +862,7 @@ const EditTextarea = memo(function EditTextarea({
           type="button"
           onClick={onCancel}
           disabled={saving}
+          data-testid="chat-message-edit-cancel-button"
           aria-label={localizeUi("ui.chat.edittextarea.cancelEdit")}
           className="pointer-events-auto relative z-30 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-white/40 hover:bg-white/10 hover:text-white/70 disabled:pointer-events-none disabled:opacity-50"
           title={localizeUi("ui.chat.edittextarea.cancelEsc")}
@@ -863,6 +873,7 @@ const EditTextarea = memo(function EditTextarea({
           type="button"
           onClick={handleSave}
           disabled={saving}
+          data-testid="chat-message-edit-save-button"
           aria-label={localizeUi("ui.chat.edittextarea.saveEdit")}
           className="pointer-events-auto relative z-30 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-emerald-400/70 hover:bg-emerald-400/10 hover:text-emerald-400 disabled:pointer-events-none disabled:opacity-50"
           title={localizeUi("ui.chat.edittextarea.saveCmdEnter")}
@@ -980,6 +991,7 @@ function RoleplayThinkingDisclosure({
         aria-expanded={expanded}
         aria-controls={expanded ? contentId : undefined}
         title={t(expanded ? "chat.message.thoughts.collapse" : "chat.message.thoughts.expand")}
+        data-testid="chat-message-thinking-disclosure-button"
         onClick={() => setExpanded((value) => !value)}
         className="flex w-full items-center gap-2 px-2.5 py-2 text-left text-[0.75rem] font-medium text-[var(--marinara-chat-chrome-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-button-bg-hover)]"
       >
@@ -3004,6 +3016,7 @@ export const ChatMessage = memo(function ChatMessage({
                 onDelete(message.id);
               }}
               aria-label={localizeUi("chat.delete.dialog.title")}
+              data-testid={`chat-message-${message.id}-delete-button`}
               className={cn(
                 "absolute -right-1 -top-1 rounded-md p-1 text-white/20 opacity-0 transition-all hover:bg-foreground/10 hover:text-foreground/70 group-hover:opacity-100",
                 showActions && "opacity-100",
@@ -3052,6 +3065,7 @@ export const ChatMessage = memo(function ChatMessage({
                         ? localizeUi("ui.chat.chatmessage.deselectMessage")
                         : localizeUi("ui.chat.chatmessage.selectMessage")
                     }
+                    data-testid={`chat-message-${message.id}-select-button`}
                     className={cn(
                       MESSAGE_SELECTION_CHECKBOX_CLASS,
                       "flex items-center justify-center",
@@ -3071,6 +3085,7 @@ export const ChatMessage = memo(function ChatMessage({
                     type="button"
                     onClick={() => onDelete(message.id)}
                     aria-label={localizeUi("chat.delete.dialog.title")}
+                    data-testid={`chat-message-${message.id}-delete-button`}
                     className={cn(
                       "absolute right-2 top-2 rounded-md p-1 text-white/20 opacity-0 transition-all hover:bg-foreground/10 hover:text-foreground/70 group-hover:opacity-100",
                       showActions && "opacity-100",
@@ -3162,6 +3177,7 @@ export const ChatMessage = memo(function ChatMessage({
                     ? localizeUi("ui.chat.chatmessage.deselectMessage")
                     : localizeUi("ui.chat.chatmessage.selectMessage")
                 }
+                data-testid={`chat-message-${message.id}-select-button`}
                 className={cn(
                   MESSAGE_SELECTION_CHECKBOX_CLASS,
                   "flex items-center justify-center",
@@ -3192,6 +3208,7 @@ export const ChatMessage = memo(function ChatMessage({
                     const visible = mergedAvatars[cycleIndexRef.current];
                     if (visible) openImageLightbox(visible.url);
                   }}
+                  data-testid={`chat-message-${message.id}-merged-avatar-button`}
                   aria-label={localizeUi("ui.chat.chatmessage.openValue1Avatar", { value1: displayName })}
                 >
                   {mergedAvatars.map((avatar, i) => (
@@ -3224,6 +3241,7 @@ export const ChatMessage = memo(function ChatMessage({
                       compactAvatarFrameClass,
                     )}
                     onClick={() => openImageLightbox(displayAvatarUrl)}
+                    data-testid={`chat-message-${message.id}-avatar-button`}
                     aria-label={localizeUi("ui.chat.chatmessage.openValue1Avatar", { value1: displayName })}
                   >
                     <img
@@ -3365,6 +3383,7 @@ export const ChatMessage = memo(function ChatMessage({
                             const visible = mergedAvatars[cycleIndexRef.current];
                             if (visible) openImageLightbox(visible.url);
                           }}
+                          data-testid={`chat-message-${message.id}-merged-avatar-button`}
                           aria-label={localizeUi("ui.chat.chatmessage.openValue1Avatar", { value1: displayName })}
                         >
                           {mergedAvatars.map((avatar, i) => (
@@ -3396,6 +3415,7 @@ export const ChatMessage = memo(function ChatMessage({
                             !isUser && "rpg-avatar-panel",
                           )}
                           onClick={() => openImageLightbox(displayAvatarUrl)}
+                          data-testid={`chat-message-${message.id}-avatar-button`}
                           aria-label={localizeUi("ui.chat.chatmessage.openValue1Avatar", { value1: displayName })}
                         >
                           <img
@@ -3461,6 +3481,7 @@ export const ChatMessage = memo(function ChatMessage({
                         onClick={() => openAttachmentImageLightbox(att, i)}
                         className="block"
                         title={localizeUi("ui.noodle.noodlepostcard.openImage")}
+                        data-testid={`chat-message-${message.id}-attachment-${i}-open-button`}
                         aria-label={localizeUi("ui.chat.chatmessage.openValue1", {
                           value1: att.filename || att.name || localizeUi("ui.ui.spritegenerationmodal.image"),
                         })}
@@ -3478,6 +3499,7 @@ export const ChatMessage = memo(function ChatMessage({
                         onClick={() => handleRemoveAttachment(i)}
                         aria-label={localizeUi("ui.chat.chatmessage.removeImageFromMessage")}
                         title={localizeUi("ui.chat.chatmessage.removeFromMessage")}
+                        data-testid={`chat-message-${message.id}-attachment-${i}-remove-image-button`}
                         className="absolute top-1.5 right-1.5 rounded-full bg-black/60 p-1 text-white/80 transition-opacity hover:bg-black/80 hover:text-white sm:opacity-0 sm:group-hover/att:opacity-100"
                       >
                         <X size="0.875rem" />
@@ -3495,6 +3517,7 @@ export const ChatMessage = memo(function ChatMessage({
                         onClick={() => handleRemoveAttachment(i)}
                         aria-label={localizeUi("ui.chat.chatmessage.removeFileFromMessage")}
                         title={localizeUi("ui.chat.chatmessage.removeFromMessage")}
+                        data-testid={`chat-message-${message.id}-attachment-${i}-remove-file-button`}
                         className="rounded-full p-0.5 text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-[var(--destructive)] sm:opacity-0 sm:group-hover/att:opacity-100"
                       >
                         <X size="0.75rem" />
@@ -3542,6 +3565,7 @@ export const ChatMessage = memo(function ChatMessage({
                 icon={copied ? <Check size={MESSAGE_ACTION_ICON_SIZE} /> : <Copy size={MESSAGE_ACTION_ICON_SIZE} />}
                 onClick={handleCopy}
                 title={localizeUi("lorebook.editor.batch.copy")}
+                testId={`chat-message-${message.id}-copy-button`}
               />
               <ActionBtn
                 icon={<Languages size={MESSAGE_ACTION_ICON_SIZE} />}
@@ -3551,11 +3575,13 @@ export const ChatMessage = memo(function ChatMessage({
                     ? localizeUi("ui.chat.chatmessage.hideTranslation")
                     : localizeUi("ui.chat.chatmessage.translate")
                 }
+                testId={`chat-message-${message.id}-translate-button`}
               />
               <ActionBtn
                 icon={<Pencil size={MESSAGE_ACTION_ICON_SIZE} />}
                 onClick={startEditing}
                 title={localizeUi("ui.noodle.noodlepostcard.edit")}
+                testId={`chat-message-${message.id}-edit-button`}
               />
               {hasRewriteVersions && (
                 <ActionBtn
@@ -3574,9 +3600,13 @@ export const ChatMessage = memo(function ChatMessage({
                   }
                   className={showingProseGuardianOriginal ? MESSAGE_CHROME_ACTIVE_ICON_CLASS : undefined}
                   disabled={switchingRewriteVersion}
+                  testId={`chat-message-${message.id}-rewrite-version-button`}
                 />
               )}
-              <GuidedRegenerateActionBtn onClick={() => onRegenerate?.(message.id)} />
+              <GuidedRegenerateActionBtn
+                onClick={() => onRegenerate?.(message.id)}
+                testId={`chat-message-${message.id}-regenerate-button`}
+              />
               {onToggleConversationStart && (
                 <ConversationStartAction
                   messageId={message.id}
@@ -3602,6 +3632,7 @@ export const ChatMessage = memo(function ChatMessage({
                   icon={<Search size={MESSAGE_ACTION_ICON_SIZE} />}
                   onClick={() => onPeekPrompt?.()}
                   title={localizeUi("ui.chat.chatmessage.peekPrompt")}
+                  testId={`chat-message-${message.id}-peek-prompt-button`}
                 />
               )}
               {generationReplay && (
@@ -3609,6 +3640,7 @@ export const ChatMessage = memo(function ChatMessage({
                   icon={<ScrollText size={MESSAGE_ACTION_ICON_SIZE} />}
                   onClick={() => setShowGenerationReplay(true)}
                   title={localizeUi("ui.chat.chatmessage.storedGuidance")}
+                  testId={`chat-message-${message.id}-generation-replay-button`}
                 />
               )}
               {showThinkingAction && (
@@ -3622,6 +3654,7 @@ export const ChatMessage = memo(function ChatMessage({
                   )}
                   thinkingAction
                   buttonRef={thinkingButtonRef}
+                  testId={`chat-message-${message.id}-thinking-button`}
                 />
               )}
               {onBranch && (
@@ -3629,6 +3662,7 @@ export const ChatMessage = memo(function ChatMessage({
                   icon={<GitBranch size={MESSAGE_ACTION_ICON_SIZE} />}
                   onClick={() => onBranch(message.id)}
                   title={localizeUi("ui.chat.chatmessage.branchFromHere")}
+                  testId={`chat-message-${message.id}-branch-button`}
                 />
               )}
               {onCloneSceneFromHere && (
@@ -3637,12 +3671,14 @@ export const ChatMessage = memo(function ChatMessage({
                   onClick={() => onCloneSceneFromHere(message.id)}
                   title={localizeUi("ui.chat.chatmessage.cloneFromHere")}
                   disabled={isCloneSceneFromHereDisabled}
+                  testId={`chat-message-${message.id}-clone-scene-button`}
                 />
               )}
               <ActionBtn
                 icon={<Trash2 size={MESSAGE_ACTION_ICON_SIZE} />}
                 onClick={() => onDelete?.(message.id)}
                 title={localizeUi("lorebook.editor.batch.delete")}
+                testId={`chat-message-${message.id}-delete-action-button`}
               />
               {ttsEnabled && (
                 <>
@@ -3662,11 +3698,13 @@ export const ChatMessage = memo(function ChatMessage({
                             ? localizeUi("ui.chat.chatmessage.resumeSpeaking")
                             : localizeUi("ui.chat.chatmessage.pauseSpeaking")
                         }
+                        testId={`chat-message-${message.id}-tts-pause-resume-button`}
                       />
                       <ActionBtn
                         icon={<RefreshCw size={MESSAGE_ACTION_ICON_SIZE} />}
                         onClick={handleRestartTTS}
                         title={localizeUi("ui.chat.chatmessage.restartSpeaking")}
+                        testId={`chat-message-${message.id}-tts-restart-button`}
                       />
                     </>
                   )}
@@ -3691,6 +3729,7 @@ export const ChatMessage = memo(function ChatMessage({
                             : localizeUi("ui.chat.chatmessage.speak")
                     }
                     disabled={!hasTTSContent || (ttsBusy && !isSpeakingThis)}
+                    testId={`chat-message-${message.id}-tts-speak-button`}
                   />
                   <TTSLineVolumeControl volume={ttsLineVolume} onVolumeChange={handleTTSLineVolumeChange} dark />
                 </>
@@ -3764,6 +3803,7 @@ export const ChatMessage = memo(function ChatMessage({
                   const visible = mergedAvatars[cycleIndexRef.current];
                   if (visible) openImageLightbox(visible.url);
                 }}
+                data-testid={`chat-message-${message.id}-merged-avatar-button`}
                 aria-label={localizeUi("ui.chat.chatmessage.openValue1Avatar", { value1: displayName })}
               >
                 {mergedAvatars.map((avatar, i) => (
@@ -3786,6 +3826,7 @@ export const ChatMessage = memo(function ChatMessage({
                 type="button"
                 className="relative h-8 w-8 cursor-pointer overflow-hidden rounded-full"
                 onClick={() => openImageLightbox(displayAvatarUrl)}
+                data-testid={`chat-message-${message.id}-avatar-button`}
                 aria-label={localizeUi("ui.chat.chatmessage.openValue1Avatar", { value1: displayName })}
               >
                 <img
@@ -3929,6 +3970,7 @@ export const ChatMessage = memo(function ChatMessage({
                       onClick={() => openAttachmentImageLightbox(att, i)}
                       className="block"
                       title={localizeUi("ui.noodle.noodlepostcard.openImage")}
+                      data-testid={`chat-message-${message.id}-attachment-${i}-open-button`}
                       aria-label={localizeUi("ui.chat.chatmessage.openValue1", {
                         value1: att.filename || att.name || localizeUi("ui.ui.spritegenerationmodal.image"),
                       })}
@@ -3946,6 +3988,7 @@ export const ChatMessage = memo(function ChatMessage({
                       onClick={() => handleRemoveAttachment(i)}
                       aria-label={localizeUi("ui.chat.chatmessage.removeImageFromMessage")}
                       title={localizeUi("ui.chat.chatmessage.removeFromMessage")}
+                      data-testid={`chat-message-${message.id}-attachment-${i}-remove-image-button`}
                       className="absolute top-1.5 right-1.5 rounded-full bg-black/60 p-1 text-white/80 transition-opacity hover:bg-black/80 hover:text-white sm:opacity-0 sm:group-hover/att:opacity-100"
                     >
                       <X size="0.875rem" />
@@ -3963,6 +4006,7 @@ export const ChatMessage = memo(function ChatMessage({
                       onClick={() => handleRemoveAttachment(i)}
                       aria-label={localizeUi("ui.chat.chatmessage.removeFileFromMessage")}
                       title={localizeUi("ui.chat.chatmessage.removeFromMessage")}
+                      data-testid={`chat-message-${message.id}-attachment-${i}-remove-file-button`}
                       className="rounded-full p-0.5 text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-[var(--destructive)] sm:opacity-0 sm:group-hover/att:opacity-100"
                     >
                       <X size="0.75rem" />
@@ -4018,6 +4062,7 @@ export const ChatMessage = memo(function ChatMessage({
               icon={copied ? <Check size={MESSAGE_ACTION_ICON_SIZE} /> : <Copy size={MESSAGE_ACTION_ICON_SIZE} />}
               onClick={handleCopy}
               title={localizeUi("lorebook.editor.batch.copy")}
+              testId={`chat-message-${message.id}-copy-button`}
             />
             <ActionBtn
               icon={<Languages size={MESSAGE_ACTION_ICON_SIZE} />}
@@ -4027,11 +4072,13 @@ export const ChatMessage = memo(function ChatMessage({
                   ? localizeUi("ui.chat.chatmessage.hideTranslation")
                   : localizeUi("ui.chat.chatmessage.translate")
               }
+              testId={`chat-message-${message.id}-translate-button`}
             />
             <ActionBtn
               icon={<Pencil size={MESSAGE_ACTION_ICON_SIZE} />}
               onClick={startEditing}
               title={localizeUi("ui.noodle.noodlepostcard.edit")}
+              testId={`chat-message-${message.id}-edit-button`}
             />
             {hasRewriteVersions && (
               <ActionBtn
@@ -4050,9 +4097,13 @@ export const ChatMessage = memo(function ChatMessage({
                 }
                 className={showingProseGuardianOriginal ? MESSAGE_CHROME_ACTIVE_ICON_CLASS : undefined}
                 disabled={switchingRewriteVersion}
+                testId={`chat-message-${message.id}-rewrite-version-button`}
               />
             )}
-            <GuidedRegenerateActionBtn onClick={() => onRegenerate?.(message.id)} />
+            <GuidedRegenerateActionBtn
+              onClick={() => onRegenerate?.(message.id)}
+              testId={`chat-message-${message.id}-regenerate-button`}
+            />
             {onToggleConversationStart && (
               <ConversationStartAction
                 messageId={message.id}
@@ -4068,6 +4119,7 @@ export const ChatMessage = memo(function ChatMessage({
                 icon={<Search size={MESSAGE_ACTION_ICON_SIZE} />}
                 onClick={() => onPeekPrompt?.()}
                 title={localizeUi("ui.chat.chatmessage.peekPrompt")}
+                testId={`chat-message-${message.id}-peek-prompt-button`}
               />
             )}
             {generationReplay && (
@@ -4075,6 +4127,7 @@ export const ChatMessage = memo(function ChatMessage({
                 icon={<ScrollText size={MESSAGE_ACTION_ICON_SIZE} />}
                 onClick={() => setShowGenerationReplay(true)}
                 title={localizeUi("ui.chat.chatmessage.storedGuidance")}
+                testId={`chat-message-${message.id}-generation-replay-button`}
               />
             )}
             {showThinkingAction && (
@@ -4086,6 +4139,7 @@ export const ChatMessage = memo(function ChatMessage({
                 )}
                 thinkingAction
                 buttonRef={thinkingButtonRef}
+                testId={`chat-message-${message.id}-thinking-button`}
               />
             )}
             {onBranch && (
@@ -4093,6 +4147,7 @@ export const ChatMessage = memo(function ChatMessage({
                 icon={<GitBranch size={MESSAGE_ACTION_ICON_SIZE} />}
                 onClick={() => onBranch(message.id)}
                 title={localizeUi("ui.chat.chatmessage.branchFromHere")}
+                testId={`chat-message-${message.id}-branch-button`}
               />
             )}
             {onCloneSceneFromHere && (
@@ -4101,6 +4156,7 @@ export const ChatMessage = memo(function ChatMessage({
                 onClick={() => onCloneSceneFromHere(message.id)}
                 title={localizeUi("ui.chat.chatmessage.cloneFromHere")}
                 disabled={isCloneSceneFromHereDisabled}
+                testId={`chat-message-${message.id}-clone-scene-button`}
               />
             )}
             {onToggleHiddenFromAI && (
@@ -4117,6 +4173,7 @@ export const ChatMessage = memo(function ChatMessage({
               icon={<Trash2 size={MESSAGE_ACTION_ICON_SIZE} />}
               onClick={() => onDelete?.(message.id)}
               title={localizeUi("lorebook.editor.batch.delete")}
+              testId={`chat-message-${message.id}-delete-action-button`}
             />
             {ttsEnabled && (
               <>
@@ -4136,11 +4193,13 @@ export const ChatMessage = memo(function ChatMessage({
                           ? localizeUi("ui.chat.chatmessage.resumeSpeaking")
                           : localizeUi("ui.chat.chatmessage.pauseSpeaking")
                       }
+                      testId={`chat-message-${message.id}-tts-pause-resume-button`}
                     />
                     <ActionBtn
                       icon={<RefreshCw size={MESSAGE_ACTION_ICON_SIZE} />}
                       onClick={handleRestartTTS}
                       title={localizeUi("ui.chat.chatmessage.restartSpeaking")}
+                      testId={`chat-message-${message.id}-tts-restart-button`}
                     />
                   </>
                 )}
@@ -4165,6 +4224,7 @@ export const ChatMessage = memo(function ChatMessage({
                           : localizeUi("ui.chat.chatmessage.speak")
                   }
                   disabled={!hasTTSContent || (ttsBusy && !isSpeakingThis)}
+                  testId={`chat-message-${message.id}-tts-speak-button`}
                 />
                 <TTSLineVolumeControl volume={ttsLineVolume} onVolumeChange={handleTTSLineVolumeChange} />
               </>
@@ -4250,6 +4310,7 @@ function TTSLineVolumeControl({
         onClick={() => setOpen((value) => !value)}
         title={label}
         ariaPressed={open}
+        testId="chat-message-tts-line-volume-button"
         className={
           open ? (dark ? MESSAGE_CHROME_ACTIVE_ICON_CLASS : "bg-[var(--accent)] text-[var(--foreground)]") : undefined
         }
@@ -4287,6 +4348,7 @@ function TTSLineVolumeControl({
             value={volume}
             onChange={(event) => onVolumeChange(Number(event.currentTarget.value))}
             className="mari-tts-line-volume-slider w-full"
+            data-testid="chat-message-tts-line-volume-input"
             aria-label={localizeUi("ui.chat.ttslinevolumecontrol.lineVolume")}
             title={localizeUi("ui.chat.ttslinevolumecontrol.lineVolume")}
             style={{ "--range-progress": `${volume}%` } as React.CSSProperties}
@@ -4298,7 +4360,13 @@ function TTSLineVolumeControl({
 }
 
 // ── Action button ──
-const GuidedRegenerateActionBtn = memo(function GuidedRegenerateActionBtn({ onClick }: { onClick: () => void }) {
+const GuidedRegenerateActionBtn = memo(function GuidedRegenerateActionBtn({
+  onClick,
+  testId,
+}: {
+  onClick: () => void;
+  testId?: string;
+}) {
   const { t: localizeUi } = useUiTranslation();
   const guideGenerations = useUIStore((state) => state.guideGenerations);
   const isGuided = useChatStore((state) => guideGenerations && state.hasCurrentInput);
@@ -4314,6 +4382,7 @@ const GuidedRegenerateActionBtn = memo(function GuidedRegenerateActionBtn({ onCl
           ? "bg-[var(--primary)]/15 text-[var(--primary)] ring-1 ring-[var(--primary)]/30 hover:text-[var(--primary)]"
           : undefined
       }
+      testId={testId}
     />
   );
 });
@@ -4327,6 +4396,7 @@ function ActionBtn({
   ariaPressed,
   thinkingAction,
   buttonRef,
+  testId,
 }: {
   icon: React.ReactNode;
   onClick: () => void;
@@ -4336,6 +4406,7 @@ function ActionBtn({
   ariaPressed?: boolean;
   thinkingAction?: boolean;
   buttonRef?: React.Ref<HTMLButtonElement>;
+  testId?: string;
 }) {
   return (
     <MessageActionButton
@@ -4347,6 +4418,7 @@ function ActionBtn({
       disabled={disabled}
       ariaPressed={ariaPressed}
       thinkingAction={thinkingAction}
+      testId={testId}
     />
   );
 }

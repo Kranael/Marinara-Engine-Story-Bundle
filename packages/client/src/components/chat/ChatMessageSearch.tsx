@@ -142,6 +142,7 @@ export function ChatMessageSearch({ chatId }: { chatId: string }) {
       <button
         ref={buttonRef}
         type="button"
+        data-testid="chat-search-toggle-button"
         data-chat-help="search"
         data-chat-toolbar-panel-action="search"
         className={getChatToolbarButtonClass({ open })}
@@ -175,6 +176,7 @@ export function ChatMessageSearch({ chatId }: { chatId: string }) {
               </h3>
               <button
                 type="button"
+                data-testid="chat-search-close-button"
                 onClick={() => setOpen(false)}
                 className={NEUTRAL_PANEL_CLOSE_BUTTON}
                 aria-label={localizeUi("ui.chat.chatmessagesearch.close")}
@@ -192,6 +194,7 @@ export function ChatMessageSearch({ chatId }: { chatId: string }) {
                 <input
                   ref={inputRef}
                   type="search"
+                  data-testid="chat-search-input"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   onKeyDown={(event) => {
@@ -220,6 +223,7 @@ export function ChatMessageSearch({ chatId }: { chatId: string }) {
                   <p>{localizeUi("ui.chat.chatmessagesearch.loadFailed")}</p>
                   <button
                     type="button"
+                    data-testid="chat-search-retry-button"
                     onClick={() => void refetch()}
                     className="mari-chrome-control mari-chrome-control--small px-3"
                   >
@@ -236,6 +240,7 @@ export function ChatMessageSearch({ chatId }: { chatId: string }) {
                     <button
                       key={message.id}
                       type="button"
+                      data-testid={`chat-search-result-${message.id}-button`}
                       onClick={() => jumpToMessage(messageNumber)}
                       className="block w-full px-3 py-2.5 text-left transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--primary)]"
                       title={localizeUi("ui.chat.chatmessagesearch.jumpToMessage", { number: messageNumber })}

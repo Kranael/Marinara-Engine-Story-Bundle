@@ -155,6 +155,7 @@ export function RecentChats() {
         </p>
         <button
           type="button"
+          data-testid="recent-chats-retry-button"
           onClick={() => void feed.refetch()}
           className="mt-3 inline-flex min-h-8 w-fit items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 text-xs font-bold text-[var(--foreground)] hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-app-accent-solid)]"
         >
@@ -216,6 +217,7 @@ export function RecentChats() {
           <button
             key={chat.id}
             type="button"
+            data-testid={`recent-chat-${chat.id}-button`}
             onClick={() => setActiveChatId(chat.id)}
             style={style}
             data-chat-mode={chatMode}

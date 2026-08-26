@@ -1905,6 +1905,7 @@ function ImageDimensionRow({
           max={4096}
           commitOnValidChange
           onCommit={(nextWidth) => onCommit(nextWidth, height)}
+          testId={controlId ? `${controlId}-width-input` : undefined}
           className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 text-xs"
         />
         <span className="text-[0.625rem] text-[var(--muted-foreground)]">
@@ -1916,6 +1917,7 @@ function ImageDimensionRow({
           max={4096}
           commitOnValidChange
           onCommit={(nextHeight) => onCommit(width, nextHeight)}
+          testId={controlId ? `${controlId}-height-input` : undefined}
           className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 text-xs"
         />
       </div>
@@ -2236,6 +2238,7 @@ function ImageStyleProfilesEditor({
               <textarea
                 value={preview.prompt}
                 readOnly
+                data-testid="image-style-final-positive-prompt-textarea"
                 className="min-h-32 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 font-mono text-xs"
                 spellCheck={false}
               />
@@ -2247,6 +2250,7 @@ function ImageStyleProfilesEditor({
               <textarea
                 value={preview.negativePrompt}
                 readOnly
+                data-testid="image-style-final-negative-prompt-textarea"
                 className="min-h-20 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 font-mono text-xs"
                 spellCheck={false}
               />
@@ -2288,6 +2292,7 @@ function TrackerPanelCardOrderSetting() {
           onClick={() => setOrderOpen((open) => !open)}
           aria-expanded={orderOpen}
           aria-controls={orderId}
+          data-testid="tracker-card-order-toggle-button"
           className="flex min-w-0 flex-1 items-center gap-1.5 rounded-sm text-left text-[0.625rem] font-medium text-[var(--foreground)] transition-colors hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)]"
         >
           <ChevronDown
@@ -2310,6 +2315,7 @@ function TrackerPanelCardOrderSetting() {
           disabled={isDefaultOrder}
           title={localizeUi("settings.actions.resetTrackerOrder")}
           aria-label={localizeUi("settings.actions.resetTrackerOrder")}
+          data-testid="tracker-card-order-reset-button"
           className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-all hover:bg-[var(--secondary)] hover:text-[var(--foreground)] active:scale-95 disabled:cursor-default disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-[var(--muted-foreground)]"
         >
           <RotateCcw size="0.6875rem" />
@@ -2335,6 +2341,7 @@ function TrackerPanelCardOrderSetting() {
                     type="button"
                     onClick={() => moveCard(section, -1)}
                     disabled={index === 0 || (section === "custom" && orderedSections[index - 1] === "inventory")}
+                    data-testid={`tracker-card-order-move-up-${section}-button`}
                     title={localizeUi("ui.panels.trackerpanelcardordersetting.moveValue1Up", {
                       value1: localizeUi(option.label),
                     })}
@@ -2352,6 +2359,7 @@ function TrackerPanelCardOrderSetting() {
                       index === orderedSections.length - 1 ||
                       (section === "inventory" && orderedSections[index + 1] === "custom")
                     }
+                    data-testid={`tracker-card-order-move-down-${section}-button`}
                     title={localizeUi("ui.panels.trackerpanelcardordersetting.moveValue1Down", {
                       value1: localizeUi(option.label),
                     })}
@@ -2440,6 +2448,7 @@ function TrackerPanelAppearanceDrawer() {
               ? localizeUi("ui.panels.trackerpanelappearancedrawer.collapseTrackerPanelSettings")
               : localizeUi("ui.panels.trackerpanelappearancedrawer.expandTrackerPanelSettings")
           }
+          data-testid="tracker-appearance-drawer-toggle-button"
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-all hover:bg-[var(--secondary)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)] active:scale-95"
         >
           <ChevronDown
@@ -2478,6 +2487,7 @@ function TrackerPanelAppearanceDrawer() {
               onChange={setTrackerPanelBackgroundColor}
               gradient
               compact
+              testId="tracker-panel-background-color-picker"
               label={localizeUi("settings.controls.panelBackground.label")}
               helpText="Pick the Tracker panel and tracker section background. CSS colors and gradients are accepted."
               emptyText={localizeUi("ui.panels.trackerpanelappearancedrawer.defaultValue1", {
@@ -2504,6 +2514,7 @@ function TrackerPanelAppearanceDrawer() {
                     type="button"
                     onClick={() => setTrackerPanelSizeProfile(opt.id)}
                     aria-pressed={selected}
+                    data-testid={`tracker-panel-size-${opt.id}-button`}
                     title={localizeUi("ui.panels.trackerpanelappearancedrawer.value1Value2PxValue3", {
                       value1: opt.label,
                       value2: getTrackerPanelWidthForProfile(opt.id),
@@ -2549,6 +2560,7 @@ function TrackerPanelAppearanceDrawer() {
                     type="button"
                     onClick={() => setTrackerPanelThoughtBubbleDisplay(opt.id)}
                     aria-pressed={selected}
+                    data-testid={`tracker-thought-display-${opt.id}-button`}
                     title={opt.desc}
                     className={cn(
                       "flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-md px-2 text-[0.6875rem] transition-all disabled:cursor-not-allowed",
@@ -2593,6 +2605,7 @@ function TrackerPanelAppearanceDrawer() {
                     type="button"
                     onClick={() => setTrackerStatDisplayMode(option)}
                     aria-pressed={selected}
+                    data-testid={`tracker-stat-display-${option}-button`}
                     title={description}
                     className={cn(
                       "flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-md px-2 text-[0.6875rem] transition-all",
@@ -2633,6 +2646,7 @@ function TrackerPanelAppearanceDrawer() {
               type="button"
               role="switch"
               aria-checked={trackerTemperatureUnit === "fahrenheit"}
+              data-testid="tracker-temperature-unit-switch"
               aria-label={localizeUi("ui.panels.trackerpanelappearancedrawer.trackerTemperatureUnitValue1", {
                 value1:
                   trackerTemperatureUnit === "celsius"
@@ -3645,6 +3659,7 @@ function GeneralSettings() {
               max={500}
               commitOnValidChange
               onCommit={(nextValue) => setMessagesPerPage(Math.max(0, Math.min(500, nextValue)))}
+              testId="messages-per-page-input"
               className="w-16 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 text-xs"
             />
           </label>
@@ -4174,6 +4189,7 @@ function VideoGenerationSettings() {
                 min={VIDEO_SCENE_DURATION_MIN}
                 max={VIDEO_SCENE_DURATION_MAX}
                 onCommit={handleSceneDurationChange}
+                testId="video-scene-duration-input"
                 className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 text-xs"
                 ariaLabel="Scene video fallback length in seconds"
               />
@@ -4207,6 +4223,7 @@ function VideoGenerationSettings() {
                       min={VIDEO_CALL_CLIP_DURATION_MIN}
                       max={VIDEO_CALL_CLIP_DURATION_MAX}
                       onCommit={(duration) => handleCallClipDurationChange(kind, duration)}
+                      testId={`video-call-clip-${kind}-duration-input`}
                       className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--background)] px-1.5 py-1 text-xs"
                       ariaLabel={`${CONVERSATION_CALL_VIDEO_CLIP_LABELS[kind]} length in seconds`}
                     />
@@ -4232,6 +4249,7 @@ function VideoGenerationSettings() {
                   min={VIDEO_CALL_CLIP_DURATION_MIN}
                   max={VIDEO_CALL_CLIP_DURATION_MAX}
                   onCommit={handleCustomClipDurationChange}
+                  testId="video-call-custom-clip-duration-input"
                   className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--background)] px-1.5 py-1 text-xs"
                   ariaLabel="Custom call clip length in seconds"
                 />
@@ -4273,6 +4291,7 @@ function VideoGenerationSettings() {
                 min={VIDEO_ANIMATED_EXPRESSION_CLIP_DURATION_MIN}
                 max={VIDEO_ANIMATED_EXPRESSION_CLIP_DURATION_MAX}
                 onCommit={handleAnimatedExpressionDurationChange}
+                testId="video-animated-expression-duration-input"
                 className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 text-xs"
                 ariaLabel="Animated expression clip length in seconds"
               />
@@ -4922,6 +4941,7 @@ function AppearanceSettings() {
               onChange={handleAppBackgroundColorChange}
               gradient
               compact
+              testId="app-background-color-picker"
               label={localizeUi("settings.controls.backgroundColor.label")}
               helpText="Colors the main app shell background. Leave it on the scheme default to follow Dark and Light mode automatically. Gradients are supported for the shell paint."
               emptyText={localizeUi("ui.panels.trackerpanelappearancedrawer.defaultValue1", {
@@ -4938,6 +4958,7 @@ function AppearanceSettings() {
               onChange={handleAppAccentColorChange}
               gradient
               compact
+              testId="app-accent-color-picker"
               label={localizeUi("settings.controls.accentColor.label")}
               helpText="Colors the shared app accent layer: buttons, active icons, focus rings, highlights, panel outlines, and chat chrome. Accent Pulse animates this selected color."
               emptyText={localizeUi("ui.panels.trackerpanelappearancedrawer.defaultValue1", {
@@ -5107,6 +5128,7 @@ function AppearanceSettings() {
               onChange={setChatFontColor}
               gradient
               compact
+              testId="chat-text-color-picker"
               label={localizeUi("settings.colors.chatText")}
               helpText="Controls the main chat message text color. Leave it on the scheme default to keep dark and light mode readable. Gradients are accepted for layouts that support them."
               emptyText={localizeUi("ui.panels.appearancesettings.schemeDefaultValue1", {
@@ -5122,6 +5144,7 @@ function AppearanceSettings() {
               value={defaultDialogueColor}
               onChange={setDefaultDialogueColor}
               compact
+              testId="default-dialogue-color-picker"
               label={localizeUi("settings.colors.defaultDialogue")}
               helpText="Colors dialogue for character and persona cards that do not have their own Dialogue Highlight Color. A card's own dialogue color always overrides it."
               emptyText={localizeUi("ui.panels.appearancesettings.schemeDefaultValue1", {
@@ -5138,6 +5161,7 @@ function AppearanceSettings() {
               onChange={setChatChromeTextColor}
               gradient
               compact
+              testId="chat-chrome-text-color-picker"
               label={localizeUi("settings.colors.chatChrome")}
               helpText="Controls ordinary chrome copy in tracker widgets, folder labels, settings descriptors, and windows opened from chat buttons. Accent-colored button text and active icons follow Accent Color instead. Gradients use a compatible fallback where plain CSS color is required."
               emptyText={localizeUi("ui.panels.appearancesettings.schemeDefaultValue1", {
@@ -5159,6 +5183,7 @@ function AppearanceSettings() {
               value={textStrokeColor || "#000000"}
               onChange={(value) => setTextStrokeColor(value || "#000000")}
               compact
+              testId="text-outline-color-picker"
               label={localizeUi("settings.colors.textOutline")}
               helpText="Controls the outline color used when text stroke width is above 0."
               clearLabel="Reset to default"
@@ -8675,6 +8700,7 @@ function AdvancedSettings() {
               checked={agentImportPolicy?.enabled ?? false}
               onChange={(enabled) => void handleAgentImportsToggle(enabled)}
               disabled={agentImportPolicyLoading || setAgentImportsEnabled.isPending}
+              testId="agent-imports-toggle"
               help={t("settings.agentImports.toggle.help")}
             />
             <div className="flex items-start gap-2 text-[0.6875rem] leading-relaxed text-[var(--primary)]">
@@ -8686,6 +8712,7 @@ function AdvancedSettings() {
               label={t("settings.externalExtensions.toggle.label")}
               checked={extensionPolicy?.externalExtensionsEnabled ?? false}
               onChange={(enabled) => void handleExternalExtensionsToggle(enabled)}
+              testId="external-extensions-toggle"
               disabled={
                 extensionPolicyLoading ||
                 setExternalExtensionsEnabled.isPending ||

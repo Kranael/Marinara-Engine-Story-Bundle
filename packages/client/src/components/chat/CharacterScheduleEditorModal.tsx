@@ -687,6 +687,7 @@ export function CharacterScheduleEditorModal({
                   type="button"
                   onClick={generateSummary}
                   disabled={isGeneratingSummary || isGeneratingWeek || !!generatingDay}
+                  data-testid="schedule-generate-summary-button"
                   className="inline-flex shrink-0 items-center justify-center gap-1.5 self-end rounded-md bg-[var(--background)] px-3 py-2 text-xs font-semibold ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isGeneratingSummary ? (
@@ -750,6 +751,7 @@ export function CharacterScheduleEditorModal({
                   onChange={(event) =>
                     updateTalkativeness(String(CHECK_IN_STYLES[Number(event.target.value)]?.value ?? 50))
                   }
+                  data-testid="schedule-talkativeness-input"
                   className="w-full accent-[var(--primary)]"
                   aria-label={localizeUi("ui.chat.characterscheduleeditormodal.chatTalkativeness")}
                 />
@@ -776,6 +778,7 @@ export function CharacterScheduleEditorModal({
                 step={5}
                 value={draft.inactivityThresholdMinutes}
                 onChange={(event) => updateSetting("inactivityThresholdMinutes", event.target.value)}
+                data-testid="schedule-inactivity-threshold-input"
                 className="w-full rounded-md bg-[var(--background)] px-3 py-2 outline-none ring-1 ring-[var(--border)] focus:ring-[var(--primary)]/50"
               />
               <div className="text-[0.6875rem] text-[var(--muted-foreground)]">
@@ -801,6 +804,7 @@ export function CharacterScheduleEditorModal({
                       title={option.hint}
                       onClick={() => toggleCheckInMoment(option.intent)}
                       aria-pressed={enabled}
+                      data-testid={`schedule-check-in-moment-${option.intent}-button`}
                       className={cn(
                         "rounded-md px-2.5 py-1.5 text-[0.6875rem] font-semibold ring-1 ring-[var(--border)] transition-colors",
                         enabled
@@ -831,6 +835,7 @@ export function CharacterScheduleEditorModal({
                   <select
                     value={draft.autonomousDailyCapOverride}
                     onChange={(event) => updateSetting("autonomousDailyCapOverride", event.target.value)}
+                    data-testid="schedule-daily-cap-select"
                     className="w-full rounded-md bg-[var(--secondary)] px-3 py-2 outline-none ring-1 ring-[var(--border)] focus:ring-[var(--primary)]/50"
                   >
                     <option value="">{localizeUi("ui.noodle.noodlehome.default")}</option>
@@ -856,6 +861,7 @@ export function CharacterScheduleEditorModal({
                     value={draft.idleResponseDelayMinutes}
                     placeholder={localizeUi("ui.noodle.noodlehome.default")}
                     onChange={(event) => updateSetting("idleResponseDelayMinutes", event.target.value)}
+                    data-testid="schedule-idle-delay-input"
                     className="w-full rounded-md bg-[var(--secondary)] px-3 py-2 outline-none ring-1 ring-[var(--border)] focus:ring-[var(--primary)]/50"
                   />
                   <div className="text-[0.6875rem] text-[var(--muted-foreground)]">
@@ -874,6 +880,7 @@ export function CharacterScheduleEditorModal({
                     value={draft.dndResponseDelayMinutes}
                     placeholder={localizeUi("ui.noodle.noodlehome.default")}
                     onChange={(event) => updateSetting("dndResponseDelayMinutes", event.target.value)}
+                    data-testid="schedule-dnd-delay-input"
                     className="w-full rounded-md bg-[var(--secondary)] px-3 py-2 outline-none ring-1 ring-[var(--border)] focus:ring-[var(--primary)]/50"
                   />
                   <div className="text-[0.6875rem] text-[var(--muted-foreground)]">
@@ -919,6 +926,7 @@ export function CharacterScheduleEditorModal({
                       key={option.value}
                       type="button"
                       onClick={() => setWeekDraftMode(option.value)}
+                      data-testid={`schedule-week-mode-${option.value}-button`}
                       className={cn(
                         "rounded-lg px-3 py-2 text-left text-xs ring-1 transition-colors",
                         selected
@@ -944,6 +952,7 @@ export function CharacterScheduleEditorModal({
                   placeholder={localizeUi(
                     "ui.chat.characterscheduleeditormodal.exampleMakeWeekdaysMoreNocturnalKeepWeekendsSocial",
                   )}
+                  data-testid="schedule-week-guidance-input"
                   className="w-full rounded-md bg-[var(--background)] px-3 py-2 outline-none ring-1 ring-[var(--border)] focus:ring-[var(--primary)]/50"
                 />
               </label>
@@ -951,6 +960,7 @@ export function CharacterScheduleEditorModal({
                 type="button"
                 onClick={generateWeek}
                 disabled={isGeneratingSummary || isGeneratingWeek || !!generatingDay}
+                data-testid="schedule-generate-week-button"
                 className="inline-flex items-center gap-1.5 rounded-md bg-[var(--background)] px-3 py-2 text-xs font-semibold ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isGeneratingWeek ? <Loader2 size="0.75rem" className="animate-spin" /> : <RefreshCw size="0.75rem" />}
@@ -1018,12 +1028,14 @@ export function CharacterScheduleEditorModal({
                             "ui.chat.characterscheduleeditormodal.exampleMakeValue1MoreSocialAfterDinner",
                             { value1: day },
                           )}
+                          data-testid={`schedule-day-guidance-${day}-input`}
                           className="w-full rounded-md bg-[var(--background)] px-3 py-2 outline-none ring-1 ring-[var(--border)] focus:ring-[var(--primary)]/50"
                         />
                         <button
                           type="button"
                           onClick={() => generateDay(day)}
                           disabled={isGeneratingSummary || isGeneratingWeek || !!generatingDay}
+                          data-testid={`schedule-generate-day-${day}-button`}
                           className="inline-flex items-center justify-center gap-1.5 rounded-md bg-[var(--background)] px-3 py-2 text-xs font-semibold ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {generatingDay === day ? (
@@ -1065,6 +1077,7 @@ export function CharacterScheduleEditorModal({
                                   "ui.chat.characterscheduleeditormodal.chooseValue1BlockStatusCurrentlyValue2",
                                   { value1: day, value2: STATUS_LABELS[status] },
                                 )}
+                                data-testid={`schedule-block-status-${day}-${index}-button`}
                                 className={cn(
                                   "inline-flex min-h-[2.125rem] shrink-0 items-center justify-center gap-1 border-r border-[var(--border)] px-2 text-[0.6875rem] font-medium transition-colors hover:bg-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]",
                                   isStatusMenuOpen && "bg-[var(--accent)]",
@@ -1081,6 +1094,7 @@ export function CharacterScheduleEditorModal({
                                 aria-label={localizeUi("ui.chat.characterscheduleeditormodal.value1BlockTimeRange", {
                                   value1: day,
                                 })}
+                                data-testid={`schedule-block-time-${day}-${index}-input`}
                                 className="min-h-[2.125rem] w-[7.75rem] shrink-0 border-r border-[var(--border)] bg-transparent px-2 py-1.5 font-mono text-xs text-[var(--foreground)]/88 outline-none placeholder:text-[var(--muted-foreground)]/55 max-sm:w-[6.75rem]"
                               />
                               <input
@@ -1113,6 +1127,7 @@ export function CharacterScheduleEditorModal({
                                           if (!selected) updateBlock(day, index, { status: option.value });
                                           setOpenStatusMenu(null);
                                         }}
+                                        data-testid={`schedule-block-status-${day}-${index}-${option.value}-button`}
                                         className={cn(
                                           "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.6875rem] transition-colors",
                                           selected
@@ -1132,6 +1147,7 @@ export function CharacterScheduleEditorModal({
                           <button
                             type="button"
                             onClick={() => removeBlock(day, index)}
+                            data-testid={`schedule-block-remove-${day}-${index}-button`}
                             className="flex h-10 w-10 items-center justify-center self-end rounded-md text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
                             title={localizeUi("ui.chat.characterscheduleeditormodal.removeBlock")}
                           >
@@ -1144,6 +1160,7 @@ export function CharacterScheduleEditorModal({
                       <button
                         type="button"
                         onClick={() => addBlock(day)}
+                        data-testid={`schedule-add-block-${day}-button`}
                         className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
                       >
                         <Plus size="0.75rem" /> {localizeUi("ui.chat.characterscheduleeditormodal.addBlock")}

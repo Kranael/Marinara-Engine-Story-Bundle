@@ -87,6 +87,7 @@ export function ConversationTimeZoneSelect({ className, compact = false }: Conve
       >
         <select
           id={selectId}
+          data-testid="conversation-timezone-select"
           value={conversationTimeZone}
           disabled={isSaving}
           onChange={(event) => selectTimeZone(event.target.value)}
@@ -105,6 +106,7 @@ export function ConversationTimeZoneSelect({ className, compact = false }: Conve
         {conversationTimeZone !== detectedTimeZone && (
           <button
             type="button"
+            data-testid="conversation-timezone-use-device-button"
             disabled={isSaving}
             onClick={() => selectTimeZone(detectedTimeZone)}
             className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-[0.6875rem] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-wait disabled:opacity-60"

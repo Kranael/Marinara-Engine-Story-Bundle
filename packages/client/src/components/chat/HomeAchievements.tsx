@@ -279,6 +279,7 @@ export function HomeAchievements({
       {showLauncher ? (
         <button
           type="button"
+          data-testid="home-achievements-open-button"
           onClick={() => setOpen(true)}
           className={cn(
             "group text-left",

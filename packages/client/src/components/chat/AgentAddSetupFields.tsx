@@ -490,6 +490,7 @@ function SetupTextarea({
   rows,
   disabled,
   onChange,
+  testId,
 }: {
   label: string;
   value: string;
@@ -497,6 +498,7 @@ function SetupTextarea({
   rows?: number;
   disabled?: boolean;
   onChange: (value: string) => void;
+  testId?: string;
 }) {
   return (
     <label className="flex flex-col gap-1">
@@ -507,6 +509,7 @@ function SetupTextarea({
         rows={rows ?? 3}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
+        data-testid={testId}
         className="min-h-[3.25rem] w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs leading-relaxed text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)]/45 focus:border-[var(--primary)]/50 disabled:cursor-not-allowed disabled:opacity-60"
       />
     </label>
@@ -519,12 +522,14 @@ function SetupToggle({
   enabled,
   disabled,
   onToggle,
+  testId,
 }: {
   label: string;
   description: string;
   enabled: boolean;
   disabled?: boolean;
   onToggle: () => void;
+  testId?: string;
 }) {
   return (
     <SettingsSwitch
@@ -533,6 +538,7 @@ function SetupToggle({
       checked={enabled}
       onChange={onToggle}
       disabled={disabled}
+      testId={testId}
       labelPosition="start"
       className={cn(
         "w-full justify-between rounded-md px-3 py-2.5 text-left",
@@ -550,11 +556,13 @@ function PromptTemplateSelect({
   value,
   disabled,
   onChange,
+  testId,
 }: {
   options: AgentPromptTemplateOption[];
   value: string;
   disabled?: boolean;
   onChange: (value: string) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   if (options.length <= 1) return null;
@@ -567,6 +575,7 @@ function PromptTemplateSelect({
           value={activeOption?.id ?? DEFAULT_AGENT_PROMPT_TEMPLATE_ID}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
+          data-testid={testId}
           className="w-full rounded-md bg-[var(--secondary)] px-2 py-1.5 text-[0.6875rem] text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {options.map((option) => (
@@ -618,6 +627,7 @@ function KnowledgeSourceFields({
         enabled={settings.useChatActiveLorebooks !== false}
         disabled={disabled}
         onToggle={() => onChange({ useChatActiveLorebooks: settings.useChatActiveLorebooks === false })}
+        testId="agent-setup-knowledge-use-chat-lorebooks-toggle"
       />
 
       <div className="space-y-1.5">
@@ -638,6 +648,7 @@ function KnowledgeSourceFields({
                         : [...sourceLorebookIds, lorebook.id],
                     })
                   }
+                  data-testid={`agent-setup-knowledge-lorebook-${lorebook.id}-button`}
                   className={cn(
                     "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-all disabled:cursor-not-allowed disabled:opacity-60",
                     selected
@@ -694,6 +705,7 @@ function KnowledgeSourceFields({
                           : [...sourceFileIds, source.id],
                       })
                     }
+                    data-testid={`agent-setup-knowledge-source-${source.id}-button`}
                     className={cn(
                       "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-all disabled:cursor-not-allowed disabled:opacity-60",
                       selected
@@ -732,6 +744,7 @@ function KnowledgeSourceFields({
             type="file"
             accept=".txt,.md,.csv,.json,.xml,.html,.htm,.log,.yaml,.yml,.tsv,.pdf"
             className="hidden"
+            data-testid="agent-setup-knowledge-file-input"
             onChange={async (event) => {
               const file = event.target.files?.[0];
               if (!file) return;
@@ -752,6 +765,7 @@ function KnowledgeSourceFields({
             type="button"
             disabled={disabled || uploadSource.isPending}
             onClick={() => fileInputRef.current?.click()}
+            data-testid="agent-setup-knowledge-upload-button"
             className={cn(
               "flex w-full items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs font-medium transition-all",
               uploadSource.isPending
@@ -781,10 +795,12 @@ function SpriteDisplayModeToggle({
   modes,
   disabled,
   onToggle,
+  testIdPrefix,
 }: {
   modes: readonly SpriteDisplayMode[];
   disabled?: boolean;
   onToggle: (mode: SpriteDisplayMode) => void;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const options: Array<{ id: SpriteDisplayMode; label: string }> = [
@@ -812,6 +828,7 @@ function SpriteDisplayModeToggle({
               type="button"
               onClick={() => onToggle(option.id)}
               disabled={disabled || isLastActive}
+              data-testid={testIdPrefix ? `${testIdPrefix}-${option.id}-button` : undefined}
               className={cn(
                 "min-w-0 px-2.5 py-1.5 text-[0.625rem] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
                 index > 0 && "border-l border-[var(--border)]",
@@ -838,6 +855,7 @@ function SpriteRangeSlider({
   suffix,
   disabled,
   onChange,
+  testId,
 }: {
   label: string;
   value: number;
@@ -847,6 +865,7 @@ function SpriteRangeSlider({
   suffix: string;
   disabled?: boolean;
   onChange: (value: number) => void;
+  testId?: string;
 }) {
   return (
     <label className="flex min-w-0 flex-col gap-1.5 rounded-lg bg-[var(--secondary)]/50 px-2.5 py-2 text-[0.625rem] text-[var(--muted-foreground)]">
@@ -865,6 +884,7 @@ function SpriteRangeSlider({
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
+        data-testid={testId}
         className="h-8 w-full cursor-pointer accent-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
       />
     </label>
@@ -916,13 +936,19 @@ function ExpressionSetupFields({
 
   return (
     <div className="space-y-2.5 rounded-lg bg-[var(--background)]/65 px-3 py-2.5 ring-1 ring-[var(--border)]">
-      <SpriteDisplayModeToggle modes={value.spriteDisplayModes} disabled={disabled} onToggle={toggleDisplayMode} />
+      <SpriteDisplayModeToggle
+        modes={value.spriteDisplayModes}
+        disabled={disabled}
+        onToggle={toggleDisplayMode}
+        testIdPrefix="agent-setup-sprite-display-mode"
+      />
       <SetupToggle
         label={localizeUi("ui.chat.expressionsetupfields.expressionAvatars")}
         description={localizeUi("ui.chat.expressionsetupfields.replaceMessageAvatarsWithTheSelectedExpressionSprite")}
         enabled={value.expressionAvatarsEnabled}
         disabled={disabled}
         onToggle={() => onChange({ expressionAvatarsEnabled: !value.expressionAvatarsEnabled })}
+        testId="agent-setup-expression-avatars-toggle"
       />
 
       <div className="space-y-1.5">
@@ -937,6 +963,7 @@ function ExpressionSetupFields({
                   type="button"
                   disabled={disabled}
                   onClick={() => toggleSprite(subject.id)}
+                  data-testid={`agent-setup-sprite-owner-${subject.id}-button`}
                   className={cn(
                     "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-all disabled:cursor-not-allowed disabled:opacity-50",
                     active
@@ -994,6 +1021,7 @@ function ExpressionSetupFields({
                 type="button"
                 disabled={disabled}
                 onClick={() => onChange({ spritePosition: side })}
+                data-testid={`agent-setup-sprite-position-${side}-button`}
                 className={cn(
                   "px-2.5 py-1 text-[0.625rem] font-medium capitalize transition-colors disabled:cursor-not-allowed disabled:opacity-60",
                   side === "left" ? "rounded-l-md" : "rounded-r-md",
@@ -1020,6 +1048,7 @@ function ExpressionSetupFields({
               const clampedPercent = clampSpriteDisplayPercent(percent);
               onChange({ spriteScale: clampedPercent / 100, expressionSpriteScale: clampedPercent / 100 });
             }}
+            testId="agent-setup-expression-size-input"
           />
           <SpriteRangeSlider
             label={localizeUi("ui.chat.expressionsetupfields.fullBodySize")}
@@ -1030,6 +1059,7 @@ function ExpressionSetupFields({
             suffix="%"
             disabled={disabled}
             onChange={(percent) => onChange({ fullBodySpriteScale: clampSpriteDisplayPercent(percent) / 100 })}
+            testId="agent-setup-full-body-size-input"
           />
           <SpriteRangeSlider
             label={localizeUi("ui.chat.expressionsetupfields.expressionOpacity")}
@@ -1043,6 +1073,7 @@ function ExpressionSetupFields({
               const clampedPercent = clampSpriteOpacityPercent(percent);
               onChange({ spriteOpacity: clampedPercent / 100, expressionSpriteOpacity: clampedPercent / 100 });
             }}
+            testId="agent-setup-expression-opacity-input"
           />
           <SpriteRangeSlider
             label={localizeUi("ui.chat.expressionsetupfields.fullBodyOpacity")}
@@ -1053,6 +1084,7 @@ function ExpressionSetupFields({
             suffix="%"
             disabled={disabled}
             onChange={(percent) => onChange({ fullBodySpriteOpacity: clampSpriteOpacityPercent(percent) / 100 })}
+            testId="agent-setup-full-body-opacity-input"
           />
         </div>
       </div>
@@ -1127,6 +1159,7 @@ function MusicDjSetupFields({
                   spotifyArtist: next === "artist" ? value.spotifyArtist : "",
                 });
               }}
+              data-testid="agent-setup-music-spotify-source-select"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {SPOTIFY_SOURCE_OPTIONS.map((option) => (
@@ -1156,6 +1189,7 @@ function MusicDjSetupFields({
                       spotifyPlaylistName: playlist?.name ?? null,
                     });
                   }}
+                  data-testid="agent-setup-music-spotify-playlist-select"
                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <option value="">{localizeUi("ui.chat.musicdjsetupfields.choosePlaylist")}</option>
@@ -1184,6 +1218,7 @@ function MusicDjSetupFields({
                       ? localizeUi("ui.chat.musicdjsetupfields.loadingPlaylists")
                       : localizeUi("ui.chat.musicdjsetupfields.pastePlaylistId")
                   }
+                  data-testid="agent-setup-music-spotify-playlist-id-input"
                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 disabled:cursor-not-allowed disabled:opacity-60"
                 />
               )}
@@ -1203,6 +1238,7 @@ function MusicDjSetupFields({
                 disabled={disabled}
                 onChange={(event) => onChange({ spotifyArtist: event.target.value })}
                 placeholder={localizeUi("ui.chat.musicdjsetupfields.hoyoMix")}
+                data-testid="agent-setup-music-spotify-artist-input"
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
@@ -1220,6 +1256,7 @@ function MusicDjSetupFields({
               value={value.customMusicSource}
               disabled={disabled}
               onChange={(event) => onChange({ customMusicSource: event.target.value as CustomMusicSource })}
+              data-testid="agent-setup-music-custom-source-select"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <option value="game-assets">{localizeUi("game.toolbar.assets")}</option>
@@ -1241,12 +1278,14 @@ function MusicDjSetupFields({
                     })
                   }
                   placeholder={localizeUi("ui.agents.agenteditor.noFolderSelected")}
+                  data-testid="agent-setup-music-custom-folder-input"
                   className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 font-mono text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 disabled:cursor-not-allowed disabled:opacity-60"
                 />
                 <button
                   type="button"
                   disabled={disabled}
                   onClick={() => void selectCustomMusicFolder()}
+                  data-testid="agent-setup-music-choose-folder-button"
                   className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--muted)] px-3 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <FolderOpen size="0.75rem" />
@@ -1266,6 +1305,7 @@ function MusicDjSetupFields({
                 onChange={(event) => onChange({ customMusicFolder: event.target.value })}
                 onBlur={() => onChange({ customMusicFolder: normalizeCustomMusicFolder(value.customMusicFolder) })}
                 placeholder={localizeUi("ui.agents.agenteditor.music")}
+                data-testid="agent-setup-music-game-assets-folder-input"
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 font-mono text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 disabled:cursor-not-allowed disabled:opacity-60"
               />
               <span className="text-[0.5625rem] text-[var(--muted-foreground)]">
@@ -1302,6 +1342,7 @@ function HapticSetupFields({
         enabled={value.hapticFeedbackEnabled}
         disabled={disabled}
         onToggle={() => onChange({ hapticFeedbackEnabled: !value.hapticFeedbackEnabled })}
+        testId="agent-setup-haptic-feedback-toggle"
       />
       {value.hapticFeedbackEnabled && (
         <>
@@ -1314,6 +1355,7 @@ function HapticSetupFields({
                   type="button"
                   disabled={disabled}
                   onClick={() => onChange({ hapticSensitivity: option.id })}
+                  data-testid={`agent-setup-haptic-sensitivity-${option.id}-button`}
                   className={cn(
                     "rounded-md px-2 py-1.5 text-[0.625rem] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60",
                     value.hapticSensitivity === option.id
@@ -1333,6 +1375,7 @@ function HapticSetupFields({
             enabled={value.hapticIncidentalContact}
             disabled={disabled}
             onToggle={() => onChange({ hapticIncidentalContact: !value.hapticIncidentalContact })}
+            testId="agent-setup-haptic-incidental-contact-toggle"
           />
           <label className="flex flex-col gap-1">
             <SetupLabel>{localizeUi("ui.chat.hapticsetupfields.intifaceUrl")}</SetupLabel>
@@ -1341,6 +1384,7 @@ function HapticSetupFields({
               disabled={disabled}
               onChange={(event) => onChange({ hapticIntifaceUrl: event.target.value })}
               placeholder={localizeUi("ui.chat.hapticsetupfields.ws12700112345")}
+              data-testid="agent-setup-haptic-intiface-url-input"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
@@ -1394,6 +1438,7 @@ export function AgentAddSetupFields({
         value={value.promptTemplateId}
         disabled={disabled}
         onChange={(promptTemplateId) => onChange({ promptTemplateId })}
+        testId="agent-setup-prompt-template-select"
       />
 
       {agentId === "illustrator" && (
@@ -1406,6 +1451,7 @@ export function AgentAddSetupFields({
             enabled={value.includeCharacterAppearance}
             disabled={disabled}
             onToggle={() => onChange({ includeCharacterAppearance: !value.includeCharacterAppearance })}
+            testId="agent-setup-illustrator-attach-appearance-toggle"
           />
           <SetupToggle
             label={localizeUi("ui.chat.agentaddsetupfields.sendAvatarReferences")}
@@ -1413,6 +1459,7 @@ export function AgentAddSetupFields({
             enabled={value.useAvatarReferences}
             disabled={disabled}
             onToggle={() => onChange({ useAvatarReferences: !value.useAvatarReferences })}
+            testId="agent-setup-illustrator-avatar-references-toggle"
           />
         </div>
       )}
@@ -1429,6 +1476,7 @@ export function AgentAddSetupFields({
               enabled={value.secretPlotEnabled}
               disabled={disabled}
               onToggle={() => onChange({ secretPlotEnabled: !value.secretPlotEnabled })}
+              testId="agent-setup-director-secret-plot-toggle"
             />
           )}
           {allowSecretPlotControls && value.secretPlotEnabled && (
@@ -1450,6 +1498,7 @@ export function AgentAddSetupFields({
                       ),
                     })
                   }
+                  data-testid="agent-setup-director-secret-plot-interval-input"
                   className="w-24 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs tabular-nums text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
                 />
                 <span className="text-[0.625rem] text-[var(--muted-foreground)]">
@@ -1471,6 +1520,7 @@ export function AgentAddSetupFields({
               rows={2}
               disabled={disabled}
               onChange={(proseGuardianBanned) => onChange({ proseGuardianBanned })}
+              testId="agent-setup-prose-guardian-banned-textarea"
             />
             <SetupTextarea
               label={localizeUi("ui.agents.agenteditor.preferInWriting")}
@@ -1479,6 +1529,7 @@ export function AgentAddSetupFields({
               rows={2}
               disabled={disabled}
               onChange={(proseGuardianPrefer) => onChange({ proseGuardianPrefer })}
+              testId="agent-setup-prose-guardian-prefer-textarea"
             />
           </div>
           <SetupTextarea
@@ -1488,6 +1539,7 @@ export function AgentAddSetupFields({
             rows={3}
             disabled={disabled}
             onChange={(proseGuardianAvoid) => onChange({ proseGuardianAvoid })}
+            testId="agent-setup-prose-guardian-avoid-textarea"
           />
         </div>
       )}
@@ -1503,6 +1555,7 @@ export function AgentAddSetupFields({
           enabled={value.holdForRewrite}
           disabled={disabled}
           onToggle={() => onChange({ holdForRewrite: !value.holdForRewrite })}
+          testId="agent-setup-hold-for-rewrite-toggle"
         />
       )}
 
@@ -1514,6 +1567,7 @@ export function AgentAddSetupFields({
               value={value.lorebookKeeperTargetLorebookId}
               disabled={disabled}
               onChange={(event) => onChange({ lorebookKeeperTargetLorebookId: event.target.value })}
+              data-testid="agent-setup-lorebook-keeper-target-select"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <option value="">{localizeUi("ui.chat.agentaddsetupfields.autoSelectFirstWritableLorebook")}</option>
@@ -1538,6 +1592,7 @@ export function AgentAddSetupFields({
                   lorebookKeeperReadBehindMessages: normalizeNonNegativeInteger(event.target.value, 0, 100),
                 })
               }
+              data-testid="agent-setup-lorebook-keeper-read-behind-input"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>

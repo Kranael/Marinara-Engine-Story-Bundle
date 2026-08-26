@@ -253,11 +253,13 @@ function hslToHex(hue: number, saturation: number, lightness: number) {
 }
 
 function MarinaraColorSliders({
+  testIdPrefix,
   value,
   onChange,
   onCommit,
   label,
 }: {
+  testIdPrefix?: string;
   value: string;
   onChange: (value: string, defer?: boolean) => void;
   onCommit: () => void;
@@ -313,6 +315,7 @@ function MarinaraColorSliders({
             onPointerUp={commit}
             onKeyUp={commit}
             onBlur={commit}
+            data-testid={testIdPrefix ? `${testIdPrefix}-${control.key}-slider` : undefined}
             className="h-1.5 w-full cursor-pointer accent-[var(--marinara-app-accent-solid)]"
           />
           <span className="text-right font-mono tabular-nums">
@@ -613,6 +616,7 @@ export function ColorPicker({
                     onChange={handleSolidChange}
                     onCommit={flushPendingChange}
                     label={localizeUi("ui.ui.colorpicker.pickValue1Color", { value1: label })}
+                    testIdPrefix={testId ? `${testId}-solid` : undefined}
                   />
                 ) : null}
 
@@ -722,6 +726,7 @@ export function ColorPicker({
                     onChange={(next, defer) => handleGradientStopChange(activeStop, next, defer)}
                     onCommit={flushPendingChange}
                     label={localizeUi("ui.ui.colorpicker.editColorStop", { index: activeStop + 1 })}
+                    testIdPrefix={testId ? `${testId}-stop-${activeStop}` : undefined}
                   />
                 ) : null}
               </div>

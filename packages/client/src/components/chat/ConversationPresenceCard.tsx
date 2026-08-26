@@ -518,6 +518,7 @@ export function ConversationPresenceCard({
         ref={buttonRef}
         type="button"
         data-chat-help="identity"
+        data-testid="conversation-presence-identity-button"
         className={identityPillClass}
         title={title}
         onClick={() => {
@@ -622,6 +623,7 @@ export function ConversationPresenceCard({
                 <div className="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
+                    data-testid="conversation-presence-settings-button"
                     className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     title={localizeUi("ui.chat.conversationpresencecard.openAutonomousSettings")}
                     onClick={() => {
@@ -633,6 +635,7 @@ export function ConversationPresenceCard({
                   </button>
                   <button
                     type="button"
+                    data-testid="conversation-presence-refresh-button"
                     className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     title={localizeUi("ui.chat.conversationpresencecard.refreshStatus")}
                     onClick={() => void refreshStatuses()}
@@ -693,6 +696,7 @@ export function ConversationPresenceCard({
                           <div className="flex min-w-0 items-center gap-2">
                             <button
                               type="button"
+                              data-testid={`conversation-presence-${character.id}-profile-button`}
                               className="min-w-0 flex-1 truncate text-left text-sm font-medium text-[var(--foreground)] transition-colors hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
                               title={localizeUi("ui.chat.conversationpresencecard.openValue1Profile", {
                                 value1: character.name,
@@ -731,6 +735,7 @@ export function ConversationPresenceCard({
                                 statusButtonRefs.current[character.id] = node;
                               }}
                               type="button"
+                              data-testid={`conversation-presence-${character.id}-status-button`}
                               aria-haspopup="menu"
                               aria-expanded={isStatusMenuOpen}
                               className={cn(
@@ -750,6 +755,7 @@ export function ConversationPresenceCard({
                             ref={(node) => {
                               activityFieldRefs.current[character.id] = node;
                             }}
+                            data-testid={`conversation-presence-${character.id}-activity-textarea`}
                             value={isEditing ? draftActivity : primaryText}
                             disabled={updateMeta.isPending}
                             rows={1}
@@ -780,6 +786,7 @@ export function ConversationPresenceCard({
                           {isManual && (
                             <button
                               type="button"
+                              data-testid={`conversation-presence-${character.id}-clear-override-button`}
                               disabled={updateMeta.isPending}
                               className="shrink-0 border-l border-[var(--border)] px-2.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]/20 hover:text-[var(--foreground)] disabled:opacity-60"
                               title={localizeUi("ui.chat.conversationpresencecard.clearManualOverride")}
@@ -802,6 +809,7 @@ export function ConversationPresenceCard({
                       {canReplyNow && (
                         <button
                           type="button"
+                          data-testid={`conversation-presence-${character.id}-reply-now-button`}
                           disabled={!!replyNowCharacterId}
                           className="mt-2 inline-flex w-full items-center justify-center rounded-md bg-[var(--foreground)]/8 px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--foreground)]/78 ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--foreground)]/12 hover:text-[var(--foreground)] disabled:cursor-wait disabled:opacity-60"
                           onClick={() => void replyNow(character.id)}
@@ -834,6 +842,7 @@ export function ConversationPresenceCard({
                               <button
                                 key={option.status}
                                 type="button"
+                                data-testid={`conversation-presence-${character.id}-status-${option.status}-button`}
                                 role="menuitemradio"
                                 aria-checked={selected}
                                 disabled={updateMeta.isPending}

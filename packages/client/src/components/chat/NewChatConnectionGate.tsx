@@ -120,6 +120,7 @@ export function NewChatConnectionGate({ mode, onClose }: NewChatConnectionGatePr
               </p>
             </div>
             <button
+              data-testid="new-chat-connection-gate-close-button"
               onClick={onClose}
               className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
             >
@@ -141,6 +142,7 @@ export function NewChatConnectionGate({ mode, onClose }: NewChatConnectionGatePr
                   {localizeUi("ui.chat.newchatconnectiongate.createAConnectionFirstThenComeBackHereAnd")}
                 </p>
                 <button
+                  data-testid="new-chat-connection-gate-open-connections-button"
                   data-new-chat-open-connections
                   onClick={handleOpenConnections}
                   className="mari-chrome-control mari-chrome-control--primary mt-3 w-full text-xs"
@@ -155,6 +157,7 @@ export function NewChatConnectionGate({ mode, onClose }: NewChatConnectionGatePr
                   {localizeUi("ui.chat.conversationquicksetup.connection")}
                 </label>
                 <select
+                  data-testid="new-chat-connection-gate-connection-select"
                   value={connectionId}
                   onChange={(e) => setConnectionId(e.target.value)}
                   disabled={createChat.isPending}
@@ -173,12 +176,14 @@ export function NewChatConnectionGate({ mode, onClose }: NewChatConnectionGatePr
 
           <div className="flex shrink-0 items-center justify-between border-t border-[var(--border)] px-4 py-3">
             <button
+              data-testid="new-chat-connection-gate-cancel-button"
               onClick={onClose}
               className="rounded-lg px-3 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
             >
               {localizeUi("chat.delete.dialog.cancel")}
             </button>
             <button
+              data-testid="new-chat-connection-gate-create-button"
               onClick={handleCreate}
               disabled={showEmptyState || !connectionId || createChat.isPending}
               className={cn(

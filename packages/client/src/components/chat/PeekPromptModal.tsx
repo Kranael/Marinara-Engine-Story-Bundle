@@ -371,6 +371,7 @@ function CollapsibleBlock({
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--secondary)]/50 overflow-hidden">
       <button
+        data-testid="peek-prompt-collapsible-block-toggle-button"
         onClick={() => setOpen(!open)}
         className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-[var(--accent)]/50"
       >
@@ -419,6 +420,7 @@ function ChatHistorySection({
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--secondary)]/50 overflow-hidden">
       <button
+        data-testid="peek-prompt-chat-history-toggle-button"
         onClick={() => setOpen(!open)}
         className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-[var(--accent)]/50"
       >
@@ -468,6 +470,7 @@ function ChatHistoryMessage({ entry, roleColor }: { entry: ChatHistoryEntry; rol
   return (
     <div className="rounded-md border border-[var(--border)]/30 bg-[var(--background)]/50 overflow-hidden">
       <button
+        data-testid="peek-prompt-chat-history-message-toggle-button"
         onClick={() => setOpen(!open)}
         className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--accent)]/30"
       >
@@ -576,6 +579,7 @@ export function PeekPromptModal({ data, onClose }: PeekPromptModalProps) {
             </span>
           </div>
           <button
+            data-testid="peek-prompt-modal-close-button"
             onClick={onClose}
             className="mari-chrome-control mari-chrome-control--small p-1.5"
             aria-label={localizeUi("ui.chat.peekpromptmodal.closeAssembledPrompt")}

@@ -860,6 +860,7 @@ export function ChatHelpOverlay({
           aria-label={[t(target.titleKey), t(target.bodyKey)].join(": ")}
           key={target.id}
           data-chat-help-highlight={target.id}
+          data-testid={`chat-help-highlight-${target.id}-button`}
           className={cn(
             "fixed rounded-lg bg-transparent ring-2 ring-[var(--marinara-chat-chrome-focus-ring)] shadow-[0_0_18px_color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_45%,transparent)] outline-none transition-[box-shadow,background-color] duration-150 focus-visible:bg-[color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_9%,transparent)] focus-visible:shadow-[0_0_30px_color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_72%,transparent)]",
             mobile
@@ -937,6 +938,7 @@ export function ChatHelpOverlay({
         {mobile ? (
           <button
             type="button"
+            data-testid="chat-help-mobile-instruction-button"
             className="pointer-events-auto flex max-w-[calc(100vw-1.5rem)] items-center gap-2 rounded-lg border border-[var(--marinara-chat-chrome-button-border-active)] bg-[var(--card)] px-3 py-2 text-left text-xs font-semibold leading-4 text-[var(--foreground)] shadow-lg"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={dismiss}
@@ -952,6 +954,7 @@ export function ChatHelpOverlay({
         )}
         <button
           type="button"
+          data-testid="chat-help-hide-permanently-button"
           className="mari-chrome-control pointer-events-auto min-h-7 px-2.5 text-[0.625rem] shadow-lg"
           onPointerDown={(event) => event.stopPropagation()}
           onClick={hideHelpButton}

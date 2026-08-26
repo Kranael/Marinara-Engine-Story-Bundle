@@ -54,6 +54,7 @@ export function ConversationMediaPickerPanel({
           <button
             key={tab.id}
             type="button"
+            data-testid={`conversation-media-picker-tab-${tab.id}-button`}
             onClick={() => onActiveTabChange(tab.id)}
             className={cn(
               "flex-1 rounded-md px-2 py-1 text-xs font-medium transition-colors",

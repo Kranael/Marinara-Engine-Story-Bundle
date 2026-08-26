@@ -237,6 +237,7 @@ function NotificationBubble({
     >
       {/* Dismiss button */}
       <button
+        data-testid={`notification-bubble-${notif.chatId}-dismiss-button`}
         onClick={(e) => {
           e.stopPropagation();
           if (isCall) onDeclineCall();
@@ -254,6 +255,7 @@ function NotificationBubble({
 
       {/* Avatar bubble */}
       <button
+        data-testid={`notification-bubble-${notif.chatId}-navigate-button`}
         onClick={onNavigate}
         className={cn(
           "relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full",
@@ -290,6 +292,7 @@ function NotificationBubble({
         <div className="absolute right-14 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-full bg-[var(--popover)] px-1.5 py-1 shadow-lg ring-1 ring-[var(--border)]">
           <button
             type="button"
+            data-testid={`notification-bubble-${notif.chatId}-decline-call-button`}
             disabled={disabled}
             onClick={(event) => {
               event.stopPropagation();
@@ -302,6 +305,7 @@ function NotificationBubble({
           </button>
           <button
             type="button"
+            data-testid={`notification-bubble-${notif.chatId}-accept-call-button`}
             disabled={disabled}
             onClick={(event) => {
               event.stopPropagation();

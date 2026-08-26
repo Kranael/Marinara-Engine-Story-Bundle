@@ -265,6 +265,7 @@ export function CyoaChoices({ messages }: Props) {
         </div>
         <button
           type="button"
+          data-testid="cyoa-impersonate-toggle-button"
           aria-pressed={impersonateCyoaChoices}
           onClick={() => setImpersonateCyoaChoices(!impersonateCyoaChoices)}
           disabled={controlsBusy}
@@ -286,6 +287,7 @@ export function CyoaChoices({ messages }: Props) {
         </button>
         <button
           type="button"
+          data-testid="cyoa-edit-toggle-button"
           onClick={isEditing ? handleCancelEdit : handleStartEdit}
           disabled={controlsBusy}
           className="inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 py-1 text-[0.5625rem] text-[var(--foreground)]/60 transition-all hover:border-[var(--border)] hover:bg-[var(--muted)]/40 hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-black/35 dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white/80"
@@ -302,6 +304,7 @@ export function CyoaChoices({ messages }: Props) {
         </button>
         <button
           type="button"
+          data-testid="cyoa-reroll-button"
           onClick={() => {
             void handleReroll();
           }}
@@ -331,6 +334,7 @@ export function CyoaChoices({ messages }: Props) {
                 onChange={(e) => updateDraftChoice(index, "label", e.target.value)}
                 placeholder={localizeUi("ui.chat.cyoachoices.choiceValue1", { value1: index + 1 })}
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 px-3 py-2 text-[0.6875rem] font-semibold text-[var(--marinara-chat-chrome-panel-title)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] dark:border-white/10 dark:bg-black/35"
+                data-testid={`cyoa-draft-${index}-label-input`}
               />
               <textarea
                 value={choice.text}
@@ -338,12 +342,14 @@ export function CyoaChoices({ messages }: Props) {
                 rows={Math.min(Math.max(choice.text.split("\n").length, 2), 6)}
                 placeholder={localizeUi("ui.chat.cyoachoices.describeTheActionOrDialogueSentWhenThisChoice")}
                 className="mt-2 w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 px-3 py-2 text-[0.6875rem] leading-relaxed text-[var(--foreground)]/80 outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] dark:border-white/10 dark:bg-black/35 dark:text-white/75"
+                data-testid={`cyoa-draft-${index}-text-textarea`}
               />
             </div>
           ))}
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
+              data-testid="cyoa-edit-cancel-button"
               onClick={handleCancelEdit}
               disabled={updateMessageExtra.isPending}
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 px-3 py-1.5 text-[0.625rem] text-[var(--foreground)]/70 transition-colors hover:bg-[var(--muted)]/40 hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-black/35 dark:text-white/60"
@@ -353,6 +359,7 @@ export function CyoaChoices({ messages }: Props) {
             </button>
             <button
               type="button"
+              data-testid="cyoa-edit-save-button"
               onClick={() => {
                 void handleSaveChoices();
               }}
@@ -378,6 +385,7 @@ export function CyoaChoices({ messages }: Props) {
             <button
               key={i}
               type="button"
+              data-testid={`cyoa-choice-${i}-button`}
               onClick={() => handleChoice(choice.text)}
               disabled={isStreaming || isRerolling}
               className="group relative rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-4 py-2.5 text-left backdrop-blur-md transition-all hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:shadow-lg active:scale-[0.98] disabled:opacity-50 dark:border-white/10 dark:bg-black/50"

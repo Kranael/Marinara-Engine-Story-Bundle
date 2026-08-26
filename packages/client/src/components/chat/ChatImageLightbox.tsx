@@ -107,6 +107,7 @@ export function ChatImageLightbox({
             {pinEnabled && (
               <button
                 type="button"
+                data-testid="chat-image-lightbox-pin-button"
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={(event) => {
                   event.preventDefault();
@@ -126,6 +127,7 @@ export function ChatImageLightbox({
               <a
                 href={image.url}
                 download={getChatImageDownloadName(image)}
+                data-testid="chat-image-lightbox-download-link"
                 aria-label={localizeUi("ui.chat.chatgallery.downloadImage")}
                 className="rounded-lg bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
               >
@@ -135,6 +137,7 @@ export function ChatImageLightbox({
             <button
               type="button"
               ref={closeButtonRef}
+              data-testid="chat-image-lightbox-close-button"
               onClick={onClose}
               aria-label={localizeUi("ui.chat.chatimagelightbox.closeImage")}
               className="rounded-lg bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
@@ -217,6 +220,7 @@ export function ChatVideoLightbox({
             {pinEnabled && (
               <button
                 type="button"
+                data-testid="chat-video-lightbox-pin-button"
                 onPointerDown={(event) => event.stopPropagation()}
                 onClick={(event) => {
                   event.preventDefault();
@@ -236,6 +240,7 @@ export function ChatVideoLightbox({
               <a
                 href={video.url}
                 download={getSceneVideoDownloadName(video)}
+                data-testid="chat-video-lightbox-download-link"
                 aria-label={localizeUi("ui.chat.chatgallery.downloadVideo")}
                 className="rounded-lg bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
               >
@@ -245,6 +250,7 @@ export function ChatVideoLightbox({
             <button
               type="button"
               ref={closeButtonRef}
+              data-testid="chat-video-lightbox-close-button"
               onClick={onClose}
               aria-label={localizeUi("ui.chat.chatvideolightbox.closeVideo")}
               className="rounded-lg bg-black/60 p-2 text-white transition-colors hover:bg-black/80"

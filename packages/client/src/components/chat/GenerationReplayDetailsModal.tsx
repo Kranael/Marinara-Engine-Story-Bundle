@@ -83,6 +83,7 @@ function TextBlock({
         {copyValue && (
           <button
             type="button"
+            data-testid="generation-replay-details-copy-guided-button"
             onClick={() => void handleCopy()}
             className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-[var(--secondary)] px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             title={localizeUi("ui.chat.textblock.copyAsGuidedCommand")}

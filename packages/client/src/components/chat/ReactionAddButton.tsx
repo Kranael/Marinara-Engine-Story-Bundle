@@ -79,6 +79,7 @@ function ReactionPickerPanel({
             <button
               key={emoji.id}
               type="button"
+              data-testid={`reaction-add-emoji-${emoji.id}-button`}
               onClick={() => onPick(`:${emoji.name}:`, emoji.url)}
               title={localizeUi("ui.chat.conversationinput.value1", { value1: emoji.name })}
               className="flex aspect-square w-full items-center justify-center rounded-md p-1 transition-transform hover:scale-110 hover:bg-foreground/10 active:scale-100"

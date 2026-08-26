@@ -166,6 +166,7 @@ export function QuickPersonaSwitcher({ className }: { className?: string }) {
       <button
         type="button"
         key={persona.id}
+        data-testid={`quick-persona-switcher-persona-${persona.id}-button`}
         onClick={() => handleSwitch(persona.id)}
         className={cn(
           "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",
@@ -207,6 +208,7 @@ export function QuickPersonaSwitcher({ className }: { className?: string }) {
       <button
         type="button"
         ref={btnRef}
+        data-testid="quick-persona-switcher-toggle-button"
         onClick={() => setOpen((v) => !v)}
         title={
           activePersona
@@ -262,6 +264,7 @@ export function QuickPersonaSwitcher({ className }: { className?: string }) {
               {/* None option */}
               <button
                 type="button"
+                data-testid="quick-persona-switcher-none-button"
                 onClick={() => handleSwitch(null)}
                 className={cn(
                   "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",
@@ -295,6 +298,7 @@ export function QuickPersonaSwitcher({ className }: { className?: string }) {
                 return (
                   <div key={group.id}>
                     <button
+                      data-testid={`quick-persona-switcher-group-${group.id}-toggle-button`}
                       onClick={() => toggleGroup(group.id)}
                       className={cn(
                         "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",

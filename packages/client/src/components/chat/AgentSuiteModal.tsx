@@ -306,6 +306,7 @@ function DataBlock({
             setError(null);
           }}
           disabled={disabled}
+          data-testid={`agent-suite-block-${blockId}-ai-edit-button`}
           className={cn(
             "inline-flex min-h-7 shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[0.625rem] font-medium ring-1 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50",
             aiOpen
@@ -331,6 +332,7 @@ function DataBlock({
         disabled={disabled || busy}
         rows={Math.min(14, Math.max(3, currentText.split("\n").length))}
         spellCheck={false}
+        data-testid={`agent-suite-block-${blockId}-textarea`}
         className="mt-2 w-full resize-y rounded-md border border-[var(--input)] bg-[var(--secondary)]/45 px-2 py-1.5 font-mono text-[0.625rem] leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--ring)] focus:ring-1 focus:ring-[var(--ring)] disabled:opacity-60"
       />
 
@@ -359,11 +361,13 @@ function DataBlock({
             maxLength={4000}
             placeholder={localizeUi("ui.chat.datablock.howShouldThisTextChangeEGFixThe")}
             spellCheck={false}
+            data-testid={`agent-suite-block-${blockId}-instruction-textarea`}
             className="w-full resize-y rounded-md border border-[var(--input)] bg-[var(--background)]/60 px-2 py-1.5 text-[0.625rem] leading-relaxed text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-1 focus:ring-[var(--ring)]"
           />
           <button
             type="button"
             onClick={() => setContextOpen((open) => !open)}
+            data-testid={`agent-suite-block-${blockId}-add-context-button`}
             className="inline-flex min-h-7 items-center gap-1 rounded-md border border-[var(--border)]/70 bg-[var(--secondary)]/45 px-2 py-1 text-[0.625rem] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
             title={localizeUi("ui.chat.datablock.attachCharacterCardsOrLorebookEntriesSoTheModel")}
           >
@@ -381,6 +385,7 @@ function DataBlock({
             <select
               value={rewriteConnectionId}
               onChange={(event) => onRewriteConnectionChange(event.target.value)}
+              data-testid={`agent-suite-block-${blockId}-connection-select`}
               className="min-w-0 flex-1 rounded-md bg-[var(--secondary)] px-2 py-1.5 text-[0.625rem] outline-none ring-1 ring-[var(--border)] transition-shadow focus:ring-[var(--primary)]/40"
             >
               {connectionOptions.length === 0 && (
@@ -397,6 +402,7 @@ function DataBlock({
               type="button"
               onClick={handleRewrite}
               disabled={disabled || rewrite.isPending || !instruction.trim() || !rewriteConnectionId}
+              data-testid={`agent-suite-block-${blockId}-rewrite-button`}
               className="inline-flex min-h-7 items-center gap-1 rounded-md bg-[var(--primary)] px-2.5 py-1 text-[0.625rem] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {rewrite.isPending ? <Loader2 size="0.6875rem" className="animate-spin" /> : <Wand2 size="0.6875rem" />}
@@ -417,6 +423,7 @@ function DataBlock({
             setSelection(null);
           }}
           disabled={!isDirty || busy}
+          data-testid={`agent-suite-block-${blockId}-reset-button`}
           className="inline-flex min-h-7 items-center gap-1 rounded-md border border-[var(--border)] px-2 py-1 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <RotateCcw size="0.625rem" />
@@ -426,6 +433,7 @@ function DataBlock({
           type="button"
           onClick={handleSave}
           disabled={disabled || !isDirty || busy}
+          data-testid={`agent-suite-block-${blockId}-save-button`}
           className="inline-flex min-h-7 items-center gap-1 rounded-md bg-[var(--primary)] px-2.5 py-1 text-[0.625rem] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? <Loader2 size="0.625rem" className="animate-spin" /> : <Save size="0.625rem" />}
@@ -812,6 +820,7 @@ export function AgentSuiteModal({ chat, open, onClose, onCloseGuardChange, agent
                       type="checkbox"
                       checked={contextSelection.has(source.key)}
                       onChange={() => toggleContextSource(source.key)}
+                      data-testid={`agent-suite-context-source-${source.key}-checkbox`}
                       className="h-3 w-3 shrink-0 accent-[var(--primary)]"
                     />
                     <span className="min-w-0 flex-1 truncate">{source.display}</span>
@@ -852,6 +861,7 @@ export function AgentSuiteModal({ chat, open, onClose, onCloseGuardChange, agent
       title={localizeUi("ui.chat.agentsuitemodal.agentSuite")}
       width="max-w-3xl"
       chatFloatingPanel
+      testId="agent-suite-modal"
     >
       {agents.length === 0 ? (
         <div className="rounded-lg border border-dashed border-[var(--border)] px-3 py-6 text-center text-[0.6875rem] text-[var(--muted-foreground)]">
@@ -864,6 +874,7 @@ export function AgentSuiteModal({ chat, open, onClose, onCloseGuardChange, agent
             <select
               value={effectiveAgentId ?? ""}
               onChange={(event) => selectAgent(event.target.value)}
+              data-testid="agent-suite-agent-select"
               className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs outline-none ring-1 ring-[var(--border)] transition-shadow focus:ring-[var(--primary)]/40 sm:hidden"
             >
               {agents.map((agent) => (
@@ -878,6 +889,7 @@ export function AgentSuiteModal({ chat, open, onClose, onCloseGuardChange, agent
                   key={agent.id}
                   type="button"
                   onClick={() => selectAgent(agent.id)}
+                  data-testid={`agent-suite-agent-${agent.id}-button`}
                   className={cn(
                     "flex w-full flex-col rounded-lg px-2.5 py-2 text-left transition-all",
                     agent.id === effectiveAgentId
@@ -924,6 +936,7 @@ export function AgentSuiteModal({ chat, open, onClose, onCloseGuardChange, agent
                         <button
                           type="button"
                           onClick={() => setSpoilersRevealed((v) => !v)}
+                          data-testid="agent-suite-reveal-spoilers-button"
                           className="inline-flex min-h-7 items-center gap-1 rounded-md border border-[var(--border)] px-2 py-1 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
                         >
                           {spoilersRevealed ? <EyeOff size="0.625rem" /> : <Eye size="0.625rem" />}
@@ -937,6 +950,7 @@ export function AgentSuiteModal({ chat, open, onClose, onCloseGuardChange, agent
                           type="button"
                           onClick={clearAgentMemory}
                           disabled={isAgentProcessing}
+                          data-testid="agent-suite-clear-memory-button"
                           className="inline-flex min-h-7 items-center gap-1 rounded-md border border-[var(--border)] px-2 py-1 text-[0.625rem] text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/15 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           <Trash2 size="0.625rem" />

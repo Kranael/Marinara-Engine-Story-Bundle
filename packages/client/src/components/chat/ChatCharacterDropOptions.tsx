@@ -112,6 +112,7 @@ export function ChatCharacterDropOptions({
             <label className="flex items-center gap-2 text-sm font-semibold">
               <input
                 type="checkbox"
+                data-testid="chat-drop-options-add-greeting-checkbox"
                 checked={addGreeting}
                 onChange={(event) => setAddGreeting(event.target.checked)}
                 className="h-4 w-4 accent-[var(--primary)]"
@@ -131,6 +132,7 @@ export function ChatCharacterDropOptions({
                     <button
                       key={`${greeting.alternateIndex ?? "first"}:${greeting.text.slice(0, 32)}`}
                       type="button"
+                      data-testid={`chat-drop-options-greeting-${index}-button`}
                       onClick={() => setSelectedIndex(index)}
                       aria-pressed={selected}
                       className={cn(
@@ -182,6 +184,7 @@ export function ChatCharacterDropOptions({
               <label key={lorebook.id} className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
+                  data-testid={`chat-drop-options-lorebook-${lorebook.id}-checkbox`}
                   checked={!excludedIds.includes(lorebook.id)}
                   onChange={(event) =>
                     setExcludedIds((current) =>
@@ -199,6 +202,7 @@ export function ChatCharacterDropOptions({
         <div className="flex justify-end gap-2">
           <button
             type="button"
+            data-testid="chat-drop-options-skip-button"
             onClick={onClose}
             disabled={saving}
             className="rounded-md border border-[var(--border)] px-3 py-1.5 text-xs"
@@ -207,6 +211,7 @@ export function ChatCharacterDropOptions({
           </button>
           <button
             type="button"
+            data-testid="chat-drop-options-confirm-button"
             onClick={() => void confirm()}
             disabled={saving}
             className="rounded-md bg-[var(--primary)] px-3 py-1.5 text-xs font-semibold text-[var(--primary-foreground)]"

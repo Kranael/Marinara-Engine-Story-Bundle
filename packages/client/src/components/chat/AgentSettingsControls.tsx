@@ -14,15 +14,18 @@ export function AgentSettingsActionButton({
   iconOnly = false,
   className,
   type = "button",
+  testId,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "default" | "primary" | "danger";
   iconOnly?: boolean;
+  testId?: string;
 }) {
   return (
     <button
       {...props}
       type={type}
+      data-testid={testId}
       className={cn(
         "mari-agent-settings-action",
         variant === "primary" && "mari-agent-settings-action--primary",
@@ -40,6 +43,7 @@ export function AgentCategorySection({
   description,
   count,
   openRequest = false,
+  testId,
   children,
 }: {
   label: string;
@@ -47,6 +51,7 @@ export function AgentCategorySection({
   description: string;
   count?: number;
   openRequest?: boolean;
+  testId?: string;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -57,6 +62,7 @@ export function AgentCategorySection({
     <div className="overflow-hidden rounded-lg border border-[var(--border)]">
       <button
         type="button"
+        data-testid={testId}
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-[var(--accent)]/50"
@@ -96,6 +102,7 @@ export function SpriteRangeSlider({
   step,
   suffix,
   onChange,
+  testId,
 }: {
   label: string;
   value: number;
@@ -104,6 +111,7 @@ export function SpriteRangeSlider({
   step: number;
   suffix: string;
   onChange: (value: number) => void;
+  testId?: string;
 }) {
   return (
     <label className="flex min-w-0 flex-col gap-1.5 rounded-lg bg-[var(--secondary)]/50 px-2.5 py-2 text-[0.625rem] text-[var(--muted-foreground)]">
@@ -122,6 +130,7 @@ export function SpriteRangeSlider({
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
         className="h-8 w-full cursor-pointer accent-[var(--primary)]"
+        data-testid={testId}
       />
     </label>
   );
@@ -132,15 +141,18 @@ export function GenerationSettingsLink({
   title,
   label,
   description,
+  testId,
 }: {
   onClick: () => void;
   title: string;
   label: string;
   description: string;
+  testId?: string;
 }) {
   return (
     <button
       type="button"
+      data-testid={testId}
       onClick={onClick}
       className="mari-chat-option-field flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[var(--secondary)]/60"
       title={title}
@@ -188,6 +200,7 @@ export function AgentSettingsCard({
   badge,
   order,
   onRemove,
+  testIdPrefix,
   children,
 }: {
   id?: string;
@@ -198,6 +211,7 @@ export function AgentSettingsCard({
   badge?: ReactNode;
   order?: number;
   onRemove?: () => void;
+  testIdPrefix?: string;
   children?: ReactNode;
 }) {
   const { t: localizeUi } = useUiTranslation();
@@ -229,6 +243,7 @@ export function AgentSettingsCard({
       <div className="flex items-start p-3">
         <button
           type="button"
+          data-testid={testIdPrefix ? `${testIdPrefix}-toggle-button` : undefined}
           onClick={toggleOpen}
           aria-expanded={open}
           aria-controls={contentId}
@@ -259,6 +274,7 @@ export function AgentSettingsCard({
         <div className="flex justify-end px-3 pb-3 pt-1">
           <button
             type="button"
+            data-testid={testIdPrefix ? `${testIdPrefix}-remove-button` : undefined}
             onClick={onRemove}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]/25 transition-colors hover:bg-[var(--primary)]/15 focus:outline-none focus:ring-1 focus:ring-[var(--primary)]/55 active:scale-95"
             title={localizeUi("ui.chat.agentsettingscard.removeValue1FromChat", { value1: title })}
@@ -358,6 +374,7 @@ export function GamePromptTemplateSelect({
   selectedId,
   fallbackId,
   onChange,
+  testId,
 }: {
   label: string;
   description: string;
@@ -365,6 +382,7 @@ export function GamePromptTemplateSelect({
   selectedId: string;
   fallbackId: string;
   onChange: (promptTemplateId: string) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const activeOption = options.find((option) => option.id === selectedId) ?? options[0];
@@ -376,6 +394,7 @@ export function GamePromptTemplateSelect({
           value={activeOption?.id ?? fallbackId}
           onChange={(event) => onChange(event.target.value)}
           className="w-full rounded-md bg-[var(--secondary)] px-2 py-1.5 text-[0.6875rem] text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+          data-testid={testId}
         >
           {options.map((option) => (
             <option key={option.id} value={option.id}>

@@ -145,6 +145,7 @@ export function ConversationMessageGrouped({
           <button
             type="button"
             role="checkbox"
+            data-testid={`conversation-message-${message.id}-select-checkbox`}
             aria-checked={isSelected}
             aria-label={
               isSelected

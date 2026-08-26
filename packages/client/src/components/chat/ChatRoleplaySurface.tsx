@@ -649,6 +649,7 @@ function ActiveContextLinksButton({
         </div>
         <button
           type="button"
+          data-testid="chat-toolbar-active-context-close-button"
           onClick={() => setOpen(false)}
           className={cn(NEUTRAL_PANEL_CLOSE_BUTTON, "-my-1 shrink-0")}
           aria-label={t("chat.toolbar.closeActiveContext")}
@@ -658,7 +659,14 @@ function ActiveContextLinksButton({
       </div>
       <div className="space-y-1">
         {characterIds.map((id, index) => (
-          <button key={id} type="button" role="menuitem" className={itemClassName} onClick={() => openCharacter(id)}>
+          <button
+            key={id}
+            type="button"
+            role="menuitem"
+            data-testid={`chat-toolbar-active-context-character-${id}-button`}
+            className={itemClassName}
+            onClick={() => openCharacter(id)}
+          >
             <User size="0.8125rem" className={iconClassName} />
             <span className="min-w-0 flex-1 truncate">
               {characterMap.get(id)?.name ?? t("chat.toolbar.characterFallback", { number: index + 1 })}
@@ -669,7 +677,14 @@ function ActiveContextLinksButton({
         {visibleLorebookIds.map((id, index) => {
           const entries = triggeredEntriesByLorebook.get(id) ?? [];
           return (
-            <button key={id} type="button" role="menuitem" className={itemClassName} onClick={() => openLorebook(id)}>
+            <button
+              key={id}
+              type="button"
+              role="menuitem"
+              data-testid={`chat-toolbar-active-context-lorebook-${id}-button`}
+              className={itemClassName}
+              onClick={() => openLorebook(id)}
+            >
               <BookOpen size="0.8125rem" className={iconClassName} />
               <span className="min-w-0 flex-1 truncate">
                 {lorebookNameById.get(id) ?? t("chat.toolbar.lorebookFallback", { number: index + 1 })}
@@ -697,7 +712,13 @@ function ActiveContextLinksButton({
           </div>
         )}
         {promptPresetId && (
-          <button type="button" role="menuitem" className={itemClassName} onClick={() => openPreset(promptPresetId)}>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="chat-toolbar-active-context-preset-button"
+            className={itemClassName}
+            onClick={() => openPreset(promptPresetId)}
+          >
             <FileText size="0.8125rem" className={iconClassName} />
             <span className="min-w-0 flex-1 truncate">{presetName ?? t("chat.toolbar.promptPreset")}</span>
             <span className="shrink-0 text-[0.625rem] text-foreground/45">{t("chat.toolbar.preset")}</span>
@@ -712,6 +733,7 @@ function ActiveContextLinksButton({
       <button
         ref={buttonRef}
         data-chat-help="context"
+        data-testid="chat-toolbar-active-context-button"
         onClick={() => setOpen((prev) => !prev)}
         className={getChatToolbarButtonClass({ compact, open })}
         title={t("chat.toolbar.activeContext")}
@@ -896,6 +918,7 @@ function SummaryButton({
         ref={buttonRef}
         data-chat-help="summary"
         data-chat-toolbar-panel-action="summary"
+        data-testid="chat-toolbar-summary-button"
         onClick={() => {
           if (open && document.querySelector("[data-macro-modal]")) return;
           setAnchor(readSummaryAnchor());
@@ -1054,6 +1077,7 @@ function AuthorNotesButton({
       <button
         ref={buttonRef}
         data-chat-help="author-notes"
+        data-testid="chat-toolbar-author-notes-button"
         onClick={() => {
           const nextOpen = !open;
           setMobileFrame(nextOpen && useMobilePanel ? getMobileFloatingPanelFrame(buttonRef.current, 288) : null);
@@ -2204,6 +2228,7 @@ export function ChatRoleplaySurface({
                 {hasNextPage && (
                   <div className="mb-3 flex justify-center">
                     <button
+                      data-testid="chat-roleplay-load-more-button"
                       onClick={handleLoadMoreClick}
                       disabled={isFetchingNextPage}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/10 bg-[var(--card)] px-3 py-1.5 text-xs font-medium text-foreground/70 backdrop-blur-sm transition-all hover:bg-[var(--accent)] hover:text-foreground/90 disabled:opacity-50"

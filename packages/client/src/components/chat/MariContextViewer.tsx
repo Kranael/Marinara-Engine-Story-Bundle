@@ -46,6 +46,7 @@ export function MariContextViewer({ open, onClose, workspaceChatId }: Props) {
           </h2>
           <button
             type="button"
+            data-testid="mari-context-viewer-close-button"
             onClick={onClose}
             className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             aria-label={localizeUi("navigation.common.close")}
@@ -82,6 +83,7 @@ export function MariContextViewer({ open, onClose, workspaceChatId }: Props) {
                   </div>
                   <button
                     type="button"
+                    data-testid={`mari-context-viewer-item-${item.id}-remove-button`}
                     onClick={async () => {
                       try {
                         await removeContext.mutateAsync(item.id);

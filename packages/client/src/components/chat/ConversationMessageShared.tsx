@@ -345,6 +345,7 @@ export function HiddenFromAIConversationButton({
       <button
         type="button"
         onClick={onExpand}
+        data-testid="conversation-message-hidden-from-ai-expand-button"
         className={cn(
           "inline-flex items-center gap-1 rounded px-1 py-0.5 text-[0.625rem] font-medium text-[var(--marinara-chat-chrome-highlight-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -376,6 +377,7 @@ export function HiddenFromAIConversationSummary({ onExpand }: { onExpand: () => 
         event.stopPropagation();
         onExpand();
       }}
+      data-testid="conversation-message-hidden-from-ai-summary-button"
       className="flex w-full items-center gap-2 rounded-md border border-[var(--marinara-chat-chrome-button-border-active)] bg-[var(--marinara-chat-chrome-highlight-bg)] px-2.5 py-1.5 text-left text-[0.75rem] text-[var(--marinara-chat-chrome-highlight-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)]"
       title={localizeUi("ui.chat.hiddenfromaimessagesummary.expandHiddenFromAiMessage")}
       aria-label={localizeUi("ui.chat.hiddenfromaimessagesummary.expandHiddenFromAiMessage")}
@@ -422,6 +424,7 @@ export function MessageContent({
           e.stopPropagation();
           onImageOpen(url);
         }}
+        data-testid="conversation-message-image-open-button"
         className="block cursor-zoom-in rounded-lg text-left"
         title={localizeUi("ui.noodle.noodlepostcard.openImage")}
       >
@@ -510,6 +513,7 @@ export function ConversationMessageEditForm({
           el.style.height = "auto";
           el.style.height = `${Math.min(el.scrollHeight, 300)}px`;
         }}
+        data-testid="conversation-message-edit-textarea"
         className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--secondary)] p-2.5 text-[0.9375rem] leading-relaxed outline-none"
         rows={1}
         style={{ overflow: "auto", ...messageTextStyle }}
@@ -521,11 +525,19 @@ export function ConversationMessageEditForm({
         }}
       />
       <div className="flex items-center gap-2 text-[0.6875rem] text-[var(--muted-foreground)]">
-        <button onClick={onCancel} className="text-foreground/70 hover:underline hover:text-foreground">
+        <button
+          onClick={onCancel}
+          data-testid="conversation-message-edit-cancel-button"
+          className="text-foreground/70 hover:underline hover:text-foreground"
+        >
           {localizeUi("ui.chat.conversationmessageeditform.cancel")}
         </button>
         <span>·</span>
-        <button onClick={onSave} className="text-foreground/70 hover:underline hover:text-foreground">
+        <button
+          onClick={onSave}
+          data-testid="conversation-message-edit-save-button"
+          className="text-foreground/70 hover:underline hover:text-foreground"
+        >
           {localizeUi("ui.chat.conversationmessageeditform.save")}
         </button>
       </div>
@@ -558,6 +570,7 @@ export function ConversationMessageAttachments({
                 e.stopPropagation();
                 onImageOpen(att.url || att.data || "", att.prompt);
               }}
+              data-testid={`conversation-message-attachment-${i}-image-open-button`}
               className="block cursor-zoom-in rounded-lg text-left"
               title={localizeUi("ui.noodle.noodlepostcard.openImage")}
             >
@@ -575,6 +588,7 @@ export function ConversationMessageAttachments({
                 onRemove(i);
               }}
               title={localizeUi("ui.chat.chatmessage.removeFromMessage")}
+              data-testid={`conversation-message-attachment-${i}-image-remove-button`}
               className="absolute top-1.5 right-1.5 rounded-full bg-black/60 p-1 text-white/80 transition-opacity hover:bg-black/80 hover:text-white sm:opacity-0 sm:group-hover/att:opacity-100"
             >
               <X size="0.875rem" />
@@ -594,6 +608,7 @@ export function ConversationMessageAttachments({
                 onRemove(i);
               }}
               title={localizeUi("ui.chat.chatmessage.removeFromMessage")}
+              data-testid={`conversation-message-attachment-${i}-file-remove-button`}
               className="rounded-full p-0.5 text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-[var(--destructive)] sm:opacity-0 sm:group-hover/att:opacity-100"
             >
               <X size="0.75rem" />
@@ -694,6 +709,7 @@ export function ConversationMessageLightbox({
       </div>
       <button
         onClick={onClose}
+        data-testid="conversation-message-lightbox-close-button"
         className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white/80 transition-colors hover:bg-black/70 hover:text-white"
         aria-label={localizeUi("ui.chat.chatimagelightbox.closeImage")}
       >

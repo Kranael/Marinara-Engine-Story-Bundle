@@ -25,9 +25,10 @@ interface AutoSizingTextareaProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  testId?: string;
 }
 
-function AutoSizingTextarea({ value, onChange, className }: AutoSizingTextareaProps) {
+function AutoSizingTextarea({ value, onChange, className, testId }: AutoSizingTextareaProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
   useLayoutEffect(() => {
     const el = ref.current;
@@ -42,6 +43,7 @@ function AutoSizingTextarea({ value, onChange, className }: AutoSizingTextareaPr
       onChange={(e) => onChange(e.target.value)}
       rows={1}
       className={cn("resize-none overflow-hidden", className)}
+      data-testid={testId}
     />
   );
 }
@@ -296,6 +298,7 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
             </span>
           </div>
           <button
+            data-testid="summaries-editor-close-button"
             onClick={onClose}
             className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)]"
           >
@@ -320,6 +323,7 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
                 </p>
               </div>
               <button
+                data-testid="summaries-editor-backfill-button"
                 onClick={handleBackfill}
                 disabled={isDirty || backfillSummaries.isPending}
                 title={
@@ -358,6 +362,7 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
           {entries.length > 0 && (
             <div className="flex items-center justify-end">
               <button
+                data-testid="summaries-editor-toggle-all-button"
                 onClick={toggleAll}
                 title={
                   allExpanded
@@ -388,6 +393,7 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
             return (
               <div key={id} className="rounded-lg border border-[var(--border)] bg-[var(--secondary)]/20">
                 <button
+                  data-testid={`summaries-editor-entry-${entry.kind}-${entry.key}-toggle-button`}
                   onClick={() => toggleEntry(id)}
                   aria-expanded={isOpen}
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-[var(--accent)]/50"
@@ -427,6 +433,7 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
                         value={current.summary}
                         onChange={(next) => updateEntry(entry.kind, entry.key, { ...current, summary: next })}
                         className="w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-[0.75rem] leading-relaxed text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
+                        testId={`summaries-editor-entry-${entry.kind}-${entry.key}-summary-textarea`}
                       />
                     </div>
 
@@ -451,8 +458,10 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
                                 updateEntry(entry.kind, entry.key, { ...current, keyDetails: nextDetails });
                               }}
                               className="flex-1 rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-[0.75rem] leading-relaxed text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
+                              testId={`summaries-editor-entry-${entry.kind}-${entry.key}-detail-${i}-textarea`}
                             />
                             <button
+                              data-testid={`summaries-editor-entry-${entry.kind}-${entry.key}-detail-${i}-delete-button`}
                               onClick={() => {
                                 const nextDetails = current.keyDetails.filter((_, idx) => idx !== i);
                                 updateEntry(entry.kind, entry.key, { ...current, keyDetails: nextDetails });
@@ -466,6 +475,7 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
                         ))}
                       </div>
                       <button
+                        data-testid={`summaries-editor-entry-${entry.kind}-${entry.key}-add-detail-button`}
                         onClick={() =>
                           updateEntry(entry.kind, entry.key, { ...current, keyDetails: [...current.keyDetails, ""] })
                         }
@@ -489,6 +499,7 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
           </div>
           <div className="flex items-center gap-2">
             <button
+              data-testid="summaries-editor-cancel-button"
               onClick={onClose}
               disabled={updateSummaries.isPending}
               className="rounded-lg px-3 py-1.5 text-[0.75rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
@@ -496,6 +507,7 @@ export function SummariesEditorModal({ chat, open, onClose }: SummariesEditorMod
               {localizeUi("chat.delete.dialog.cancel")}
             </button>
             <button
+              data-testid="summaries-editor-save-button"
               onClick={handleSave}
               disabled={!isDirty || updateSummaries.isPending}
               className="rounded-lg bg-[var(--primary)] px-3 py-1.5 text-[0.75rem] font-medium text-[var(--primary-foreground)] transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"

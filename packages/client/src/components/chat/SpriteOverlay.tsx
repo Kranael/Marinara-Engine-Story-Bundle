@@ -616,6 +616,7 @@ function CharacterSprite({
         <div className="absolute left-1/2 top-0 z-[2] flex -translate-x-1/2 -translate-y-[calc(100%+0.35rem)] items-center gap-1">
           <button
             type="button"
+            data-testid={`sprite-overlay-${placementKey}-finish-placement-button`}
             title={localizeUi("ui.chat.charactersprite.finishPlacingSprite")}
             aria-label={localizeUi("ui.chat.charactersprite.finishPlacingSprite")}
             onPointerDown={(event) => {

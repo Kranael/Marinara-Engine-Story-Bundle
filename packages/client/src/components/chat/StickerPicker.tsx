@@ -293,6 +293,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={localizeUi("ui.chat.stickerpicker.searchStickers")}
+            data-testid="sticker-picker-search-input"
             className="w-full rounded-md bg-foreground/5 px-2.5 py-1.5 text-xs outline-none ring-1 ring-foreground/10 transition-shadow placeholder:text-foreground/35 focus:ring-foreground/20"
             autoFocus={!embedded}
           />
@@ -304,6 +305,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
+            data-testid="sticker-picker-upload-button"
             className="inline-flex items-center gap-1.5 rounded-md bg-foreground/5 px-2 py-1 text-xs text-foreground/70 ring-1 ring-foreground/10 transition-colors hover:bg-foreground/10 hover:text-foreground/90"
           >
             <ImagePlus size="0.875rem" /> {localizeUi("ui.characters.characterclipcard.upload")}
@@ -313,6 +315,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
               <button
                 type="button"
                 onClick={() => importFileRef.current?.click()}
+                data-testid="sticker-picker-import-button"
                 className="rounded-md bg-foreground/5 px-2 py-1 text-xs text-foreground/70 ring-1 ring-foreground/10 transition-colors hover:bg-foreground/10 hover:text-foreground/90"
               >
                 {localizeUi("ui.chat.chatbranchselector.import")}
@@ -321,6 +324,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
                 <button
                   type="button"
                   onClick={() => void handleExport()}
+                  data-testid="sticker-picker-export-button"
                   className="rounded-md bg-foreground/5 px-2 py-1 text-xs text-foreground/70 ring-1 ring-foreground/10 transition-colors hover:bg-foreground/10 hover:text-foreground/90"
                 >
                   {localizeUi("ui.characters.spritestab.export")}
@@ -329,13 +333,22 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
             </>
           )}
         </div>
-        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleFiles}
+          data-testid="sticker-picker-file-input"
+        />
         <input
           ref={importFileRef}
           type="file"
           accept=".json,application/json"
           className="hidden"
           onChange={handleImportFile}
+          data-testid="sticker-picker-import-file-input"
         />
         <div className="flex items-center gap-1">
           <button
@@ -343,6 +356,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
             onClick={() => setShowSettings((v) => !v)}
             title={localizeUi("ui.chat.customemojitab.selectionPreferences")}
             aria-label={localizeUi("ui.chat.customemojitab.selectionPreferences")}
+            data-testid="sticker-picker-settings-button"
             className={cn(
               "flex items-center rounded-md px-1.5 py-1 text-xs transition-colors",
               showSettings
@@ -355,6 +369,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
           <button
             type="button"
             onClick={() => setEditing((v) => !v)}
+            data-testid="sticker-picker-edit-toggle-button"
             className={cn(
               "rounded-md px-2 py-1 text-xs transition-colors",
               editing
@@ -382,6 +397,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
                   type="button"
                   onClick={() => send(sticker.name, sticker.url)}
                   title={localizeUi("ui.chat.stickerpicker.sendStickerValue1", { value1: sticker.name })}
+                  data-testid={`sticker-picker-recent-${sticker.name}-button`}
                   className={cellClass}
                 >
                   <img
@@ -428,6 +444,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
                             ? localizeUi("ui.chat.stickerpicker.renameStickerValue1", { value1: sticker.name })
                             : localizeUi("ui.chat.stickerpicker.sendStickerValue1", { value1: sticker.name })
                         }
+                        data-testid={`sticker-picker-global-${sticker.id}-button`}
                         className={cellClass}
                       >
                         <img
@@ -441,6 +458,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
                           type="button"
                           onClick={() => void handleDelete(sticker.id, sticker.name)}
                           title={localizeUi("ui.chat.stickerpicker.deleteStickerValue1", { value1: sticker.name })}
+                          data-testid={`sticker-picker-global-${sticker.id}-delete-button`}
                           className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--destructive)] text-white shadow ring-1 ring-black/10 transition-transform hover:scale-110"
                         >
                           <Trash2 size="0.625rem" />
@@ -465,6 +483,7 @@ export function StickerPicker({ open, onClose, onSelect, anchorRef, containerRef
                           value1: sticker.name,
                           value2: source,
                         })}
+                        data-testid={`sticker-picker-source-${sticker.name}-button`}
                         className={cellClass}
                       >
                         <img

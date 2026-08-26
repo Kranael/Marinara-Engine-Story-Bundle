@@ -72,6 +72,7 @@ function StoryboardSlider({
   overridden,
   onChange,
   onReset,
+  testId,
 }: {
   label: string;
   description: string;
@@ -81,6 +82,7 @@ function StoryboardSlider({
   overridden: boolean;
   onChange: (value: number) => void;
   onReset: () => void;
+  testId?: string;
 }) {
   return (
     <div className="flex h-full flex-col gap-1">
@@ -105,6 +107,7 @@ function StoryboardSlider({
           onChange={(event) => onChange(Number(event.target.value))}
           className="h-7 w-full cursor-pointer accent-[var(--primary)]"
           aria-label={label}
+          data-testid={testId}
         />
       </label>
       <AgentDefaultStatus overridden={overridden} onReset={onReset} />
@@ -122,6 +125,7 @@ function StoryboardNumberInput({
   overridden,
   onChange,
   onReset,
+  testId,
 }: {
   label: string;
   description: string;
@@ -132,6 +136,7 @@ function StoryboardNumberInput({
   overridden: boolean;
   onChange: (value: number) => void;
   onReset: () => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const [draft, setDraft] = useState(String(value));
@@ -178,6 +183,7 @@ function StoryboardNumberInput({
             }}
             aria-label={label}
             className="min-w-0 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50 disabled:cursor-not-allowed disabled:opacity-70"
+            data-testid={testId}
           />
           <span className="text-[0.625rem] text-[var(--muted-foreground)]">
             {localizeUi("ui.noodle.stageprofileview.s")}
@@ -255,6 +261,7 @@ function StoryboardImageAwarePlannerOverride({
         onToggle={() => onUpdate({ storyboardAgentImageAwareShotPlanningEnabled: !enabled })}
         overridden={enabledOverridden}
         onReset={() => onUpdate({ storyboardAgentImageAwareShotPlanningEnabled: null })}
+        testId="storyboard-settings-image-aware-shot-planning-toggle"
       />
       {enabled ? (
         <div className="space-y-1">
@@ -369,6 +376,7 @@ export function StoryboardChatSettingsPanel({
           description={localizeUi("ui.chat.chatsettingsdrawer.showStoryboardControlsAndAllowAutomaticKeyframeMedia")}
           enabled={active}
           onToggle={() => onActiveChange(!active)}
+          testId="storyboard-settings-enable-storyboards-toggle"
         />
       </div>
 
@@ -392,6 +400,7 @@ export function StoryboardChatSettingsPanel({
             }
             overridden={autoIllustrationsOverridden}
             onReset={() => onUpdate({ gameStoryboardAutoIllustrationsEnabled: null })}
+            testId="storyboard-settings-auto-illustrations-toggle"
           />
           <AgentSettingsToggle
             label={localizeUi("ui.chat.chatsettingsdrawer.automaticStoryboardAnimations")}
@@ -405,6 +414,7 @@ export function StoryboardChatSettingsPanel({
             }
             overridden={autoAnimationsOverridden}
             onReset={() => onUpdate({ gameStoryboardAutoGenerationEnabled: null })}
+            testId="storyboard-settings-auto-animations-toggle"
           />
           <AgentSettingsToggle
             label={localizeUi("ui.agents.storyboard.useNovelAiCharacters")}
@@ -413,6 +423,7 @@ export function StoryboardChatSettingsPanel({
             onToggle={() => onUpdate({ gameStoryboardUseNovelAiCharacterPrompts: !useNovelAiCharacterPrompts })}
             overridden={novelAiOverridden}
             onReset={() => onUpdate({ gameStoryboardUseNovelAiCharacterPrompts: null })}
+            testId="storyboard-settings-novel-ai-characters-toggle"
           />
 
           <div className="grid gap-2 md:grid-cols-2">
@@ -427,6 +438,7 @@ export function StoryboardChatSettingsPanel({
               overridden={keyframeCountOverridden}
               onChange={(value) => onUpdate({ gameStoryboardKeyframeCount: value })}
               onReset={() => onUpdate({ gameStoryboardKeyframeCount: null })}
+              testId="storyboard-settings-keyframe-count-slider"
             />
             <StoryboardNumberInput
               label={localizeUi("ui.chat.chatsettingsdrawer.animationClipDuration")}
@@ -438,6 +450,7 @@ export function StoryboardChatSettingsPanel({
               overridden={durationOverridden}
               onChange={(value) => onUpdate({ gameStoryboardAnimationDurationSeconds: value })}
               onReset={() => onUpdate({ gameStoryboardAnimationDurationSeconds: null })}
+              testId="storyboard-settings-animation-duration-input"
             />
           </div>
 
@@ -447,6 +460,7 @@ export function StoryboardChatSettingsPanel({
             </p>
             <AgentSettingsSegmentedControl<StoryboardViewerMode>
               value={viewerDisplayMode}
+              testIdPrefix="storyboard-settings-viewer-mode"
               options={[
                 {
                   id: "floating",
@@ -525,6 +539,7 @@ export function StoryboardChatSettingsPanel({
               onToggle={() => onUpdate({ gameStoryboardUsePromptTemplate: !usePromptTemplate })}
               overridden={useTemplateOverridden}
               onReset={() => onUpdate({ gameStoryboardUsePromptTemplate: null })}
+              testId="storyboard-settings-use-template-toggle"
             />
             <div className="space-y-2">
               <StoryboardChatWorkflowStage
@@ -685,6 +700,7 @@ function RoleplayStoryboardChatSettingsPanel({
     value: unknown,
     options: Record<string, unknown>[],
     metadataKey: string,
+    testId: string,
   ) => {
     const selectedId = readString(value);
     const selectedConnectionMissing =
@@ -696,6 +712,7 @@ function RoleplayStoryboardChatSettingsPanel({
           value={selectedId}
           onChange={(event) => onUpdate({ [metadataKey]: event.target.value || null })}
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
+          data-testid={testId}
         >
           <option value="">{localizeUi("ui.agents.storyboard.useGlobalConnection")}</option>
           {selectedConnectionMissing ? (
@@ -726,6 +743,7 @@ function RoleplayStoryboardChatSettingsPanel({
           description={localizeUi("ui.agents.storyboard.roleplayEnableDescription")}
           enabled={active}
           onToggle={() => onActiveChange(!active)}
+          testId="roleplay-storyboard-settings-enable-storyboards-toggle"
         />
       </div>
 
@@ -742,6 +760,7 @@ function RoleplayStoryboardChatSettingsPanel({
             <AgentSettingsSegmentedControl<StoryboardAutoGenerateMode>
               value={autoGenerateMode}
               columns={3}
+              testIdPrefix="roleplay-storyboard-settings-auto-mode"
               options={[
                 { id: "manual", label: localizeUi("ui.agents.storyboard.manual") },
                 { id: "illustration", label: localizeUi("ui.agents.storyboard.stillImages") },
@@ -765,6 +784,7 @@ function RoleplayStoryboardChatSettingsPanel({
               overridden={runIntervalOverridden}
               onChange={(value) => onUpdate({ roleplayStoryboardRunInterval: value })}
               onReset={() => onUpdate({ roleplayStoryboardRunInterval: null })}
+              testId="roleplay-storyboard-settings-run-interval-slider"
             />
             <StoryboardSlider
               label={localizeUi("ui.agents.storyboard.keyframesPerEpisode")}
@@ -775,6 +795,7 @@ function RoleplayStoryboardChatSettingsPanel({
               overridden={keyframeCountOverridden}
               onChange={(value) => onUpdate({ roleplayStoryboardKeyframeCount: value })}
               onReset={() => onUpdate({ roleplayStoryboardKeyframeCount: null })}
+              testId="roleplay-storyboard-settings-keyframe-count-slider"
             />
             <StoryboardNumberInput
               label={localizeUi("ui.chat.chatsettingsdrawer.animationClipDuration")}
@@ -786,6 +807,7 @@ function RoleplayStoryboardChatSettingsPanel({
               overridden={durationOverridden}
               onChange={(value) => onUpdate({ roleplayStoryboardAnimationDurationSeconds: value })}
               onReset={() => onUpdate({ roleplayStoryboardAnimationDurationSeconds: null })}
+              testId="roleplay-storyboard-settings-animation-duration-input"
             />
           </div>
 
@@ -795,18 +817,21 @@ function RoleplayStoryboardChatSettingsPanel({
               metadata.roleplayStoryboardPromptConnectionId,
               promptConnections,
               "roleplayStoryboardPromptConnectionId",
+              "roleplay-storyboard-settings-prompt-connection-select",
             )}
             {renderConnectionSelect(
               localizeUi("ui.agents.storyboard.imageConnection"),
               metadata.roleplayStoryboardImageConnectionId,
               imageConnections,
               "roleplayStoryboardImageConnectionId",
+              "roleplay-storyboard-settings-image-connection-select",
             )}
             {renderConnectionSelect(
               localizeUi("ui.agents.storyboard.videoConnection"),
               metadata.roleplayStoryboardVideoConnectionId,
               videoConnections,
               "roleplayStoryboardVideoConnectionId",
+              "roleplay-storyboard-settings-video-connection-select",
             )}
           </div>
 
@@ -865,6 +890,7 @@ function RoleplayStoryboardChatSettingsPanel({
               onToggle={() => onUpdate({ roleplayStoryboardIncludeCharacterAppearance: !includeCharacterAppearance })}
               overridden={appearanceOverridden}
               onReset={() => onUpdate({ roleplayStoryboardIncludeCharacterAppearance: null })}
+              testId="roleplay-storyboard-settings-character-appearance-toggle"
             />
             <AgentSettingsToggle
               label={localizeUi("ui.chat.agentaddsetupfields.sendAvatarReferences")}
@@ -873,6 +899,7 @@ function RoleplayStoryboardChatSettingsPanel({
               onToggle={() => onUpdate({ roleplayStoryboardUseAvatarReferences: !useAvatarReferences })}
               overridden={avatarsOverridden}
               onReset={() => onUpdate({ roleplayStoryboardUseAvatarReferences: null })}
+              testId="roleplay-storyboard-settings-avatar-references-toggle"
             />
             <AgentSettingsToggle
               label={localizeUi("ui.agents.storyboard.useNovelAiCharacters")}
@@ -881,6 +908,7 @@ function RoleplayStoryboardChatSettingsPanel({
               onToggle={() => onUpdate({ roleplayStoryboardUseNovelAiCharacterPrompts: !useNovelAiCharacterPrompts })}
               overridden={novelAiOverridden}
               onReset={() => onUpdate({ roleplayStoryboardUseNovelAiCharacterPrompts: null })}
+              testId="roleplay-storyboard-settings-novel-ai-characters-toggle"
             />
             <AgentSettingsToggle
               label={localizeUi("ui.agents.storyboard.useTemplate")}
@@ -889,6 +917,7 @@ function RoleplayStoryboardChatSettingsPanel({
               onToggle={() => onUpdate({ roleplayStoryboardUsePromptTemplate: !usePromptTemplate })}
               overridden={templateOverridden}
               onReset={() => onUpdate({ roleplayStoryboardUsePromptTemplate: null })}
+              testId="roleplay-storyboard-settings-use-template-toggle"
             />
           </div>
 

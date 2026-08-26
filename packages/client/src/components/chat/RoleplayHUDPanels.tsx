@@ -104,7 +104,7 @@ export function RoleplayInventoryTrackerPanel({
         busy={isTrackerRetryBusy}
         title={localizeUi("ui.chat.inventoryTracker.reRun")}
       />
-      <HudLockModeToggle />
+      <HudLockModeToggle testId="roleplay-hud-inventory-lock-mode-toggle" />
     </span>
   );
   return (
@@ -184,6 +184,7 @@ function TrackerSectionRefresh({
       }}
       disabled={busy}
       title={title ?? `Re-run ${agentType} only`}
+      data-testid={`roleplay-hud-refresh-${agentType}-button`}
       className="rounded p-0.5 text-[var(--muted-foreground)]/50 transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-40"
     >
       <RefreshCw size="0.625rem" className={busy ? "animate-spin" : ""} />
@@ -207,12 +208,14 @@ function HudFieldLockButton({
   label,
   persistentLocked = true,
   className,
+  testId,
 }: {
   locked?: boolean;
   onToggle?: () => void;
   label: string;
   persistentLocked?: boolean;
   className?: string;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const { lockMode } = useTrackerLockContext();
@@ -222,6 +225,7 @@ function HudFieldLockButton({
     <button
       type="button"
       onClick={onToggle}
+      data-testid={testId}
       title={
         locked
           ? localizeUi("ui.chat.hudfieldlockbutton.unlockField")
@@ -246,7 +250,7 @@ function HudFieldLockButton({
   );
 }
 
-function HudLockModeToggle() {
+function HudLockModeToggle({ testId }: { testId?: string }) {
   const { t: localizeUi } = useUiTranslation();
   const { lockMode, onSetLockMode } = useTrackerLockContext();
   if (!onSetLockMode) return null;
@@ -255,6 +259,7 @@ function HudLockModeToggle() {
     <button
       type="button"
       onClick={() => onSetLockMode(!lockMode)}
+      data-testid={testId}
       title={
         lockMode
           ? localizeUi("ui.chat.hudlockmodetoggle.exitLockMode")
@@ -446,9 +451,10 @@ export function CombinedPlayerPanel({
           {localizeUi("ui.chat.combinedplayerpanel.trackers")}
         </span>
         <span className="flex items-center gap-1">
-          <HudLockModeToggle />
+          <HudLockModeToggle testId="roleplay-hud-combined-lock-mode-toggle" />
           <button
             onClick={onClose}
+            data-testid="roleplay-hud-combined-close-button"
             className="text-[var(--muted-foreground)]/50 transition-colors hover:text-[var(--foreground)]"
           >
             <X size="0.75rem" />
@@ -475,6 +481,7 @@ export function CombinedPlayerPanel({
               onSave={onUpdatePersonaStatus}
               locked={personaStatusLock.locked}
               onToggleLock={personaStatusLock.onToggle}
+              testIdPrefix="roleplay-hud-combined-persona-status"
             />
             <div className="space-y-2">
               {personaStats.length === 0 && (
@@ -497,6 +504,7 @@ export function CombinedPlayerPanel({
                     onToggleNameLock={nameLock.onToggle}
                     onToggleValueLock={valueLock.onToggle}
                     onToggleMaxLock={maxLock.onToggle}
+                    testIdPrefix={`roleplay-hud-combined-persona-stat-${idx}`}
                   />
                 );
               })}
@@ -520,6 +528,7 @@ export function CombinedPlayerPanel({
                 />
                 <button
                   onClick={addCharacter}
+                  data-testid="roleplay-hud-combined-add-character-button"
                   className="flex items-center gap-0.5 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                 >
                   <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
@@ -550,12 +559,14 @@ export function CombinedPlayerPanel({
                         onSave={(value) => updateCharacter(idx, { ...char, emoji: value })}
                         className="w-8 text-center !text-sm"
                         locked={emojiLock.locked}
+                        testId={`roleplay-hud-combined-character-${idx}-emoji`}
                       />
                       <HudFieldLockButton
                         {...emojiLock}
                         label={localizeUi("ui.chat.combinedplayerpanel.value1Emoji", {
                           value1: char.name || localizeUi("ui.noodle.noodlehome.character"),
                         })}
+                        testId={`roleplay-hud-combined-character-${idx}-emoji-lock-button`}
                       />
                       <InlineEdit
                         value={char.name}
@@ -563,15 +574,18 @@ export function CombinedPlayerPanel({
                         className="flex-1 !font-medium"
                         placeholder={localizeUi("ui.characters.metadatatab.name")}
                         locked={nameLock.locked}
+                        testId={`roleplay-hud-combined-character-${idx}-name`}
                       />
                       <HudFieldLockButton
                         {...nameLock}
                         label={localizeUi("ui.chat.combinedplayerpanel.value1Name", {
                           value1: char.name || localizeUi("ui.noodle.noodlehome.character"),
                         })}
+                        testId={`roleplay-hud-combined-character-${idx}-name-lock-button`}
                       />
                       <button
                         onClick={() => removeCharacter(idx)}
+                        data-testid={`roleplay-hud-combined-character-${idx}-remove-button`}
                         className="text-[var(--muted-foreground)]/40 hover:text-red-500 transition-colors shrink-0"
                         title={localizeUi("ui.chat.combinedplayerpanel.removeCharacter")}
                       >
@@ -587,6 +601,7 @@ export function CombinedPlayerPanel({
                             onSave={(value) => updateCharacter(idx, { ...char, mood: value })}
                             locked={moodLock.locked}
                             onToggleLock={moodLock.onToggle}
+                            testId={`roleplay-hud-combined-character-${idx}-mood`}
                           />
                         )}
                         {showAppearance && (
@@ -596,6 +611,7 @@ export function CombinedPlayerPanel({
                             onSave={(value) => updateCharacter(idx, { ...char, appearance: value || null })}
                             locked={appearanceLock.locked}
                             onToggleLock={appearanceLock.onToggle}
+                            testId={`roleplay-hud-combined-character-${idx}-appearance`}
                           />
                         )}
                         {showOutfit && (
@@ -605,6 +621,7 @@ export function CombinedPlayerPanel({
                             onSave={(value) => updateCharacter(idx, { ...char, outfit: value || null })}
                             locked={outfitLock.locked}
                             onToggleLock={outfitLock.onToggle}
+                            testId={`roleplay-hud-combined-character-${idx}-outfit`}
                           />
                         )}
                         {showThoughts && (
@@ -614,6 +631,7 @@ export function CombinedPlayerPanel({
                             onSave={(value) => updateCharacter(idx, { ...char, thoughts: value || null })}
                             locked={thoughtsLock.locked}
                             onToggleLock={thoughtsLock.onToggle}
+                            testId={`roleplay-hud-combined-character-${idx}-thoughts`}
                           />
                         )}
                         {Object.entries(char.customFields ?? {}).map(([name, value]) => {
@@ -631,6 +649,7 @@ export function CombinedPlayerPanel({
                               }
                               locked={valueLock.locked}
                               onToggleLock={valueLock.onToggle}
+                              testId={`roleplay-hud-combined-character-${idx}-custom-${name}`}
                             />
                           );
                         })}
@@ -659,6 +678,7 @@ export function CombinedPlayerPanel({
                               maxLocked={maxLock.locked}
                               onToggleValueLock={valueLock.onToggle}
                               onToggleMaxLock={maxLock.onToggle}
+                              testIdPrefix={`roleplay-hud-combined-character-${idx}-stat-${statIndex}`}
                             />
                           );
                         })}
@@ -685,7 +705,7 @@ export function CombinedPlayerPanel({
                   busy={isTrackerRetryBusy}
                   title={localizeUi("ui.chat.combinedplayerpanel.reRunQuestTrackerOnly")}
                 />
-                <button onClick={addQuest} className={TRACKER_SECTION_ACTION}>
+                <button onClick={addQuest} className={TRACKER_SECTION_ACTION} data-testid="roleplay-hud-combined-add-quest-button">
                   <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
                 </button>
               </span>
@@ -701,6 +721,7 @@ export function CombinedPlayerPanel({
                   questIndex={idx}
                   onUpdate={(updatedQuest) => updateQuest(idx, updatedQuest)}
                   onRemove={() => removeQuest(idx)}
+                  testIdPrefix={`roleplay-hud-combined-quest-${idx}`}
                 />
               ))}
             </div>
@@ -752,7 +773,7 @@ export function CombinedPlayerPanel({
                   busy={isTrackerRetryBusy}
                   title={localizeUi("ui.chat.combinedplayerpanel.reRunCustomTrackerOnly")}
                 />
-                <button onClick={addCustomField} className={TRACKER_SECTION_ACTION}>
+                <button onClick={addCustomField} className={TRACKER_SECTION_ACTION} data-testid="roleplay-hud-combined-add-custom-field-button">
                   <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
                 </button>
               </span>
@@ -780,12 +801,14 @@ export function CombinedPlayerPanel({
                       className="flex-1 min-w-0"
                       placeholder={localizeUi("ui.chat.combinedplayerpanel.fieldName")}
                       locked={nameLock.locked}
+                      testId={`roleplay-hud-combined-custom-field-${idx}-name`}
                     />
                     <HudFieldLockButton
                       {...nameLock}
                       label={localizeUi("ui.chat.combinedplayerpanel.value1Name", {
                         value1: field.name || localizeUi("ui.chat.combinedplayerpanel.field"),
                       })}
+                      testId={`roleplay-hud-combined-custom-field-${idx}-name-lock-button`}
                     />
                     <span className="text-[var(--muted-foreground)]/40 text-[0.5rem]">=</span>
                     <InlineEdit
@@ -794,6 +817,7 @@ export function CombinedPlayerPanel({
                       className="flex-1 min-w-0"
                       placeholder={localizeUi("ui.chat.combinedplayerpanel.value")}
                       locked={valueLock.locked || field.locked}
+                      testId={`roleplay-hud-combined-custom-field-${idx}-value`}
                     />
                     <HudFieldLockButton
                       locked={valueLock.locked || field.locked}
@@ -801,9 +825,11 @@ export function CombinedPlayerPanel({
                       label={localizeUi("ui.chat.combinedplayerpanel.value1Value", {
                         value1: field.name || localizeUi("ui.chat.combinedplayerpanel.field"),
                       })}
+                      testId={`roleplay-hud-combined-custom-field-${idx}-value-lock-button`}
                     />
                     <button
                       onClick={() => removeCustomField(idx)}
+                      data-testid={`roleplay-hud-combined-custom-field-${idx}-remove-button`}
                       className="text-[var(--muted-foreground)]/40 hover:text-red-500 transition-colors shrink-0"
                       title={localizeUi("ui.chat.combinedplayerpanel.removeField")}
                     >
@@ -875,7 +901,7 @@ export function PersonaStatsPanel({
             busy={isTrackerRetryBusy}
             title={localizeUi("ui.chat.combinedplayerpanel.reRunPersonaTrackerStatsInventory")}
           />
-          <HudLockModeToggle />
+          <HudLockModeToggle testId="roleplay-hud-persona-stats-lock-mode-toggle" />
         </span>
       </div>
       <div className="border-b border-[var(--border)] p-2">
@@ -884,6 +910,7 @@ export function PersonaStatsPanel({
           onSave={onUpdateStatus}
           locked={statusLock.locked}
           onToggleLock={statusLock.onToggle}
+          testIdPrefix="roleplay-hud-persona-stats-status"
         />
       </div>
       <div className="p-2 space-y-2">
@@ -905,6 +932,7 @@ export function PersonaStatsPanel({
               onToggleNameLock={nameLock.onToggle}
               onToggleValueLock={valueLock.onToggle}
               onToggleMaxLock={maxLock.onToggle}
+              testIdPrefix={`roleplay-hud-persona-stats-stat-${idx}`}
             />
           );
         })}
@@ -1046,10 +1074,11 @@ export function CharactersPanel({
             busy={isTrackerRetryBusy}
             title={localizeUi("ui.chat.combinedplayerpanel.reRunCharacterTrackerOnly")}
           />
-          <HudLockModeToggle />
+          <HudLockModeToggle testId="roleplay-hud-characters-lock-mode-toggle" />
           {trackerConfig && (
             <button
               onClick={toggleAutoGenerate}
+              data-testid="roleplay-hud-characters-auto-generate-toggle"
               className={cn(
                 "flex items-center gap-1 text-[0.5625rem] transition-colors",
                 autoGenEnabled
@@ -1068,6 +1097,7 @@ export function CharactersPanel({
           )}
           <button
             onClick={addCharacter}
+            data-testid="roleplay-hud-characters-add-character-button"
             className="flex items-center gap-0.5 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
           >
             <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
@@ -1100,6 +1130,7 @@ export function CharactersPanel({
                       setUploadIdx(idx);
                       fileInputRef.current?.click();
                     }}
+                    data-testid={`roleplay-hud-characters-character-${idx}-avatar-button`}
                     className="shrink-0 overflow-hidden rounded-full ring-1 ring-[var(--border)] transition-all hover:ring-[var(--foreground)]/30"
                     title={localizeUi("ui.panels.personaspanel.changeAvatar")}
                   >
@@ -1111,6 +1142,7 @@ export function CharactersPanel({
                       setUploadIdx(idx);
                       fileInputRef.current?.click();
                     }}
+                    data-testid={`roleplay-hud-characters-character-${idx}-avatar-upload-button`}
                     className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--muted)]/30 text-[var(--muted-foreground)]/50 ring-1 ring-[var(--border)] transition-all hover:bg-[var(--muted)]/50 hover:text-[var(--foreground)]"
                     title={localizeUi("editor.avatar.upload")}
                   >
@@ -1123,12 +1155,14 @@ export function CharactersPanel({
                   className="h-8 w-8 shrink-0 justify-center text-center !text-sm"
                   placeholder="👤"
                   locked={emojiLock.locked}
+                  testId={`roleplay-hud-characters-character-${idx}-emoji`}
                 />
                 <HudFieldLockButton
                   {...emojiLock}
                   label={localizeUi("ui.chat.combinedplayerpanel.value1Emoji", {
                     value1: char.name || localizeUi("ui.noodle.noodlehome.character"),
                   })}
+                  testId={`roleplay-hud-characters-character-${idx}-emoji-lock-button`}
                 />
                 <InlineEdit
                   value={char.name}
@@ -1136,15 +1170,18 @@ export function CharactersPanel({
                   className="flex-1 !font-medium"
                   placeholder={localizeUi("ui.characters.metadatatab.name")}
                   locked={nameLock.locked}
+                  testId={`roleplay-hud-characters-character-${idx}-name`}
                 />
                 <HudFieldLockButton
                   {...nameLock}
                   label={localizeUi("ui.chat.combinedplayerpanel.value1Name", {
                     value1: char.name || localizeUi("ui.noodle.noodlehome.character"),
                   })}
+                  testId={`roleplay-hud-characters-character-${idx}-name-lock-button`}
                 />
                 <button
                   onClick={() => removeCharacter(idx)}
+                  data-testid={`roleplay-hud-characters-character-${idx}-remove-button`}
                   className="text-[var(--muted-foreground)]/40 hover:text-red-500 transition-colors shrink-0"
                   title={localizeUi("ui.chat.combinedplayerpanel.removeCharacter")}
                 >
@@ -1160,6 +1197,7 @@ export function CharactersPanel({
                       onSave={(value) => updateCharacter(idx, { ...char, mood: value })}
                       locked={moodLock.locked}
                       onToggleLock={moodLock.onToggle}
+                      testId={`roleplay-hud-characters-character-${idx}-mood`}
                     />
                   )}
                   {showAppearance && (
@@ -1169,6 +1207,7 @@ export function CharactersPanel({
                       onSave={(value) => updateCharacter(idx, { ...char, appearance: value || null })}
                       locked={appearanceLock.locked}
                       onToggleLock={appearanceLock.onToggle}
+                      testId={`roleplay-hud-characters-character-${idx}-appearance`}
                     />
                   )}
                   {showOutfit && (
@@ -1178,6 +1217,7 @@ export function CharactersPanel({
                       onSave={(value) => updateCharacter(idx, { ...char, outfit: value || null })}
                       locked={outfitLock.locked}
                       onToggleLock={outfitLock.onToggle}
+                      testId={`roleplay-hud-characters-character-${idx}-outfit`}
                     />
                   )}
                   {showThoughts && (
@@ -1187,6 +1227,7 @@ export function CharactersPanel({
                       onSave={(value) => updateCharacter(idx, { ...char, thoughts: value || null })}
                       locked={thoughtsLock.locked}
                       onToggleLock={thoughtsLock.onToggle}
+                      testId={`roleplay-hud-characters-character-${idx}-thoughts`}
                     />
                   )}
                   {Object.entries(char.customFields ?? {}).map(([name, value]) => {
@@ -1204,6 +1245,7 @@ export function CharactersPanel({
                         }
                         locked={valueLock.locked}
                         onToggleLock={valueLock.onToggle}
+                        testId={`roleplay-hud-characters-character-${idx}-custom-${name}`}
                       />
                     );
                   })}
@@ -1232,6 +1274,7 @@ export function CharactersPanel({
                         maxLocked={maxLock.locked}
                         onToggleValueLock={valueLock.onToggle}
                         onToggleMaxLock={maxLock.onToggle}
+                        testIdPrefix={`roleplay-hud-characters-character-${idx}-stat-${statIndex}`}
                       />
                     );
                   })}
@@ -1246,6 +1289,7 @@ export function CharactersPanel({
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        data-testid="roleplay-hud-characters-avatar-file-input"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -1306,8 +1350,8 @@ export function QuestsPanel({ quests, onUpdate, onRerunSingleTracker, isTrackerR
             busy={isTrackerRetryBusy}
             title={localizeUi("ui.chat.combinedplayerpanel.reRunQuestTrackerOnly")}
           />
-          <HudLockModeToggle />
-          <button onClick={addQuest} className={TRACKER_SECTION_ACTION}>
+          <HudLockModeToggle testId="roleplay-hud-quests-lock-mode-toggle" />
+          <button onClick={addQuest} className={TRACKER_SECTION_ACTION} data-testid="roleplay-hud-quests-add-quest-button">
             <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
           </button>
         </span>
@@ -1323,6 +1367,7 @@ export function QuestsPanel({ quests, onUpdate, onRerunSingleTracker, isTrackerR
             questIndex={idx}
             onUpdate={(updatedQuest) => updateQuest(idx, updatedQuest)}
             onRemove={() => removeQuest(idx)}
+            testIdPrefix={`roleplay-hud-quests-quest-${idx}`}
           />
         ))}
       </div>
@@ -1387,8 +1432,8 @@ export function CustomTrackerPanel({
             busy={isTrackerRetryBusy}
             title={localizeUi("ui.chat.combinedplayerpanel.reRunCustomTrackerOnly")}
           />
-          <HudLockModeToggle />
-          <button onClick={addField} className={TRACKER_SECTION_ACTION}>
+          <HudLockModeToggle testId="roleplay-hud-custom-tracker-lock-mode-toggle" />
+          <button onClick={addField} className={TRACKER_SECTION_ACTION} data-testid="roleplay-hud-custom-tracker-add-field-button">
             <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
           </button>
         </span>
@@ -1418,12 +1463,14 @@ export function CustomTrackerPanel({
                 className="flex-1 min-w-0"
                 placeholder={localizeUi("ui.chat.combinedplayerpanel.fieldName")}
                 locked={nameLock.locked}
+                testId={`roleplay-hud-custom-tracker-field-${idx}-name`}
               />
               <HudFieldLockButton
                 {...nameLock}
                 label={localizeUi("ui.chat.combinedplayerpanel.value1Name", {
                   value1: field.name || localizeUi("ui.chat.combinedplayerpanel.field"),
                 })}
+                testId={`roleplay-hud-custom-tracker-field-${idx}-name-lock-button`}
               />
               <span className="text-[var(--muted-foreground)]/40 text-[0.5rem]">=</span>
               <InlineEdit
@@ -1432,6 +1479,7 @@ export function CustomTrackerPanel({
                 className="flex-1 min-w-0"
                 placeholder={localizeUi("ui.chat.combinedplayerpanel.value")}
                 locked={valueLock.locked || field.locked}
+                testId={`roleplay-hud-custom-tracker-field-${idx}-value`}
               />
               <HudFieldLockButton
                 locked={valueLock.locked || field.locked}
@@ -1439,9 +1487,11 @@ export function CustomTrackerPanel({
                 label={localizeUi("ui.chat.combinedplayerpanel.value1Value", {
                   value1: field.name || localizeUi("ui.chat.combinedplayerpanel.field"),
                 })}
+                testId={`roleplay-hud-custom-tracker-field-${idx}-value-lock-button`}
               />
               <button
                 onClick={() => removeField(idx)}
+                data-testid={`roleplay-hud-custom-tracker-field-${idx}-remove-button`}
                 className="text-[var(--muted-foreground)]/40 hover:text-red-500 transition-colors shrink-0"
                 title={localizeUi("ui.chat.combinedplayerpanel.removeField")}
               >
@@ -1524,9 +1574,10 @@ export function CombinedWorldPanel({
             busy={isTrackerRetryBusy}
             title={localizeUi("ui.chat.combinedworldpanel.reRunWorldStateTrackerOnly")}
           />
-          <HudLockModeToggle />
+          <HudLockModeToggle testId="roleplay-hud-world-lock-mode-toggle" />
           <button
             onClick={onClose}
+            data-testid="roleplay-hud-world-close-button"
             className="text-[var(--muted-foreground)]/50 hover:text-[var(--foreground)] transition-colors"
           >
             <X size="0.75rem" />
@@ -1542,6 +1593,7 @@ export function CombinedWorldPanel({
           accent="text-[var(--foreground)]/80"
           locked={locationLock.locked}
           onToggleLock={locationLock.onToggle}
+          testId="roleplay-hud-world-location"
         />
         <WorldFieldRow
           icon={<CalendarDays size="0.8125rem" className={dateColor} />}
@@ -1551,6 +1603,7 @@ export function CombinedWorldPanel({
           accent="text-[var(--foreground)]"
           locked={dateLock.locked}
           onToggleLock={dateLock.onToggle}
+          testId="roleplay-hud-world-date"
         />
         <WorldFieldRow
           icon={<Clock size="0.8125rem" className={timeColor} />}
@@ -1560,6 +1613,7 @@ export function CombinedWorldPanel({
           accent="text-[var(--foreground)]/80"
           locked={timeLock.locked}
           onToggleLock={timeLock.onToggle}
+          testId="roleplay-hud-world-time"
         />
         <WorldFieldRow
           icon={
@@ -1575,6 +1629,7 @@ export function CombinedWorldPanel({
           accent="text-[var(--foreground)]/80"
           locked={weatherLock.locked}
           onToggleLock={weatherLock.onToggle}
+          testId="roleplay-hud-world-weather"
         />
         <WorldFieldRow
           icon={<Thermometer size="0.8125rem" style={{ color: tempColor }} />}
@@ -1584,6 +1639,7 @@ export function CombinedWorldPanel({
           accent="text-[var(--foreground)]"
           locked={temperatureLock.locked}
           onToggleLock={temperatureLock.onToggle}
+          testId="roleplay-hud-world-temperature"
         />
         {worldCustomFields.map((field, index) => {
           const name = field.name?.trim() || "Field";
@@ -1602,6 +1658,7 @@ export function CombinedWorldPanel({
               accent="text-[var(--foreground)]/80"
               locked={valueLock.locked}
               onToggleLock={valueLock.onToggle}
+              testId={`roleplay-hud-world-custom-field-${index}`}
             />
           );
         })}
@@ -1725,6 +1782,7 @@ function InlineEdit({
   scrollOnHover = false,
   showEditHint = true,
   locked = false,
+  testId,
 }: {
   value: string;
   onSave: (v: string) => void;
@@ -1733,6 +1791,7 @@ function InlineEdit({
   scrollOnHover?: boolean;
   showEditHint?: boolean;
   locked?: boolean;
+  testId?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -1822,6 +1881,7 @@ function InlineEdit({
           if (e.key === "Escape") setEditing(false);
         }}
         onBlur={commit}
+        data-testid={testId ? `${testId}-input` : undefined}
         className={cn(
           "rounded border border-[var(--border)] bg-[var(--muted)]/20 px-1.5 py-0.5 text-[0.625rem] text-[var(--foreground)] outline-none focus:border-[var(--foreground)]/30",
           locked && HUD_LOCKED_FIELD_CLASS,
@@ -1843,6 +1903,7 @@ function InlineEdit({
       onBlur={resetScrollOverflow}
       title={value || undefined}
       aria-label={value || placeholder}
+      data-testid={testId}
       className={cn(
         "group relative flex min-w-0 items-center overflow-hidden rounded px-0.5 text-left transition-colors hover:bg-[var(--muted)]/20",
         locked && HUD_LOCKED_FIELD_CLASS,
@@ -1892,11 +1953,13 @@ function PersonaStatusField({
   onSave,
   locked,
   onToggleLock,
+  testIdPrefix,
 }: {
   value: string;
   onSave?: (v: string) => void;
   locked?: boolean;
   onToggleLock?: () => void;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   return (
@@ -1910,6 +1973,7 @@ function PersonaStatusField({
           locked={locked}
           onToggle={onToggleLock}
           label={localizeUi("ui.chat.personastatusfield.personaStatus")}
+          testId={testIdPrefix ? `${testIdPrefix}-lock-button` : undefined}
         />
       </div>
       <InlineEdit
@@ -1919,6 +1983,7 @@ function PersonaStatusField({
         placeholder={localizeUi("ui.chat.personastatusfield.statusNotTracked")}
         scrollOnHover
         locked={locked}
+        testId={testIdPrefix}
       />
     </div>
   );
@@ -1936,6 +2001,7 @@ function StatBarEditable({
   onToggleNameLock,
   onToggleValueLock,
   onToggleMaxLock,
+  testIdPrefix,
 }: {
   stat: CharacterStat;
   onUpdateName?: (name: string) => void;
@@ -1948,6 +2014,7 @@ function StatBarEditable({
   onToggleNameLock?: () => void;
   onToggleValueLock?: () => void;
   onToggleMaxLock?: () => void;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const { lockMode } = useTrackerLockContext();
@@ -1962,6 +2029,7 @@ function StatBarEditable({
       aria-label={localizeUi("ui.chat.professormariattachmentpreviews.removeValue1", {
         value1: stat.name || localizeUi("ui.chat.statbareditable.stat"),
       })}
+      data-testid={testIdPrefix ? `${testIdPrefix}-remove-button` : undefined}
       className={cn(
         "flex h-4 w-4 items-center justify-center rounded bg-[var(--popover)]/90 text-[var(--muted-foreground)]/45 shadow-sm ring-1 ring-[var(--border)]/70 transition-all hover:text-[var(--destructive)] hover:opacity-100 focus-visible:opacity-100",
         lockMode
@@ -1984,6 +2052,7 @@ function StatBarEditable({
               className="!text-[0.625rem] !font-medium !text-[var(--foreground)]/80"
               placeholder={localizeUi("ui.personas.personastatstab.statName")}
               locked={nameLocked}
+              testId={testIdPrefix ? `${testIdPrefix}-name` : undefined}
             />
             <HudFieldLockButton
               locked={nameLocked}
@@ -1991,6 +2060,7 @@ function StatBarEditable({
               label={localizeUi("ui.chat.combinedplayerpanel.value1Name", {
                 value1: stat.name || localizeUi("ui.chat.statbareditable.stat"),
               })}
+              testId={testIdPrefix ? `${testIdPrefix}-name-lock-button` : undefined}
             />
           </span>
         ) : (
@@ -2001,6 +2071,7 @@ function StatBarEditable({
             type="number"
             value={value}
             onChange={(e) => onUpdateValue(Number(e.target.value))}
+            data-testid={testIdPrefix ? `${testIdPrefix}-value-input` : undefined}
             className={cn(
               "w-12 rounded bg-transparent text-right outline-none text-[var(--foreground)]/80 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
               valueLocked && HUD_LOCKED_FIELD_CLASS,
@@ -2012,12 +2083,14 @@ function StatBarEditable({
             label={localizeUi("ui.chat.combinedplayerpanel.value1Value", {
               value1: stat.name || localizeUi("ui.chat.statbareditable.stat"),
             })}
+            testId={testIdPrefix ? `${testIdPrefix}-value-lock-button` : undefined}
           />
           <span>/</span>
           <input
             type="number"
             value={max}
             onChange={(e) => onUpdateMax(Number(e.target.value))}
+            data-testid={testIdPrefix ? `${testIdPrefix}-max-input` : undefined}
             className={cn(
               "w-12 rounded bg-transparent outline-none text-[var(--foreground)]/80 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
               maxLocked && HUD_LOCKED_FIELD_CLASS,
@@ -2029,6 +2102,7 @@ function StatBarEditable({
             label={localizeUi("ui.chat.statbareditable.value1Max", {
               value1: stat.name || localizeUi("ui.chat.statbareditable.stat"),
             })}
+            testId={testIdPrefix ? `${testIdPrefix}-max-lock-button` : undefined}
           />
           {lockMode && removeButton}
         </div>
@@ -2049,11 +2123,13 @@ function QuestCardEditable({
   questIndex,
   onUpdate,
   onRemove,
+  testIdPrefix,
 }: {
   quest: QuestProgress;
   questIndex: number;
   onUpdate: (q: QuestProgress) => void;
   onRemove: () => void;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const { onUpdateFieldLocks } = useTrackerLockContext();
@@ -2112,6 +2188,7 @@ function QuestCardEditable({
               ? localizeUi("ui.chat.questcardeditable.markIncomplete")
               : localizeUi("ui.chat.questcardeditable.markComplete")
           }
+          data-testid={testIdPrefix ? `${testIdPrefix}-complete-button` : undefined}
           className={cn("rounded-sm", questCompletedLock.locked && HUD_LOCKED_FIELD_CLASS)}
         >
           {quest.completed ? (
@@ -2125,6 +2202,7 @@ function QuestCardEditable({
           label={localizeUi("ui.chat.questcardeditable.value1Completion", {
             value1: quest.name || localizeUi("ui.chat.questcardeditable.quest"),
           })}
+          testId={testIdPrefix ? `${testIdPrefix}-complete-lock-button` : undefined}
         />
         <InlineEdit
           value={quest.name}
@@ -2132,12 +2210,14 @@ function QuestCardEditable({
           className={cn("flex-1 !font-medium", quest.completed && "line-through opacity-50")}
           placeholder={localizeUi("ui.chat.questcardeditable.questName")}
           locked={questNameLock.locked}
+          testId={testIdPrefix ? `${testIdPrefix}-name` : undefined}
         />
         <HudFieldLockButton
           {...questNameLock}
           label={localizeUi("ui.chat.combinedplayerpanel.value1Name", {
             value1: quest.name || localizeUi("ui.chat.questcardeditable.quest"),
           })}
+          testId={testIdPrefix ? `${testIdPrefix}-name-lock-button` : undefined}
         />
         {total > 0 && (
           <span className="text-[0.5625rem] text-[var(--muted-foreground)]/60">
@@ -2148,6 +2228,7 @@ function QuestCardEditable({
           onClick={onRemove}
           className="text-[var(--muted-foreground)]/40 hover:text-red-500 transition-colors shrink-0"
           title={localizeUi("ui.chat.questcardeditable.removeQuest")}
+          data-testid={testIdPrefix ? `${testIdPrefix}-remove-button` : undefined}
         >
           <X size="0.5625rem" />
         </button>
@@ -2161,6 +2242,7 @@ function QuestCardEditable({
               <div key={idx} className="group group/field flex items-center gap-1 text-[0.5625rem]">
                 <button
                   onClick={() => toggleObjective(idx)}
+                  data-testid={testIdPrefix ? `${testIdPrefix}-objective-${idx}-toggle-button` : undefined}
                   className={cn("rounded-sm", completedLock.locked && HUD_LOCKED_FIELD_CLASS)}
                 >
                   {objective.completed ? (
@@ -2172,6 +2254,7 @@ function QuestCardEditable({
                 <HudFieldLockButton
                   {...completedLock}
                   label={localizeUi("ui.chat.questcardeditable.objectiveCompletion")}
+                  testId={testIdPrefix ? `${testIdPrefix}-objective-${idx}-lock-button` : undefined}
                 />
                 <InlineEdit
                   value={objective.text}
@@ -2179,10 +2262,16 @@ function QuestCardEditable({
                   className={cn("flex-1", objective.completed && "line-through opacity-50")}
                   placeholder={localizeUi("ui.chat.questcardeditable.objective")}
                   locked={textLock.locked}
+                  testId={testIdPrefix ? `${testIdPrefix}-objective-${idx}-text` : undefined}
                 />
-                <HudFieldLockButton {...textLock} label={localizeUi("ui.chat.questcardeditable.objectiveText")} />
+                <HudFieldLockButton
+                  {...textLock}
+                  label={localizeUi("ui.chat.questcardeditable.objectiveText")}
+                  testId={testIdPrefix ? `${testIdPrefix}-objective-${idx}-text-lock-button` : undefined}
+                />
                 <button
                   onClick={() => removeObjective(idx)}
+                  data-testid={testIdPrefix ? `${testIdPrefix}-objective-${idx}-remove-button` : undefined}
                   className="opacity-0 group-hover:opacity-100 text-[var(--muted-foreground)]/40 hover:text-red-500 transition-all shrink-0"
                 >
                   <X size="0.4375rem" />
@@ -2192,6 +2281,7 @@ function QuestCardEditable({
           })}
           <button
             onClick={addObjective}
+            data-testid={testIdPrefix ? `${testIdPrefix}-add-objective-button` : undefined}
             className="flex items-center gap-0.5 text-[0.5rem] text-[var(--muted-foreground)]/40 hover:text-[var(--muted-foreground)] transition-colors mt-0.5"
           >
             <Plus size="0.4375rem" /> {localizeUi("ui.chat.questcardeditable.objective_d2dc873")}
@@ -2208,12 +2298,14 @@ function LabeledEdit({
   onSave,
   locked,
   onToggleLock,
+  testId,
 }: {
   label: string;
   value: string;
   onSave: (v: string) => void;
   locked?: boolean;
   onToggleLock?: () => void;
+  testId?: string;
 }) {
   const { lockMode } = useTrackerLockContext();
 
@@ -2230,10 +2322,19 @@ function LabeledEdit({
           locked={locked}
           onToggle={onToggleLock}
           label={label}
+          testId={testId ? `${testId}-lock-button` : undefined}
           className="absolute right-0 top-1/2 h-3.5 w-3.5 -translate-y-1/2 bg-[var(--popover)]/85 shadow-sm"
         />
       </span>
-      <InlineEdit value={value} onSave={onSave} className="min-w-0" placeholder="—" scrollOnHover locked={locked} />
+      <InlineEdit
+        value={value}
+        onSave={onSave}
+        className="min-w-0"
+        placeholder="—"
+        scrollOnHover
+        locked={locked}
+        testId={testId}
+      />
     </div>
   );
 }
@@ -2246,6 +2347,7 @@ function WorldFieldRow({
   accent,
   locked,
   onToggleLock,
+  testId,
 }: {
   icon: ReactNode;
   label: string;
@@ -2254,6 +2356,7 @@ function WorldFieldRow({
   accent: string;
   locked?: boolean;
   onToggleLock?: () => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const [editing, setEditing] = useState(false);
@@ -2295,6 +2398,7 @@ function WorldFieldRow({
               if (e.key === "Escape") setEditing(false);
             }}
             onBlur={commit}
+            data-testid={testId ? `${testId}-input` : undefined}
             className={cn(
               "w-full rounded bg-transparent px-1 py-0.5 text-[0.6875rem] font-medium outline-none placeholder:text-[var(--muted-foreground)]/40",
               locked && HUD_LOCKED_FIELD_CLASS,
@@ -2305,6 +2409,7 @@ function WorldFieldRow({
         ) : (
           <button
             onClick={() => setEditing(true)}
+            data-testid={testId}
             className={cn(
               "w-full truncate rounded px-1 py-0.5 text-left text-[0.6875rem] font-medium",
               value ? "text-[var(--foreground)]/80" : "text-[var(--muted-foreground)]/50 italic",
@@ -2318,13 +2423,19 @@ function WorldFieldRow({
       {!editing && (
         <button
           onClick={() => setEditing(true)}
+          data-testid={testId ? `${testId}-edit-button` : undefined}
           className="shrink-0 text-[var(--muted-foreground)]/30 opacity-0 group-hover/row:opacity-100 transition-opacity"
           title={localizeUi("ui.chat.worldfieldrow.editValue1", { value1: label.toLowerCase() })}
         >
           <Pencil size="0.625rem" />
         </button>
       )}
-      <HudFieldLockButton locked={locked} onToggle={onToggleLock} label={label.toLowerCase()} />
+      <HudFieldLockButton
+        locked={locked}
+        onToggle={onToggleLock}
+        label={label.toLowerCase()}
+        testId={testId ? `${testId}-lock-button` : undefined}
+      />
     </div>
   );
 }

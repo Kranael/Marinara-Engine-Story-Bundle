@@ -91,6 +91,7 @@ export function ConversationMessageBubble({ ctx }: { ctx: MessageRenderContext }
             <button
               type="button"
               role="checkbox"
+              data-testid={`conversation-message-${message.id}-select-checkbox`}
               aria-checked={isSelected}
               aria-label={
                 isSelected
@@ -126,6 +127,7 @@ export function ConversationMessageBubble({ ctx }: { ctx: MessageRenderContext }
               {ctx.onOpenAboutMe ? (
                 <button
                   type="button"
+                  data-testid={`conversation-message-${message.id}-about-me-button`}
                   onClick={(e) => ctx.onOpenAboutMe?.(e.currentTarget.getBoundingClientRect())}
                   aria-label={localizeUi("ui.chat.conversationmessagebubble.viewValue1SAboutMe", {
                     value1: displayName,

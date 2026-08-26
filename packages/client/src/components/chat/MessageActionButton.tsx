@@ -14,6 +14,7 @@ export function MessageActionButton({
   tabIndex,
   buttonRef,
   stopPropagation,
+  testId,
 }: {
   icon: ReactNode;
   onClick: () => void;
@@ -25,6 +26,7 @@ export function MessageActionButton({
   tabIndex?: number;
   buttonRef?: Ref<HTMLButtonElement>;
   stopPropagation?: boolean;
+  testId?: string;
 }) {
   return (
     <button
@@ -38,6 +40,7 @@ export function MessageActionButton({
       aria-label={title}
       aria-pressed={ariaPressed}
       data-message-thinking-action={thinkingAction || undefined}
+      data-testid={testId}
       disabled={disabled}
       tabIndex={tabIndex}
       className={cn(

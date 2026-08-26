@@ -185,6 +185,7 @@ export function CustomEmojiTab({
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
+              data-testid="custom-emoji-upload-button"
               className="inline-flex items-center gap-1.5 rounded-md bg-foreground/5 px-2 py-1 text-xs text-foreground/70 ring-1 ring-foreground/10 transition-colors hover:bg-foreground/10 hover:text-foreground/90"
             >
               <ImagePlus size="0.875rem" /> {localizeUi("ui.characters.characterclipcard.upload")}
@@ -194,6 +195,7 @@ export function CustomEmojiTab({
                 <button
                   type="button"
                   onClick={() => importFileRef.current?.click()}
+                  data-testid="custom-emoji-import-button"
                   className="rounded-md bg-foreground/5 px-2 py-1 text-xs text-foreground/70 ring-1 ring-foreground/10 transition-colors hover:bg-foreground/10 hover:text-foreground/90"
                 >
                   {localizeUi("ui.chat.chatbranchselector.import")}
@@ -202,6 +204,7 @@ export function CustomEmojiTab({
                   <button
                     type="button"
                     onClick={() => void handleExport()}
+                    data-testid="custom-emoji-export-button"
                     className="rounded-md bg-foreground/5 px-2 py-1 text-xs text-foreground/70 ring-1 ring-foreground/10 transition-colors hover:bg-foreground/10 hover:text-foreground/90"
                   >
                     {localizeUi("ui.characters.spritestab.export")}
@@ -210,11 +213,20 @@ export function CustomEmojiTab({
               </>
             )}
           </div>
-          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            data-testid="custom-emoji-file-input"
+            className="hidden"
+            onChange={handleFiles}
+          />
           <input
             ref={importFileRef}
             type="file"
             accept=".json,application/json"
+            data-testid="custom-emoji-import-file-input"
             className="hidden"
             onChange={handleImportFile}
           />
@@ -222,6 +234,7 @@ export function CustomEmojiTab({
             <button
               type="button"
               onClick={() => setShowSettings((v) => !v)}
+              data-testid="custom-emoji-settings-button"
               title={localizeUi("ui.chat.customemojitab.selectionPreferences")}
               aria-label={localizeUi("ui.chat.customemojitab.selectionPreferences")}
               className={cn(
@@ -236,6 +249,7 @@ export function CustomEmojiTab({
             <button
               type="button"
               onClick={() => setEditing((v) => !v)}
+              data-testid="custom-emoji-edit-toggle-button"
               className={cn(
                 "rounded-md px-2 py-1 text-xs transition-colors",
                 editing
@@ -284,6 +298,7 @@ export function CustomEmojiTab({
                     <button
                       type="button"
                       onClick={() => (editing ? void handleRename(emoji.id, emoji.name) : onInsert(`:${emoji.name}:`))}
+                      data-testid={`custom-emoji-global-${emoji.id}-button`}
                       title={
                         editing
                           ? localizeUi("ui.chat.customemojitab.renameValue1", { value1: emoji.name })
@@ -301,6 +316,7 @@ export function CustomEmojiTab({
                       <button
                         type="button"
                         onClick={() => void handleDelete(emoji.id, emoji.name)}
+                        data-testid={`custom-emoji-global-${emoji.id}-delete-button`}
                         title={localizeUi("ui.chat.customemojitab.deleteValue1", { value1: emoji.name })}
                         className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--destructive)] text-white shadow ring-1 ring-black/10 transition-transform hover:scale-110"
                       >
@@ -324,6 +340,7 @@ export function CustomEmojiTab({
                     <button
                       type="button"
                       onClick={() => onInsert(`:${emoji.name}:`)}
+                      data-testid={`custom-emoji-source-${emoji.name}-button`}
                       title={localizeUi("ui.chat.customemojitab.value1Value2", { value1: emoji.name, value2: source })}
                       className="flex aspect-square w-full items-center justify-center rounded-md p-1 transition-transform hover:scale-110 hover:bg-foreground/10 active:scale-100"
                     >

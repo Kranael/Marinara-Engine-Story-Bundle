@@ -39,6 +39,7 @@ export function ConversationGamesPicker({ chatId, open, onClose }: Props) {
             <button
               key={game.id}
               type="button"
+              data-testid={`conversation-games-picker-game-${game.id}-button`}
               onClick={() => handleStart(game.id)}
               className="group flex min-h-28 w-full flex-col justify-between rounded-lg border border-[var(--border)] bg-[var(--secondary)]/45 p-3 text-left transition-colors hover:border-[var(--primary)]/60 hover:bg-[var(--accent)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/40"
             >

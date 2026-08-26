@@ -68,6 +68,7 @@ export function HomeNewChatLauncher({ mode, className, children, ariaLabel }: Ho
     <>
       <button
         type="button"
+        data-testid="home-new-chat-launcher-button"
         onClick={() => (mode ? selectMode(mode) : setSelectorOpen(true))}
         data-home-chat-mode={mode}
         style={mode ? ({ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS[mode] } as CSSProperties) : undefined}

@@ -611,6 +611,7 @@ function BrowserBookmark({
   icon,
   tone,
   tourTarget,
+  testId,
   children,
 }: {
   href?: string;
@@ -618,6 +619,7 @@ function BrowserBookmark({
   icon: ReactNode;
   tone: string;
   tourTarget?: string;
+  testId?: string;
   children: ReactNode;
 }) {
   const style = { "--bookmark-tone": tone } as CSSProperties;
@@ -642,13 +644,14 @@ function BrowserBookmark({
         style={style}
         onClick={onClick}
         data-tour={tourTarget}
+        data-testid={testId}
       >
         {content}
       </a>
     );
   }
   return (
-    <button type="button" onClick={onClick} className={className} style={style} data-tour={tourTarget}>
+    <button type="button" onClick={onClick} className={className} style={style} data-tour={tourTarget} data-testid={testId}>
       {content}
     </button>
   );
@@ -659,12 +662,14 @@ function MobileBrowserBookmark({
   onClick,
   icon,
   tone,
+  testId,
   children,
 }: {
   href?: string;
   onClick?: () => void;
   icon: ReactNode;
   tone: string;
+  testId?: string;
   children: ReactNode;
 }) {
   const style = { "--bookmark-tone": tone } as CSSProperties;
@@ -681,13 +686,21 @@ function MobileBrowserBookmark({
 
   if (href) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" onClick={onClick} className={className} style={style}>
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={onClick}
+        className={className}
+        style={style}
+        data-testid={testId}
+      >
         {content}
       </a>
     );
   }
   return (
-    <button type="button" onClick={onClick} className={className} style={style}>
+    <button type="button" onClick={onClick} className={className} style={style} data-testid={testId}>
       {content}
     </button>
   );
@@ -699,12 +712,14 @@ function HomeWidgetShortcut({
   icon,
   title,
   description,
+  testId,
 }: {
   href?: string;
   onClick?: () => void;
   icon: string;
   title: string;
   description: string;
+  testId?: string;
 }) {
   const className =
     "mari-home-widget-shortcut flex min-h-10 w-full items-center gap-2.5 rounded-xl px-2 text-left transition-colors hover:bg-[color-mix(in_srgb,var(--home-module-accent)_10%,var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--home-module-accent)]";
@@ -721,13 +736,20 @@ function HomeWidgetShortcut({
   );
   if (href) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" onClick={onClick} className={className}>
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={onClick}
+        className={className}
+        data-testid={testId}
+      >
         {content}
       </a>
     );
   }
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button type="button" onClick={onClick} className={className} data-testid={testId}>
       {content}
     </button>
   );
@@ -1275,6 +1297,7 @@ function FloatingProfessorMari({
       <button
         type="button"
         data-tour="home-navigation"
+        data-testid="home-hub-assistant-recall-button"
         onClick={() => {
           clearTimers();
           professorMariNavigatorRuntime.minimized = false;
@@ -1453,6 +1476,7 @@ function FloatingProfessorMari({
         <button
           type="button"
           onClick={minimize}
+          data-testid="home-hub-assistant-dismiss-button"
           className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]"
           aria-label={t("home.assistant.dismiss")}
         >
@@ -1471,6 +1495,7 @@ function FloatingProfessorMari({
           <button
             type="button"
             onClick={openInput}
+            data-testid="home-hub-assistant-navigate-button"
             className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected mari-accent-animated mt-2 h-8 px-3 text-[0.6875rem] font-extrabold"
           >
             {t("home.assistant.navigate")}
@@ -1485,11 +1510,13 @@ function FloatingProfessorMari({
                 if (event.key === "Escape") returnToIdle();
               }}
               placeholder={t("home.assistant.searchPlaceholder")}
+              data-testid="home-hub-assistant-search-input"
               className="mari-chrome-field h-9 w-full rounded-lg pl-3 pr-9 text-xs"
             />
             <button
               type="submit"
               disabled={!query.trim()}
+              data-testid="home-hub-assistant-search-button"
               className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-md text-[var(--marinara-app-accent-solid)] transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-app-accent-solid)] disabled:opacity-35"
               aria-label={t("home.assistant.searchAction")}
             >
@@ -1501,6 +1528,7 @@ function FloatingProfessorMari({
             <button
               type="button"
               onClick={returnToSearch}
+              data-testid="home-hub-assistant-back-button"
               className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--secondary)] text-[var(--foreground)] hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-app-accent-solid)]"
               aria-label={t("home.assistant.back")}
               title={t("home.assistant.back")}
@@ -1513,6 +1541,7 @@ function FloatingProfessorMari({
                 returnToIdle();
                 onOpenDocumentation();
               }}
+              data-testid="home-hub-assistant-documentation-button"
               className="inline-flex min-h-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 text-[0.6875rem] font-bold text-[var(--foreground)] hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-app-accent-solid)]"
             >
               {t("home.actions.documentation")}
@@ -1520,6 +1549,7 @@ function FloatingProfessorMari({
             <button
               type="button"
               onClick={onOpenProfessor}
+              data-testid="home-hub-assistant-ask-professor-button"
               className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected mari-accent-animated h-8 px-2.5 text-[0.6875rem] font-extrabold"
             >
               {t("home.assistant.askProfessor")}
@@ -2205,6 +2235,7 @@ export function HomeBrowserHub({
                 aria-label={t("home.browser.homeTab")}
                 aria-selected={activeTab === "home"}
                 onClick={() => selectTab("home")}
+                data-testid="home-hub-home-tab"
                 className={cn(
                   "flex min-h-9 min-w-0 items-center justify-center rounded-t-lg border border-b-0 text-[0.65rem] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[oklch(0.79_0.16_205)] sm:min-w-[6.5rem] sm:w-auto sm:flex-none sm:gap-1.5 sm:px-3 sm:text-xs",
                   activeTab === "home" ? "flex-1 gap-1 px-2" : "w-9 flex-none gap-0 px-0",
@@ -2226,6 +2257,7 @@ export function HomeBrowserHub({
                 aria-label={t("home.browser.professorTab")}
                 aria-selected={activeTab === "professor"}
                 onClick={openProfessor}
+                data-testid="home-hub-professor-tab"
                 className={cn(
                   "flex min-h-9 min-w-0 items-center justify-center rounded-t-lg border border-b-0 text-[0.65rem] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)] sm:min-w-[6.5rem] sm:w-auto sm:flex-none sm:gap-1.5 sm:px-3 sm:text-xs",
                   activeTab === "professor" ? "flex-1 gap-1 px-2" : "w-9 flex-none gap-0 px-0",
@@ -2255,6 +2287,7 @@ export function HomeBrowserHub({
                     aria-describedby={hasUnreadRefresh ? activityDescriptionId : undefined}
                     aria-selected={tabActive}
                     onClick={() => selectTab(item.id)}
+                    data-testid={`home-hub-package-${item.id}-tab`}
                     className={cn(
                       "relative flex min-h-9 min-w-0 items-center justify-center rounded-t-lg border border-b-0 text-[0.65rem] font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)] sm:min-w-[6.5rem] sm:w-auto sm:flex-none sm:gap-1.5 sm:px-3 sm:text-xs",
                       tabActive ? "flex-1 gap-1 px-2" : "w-9 flex-none gap-0 px-0",
@@ -2292,6 +2325,7 @@ export function HomeBrowserHub({
                 type="button"
                 onClick={() => selectTab("home")}
                 disabled={activeTab === "home"}
+                data-testid="home-hub-address-back-button"
                 className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[oklch(0.79_0.16_205)] disabled:opacity-30"
                 aria-label={t("home.browser.back")}
               >
@@ -2300,6 +2334,7 @@ export function HomeBrowserHub({
               <button
                 type="button"
                 disabled
+                data-testid="home-hub-address-forward-button"
                 className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--muted-foreground)] opacity-30"
                 aria-label={t("home.browser.forward")}
               >
@@ -2346,6 +2381,7 @@ export function HomeBrowserHub({
                 onClick={() => trackHomeAction("discord_clicked")}
                 icon={<img src="/home/tab-icons/discord.svg" alt="" className="h-4 w-4 object-contain" />}
                 tone="#5865F2"
+                testId="home-hub-bookmark-discord"
               >
                 {t("home.browser.bookmarks.discord")}
               </BrowserBookmark>
@@ -2354,6 +2390,7 @@ export function HomeBrowserHub({
                 onClick={() => trackHomeAction("kofi_clicked")}
                 icon={<img src="/home/tab-icons/kofi.png" alt="" className="h-4 w-4 object-contain" />}
                 tone="#ff6433"
+                testId="home-hub-bookmark-kofi"
               >
                 {t("home.actions.support")}
               </BrowserBookmark>
@@ -2364,6 +2401,7 @@ export function HomeBrowserHub({
                 }}
                 icon={<img src="/home/tab-icons/credits.png" alt="" className="h-4 w-4 object-contain" />}
                 tone={HOME_MODULE_ACCENTS.orange}
+                testId="home-hub-bookmark-credits"
               >
                 {t("home.actions.credits")}
               </BrowserBookmark>
@@ -2372,6 +2410,7 @@ export function HomeBrowserHub({
                 icon={<img src="/home/tab-icons/documentation.png" alt="" className="h-4 w-4 object-contain" />}
                 tone={HOME_MODULE_ACCENTS.cyan}
                 tourTarget="home-documentation"
+                testId="home-hub-bookmark-documentation"
               >
                 {t("home.actions.documentation")}
               </BrowserBookmark>
@@ -2380,6 +2419,7 @@ export function HomeBrowserHub({
                 icon={<img src="/home/tab-icons/tutorial.png" alt="" className="h-4 w-4 object-contain" />}
                 tone={HOME_MODULE_ACCENTS.orange}
                 tourTarget="home-tutorial"
+                testId="home-hub-bookmark-tutorial"
               >
                 {t("home.browser.bookmarks.tutorial")}
               </BrowserBookmark>
@@ -2388,6 +2428,7 @@ export function HomeBrowserHub({
                 icon={<img src="/home/tab-icons/faq.png" alt="" className="h-4 w-4 object-contain" />}
                 tone={HOME_MODULE_ACCENTS.pink}
                 tourTarget="home-faq"
+                testId="home-hub-bookmark-faq"
               >
                 {t("home.browser.faqTab")}
               </BrowserBookmark>
@@ -2396,6 +2437,7 @@ export function HomeBrowserHub({
                   onClick={() => setAchievementsOpen(true)}
                   icon={<img src="/home/tab-icons/achievements.png" alt="" className="h-4 w-4 object-contain" />}
                   tone={HOME_MODULE_ACCENTS.orange}
+                  testId="home-hub-bookmark-achievements"
                 >
                   {t("home.browser.achievements")}
                 </BrowserBookmark>
@@ -2405,6 +2447,7 @@ export function HomeBrowserHub({
                 icon={<img src="/home/tab-icons/widgets.svg" alt="" className="h-4 w-4 object-contain" />}
                 tone={HOME_MODULE_ACCENTS.violet}
                 tourTarget="home-widgets"
+                testId="home-hub-bookmark-widgets"
               >
                 {t("home.browser.widgets")}
               </BrowserBookmark>
@@ -2416,6 +2459,7 @@ export function HomeBrowserHub({
               aria-expanded={mobileBookmarksOpen}
               aria-controls="marinara-mobile-bookmarks"
               onClick={() => setMobileBookmarksOpen((open) => !open)}
+              data-testid="home-hub-mobile-bookmarks-button"
               data-component="HomeBrowserHub.MobileBookmarksTrigger"
             >
               <span className="flex items-center gap-1" aria-hidden="true">
@@ -2455,6 +2499,7 @@ export function HomeBrowserHub({
                     }}
                     icon={<img src="/home/tab-icons/discord.svg" alt="" className="h-4 w-4 object-contain" />}
                     tone="#5865F2"
+                    testId="home-hub-mobile-bookmark-discord"
                   >
                     {t("home.browser.bookmarks.discord")}
                   </MobileBrowserBookmark>
@@ -2466,6 +2511,7 @@ export function HomeBrowserHub({
                     }}
                     icon={<img src="/home/tab-icons/kofi.png" alt="" className="h-4 w-4 object-contain" />}
                     tone="#ff6433"
+                    testId="home-hub-mobile-bookmark-kofi"
                   >
                     {t("home.actions.support")}
                   </MobileBrowserBookmark>
@@ -2477,6 +2523,7 @@ export function HomeBrowserHub({
                     }}
                     icon={<img src="/home/tab-icons/credits.png" alt="" className="h-4 w-4 object-contain" />}
                     tone={HOME_MODULE_ACCENTS.orange}
+                    testId="home-hub-mobile-bookmark-credits"
                   >
                     {t("home.actions.credits")}
                   </MobileBrowserBookmark>
@@ -2487,6 +2534,7 @@ export function HomeBrowserHub({
                     }}
                     icon={<img src="/home/tab-icons/documentation.png" alt="" className="h-4 w-4 object-contain" />}
                     tone={HOME_MODULE_ACCENTS.cyan}
+                    testId="home-hub-mobile-bookmark-documentation"
                   >
                     {t("home.actions.documentation")}
                   </MobileBrowserBookmark>
@@ -2497,6 +2545,7 @@ export function HomeBrowserHub({
                     }}
                     icon={<img src="/home/tab-icons/tutorial.png" alt="" className="h-4 w-4 object-contain" />}
                     tone={HOME_MODULE_ACCENTS.orange}
+                    testId="home-hub-mobile-bookmark-tutorial"
                   >
                     {t("home.browser.bookmarks.tutorial")}
                   </MobileBrowserBookmark>
@@ -2507,6 +2556,7 @@ export function HomeBrowserHub({
                     }}
                     icon={<img src="/home/tab-icons/faq.png" alt="" className="h-4 w-4 object-contain" />}
                     tone={HOME_MODULE_ACCENTS.pink}
+                    testId="home-hub-mobile-bookmark-faq"
                   >
                     {t("home.browser.faqTab")}
                   </MobileBrowserBookmark>
@@ -2518,6 +2568,7 @@ export function HomeBrowserHub({
                       }}
                       icon={<img src="/home/tab-icons/achievements.png" alt="" className="h-4 w-4 object-contain" />}
                       tone={HOME_MODULE_ACCENTS.orange}
+                      testId="home-hub-mobile-bookmark-achievements"
                     >
                       {t("home.browser.achievements")}
                     </MobileBrowserBookmark>
@@ -2529,6 +2580,7 @@ export function HomeBrowserHub({
                     }}
                     icon={<img src="/home/tab-icons/widgets.svg" alt="" className="h-4 w-4 object-contain" />}
                     tone={HOME_MODULE_ACCENTS.violet}
+                    testId="home-hub-mobile-bookmark-widgets"
                   >
                     {t("home.browser.widgets")}
                   </MobileBrowserBookmark>
@@ -2684,6 +2736,7 @@ export function HomeBrowserHub({
                             type="button"
                             onClick={openProfessor}
                             className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected mari-accent-animated mt-2 h-8 max-w-full px-2 text-center text-[clamp(0.56rem,2.2cqw,0.75rem)] font-bold leading-tight sm:gap-1.5 sm:px-2.5"
+                            data-testid="home-hub-professor-widget-ask-button"
                             data-home-professor-action
                           >
                             <MessageCircle size="0.8rem" className="mari-rgb-static-icon text-current" />{" "}
@@ -2750,6 +2803,7 @@ export function HomeBrowserHub({
                           <button
                             type="button"
                             onClick={() => useUIStore.getState().openAgentCatalog()}
+                            data-testid="home-hub-discovery-browse-button"
                             className="min-h-8 shrink-0 text-xs font-bold text-[var(--home-module-accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--home-module-accent)]"
                           >
                             {t("home.discovery.browse")}
@@ -2762,6 +2816,7 @@ export function HomeBrowserHub({
                               <button
                                 type="button"
                                 onClick={() => moveDiscovery(-1)}
+                                data-testid="home-hub-discovery-previous-button"
                                 className="absolute -left-1 top-1/2 z-[2] flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[var(--home-module-accent)] transition-[background-color,transform] hover:bg-[color-mix(in_srgb,var(--home-module-accent)_12%,var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--home-module-accent)]"
                                 aria-label={t("home.discovery.previous")}
                               >
@@ -2772,6 +2827,7 @@ export function HomeBrowserHub({
                               key={activeRecommendation.manifest.id}
                               type="button"
                               onClick={() => useUIStore.getState().openAgentCatalog(activeRecommendation.manifest.id)}
+                              data-testid={`home-hub-discovery-recommendation-${activeRecommendation.manifest.id}-button`}
                               className="mari-home-discovery-card flex min-h-24 w-full items-center gap-3 rounded-xl border border-[color-mix(in_srgb,var(--home-module-accent)_20%,var(--border))] bg-[color-mix(in_srgb,var(--home-module-accent)_5%,var(--secondary))] p-3 text-left transition-colors hover:border-[color-mix(in_srgb,var(--home-module-accent)_48%,var(--border))] hover:bg-[color-mix(in_srgb,var(--home-module-accent)_10%,var(--secondary))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--home-module-accent)]"
                             >
                               <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[color-mix(in_srgb,var(--home-module-accent)_14%,var(--accent))] text-[var(--home-module-accent)]">
@@ -2808,6 +2864,7 @@ export function HomeBrowserHub({
                               <button
                                 type="button"
                                 onClick={() => moveDiscovery(1)}
+                                data-testid="home-hub-discovery-next-button"
                                 className="absolute -right-1 top-1/2 z-[2] flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[var(--home-module-accent)] transition-[background-color,transform] hover:bg-[color-mix(in_srgb,var(--home-module-accent)_12%,var(--accent))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--home-module-accent)]"
                                 aria-label={t("home.discovery.next")}
                               >
@@ -2872,6 +2929,7 @@ export function HomeBrowserHub({
                               <button
                                 type="button"
                                 onClick={() => useUIStore.getState().openCharacterDetail(characterOfDay.id)}
+                                data-testid={`home-hub-character-of-day-${characterOfDay.id}-open-button`}
                                 className="mt-2 inline-flex min-h-8 items-center text-xs font-bold text-[var(--home-module-accent)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--home-module-accent)]"
                               >
                                 {t("home.characterOfDay.open")}
@@ -2887,6 +2945,7 @@ export function HomeBrowserHub({
                             <button
                               type="button"
                               onClick={() => useUIStore.getState().openCharacterLibrary()}
+                              data-testid="home-hub-character-of-day-empty-action-button"
                               className="mt-2 self-start text-xs font-bold text-[var(--home-module-accent)] hover:underline"
                             >
                               {t("home.characterOfDay.emptyAction")}
@@ -2906,18 +2965,21 @@ export function HomeBrowserHub({
                         <div className="mari-home-widget-shortcut-list grid content-center gap-1">
                           {[
                             {
+                              id: "documentation",
                               icon: "/home/tab-icons/documentation.png",
                               title: t("home.learn.docsTitle"),
                               description: t("home.learn.docsDescription"),
                               action: () => useUIStore.getState().openModal("docs-viewer"),
                             },
                             {
+                              id: "tutorial",
                               icon: "/home/tab-icons/tutorial.png",
                               title: t("home.learn.tutorialTitle"),
                               description: t("home.learn.tutorialDescription"),
                               action: () => useUIStore.getState().setHasCompletedOnboarding(false),
                             },
                             {
+                              id: "faq",
                               icon: "/home/tab-icons/faq.png",
                               title: t("home.learn.faqTitle"),
                               description: t("home.learn.faqDescription"),
@@ -2930,6 +2992,7 @@ export function HomeBrowserHub({
                               icon={item.icon}
                               title={item.title}
                               description={item.description}
+                              testId={`home-hub-learn-shortcut-${item.id}`}
                             />
                           ))}
                         </div>
@@ -2950,6 +3013,7 @@ export function HomeBrowserHub({
                             icon="/home/tab-icons/discord.svg"
                             title={t("home.community.discordTitle")}
                             description={t("home.community.discordDescription")}
+                            testId="home-hub-community-shortcut-discord"
                           />
                           <HomeWidgetShortcut
                             href="https://ko-fi.com/marinara_spaghetti"
@@ -2957,6 +3021,7 @@ export function HomeBrowserHub({
                             icon="/home/tab-icons/kofi.png"
                             title={t("home.community.supportTitle")}
                             description={t("home.community.supportDescription")}
+                            testId="home-hub-community-shortcut-kofi"
                           />
                           <HomeWidgetShortcut
                             onClick={() => {
@@ -2966,6 +3031,7 @@ export function HomeBrowserHub({
                             icon="/home/tab-icons/credits.png"
                             title={t("home.community.creditsTitle")}
                             description={t("home.community.creditsDescription")}
+                            testId="home-hub-community-shortcut-credits"
                           />
                         </div>
                       </FeedModule>
@@ -3103,6 +3169,7 @@ export function HomeBrowserHub({
                       type="button"
                       onClick={() => void deleteCustomWidget(customWidget)}
                       disabled={deleteCustomWidgetMutation.isPending}
+                      data-testid={`home-hub-widget-${id}-delete-button`}
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--secondary)] text-[var(--muted-foreground)] transition-[background-color,color,border-color,transform] hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 active:scale-95 disabled:opacity-50"
                       aria-label={t("home.widgets.deleteLabel", { widget: label })}
                       title={t("home.widgets.deleteLabel", { widget: label })}
@@ -3116,6 +3183,7 @@ export function HomeBrowserHub({
                     aria-checked={enabled}
                     aria-label={t(enabled ? "home.widgets.hide" : "home.widgets.show", { widget: label })}
                     onClick={() => toggleWidgetVisibility(id)}
+                    data-testid={`home-hub-widget-${id}-visibility-button`}
                     className={cn(
                       "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-[background-color,color,border-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-app-accent-solid)] active:scale-95",
                       enabled

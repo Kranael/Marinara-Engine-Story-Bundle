@@ -63,6 +63,7 @@ export function CustomEmojiSelectionSettings() {
           <button
             key={mode}
             type="button"
+            data-testid={`custom-emoji-selection-mode-${mode}-button`}
             onClick={() => savePrefs({ mode })}
             className={cn(
               "flex-1 rounded px-2 py-1 text-xs capitalize transition-colors",
@@ -85,6 +86,7 @@ export function CustomEmojiSelectionSettings() {
       {draftPrefs.mode === "tool-call" && (
         <div className="mb-2">
           <select
+            data-testid="custom-emoji-selection-tool-connection-select"
             value={draftPrefs.toolConnectionId ?? ""}
             onChange={(e) => savePrefs({ toolConnectionId: e.target.value || null })}
             className="w-full rounded bg-foreground/5 px-2 py-1 text-xs text-foreground ring-1 ring-foreground/10 focus:outline-none focus:ring-[var(--primary)]"
@@ -107,6 +109,7 @@ export function CustomEmojiSelectionSettings() {
         <span>{localizeUi("ui.chat.customemojiselectionsettings.maxOfferedEach")}</span>
         <input
           type="number"
+          data-testid="custom-emoji-selection-max-count-input"
           min={CUSTOM_EMOJI_SELECTION_MIN_COUNT}
           max={CUSTOM_EMOJI_SELECTION_MAX_COUNT}
           value={maxCountDraft}

@@ -196,6 +196,7 @@ function TargetSelection({ attackType, enemies, party, onSelect, onCancel }: Tar
           {(attackType === "AoE" || attackType === "both") && (
             <button
               onClick={() => onSelect("all-enemies")}
+              data-testid="encounter-target-all-enemies-button"
               className="flex items-center gap-3 rounded-xl border border-orange-500/20 bg-orange-500/10 p-3 text-left transition-all hover:border-orange-500/40 hover:bg-orange-500/20"
             >
               <span className="text-lg">💥</span>
@@ -224,6 +225,7 @@ function TargetSelection({ attackType, enemies, party, onSelect, onCancel }: Tar
                 <button
                   key={i}
                   onClick={() => onSelect(enemy.name)}
+                  data-testid={`encounter-target-enemy-${i}-button`}
                   className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 p-3 text-left transition-all hover:border-red-500/40 hover:bg-red-500/15"
                 >
                   <span className="text-lg">{enemy.sprite || "👹"}</span>
@@ -244,6 +246,7 @@ function TargetSelection({ attackType, enemies, party, onSelect, onCancel }: Tar
                 <button
                   key={`party-${i}`}
                   onClick={() => onSelect(member.name)}
+                  data-testid={`encounter-target-party-${i}-button`}
                   className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-left transition-all hover:border-emerald-500/40 hover:bg-emerald-500/15"
                 >
                   <span className="text-lg">✨</span>
@@ -261,6 +264,7 @@ function TargetSelection({ attackType, enemies, party, onSelect, onCancel }: Tar
 
         <button
           onClick={onCancel}
+          data-testid="encounter-target-cancel-button"
           className="mt-3 w-full rounded-xl border border-[var(--border)] py-2 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)]"
         >
           {localizeUi("chat.delete.dialog.cancel")}
@@ -278,10 +282,12 @@ function NarrativeSelect({
   label,
   value,
   onChange,
+  testIdPrefix,
 }: {
   label: string;
   value: NarrativeStyle;
   onChange: (v: NarrativeStyle) => void;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   return (
@@ -291,6 +297,7 @@ function NarrativeSelect({
         <select
           value={value.tense}
           onChange={(e) => onChange({ ...value, tense: e.target.value as any })}
+          data-testid={testIdPrefix ? `${testIdPrefix}-tense-select` : undefined}
           className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-2 py-1.5 text-xs text-[var(--foreground)]"
         >
           <option value="present">{localizeUi("ui.chat.narrativeselect.presentTense")}</option>
@@ -299,6 +306,7 @@ function NarrativeSelect({
         <select
           value={value.person}
           onChange={(e) => onChange({ ...value, person: e.target.value as any })}
+          data-testid={testIdPrefix ? `${testIdPrefix}-person-select` : undefined}
           className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-2 py-1.5 text-xs text-[var(--foreground)]"
         >
           <option value="first">{localizeUi("ui.chat.narrativeselect.firstPerson")}</option>
@@ -308,6 +316,7 @@ function NarrativeSelect({
         <select
           value={value.narration}
           onChange={(e) => onChange({ ...value, narration: e.target.value as any })}
+          data-testid={testIdPrefix ? `${testIdPrefix}-narration-select` : undefined}
           className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-2 py-1.5 text-xs text-[var(--foreground)]"
         >
           <option value="omniscient">{localizeUi("ui.chat.narrativeselect.omniscient")}</option>
@@ -317,6 +326,7 @@ function NarrativeSelect({
           value={value.pov}
           onChange={(e) => onChange({ ...value, pov: e.target.value })}
           placeholder={localizeUi("ui.chat.narrativeselect.narrator")}
+          data-testid={testIdPrefix ? `${testIdPrefix}-pov-input` : undefined}
           className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-2 py-1.5 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50"
         />
       </div>
@@ -361,12 +371,14 @@ function EncounterConfig() {
             label={localizeUi("ui.chat.encounterconfig.combatNarration")}
             value={settings.combatNarrative}
             onChange={(v) => updateSettings({ combatNarrative: v })}
+            testIdPrefix="encounter-config-combat-narrative"
           />
 
           <NarrativeSelect
             label={localizeUi("ui.chat.encounterconfig.summaryNarration")}
             value={settings.summaryNarrative}
             onChange={(v) => updateSettings({ summaryNarrative: v })}
+            testIdPrefix="encounter-config-summary-narrative"
           />
 
           {/* Spellbook selection */}
@@ -381,6 +393,7 @@ function EncounterConfig() {
             <select
               value={spellbookId ?? ""}
               onChange={(e) => setSpellbookId(e.target.value || null)}
+              data-testid="encounter-config-spellbook-select"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-2 py-1.5 text-xs text-[var(--foreground)]"
             >
               <option value="">{localizeUi("ui.game.gamesurfacecomponent.none")}</option>
@@ -396,12 +409,14 @@ function EncounterConfig() {
         <div className="mt-6 flex gap-3">
           <button
             onClick={closeConfigModal}
+            data-testid="encounter-config-cancel-button"
             className="flex-1 rounded-xl border border-[var(--border)] py-2.5 text-xs font-medium text-[var(--muted-foreground)] hover:bg-[var(--accent)]"
           >
             {localizeUi("chat.delete.dialog.cancel")}
           </button>
           <button
             onClick={() => initEncounter(settings)}
+            data-testid="encounter-config-begin-combat-button"
             className="flex-1 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 py-2.5 text-xs font-bold text-foreground shadow-lg shadow-red-500/20 transition-all hover:shadow-xl hover:shadow-red-500/30 active:scale-95"
           >
             <Swords size="0.875rem" className="mr-1.5 inline" />
@@ -571,6 +586,7 @@ function PlayerControls({ onAction }: { onAction: (text: string) => void }) {
                   key={i}
                   disabled={isProcessing}
                   onClick={() => handleAttack(atk)}
+                  data-testid={`encounter-attack-${i}-button`}
                   className="flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-200 transition-all hover:border-red-500/40 hover:bg-red-500/20 disabled:opacity-30"
                 >
                   <Swords size="0.75rem" />
@@ -594,6 +610,7 @@ function PlayerControls({ onAction }: { onAction: (text: string) => void }) {
                   key={i}
                   disabled={isProcessing}
                   onClick={() => handleItem(item)}
+                  data-testid={`encounter-item-${i}-button`}
                   className="flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-200 transition-all hover:border-emerald-500/40 hover:bg-emerald-500/20 disabled:opacity-30"
                 >
                   <FlaskConical size="0.75rem" />
@@ -616,11 +633,13 @@ function PlayerControls({ onAction }: { onAction: (text: string) => void }) {
               onKeyDown={(e) => e.key === "Enter" && !isProcessing && handleCustomSubmit()}
               placeholder={localizeUi("ui.chat.playercontrols.describeWhatYouDo")}
               disabled={isProcessing}
+              data-testid="encounter-custom-action-input"
               className="flex-1 rounded-lg border border-foreground/10 bg-foreground/5 px-3 py-2 text-xs text-foreground/80 placeholder:text-foreground/25 disabled:opacity-30"
             />
             <button
               onClick={handleCustomSubmit}
               disabled={isProcessing || !customInput.trim()}
+              data-testid="encounter-custom-action-submit-button"
               className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-foreground transition-all hover:bg-blue-500 disabled:opacity-30"
             >
               <Send size="0.875rem" />
@@ -688,6 +707,7 @@ function CombatEndScreen() {
           </p>
           <button
             onClick={closeEncounter}
+            data-testid="encounter-end-close-button"
             className="mt-6 rounded-xl bg-foreground/10 px-6 py-3 text-sm font-bold text-foreground/80 transition-all hover:bg-foreground/20"
           >
             {localizeUi("ui.chat.combatendscreen.closeCombatWindow")}
@@ -700,6 +720,7 @@ function CombatEndScreen() {
           <p className="mt-2 text-sm text-red-400">{localizeUi("ui.chat.combatendscreen.failedToGenerateSummary")}</p>
           <button
             onClick={closeEncounter}
+            data-testid="encounter-end-close-anyway-button"
             className="mt-6 rounded-xl bg-foreground/10 px-6 py-3 text-sm font-bold text-foreground/80 transition-all hover:bg-foreground/20"
           >
             {localizeUi("ui.chat.combatendscreen.closeAnyway")}
@@ -813,6 +834,7 @@ function EncounterModalInner() {
                         concludeEncounter();
                       }
                     }}
+                    data-testid="encounter-conclude-button"
                     className="flex items-center gap-1.5 rounded-lg border border-foreground/10 px-3 py-1.5 text-[0.6875rem] text-foreground/50 transition-all hover:bg-foreground/10"
                   >
                     <Flag size="0.75rem" />
@@ -832,6 +854,7 @@ function EncounterModalInner() {
                       closeEncounter();
                     }
                   }}
+                  data-testid="encounter-close-button"
                   className="rounded-lg p-1.5 text-foreground/40 hover:bg-foreground/10 hover:text-foreground/80"
                 >
                   <X size="1rem" />
@@ -859,6 +882,7 @@ function EncounterModalInner() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => initEncounter(settings)}
+                      data-testid="encounter-error-retry-button"
                       className="flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-medium text-foreground"
                     >
                       <RefreshCw size="0.75rem" />
@@ -866,6 +890,7 @@ function EncounterModalInner() {
                     </button>
                     <button
                       onClick={closeEncounter}
+                      data-testid="encounter-error-close-modal-button"
                       className="rounded-xl border border-foreground/10 px-4 py-2 text-xs text-foreground/50 hover:bg-foreground/5"
                     >
                       {localizeUi("capabilities.actions.close")}
@@ -970,6 +995,7 @@ class EncounterErrorBoundary extends Component<{ children: ReactNode; onReset: (
                     this.setState({ hasError: false });
                     this.props.onReset();
                   }}
+                  data-testid="encounter-error-close-button"
                   className="rounded-xl bg-red-600 px-6 py-2.5 text-xs font-medium text-foreground transition-all hover:bg-red-500"
                 >
                   {t("ui.chat.encountererrorboundary.close")}

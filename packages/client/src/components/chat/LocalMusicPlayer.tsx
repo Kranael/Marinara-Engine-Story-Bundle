@@ -340,6 +340,7 @@ export function LocalMusicPlayer({ mobile = false }: { mobile?: boolean } = {}) 
     >
       <button
         type="button"
+        data-testid="local-music-player-mute-button"
         onClick={toggleMute}
         className={cn(
           "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors",
@@ -358,6 +359,7 @@ export function LocalMusicPlayer({ mobile = false }: { mobile?: boolean } = {}) 
         min={0}
         max={100}
         step={1}
+        data-testid="local-music-player-volume-slider"
         value={playerVolume}
         onChange={(event) => setPlayerVolume(Number(event.target.value))}
         className="mari-local-music-volume-slider w-full"
@@ -394,6 +396,7 @@ export function LocalMusicPlayer({ mobile = false }: { mobile?: boolean } = {}) 
       {nowPlaying && (
         <button
           type="button"
+          data-testid="local-music-player-play-pause-button"
           onClick={togglePlay}
           className={cn(
             "inline-flex h-7 w-7 items-center justify-center rounded-full shadow-[0_1px_8px_color-mix(in_srgb,var(--primary)_45%,transparent)] transition-transform hover:scale-105 active:scale-95",
@@ -410,6 +413,7 @@ export function LocalMusicPlayer({ mobile = false }: { mobile?: boolean } = {}) 
       {hasPlayerContent && (
         <button
           type="button"
+          data-testid="local-music-player-close-button"
           onClick={close}
           className={cn(
             "inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors active:scale-90",
@@ -463,6 +467,7 @@ export function LocalMusicPlayer({ mobile = false }: { mobile?: boolean } = {}) 
                   </span>
                   <button
                     type="button"
+                    data-testid="local-music-player-mobile-collapse-button"
                     onPointerDown={(event) => event.stopPropagation()}
                     onPointerMove={(event) => event.stopPropagation()}
                     onPointerUp={(event) => event.stopPropagation()}

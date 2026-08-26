@@ -78,6 +78,7 @@ function ActiveLorebookEntryRow({
   entry,
 }: {
   entry: {
+    id: string;
     name: string;
     keys: string[];
     content: string;
@@ -133,6 +134,7 @@ function ActiveLorebookEntryRow({
         <span className="ml-auto shrink-0 text-[0.625rem] text-[var(--muted-foreground)]">#{entry.order}</span>
         <button
           type="button"
+          data-testid={`active-context-entry-${entry.id}-open-button`}
           className="min-h-8 shrink-0 rounded px-1.5 text-[0.625rem] text-[var(--muted-foreground)] hover:bg-white/10 hover:text-[var(--foreground)]"
           onClick={(event) => {
             event.stopPropagation();
@@ -215,6 +217,7 @@ function BudgetSkippedEntryRow({ entry }: { entry: BudgetSkippedLorebookEntry })
   return (
     <button
       type="button"
+      data-testid={`active-context-skipped-entry-${entry.id}-button`}
       className="w-full rounded-lg border border-amber-500/20 bg-amber-500/10 p-2 text-left text-xs transition-colors hover:bg-amber-500/15"
       onClick={() => setExpanded((prev) => !prev)}
     >
@@ -275,6 +278,7 @@ function BudgetSkippedEntriesNotice({ entries }: { entries: BudgetSkippedLoreboo
     <div className="mb-2 rounded-lg border border-amber-500/25 bg-amber-500/10 p-2 text-xs text-amber-50/85">
       <button
         type="button"
+        data-testid="active-context-skipped-entries-toggle-button"
         className="flex w-full items-start gap-2 text-left"
         onClick={() => setExpanded((prev) => !prev)}
       >
@@ -379,6 +383,7 @@ export function ActiveLorebookEntriesPanel({ chatId, onClose }: { chatId: string
         {localizeUi("ui.chat.activelorebookentriespanel.activeContext")}
         <button
           type="button"
+          data-testid="active-context-close-button"
           onClick={onClose}
           aria-label={localizeUi("ui.chat.activelorebookentriespanel.closeActiveContext")}
           className={cn(NEUTRAL_PANEL_CLOSE_BUTTON, "ml-auto -my-1")}
@@ -459,6 +464,7 @@ export function AuthorNotesPanel({
         {localizeUi("ui.chat.authornotespanel.authorSNotes")}
         <button
           type="button"
+          data-testid="author-notes-close-button"
           onClick={onClose}
           aria-label={localizeUi("ui.chat.authornotespanel.closeAuthorSNotes")}
           className={cn(NEUTRAL_PANEL_CLOSE_BUTTON, "ml-auto -my-1")}
@@ -478,6 +484,7 @@ export function AuthorNotesPanel({
         placeholder={localizeUi("ui.chat.authornotespanel.eGKeepTheToneDarkAndSuspensefulThe")}
         rows={4}
         ariaLabel={localizeUi("ui.chat.authornotespanel.authorSNotes")}
+        testId="author-notes-textarea"
         wrapperClassName="mari-author-notes-field min-w-0"
         className="mari-chrome-field resize-none !rounded-md px-2.5 py-2 text-xs leading-relaxed"
       />
@@ -488,6 +495,7 @@ export function AuthorNotesPanel({
         <input
           type="text"
           inputMode="numeric"
+          data-testid="author-notes-depth-input"
           value={depthStr}
           onChange={(e) => setDepthStr(e.target.value.replace(/[^0-9]/g, ""))}
           onBlur={() => {

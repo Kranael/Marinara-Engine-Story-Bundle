@@ -2269,6 +2269,7 @@ export function LorebookEditor() {
                         markLorebookDirty();
                       }}
                       className="p-0 hover:bg-transparent"
+                      testId="lorebook-editor-enabled-switch"
                     />
                   </div>
 
@@ -2323,6 +2324,7 @@ export function LorebookEditor() {
                         markLorebookDirty();
                       }}
                       className="p-0 hover:bg-transparent"
+                      testId="lorebook-editor-global-switch"
                     />
                   </div>
                 </div>
@@ -2344,6 +2346,7 @@ export function LorebookEditor() {
                         markLorebookDirty();
                       }}
                       min={0}
+                      data-testid="lorebook-editor-scan-depth-input"
                       className="mari-editor-field h-10 w-full px-3 py-2.5 text-sm"
                     />
                   </div>
@@ -2362,6 +2365,7 @@ export function LorebookEditor() {
                         markLorebookDirty();
                       }}
                       min={0}
+                      data-testid="lorebook-editor-token-budget-input"
                       className="mari-editor-field h-10 w-full px-3 py-2.5 text-sm"
                     />
                   </div>
@@ -3236,6 +3240,7 @@ function VectorizeSection({
             }
             min={0}
             max={LIMITS.LOREBOOK_VECTOR_QUERY_DEPTH_MAX}
+            data-testid="lorebook-vector-query-depth-input"
             className="mari-editor-field h-9 w-full px-2.5 py-1.5 text-xs"
           />
         </label>
@@ -3257,6 +3262,7 @@ function VectorizeSection({
             min={0}
             max={1}
             step={0.01}
+            data-testid="lorebook-vector-score-threshold-input"
             className="mari-editor-field h-9 w-full px-2.5 py-1.5 text-xs"
           />
         </label>
@@ -3280,6 +3286,7 @@ function VectorizeSection({
             }
             min={LIMITS.LOREBOOK_VECTOR_MAX_RESULTS_MIN}
             max={LIMITS.LOREBOOK_VECTOR_MAX_RESULTS_MAX}
+            data-testid="lorebook-vector-max-results-input"
             className="mari-editor-field h-9 w-full px-2.5 py-1.5 text-xs"
           />
         </label>

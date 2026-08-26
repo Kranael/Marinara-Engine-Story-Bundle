@@ -691,6 +691,7 @@ function WidgetConfigFields({
               onConfigChange({ value: next, startingValue: next });
             }}
             selectOnFocus
+            testId={`game-widget-config-value-input-${widget.id}`}
             className={WIDGET_NUMBER_INPUT_CLASS}
           />
         </label>
@@ -704,6 +705,7 @@ function WidgetConfigFields({
             disabled={disabled}
             onCommit={(next) => onConfigChange({ max: next })}
             selectOnFocus
+            testId={`game-widget-config-max-input-${widget.id}`}
             className={WIDGET_NUMBER_INPUT_CLASS}
           />
         </label>
@@ -722,6 +724,7 @@ function WidgetConfigFields({
           disabled={disabled}
           onCommit={(next) => onConfigChange({ count: Math.round(next) })}
           selectOnFocus
+          testId={`game-widget-config-count-input-${widget.id}`}
           className={WIDGET_NUMBER_INPUT_CLASS}
         />
       </label>
@@ -807,6 +810,7 @@ function WidgetConfigFields({
             disabled={disabled}
             onCommit={(next) => onConfigChange({ slots: Math.round(next) })}
             selectOnFocus
+            testId={`game-widget-config-slots-input-${widget.id}`}
             className={WIDGET_NUMBER_INPUT_CLASS}
           />
         </label>
@@ -843,6 +847,7 @@ function WidgetConfigFields({
           disabled={disabled}
           onCommit={(next) => onConfigChange({ seconds: Math.round(next) })}
           selectOnFocus
+          testId={`game-widget-config-seconds-input-${widget.id}`}
           className={WIDGET_NUMBER_INPUT_CLASS}
         />
       </label>

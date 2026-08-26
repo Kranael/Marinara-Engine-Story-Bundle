@@ -154,6 +154,7 @@ export function ChatToolbarButton({
   return (
     <button
       type="button"
+      data-testid={`chat-toolbar-${panelAction ?? helpTarget}-button`}
       onClick={(event) => {
         announceChatToolbarAction(panelAction ?? null);
         onClick(event);

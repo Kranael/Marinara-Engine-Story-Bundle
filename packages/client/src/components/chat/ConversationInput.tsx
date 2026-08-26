@@ -1920,6 +1920,7 @@ export function ConversationInput({
                 void handleTranslateDraft();
               }}
               disabled={!activeChatId || !hasInput || isTranslatingDraft}
+              data-testid="conversation-input-mobile-translate-draft-button"
               className={cn(
                 "flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-colors",
                 activeChatId && hasInput && !isTranslatingDraft
@@ -1967,6 +1968,7 @@ export function ConversationInput({
                 }}
                 disabled={action.disabled}
                 title={action.disabled ? (action.disabledReason ?? action.description) : action.description}
+                data-testid={`conversation-input-mobile-quick-reply-${action.id}-button`}
                 className={cn(
                   "flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-colors",
                   action.disabled
@@ -1996,6 +1998,7 @@ export function ConversationInput({
             focusAfterMobileRestoreRef.current = true;
             onMobileHistoryCollapsedChange?.(false);
           }}
+          data-testid="conversation-input-mobile-collapsed-button"
           className={cn(
             getChatInputShellClass({ dragging: false, hasContent: false, layout: "conversation" }),
             "min-h-10 w-full justify-start text-left text-sm text-foreground/55",
@@ -2027,6 +2030,7 @@ export function ConversationInput({
                   textareaRef.current.focus();
                 }
               }}
+              data-testid={`conversation-input-slash-completion-${cmd.key}-button`}
               className={cn(
                 "flex w-full min-w-0 items-start gap-2 px-3 py-2.5 text-left text-sm transition-colors",
                 i === selectedCompletion ? "bg-foreground/10 text-foreground" : "hover:bg-foreground/10",
@@ -2060,6 +2064,7 @@ export function ConversationInput({
                 e.preventDefault();
                 insertMention(name);
               }}
+              data-testid={`conversation-input-mention-completion-${i}-button`}
               className={cn(
                 "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors",
                 i === selectedMention ? "bg-foreground/10 text-foreground" : "hover:bg-foreground/10",
@@ -2082,6 +2087,7 @@ export function ConversationInput({
                 e.preventDefault();
                 insertEmoji(em);
               }}
+              data-testid={`conversation-input-emoji-completion-${em.name}-button`}
               className={cn(
                 "flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm transition-colors",
                 i === selectedEmojiCompletion ? "bg-foreground/10 text-foreground" : "hover:bg-foreground/10",
@@ -2147,6 +2153,7 @@ export function ConversationInput({
               <span className="max-w-[120px] truncate">{att.name}</span>
               <button
                 onClick={() => updateAttachments((prev) => prev.filter((_, idx) => idx !== i))}
+                data-testid={`conversation-input-attachment-${i}-remove-button`}
                 className="rounded p-0.5 text-foreground/45 hover:text-[var(--destructive)]"
               >
                 <X size="0.625rem" />
@@ -2204,9 +2211,11 @@ export function ConversationInput({
             void handleFileUpload(e.target.files);
             e.target.value = "";
           }}
+          data-testid="conversation-input-file-input"
         />
         <button
           onClick={() => fileInputRef.current?.click()}
+          data-testid="conversation-input-attach-button"
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all active:scale-90 sm:h-8 sm:w-8",
             attachments.length
@@ -2232,6 +2241,7 @@ export function ConversationInput({
         <textarea
           ref={textareaRef}
           data-chat-composer="true"
+          data-testid="conversation-input-textarea"
           placeholder={inputPlaceholder}
           rows={1}
           onInput={handleInput}
@@ -2255,6 +2265,7 @@ export function ConversationInput({
               if (next) textareaRef.current?.blur();
               else textareaRef.current?.focus();
             }}
+            data-testid="conversation-input-mobile-picker-button"
             className={cn(
               "flex h-9 w-9 items-center justify-center rounded-xl transition-colors sm:hidden",
               mobilePickerOpen
@@ -2285,6 +2296,7 @@ export function ConversationInput({
               onClick={() => {
                 setMobilePickerOpen((value) => !value);
               }}
+              data-testid="conversation-input-media-picker-button"
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
                 mobilePickerOpen
@@ -2317,6 +2329,7 @@ export function ConversationInput({
               type="button"
               onClick={() => void handleTranslateDraft()}
               disabled={!activeChatId || !hasInput || isTranslatingDraft}
+              data-testid="conversation-input-translate-draft-button"
               className={cn(
                 "hidden h-11 w-11 items-center justify-center rounded-full transition-colors sm:flex sm:h-8 sm:w-8",
                 hasInput && !isTranslatingDraft
@@ -2352,6 +2365,7 @@ export function ConversationInput({
             }
             disabled={!isActuallyGenerating && (isSendBlocked || isReadingAttachments || !activeChatId || !canSubmit)}
             aria-label={sendButtonTitle}
+            data-testid="conversation-input-send-button"
             className={cn(
               "flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 sm:h-8 sm:w-8",
               isActuallyGenerating

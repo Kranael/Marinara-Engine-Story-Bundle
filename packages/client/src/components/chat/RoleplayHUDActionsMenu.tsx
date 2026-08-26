@@ -140,6 +140,7 @@ export function RoleplayHUDActionsMenu({
                   key={item.id}
                   type="button"
                   onClick={() => setTab(item.id)}
+                  data-testid={`roleplay-actions-tab-${item.id}-button`}
                   title={undefined}
                   className={
                     active
@@ -180,6 +181,7 @@ export function RoleplayHUDActionsMenu({
                 </span>
                 <button
                   onClick={clearThoughtBubbles}
+                  data-testid="roleplay-actions-clear-thoughts-button"
                   className="text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                 >
                   {localizeUi("ui.chat.roleplayhudactionsmenu.clearAll")}
@@ -193,6 +195,7 @@ export function RoleplayHUDActionsMenu({
                   >
                     <button
                       onClick={() => dismissThoughtBubble(index)}
+                      data-testid={`roleplay-actions-thought-${index}-dismiss-button`}
                       className="absolute right-1.5 top-1.5 text-[var(--muted-foreground)]/50 transition-colors hover:text-[var(--foreground)]"
                     >
                       <X size="0.625rem" />
@@ -268,6 +271,7 @@ export function RoleplayHUDActionsMenu({
                 }
               }}
               disabled={stoppingAgents}
+              data-testid="roleplay-actions-stop-agents-button"
               className="flex w-full items-center gap-2 px-3 py-2 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]/45 hover:text-[var(--foreground)] disabled:opacity-50"
             >
               <Square size="0.6875rem" fill="currentColor" />
@@ -304,6 +308,7 @@ export function RoleplayHUDActionsMenu({
                 clearGameState();
                 onClose();
               }}
+              data-testid="roleplay-actions-clear-trackers-button"
               className="flex w-full items-center gap-2 px-3 py-2 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]/45 hover:text-[var(--foreground)]"
             >
               <Trash2 size="0.75rem" className="text-current" />
@@ -317,6 +322,7 @@ export function RoleplayHUDActionsMenu({
                 onClose();
               }}
               disabled={isGenerationBusy}
+              data-testid="roleplay-actions-rerun-trackers-button"
               className="flex w-full items-center gap-2 px-3 py-2 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]/45 hover:text-[var(--foreground)] disabled:opacity-50"
             >
               <RefreshCw size="0.6875rem" className={isGenerationBusy ? "animate-spin" : ""} />
@@ -334,6 +340,7 @@ export function RoleplayHUDActionsMenu({
                 onClose();
               }}
               disabled={isGenerationBusy}
+              data-testid="roleplay-actions-retry-failed-button"
               className="flex w-full items-center gap-2 px-3 py-2 text-[0.625rem] font-medium text-amber-300 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
             >
               <AlertTriangle size="0.6875rem" className={isGenerationBusy ? "animate-pulse" : ""} />
@@ -393,6 +400,7 @@ function CustomAgentRunsSection({
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}
+          data-testid="roleplay-actions-custom-runs-toggle-button"
           className="flex min-h-7 w-full items-center gap-1.5 px-3 py-1.5 text-left transition-colors hover:bg-[var(--accent)]/45 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
           aria-expanded={open}
         >
@@ -605,6 +613,7 @@ function CustomAgentRunItem({ run }: { run: AgentRunRow }) {
             setEditing((value) => !value);
             setError(null);
           }}
+          data-testid={`roleplay-actions-run-${run.id}-edit-button`}
           className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]/45 hover:text-[var(--accent-foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
           title={
             editing
@@ -625,6 +634,7 @@ function CustomAgentRunItem({ run }: { run: AgentRunRow }) {
               setError(null);
             }}
             spellCheck={false}
+            data-testid={`roleplay-actions-run-${run.id}-edit-textarea`}
             className="min-h-24 w-full resize-y rounded-md border border-[var(--input)] bg-[var(--secondary)]/45 px-2 py-1.5 font-mono text-[0.625rem] leading-relaxed text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-1 focus:ring-[var(--ring)]"
           />
           {error && <div className="text-[0.5625rem] text-[var(--destructive)]">{error}</div>}
@@ -638,6 +648,7 @@ function CustomAgentRunItem({ run }: { run: AgentRunRow }) {
               type="button"
               onClick={save}
               disabled={updateRun.isPending}
+              data-testid={`roleplay-actions-run-${run.id}-save-button`}
               className="inline-flex min-h-7 items-center gap-1 rounded-md border border-foreground/15 bg-foreground/10 px-2 py-1 text-[0.5625rem] font-medium text-foreground/70 transition-colors hover:bg-foreground/15 hover:text-foreground/85 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:opacity-50"
             >
               <Check size="0.625rem" />

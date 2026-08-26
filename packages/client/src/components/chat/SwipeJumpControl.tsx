@@ -61,6 +61,7 @@ export function SwipeJumpControl({
     <div className={cn("mari-message-swipes flex items-center gap-1.5", className)}>
       <button
         type="button"
+        data-testid={`swipe-jump-${messageId}-previous-button`}
         className={buttonClassName}
         onClick={(event) => {
           event.stopPropagation();
@@ -77,6 +78,7 @@ export function SwipeJumpControl({
       </label>
       <input
         id={inputId}
+        data-testid={`swipe-jump-${messageId}-input`}
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
@@ -102,6 +104,7 @@ export function SwipeJumpControl({
       <span className="tabular-nums">/{displaySwipeCount}</span>
       <button
         type="button"
+        data-testid={`swipe-jump-${messageId}-next-button`}
         className={buttonClassName}
         onClick={(event) => {
           event.stopPropagation();

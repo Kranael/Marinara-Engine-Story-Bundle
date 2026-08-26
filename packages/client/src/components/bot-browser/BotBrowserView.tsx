@@ -2317,6 +2317,7 @@ export function BotBrowserView() {
                 {(includeTags.length > 0 || excludeTags.length > 0) && (
                   <button
                     onClick={clearAllTags}
+                    data-testid="bot-browser-tags-clear-button"
                     className="mari-chrome-control mari-chrome-control--danger min-h-0 px-1.5 py-0.5 text-[0.6rem]"
                   >
                     {localizeUi("lorebook.editor.batch.clear")}
@@ -2324,6 +2325,7 @@ export function BotBrowserView() {
                 )}
                 <button
                   onClick={() => setShowTagPanel(false)}
+                  data-testid="bot-browser-tag-panel-close-button"
                   className="mari-chrome-control mari-chrome-control--small min-h-0 p-0.5"
                 >
                   <X size="0.75rem" />
@@ -2342,6 +2344,7 @@ export function BotBrowserView() {
                   }
                 }}
                 placeholder={localizeUi("ui.botBrowser.botbrowserview.searchTags")}
+                data-testid="bot-browser-tag-search-input"
                 className="mari-chrome-field mari-chrome-field--compact w-full px-2.5 py-1.5 text-xs"
               />
             </div>
@@ -2351,6 +2354,7 @@ export function BotBrowserView() {
                   <span
                     key={`inc-${tag}`}
                     onClick={() => toggleIncludeTag(tag)}
+                    data-testid={`bot-browser-active-include-tag-${tag}`}
                     className="cursor-pointer rounded-full bg-emerald-500/20 px-2 py-0.5 text-[0.6rem] font-medium text-emerald-400 ring-1 ring-emerald-500/30 transition-colors hover:bg-emerald-500/30"
                   >
                     + {tag}
@@ -2360,6 +2364,7 @@ export function BotBrowserView() {
                   <span
                     key={`exc-${tag}`}
                     onClick={() => toggleExcludeTag(tag)}
+                    data-testid={`bot-browser-active-exclude-tag-${tag}`}
                     className="cursor-pointer rounded-full bg-red-500/20 px-2 py-0.5 text-[0.6rem] font-medium text-red-400 ring-1 ring-red-500/30 transition-colors hover:bg-red-500/30"
                   >
                     − {tag}
@@ -2372,6 +2377,7 @@ export function BotBrowserView() {
                 <div className="mx-1 mb-1 flex flex-col gap-1">
                   <button
                     onClick={addCustomTag}
+                    data-testid="bot-browser-tag-add-custom-button"
                     className="flex w-full items-center gap-1.5 rounded-md bg-emerald-500/10 px-2 py-1.5 text-xs font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20"
                   >
                     {localizeUi("ui.characters.dialoguetab.add")} <strong>{tagSearch.trim().toLowerCase()}</strong>{" "}
@@ -2387,6 +2393,7 @@ export function BotBrowserView() {
                         setPage(1);
                       }
                     }}
+                    data-testid="bot-browser-tag-block-custom-button"
                     className="flex w-full items-center gap-1.5 rounded-md bg-red-500/10 px-2 py-1.5 text-xs font-medium text-red-400 transition-colors hover:bg-red-500/20"
                   >
                     {localizeUi("ui.botBrowser.botbrowserview.block")} <strong>{tagSearch.trim().toLowerCase()}</strong>{" "}
@@ -2411,6 +2418,7 @@ export function BotBrowserView() {
                     >
                       <button
                         onClick={() => toggleIncludeTag(tag)}
+                        data-testid={`bot-browser-tag-include-${tag}-button`}
                         className={cn(
                           "flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[0.5rem] transition-all",
                           isIncluded
@@ -2423,6 +2431,7 @@ export function BotBrowserView() {
                       <span className="min-w-0 flex-1 truncate">{tag}</span>
                       <button
                         onClick={() => toggleExcludeTag(tag)}
+                        data-testid={`bot-browser-tag-exclude-${tag}-button`}
                         className={cn(
                           "flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[0.5rem] transition-all",
                           isExcluded
@@ -2482,6 +2491,7 @@ export function BotBrowserView() {
                   {query && (
                     <button
                       onClick={() => setQuery("")}
+                      data-testid="bot-browser-search-clear-button"
                       className="mari-chrome-control mari-chrome-control--small absolute right-1.5 top-1/2 h-7 min-h-0 w-7 -translate-y-1/2 p-0"
                     >
                       <X size="0.75rem" />
@@ -2495,6 +2505,7 @@ export function BotBrowserView() {
                     setSort(e.target.value);
                     setPage(1);
                   }}
+                  data-testid="bot-browser-sort-select"
                   className="mari-chrome-field h-10 px-3 py-0 text-xs md:h-9"
                 >
                   {sortGroups.map((group) =>
@@ -2518,6 +2529,7 @@ export function BotBrowserView() {
 
                 <button
                   onClick={() => setShowTagPanel((v) => !v)}
+                  data-testid="bot-browser-tags-toggle-button"
                   className={cn(
                     "mari-chrome-control h-10 px-3 py-0 text-xs md:h-9",
                     showTagPanel || includeTags.length > 0 || excludeTags.length > 0
@@ -2539,6 +2551,7 @@ export function BotBrowserView() {
                   provider.extraToggles.length > 0) && (
                   <button
                     onClick={() => setShowFiltersPanel((v) => !v)}
+                    data-testid="bot-browser-filters-toggle-button"
                     className={cn(
                       "mari-chrome-control h-10 px-3 py-0 text-xs md:h-9",
                       (showFiltersPanel || hasActiveFeatures) && "mari-chrome-control--selected",
@@ -2623,6 +2636,7 @@ export function BotBrowserView() {
                           if (sourceId === "pygmalion") handlePygmalionLogout();
                           else if (sourceId === "chartavern") handleCtLogout();
                         }}
+                        data-testid="bot-browser-logout-button"
                         className="mari-chrome-control mari-chrome-control--small px-2.5 py-2 text-[0.65rem] hover:text-[var(--destructive)]"
                         title={localizeUi("ui.botBrowser.botbrowserview.logOut")}
                       >
@@ -2632,6 +2646,7 @@ export function BotBrowserView() {
                   ) : (
                     <button
                       onClick={() => setShowLoginModal(true)}
+                      data-testid="bot-browser-login-button"
                       className="mari-chrome-control h-10 px-3 py-0 text-xs md:h-9"
                     >
                       <LogIn size="0.75rem" /> {localizeUi("ui.botBrowser.botbrowserview.logIn")}
@@ -2645,6 +2660,7 @@ export function BotBrowserView() {
 
                 <button
                   onClick={doSearch}
+                  data-testid="bot-browser-refresh-button"
                   className="mari-chrome-control h-10 w-10 p-0 text-xs md:h-9 md:w-9"
                   title={localizeUi("ui.noodle.noodlehome.refresh")}
                 >
@@ -2666,6 +2682,7 @@ export function BotBrowserView() {
                             type="checkbox"
                             checked={!!features[f.key]}
                             onChange={() => toggleFeature(f.key)}
+                            data-testid={`bot-browser-feature-${f.key}-checkbox`}
                             className="accent-[var(--primary)]"
                           />
                           <span>
@@ -2679,6 +2696,7 @@ export function BotBrowserView() {
                             type="checkbox"
                             checked={!!extraToggles[t.key]}
                             onChange={() => toggleExtra(t.key)}
+                            data-testid={`bot-browser-extra-${t.key}-checkbox`}
                             className="accent-[var(--primary)]"
                           />
                           <span>
@@ -2704,6 +2722,7 @@ export function BotBrowserView() {
                               setSortAsc(e.target.value === "asc");
                               setPage(1);
                             }}
+                            data-testid="bot-browser-sort-direction-select"
                             className="mari-chrome-field mari-chrome-field--compact px-2 py-1 text-xs"
                           >
                             <option value="desc">{localizeUi("ui.botBrowser.botbrowserview.descending")}</option>
@@ -2725,6 +2744,7 @@ export function BotBrowserView() {
                                 setPage(1);
                               }}
                               placeholder="50"
+                              data-testid="bot-browser-min-tokens-input"
                               className="mari-chrome-field mari-chrome-field--compact w-20 px-2 py-1 text-xs"
                             />
                           </div>
@@ -2740,6 +2760,7 @@ export function BotBrowserView() {
                                 setPage(1);
                               }}
                               placeholder="100000"
+                              data-testid="bot-browser-max-tokens-input"
                               className="mari-chrome-field mari-chrome-field--compact w-20 px-2 py-1 text-xs"
                             />
                           </div>
@@ -2760,6 +2781,7 @@ export function BotBrowserView() {
                   <span className="text-sm font-medium text-[var(--marinara-chat-chrome-panel-title)]">{error}</span>
                   <button
                     onClick={doSearch}
+                    data-testid="bot-browser-retry-button"
                     className="mari-chrome-control mari-chrome-control--selected px-4 py-2 text-xs"
                   >
                     <RefreshCw size="0.75rem" /> {localizeUi("ui.game.gamesurfacecomponent.retry")}
@@ -2781,6 +2803,7 @@ export function BotBrowserView() {
                       <button
                         disabled={page <= 1}
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        data-testid="bot-browser-page-previous-button"
                         className="mari-chrome-control mari-chrome-control--small px-3 py-1.5 text-xs"
                       >
                         {localizeUi("ui.botBrowser.botbrowserview.previous")}
@@ -2811,6 +2834,7 @@ export function BotBrowserView() {
                       <button
                         disabled={page >= totalPages && totalPages > 1}
                         onClick={() => setPage((p) => p + 1)}
+                        data-testid="bot-browser-page-next-button"
                         className="mari-chrome-control mari-chrome-control--small px-3 py-1.5 text-xs"
                       >
                         {localizeUi("onboarding.actions.next")}
@@ -2873,6 +2897,7 @@ export function BotBrowserView() {
                     type="button"
                     data-import-target="character"
                     onClick={() => void chooseImportTarget("character")}
+                    data-testid="bot-browser-import-as-character-button"
                     className="mari-chrome-control group min-h-24 items-start justify-start gap-3 p-4 text-left"
                   >
                     <span className="mari-panel-gradient-surface mari-panel-gradient--characters flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
@@ -2891,6 +2916,7 @@ export function BotBrowserView() {
                     type="button"
                     data-import-target="persona"
                     onClick={() => void chooseImportTarget("persona")}
+                    data-testid="bot-browser-import-as-persona-button"
                     className="mari-chrome-control group min-h-24 items-start justify-start gap-3 p-4 text-left"
                   >
                     <span className="mari-panel-gradient-surface mari-panel-gradient--personas flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
@@ -2934,6 +2960,7 @@ export function BotBrowserView() {
                     type="button"
                     disabled={importing}
                     onClick={() => setPendingImport({ card: pendingImport.card })}
+                    data-testid="bot-browser-import-back-button"
                     className="mari-chrome-control px-3 py-2 text-xs"
                   >
                     <ArrowLeft size="0.75rem" />
@@ -3003,6 +3030,7 @@ export function BotBrowserView() {
               </h3>
               <button
                 onClick={() => setPendingDatacatSwitch(false)}
+                data-testid="bot-browser-datacat-warning-close-button"
                 className="mari-chrome-control mari-chrome-control--small p-1"
               >
                 <X size="1rem" />
@@ -3017,12 +3045,14 @@ export function BotBrowserView() {
                     setPendingDatacatSwitch(false);
                     performSwitch("datacat");
                   }}
+                  data-testid="bot-browser-datacat-continue-button"
                   className="mari-panel-gradient-button mari-panel-gradient--browser flex-1 px-4 py-2 text-xs"
                 >
                   {localizeUi("ui.botBrowser.botbrowserview.continueToDatacat")}
                 </button>
                 <button
                   onClick={() => setPendingDatacatSwitch(false)}
+                  data-testid="bot-browser-datacat-cancel-button"
                   className="mari-chrome-control flex-1 px-4 py-2 text-xs"
                 >
                   {localizeUi("ui.botBrowser.botbrowserview.donTContinueToDatacat")}
@@ -3100,7 +3130,7 @@ function LoginModal({
               </>
             )}
           </h3>
-          <button onClick={onClose} className="mari-chrome-control mari-chrome-control--small p-1">
+          <button onClick={onClose} data-testid="bot-browser-login-modal-close-button" className="mari-chrome-control mari-chrome-control--small p-1">
             <X size="1rem" />
           </button>
         </div>
@@ -3134,6 +3164,7 @@ function LoginModal({
                   disabled={isLoggedIn || loginLoading}
                   placeholder={localizeUi("ui.botBrowser.loginmodal.pasteYourPygmalionAuthTokenHere")}
                   rows={3}
+                  data-testid="bot-browser-pyg-token-textarea"
                   className="mari-chrome-field w-full resize-y px-3 py-2 font-mono text-xs disabled:opacity-50"
                 />
               </div>
@@ -3181,13 +3212,14 @@ function LoginModal({
                   <button
                     onClick={() => onPygSetToken(pygTokenInput)}
                     disabled={loginLoading || !pygTokenInput.trim()}
+                    data-testid="bot-browser-pyg-save-button"
                     className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-emerald-500 disabled:opacity-50"
                   >
                     {loginLoading ? <Loader2 size="0.75rem" className="animate-spin" /> : <KeyRound size="0.75rem" />}{" "}
                     {localizeUi("ui.botBrowser.loginmodal.saveConnect")}
                   </button>
                 ) : (
-                  <button onClick={onPygLogout} className="mari-chrome-control px-4 py-2 text-xs">
+                  <button onClick={onPygLogout} data-testid="bot-browser-pyg-logout-button" className="mari-chrome-control px-4 py-2 text-xs">
                     <LogOut size="0.75rem" /> {localizeUi("ui.botBrowser.loginmodal.logOut")}
                   </button>
                 )}
@@ -3213,6 +3245,7 @@ function LoginModal({
                   disabled={isLoggedIn || loginLoading}
                   placeholder={localizeUi("ui.botBrowser.loginmodal.pasteYourSessionCookieValueHere")}
                   rows={3}
+                  data-testid="bot-browser-ct-cookie-textarea"
                   className="mari-chrome-field w-full resize-y px-3 py-2 text-sm disabled:opacity-50"
                 />
               </div>
@@ -3257,13 +3290,14 @@ function LoginModal({
                   <button
                     onClick={() => onCtSetCookie(cookie)}
                     disabled={loginLoading || !cookie.trim()}
+                    data-testid="bot-browser-ct-save-button"
                     className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
                   >
                     {loginLoading ? <Loader2 size="0.75rem" className="animate-spin" /> : <Cookie size="0.75rem" />}{" "}
                     {localizeUi("ui.botBrowser.loginmodal.saveConnect")}
                   </button>
                 ) : (
-                  <button onClick={onCtLogout} className="mari-chrome-control px-4 py-2 text-xs">
+                  <button onClick={onCtLogout} data-testid="bot-browser-ct-logout-button" className="mari-chrome-control px-4 py-2 text-xs">
                     <LogOut size="0.75rem" /> {localizeUi("ui.botBrowser.loginmodal.logOut")}
                   </button>
                 )}
@@ -3439,6 +3473,7 @@ function DetailView({
         <button
           type="button"
           onClick={onBack}
+          data-testid="bot-browser-detail-back-button"
           className="mari-editor-action inline-flex shrink-0"
           title={localizeUi("ui.botBrowser.detailview.backToResults")}
           aria-label={localizeUi("ui.botBrowser.detailview.backToResults")}
@@ -3497,6 +3532,7 @@ function DetailView({
                         value={option.value}
                         checked={tagImportMode === option.value}
                         onChange={() => onTagImportModeChange(option.value)}
+                        data-testid={`bot-browser-tag-import-mode-${option.value}-radio`}
                         className="sr-only"
                       />
                       <span className="block text-[0.6875rem] font-medium">{option.label}</span>
@@ -3521,6 +3557,7 @@ function DetailView({
               <button
                 onClick={handleDownloadPng}
                 disabled={downloading}
+                data-testid="bot-browser-download-png-button"
                 className="mari-chrome-control px-4 py-2 text-xs"
               >
                 {downloading ? <Loader2 size="0.75rem" className="animate-spin" /> : <Download size="0.75rem" />}

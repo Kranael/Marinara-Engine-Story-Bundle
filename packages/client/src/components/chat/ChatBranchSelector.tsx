@@ -262,6 +262,7 @@ export function ChatBranchSelector({
         ref={buttonRef}
         type="button"
         data-chat-help="branches"
+        data-testid="chat-branch-toggle-button"
         onClick={(event) => {
           announceChatToolbarAction();
           if (compact) event.stopPropagation();
@@ -314,6 +315,7 @@ export function ChatBranchSelector({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
+                  data-testid="chat-branch-close-button"
                   aria-label={localizeUi("ui.chat.chatbranchselector.closeChatBranches")}
                   className={NEUTRAL_PANEL_CLOSE_BUTTON}
                 >
@@ -323,12 +325,20 @@ export function ChatBranchSelector({
             </div>
 
             <div className="border-b border-[var(--border)] p-2">
-              <input ref={importInputRef} type="file" accept=".jsonl" onChange={handleImportChat} className="hidden" />
+              <input
+                ref={importInputRef}
+                type="file"
+                accept=".jsonl"
+                onChange={handleImportChat}
+                data-testid="chat-branch-import-file-input"
+                className="hidden"
+              />
               <div className="grid grid-cols-3 gap-1.5">
                 <button
                   type="button"
                   onClick={() => exportChat.mutate({ chatId: activeChatId, format: "jsonl" })}
                   disabled={exportChat.isPending}
+                  data-testid="chat-branch-export-jsonl-button"
                   className="flex items-center justify-center gap-1.5 rounded-lg bg-[var(--secondary)] px-2 py-2 text-[0.6875rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
                 >
                   <Upload size="0.75rem" />
@@ -338,6 +348,7 @@ export function ChatBranchSelector({
                   type="button"
                   onClick={() => exportChat.mutate({ chatId: activeChatId, format: "text" })}
                   disabled={exportChat.isPending}
+                  data-testid="chat-branch-export-text-button"
                   className="flex items-center justify-center gap-1.5 rounded-lg bg-[var(--secondary)] px-2 py-2 text-[0.6875rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
                 >
                   <FileText size="0.75rem" />
@@ -347,6 +358,7 @@ export function ChatBranchSelector({
                   type="button"
                   onClick={() => importInputRef.current?.click()}
                   disabled={isImporting}
+                  data-testid="chat-branch-import-button"
                   className="flex items-center justify-center gap-1.5 rounded-lg bg-[var(--secondary)] px-2 py-2 text-[0.6875rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
                 >
                   <Download size="0.75rem" />
@@ -379,6 +391,7 @@ export function ChatBranchSelector({
                         setActiveChatId(branch.id);
                         setOpen(false);
                       }}
+                      data-testid={`chat-branch-${branch.id}-select-button`}
                       className="flex min-w-0 flex-1 items-center gap-3 text-left"
                     >
                       <div
@@ -404,6 +417,7 @@ export function ChatBranchSelector({
                       <button
                         type="button"
                         onClick={() => void handleRenameBranch(branch)}
+                        data-testid={`chat-branch-${branch.id}-rename-button`}
                         className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                         title={localizeUi("ui.chat.chatbranchselector.renameBranch_09bac0c")}
                         aria-label={localizeUi("chat.branches.renameLabel", {
@@ -416,6 +430,7 @@ export function ChatBranchSelector({
                         type="button"
                         onClick={() => void handleDeleteBranch(branch.id)}
                         disabled={deleteChat.isPending}
+                        data-testid={`chat-branch-${branch.id}-delete-button`}
                         className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-50"
                         title={localizeUi("ui.chat.chatbranchselector.deleteBranch_5478e60")}
                         aria-label={localizeUi("chat.branches.deleteLabel", {
@@ -451,6 +466,7 @@ export function ChatBranchSelector({
                     setOpen(false);
                   }}
                   disabled={deleteChatGroup.isPending}
+                  data-testid="chat-branch-delete-all-button"
                   className="mari-chrome-control mari-chrome-control--primary w-full px-3 py-2 text-[0.6875rem] disabled:opacity-50"
                 >
                   <Trash2 size="0.75rem" />

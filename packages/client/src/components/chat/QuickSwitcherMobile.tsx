@@ -209,6 +209,7 @@ export function QuickSwitcherMobile() {
     return (
       <button
         key={persona.id}
+        data-testid={`quick-switcher-persona-${persona.id}-button`}
         onClick={() => handleSwitchPersona(persona.id)}
         className={cn(
           "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",
@@ -249,6 +250,7 @@ export function QuickSwitcherMobile() {
       <button
         type="button"
         ref={btnRef}
+        data-testid="quick-switcher-toggle-button"
         onClick={() => setOpen((v) => !v)}
         title={localizeUi("ui.chat.quickswitchermobile.quickSwitcher")}
         className={cn(
@@ -270,6 +272,7 @@ export function QuickSwitcherMobile() {
           >
             <div className="flex border-b border-foreground/10">
               <button
+                data-testid="quick-switcher-connections-tab-button"
                 onClick={() => setTab("connections")}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 px-3 py-2.5 text-[0.6875rem] font-semibold transition-colors",
@@ -282,6 +285,7 @@ export function QuickSwitcherMobile() {
                 {localizeUi("navigation.topbar.connections")}
               </button>
               <button
+                data-testid="quick-switcher-personas-tab-button"
                 onClick={() => setTab("personas")}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 px-3 py-2.5 text-[0.6875rem] font-semibold transition-colors",
@@ -299,6 +303,7 @@ export function QuickSwitcherMobile() {
               {tab === "connections" && (
                 <>
                   <button
+                    data-testid="quick-switcher-random-toggle-button"
                     onClick={handleToggleRandom}
                     className={cn(
                       "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors",
@@ -327,6 +332,7 @@ export function QuickSwitcherMobile() {
                       return (
                         <button
                           key={conn.id}
+                          data-testid={`quick-switcher-connection-${conn.id}-pool-button`}
                           onClick={() => handleTogglePool(conn.id, inPool)}
                           className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-foreground/10"
                           title={
@@ -352,6 +358,7 @@ export function QuickSwitcherMobile() {
                     return (
                       <button
                         key={conn.id}
+                        data-testid={`quick-switcher-connection-${conn.id}-button`}
                         onClick={() => handleSwitchConnection(conn.id)}
                         className={cn(
                           "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-foreground/10",
@@ -374,6 +381,7 @@ export function QuickSwitcherMobile() {
               {tab === "personas" && (
                 <>
                   <button
+                    data-testid="quick-switcher-no-persona-button"
                     onClick={() => handleSwitchPersona(null)}
                     className={cn(
                       "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",
@@ -403,6 +411,7 @@ export function QuickSwitcherMobile() {
                     return (
                       <div key={group.id}>
                         <button
+                          data-testid={`quick-switcher-group-${group.id}-button`}
                           onClick={() => toggleGroup(group.id)}
                           className={cn(
                             "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors",

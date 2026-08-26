@@ -311,6 +311,7 @@ export function LorebookFolderRow({
         >
           <SettingsSwitch
             ariaLabel={localEnabled ? "Disable folder" : "Enable folder"}
+            testId={`lorebook-folder-enabled-switch-${folder.id}`}
             title={
               localEnabled
                 ? localizeUi("ui.lorebooks.lorebookfolderrow.folderEnabledEntriesInsideActivateNormally")

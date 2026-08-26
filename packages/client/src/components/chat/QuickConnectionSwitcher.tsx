@@ -127,6 +127,7 @@ export function QuickConnectionSwitcher({ className }: { className?: string }) {
               <span className="text-[0.6875rem] font-semibold">{localizeUi("navigation.topbar.connections")}</span>
               <button
                 type="button"
+                data-testid="quick-connection-switcher-random-toggle-button"
                 onClick={handleToggleRandom}
                 title={
                   isRandom
@@ -152,6 +153,7 @@ export function QuickConnectionSwitcher({ className }: { className?: string }) {
                     <button
                       type="button"
                       key={conn.id}
+                      data-testid={`quick-connection-switcher-connection-${conn.id}-pool-button`}
                       onClick={() => handleTogglePool(conn.id, inPool)}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-foreground/10"
                       title={
@@ -178,6 +180,7 @@ export function QuickConnectionSwitcher({ className }: { className?: string }) {
                   <button
                     type="button"
                     key={conn.id}
+                    data-testid={`quick-connection-switcher-connection-${conn.id}-button`}
                     onClick={() => handleSwitch(conn.id)}
                     className={cn(
                       "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-foreground/10",
@@ -206,6 +209,7 @@ export function QuickConnectionSwitcher({ className }: { className?: string }) {
       <button
         type="button"
         ref={btnRef}
+        data-testid="quick-connection-switcher-toggle-button"
         onClick={() => setOpen((v) => !v)}
         title={localizeUi("ui.chat.quickconnectionswitcher.quickConnectionSwitcher")}
         className={cn(

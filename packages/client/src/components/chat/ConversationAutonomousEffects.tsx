@@ -100,6 +100,7 @@ export function ConversationAutonomousEffects({
             {notification.name} {localizeUi("ui.chat.conversationautonomouseffects.messagedYou")}
           </span>
           <button
+            data-testid="conversation-autonomous-effects-dismiss-button"
             onClick={() => setNotification(null)}
             className="ml-1 rounded p-0.5 transition-colors hover:bg-foreground/20"
           >

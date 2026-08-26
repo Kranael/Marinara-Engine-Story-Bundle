@@ -588,6 +588,7 @@ export function ChatGallery({
                   aria-busy={isIllustrating}
                   aria-haspopup={illustrateAgents.length > 0 ? "menu" : undefined}
                   aria-expanded={illustrateAgents.length > 0 ? illustrateMenuOpen : undefined}
+                  data-testid="chat-gallery-illustrate-button"
                   className="flex w-full min-w-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)]/15 px-3 py-3 text-xs font-medium text-[var(--primary)] transition-all hover:bg-[var(--primary)]/25 disabled:cursor-wait disabled:opacity-75"
                 >
                   {isIllustrating ? (
@@ -615,6 +616,7 @@ export function ChatGallery({
                         type="button"
                         role="menuitem"
                         onClick={() => void handleIllustrate()}
+                        data-testid="chat-gallery-illustrate-base-button"
                         className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-colors hover:bg-[var(--accent)]"
                       >
                         <Paintbrush size="0.875rem" className="shrink-0 text-[var(--primary)]" />
@@ -627,6 +629,7 @@ export function ChatGallery({
                         type="button"
                         role="menuitem"
                         onClick={() => void handleIllustrate(agent.id)}
+                        data-testid={`chat-gallery-illustrate-agent-${agent.id}-button`}
                         className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-colors hover:bg-[var(--accent)]"
                       >
                         <Bot size="0.875rem" className="shrink-0 text-[var(--primary)]" />
@@ -644,6 +647,7 @@ export function ChatGallery({
                   onClick={() => void handleGenerateSelfie()}
                   disabled={isGeneratingSelfie}
                   aria-busy={isGeneratingSelfie}
+                  data-testid="chat-gallery-selfie-button"
                   className="flex min-w-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)]/15 px-3 py-3 text-xs font-medium text-[var(--primary)] transition-all hover:bg-[var(--primary)]/25 disabled:cursor-wait disabled:opacity-75"
                 >
                   {isGeneratingSelfie ? (
@@ -662,6 +666,7 @@ export function ChatGallery({
                     value={selectedSelfieCharacterId}
                     onChange={(event) => setSelectedSelfieCharacterId(event.target.value)}
                     disabled={isGeneratingSelfie}
+                    data-testid="chat-gallery-selfie-character-select"
                     className="min-w-0 rounded-lg bg-[var(--secondary)] px-2 py-1.5 text-[0.6875rem] text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] disabled:cursor-wait disabled:opacity-70"
                     aria-label={localizeUi("ui.chat.chatgallery.selfieCharacter")}
                   >
@@ -680,6 +685,7 @@ export function ChatGallery({
                 onClick={() => void handleGenerateStoryboard()}
                 disabled={isGeneratingStoryboard}
                 aria-busy={isGeneratingStoryboard}
+                data-testid="chat-gallery-create-storyboard-button"
                 className="flex min-w-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)]/15 px-3 py-3 text-xs font-medium text-[var(--primary)] transition-all hover:bg-[var(--primary)]/25 disabled:cursor-wait disabled:opacity-75"
               >
                 {isGeneratingStoryboard ? (
@@ -700,6 +706,7 @@ export function ChatGallery({
                 onClick={() => void handleGenerateVideo()}
                 disabled={isGeneratingVideo}
                 aria-busy={isGeneratingVideo}
+                data-testid="chat-gallery-video-button"
                 className="flex min-w-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)]/15 px-3 py-3 text-xs font-medium text-[var(--primary)] transition-all hover:bg-[var(--primary)]/25 disabled:cursor-wait disabled:opacity-75"
               >
                 {isGeneratingVideo ? (
@@ -720,6 +727,7 @@ export function ChatGallery({
                 onClick={() => void handleGenerateBackground()}
                 disabled={isGeneratingBackground}
                 aria-busy={isGeneratingBackground}
+                data-testid="chat-gallery-background-button"
                 className="flex min-w-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)]/15 px-3 py-3 text-xs font-medium text-[var(--primary)] transition-all hover:bg-[var(--primary)]/25 disabled:cursor-wait disabled:opacity-75"
               >
                 {isGeneratingBackground ? (
@@ -749,6 +757,7 @@ export function ChatGallery({
               onChange={(event) => setAssetSearch(event.target.value)}
               placeholder={localizeUi("ui.chat.chatgallery.searchChatCharacterPersonaAndSpriteImages")}
               aria-label={localizeUi("ui.chat.chatgallery.searchGalleryImages")}
+              data-testid="chat-gallery-search-input"
               className="mari-chrome-field h-10 w-full !rounded-md pl-9 pr-10 text-xs"
             />
             {assetSearch && (
@@ -756,6 +765,7 @@ export function ChatGallery({
                 type="button"
                 onClick={() => setAssetSearch("")}
                 aria-label={localizeUi("ui.chat.chatgallery.clearGallerySearch")}
+                data-testid="chat-gallery-clear-search-button"
                 className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
               >
                 <X size="0.875rem" />
@@ -774,6 +784,7 @@ export function ChatGallery({
                   setSelectingImages(true);
                 }
               }}
+              data-testid="chat-gallery-select-images-button"
               className="mari-editor-action inline-flex h-10 min-w-28 justify-center disabled:cursor-not-allowed disabled:opacity-50"
             >
               {selectingImages ? <X size="0.875rem" /> : <Check size="0.875rem" />}
@@ -788,6 +799,7 @@ export function ChatGallery({
                 setSelectingImages(true);
                 setSelectedImageIds(new Set(selectableImageIds));
               }}
+              data-testid="chat-gallery-select-all-button"
               className="mari-editor-action inline-flex h-10 min-w-28 justify-center disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Check size="0.875rem" />
@@ -806,6 +818,7 @@ export function ChatGallery({
                 type="button"
                 disabled={selectedImages.length === 0 || batchOperationPending}
                 onClick={() => void handleBatchDownload()}
+                data-testid="chat-gallery-batch-download-button"
                 className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Download size="0.875rem" />
@@ -815,6 +828,7 @@ export function ChatGallery({
                 type="button"
                 disabled={selectedImages.length === 0 || batchOperationPending}
                 onClick={() => void handleBatchDelete()}
+                data-testid="chat-gallery-batch-delete-button"
                 className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Trash2 size="0.875rem" />
@@ -828,6 +842,7 @@ export function ChatGallery({
           <button
             type="button"
             onClick={onViewStoryboard}
+            data-testid="chat-gallery-view-storyboard-button"
             className="flex items-center justify-center gap-2 rounded-xl bg-[var(--secondary)] px-4 py-3 text-xs font-medium text-[var(--foreground)] transition-all hover:bg-[var(--accent)]"
           >
             <PanelsTopLeft size="1rem" />
@@ -895,6 +910,7 @@ export function ChatGallery({
                         else handleInsertAsset(asset);
                       }}
                       aria-pressed={selectingImages && imageId ? selected : undefined}
+                      data-testid={`chat-gallery-asset-${asset.id}-button`}
                       className={cn(
                         "group relative overflow-hidden rounded-lg bg-[var(--secondary)] text-left ring-1 transition-[box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:ring-[var(--primary)]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]",
                         selected ? "ring-2 ring-[var(--primary)]" : "ring-[var(--border)]",
@@ -955,6 +971,7 @@ export function ChatGallery({
             role="tab"
             aria-selected={activeTab === "images"}
             onClick={() => setActiveTab("images")}
+            data-testid="chat-gallery-images-tab"
             className={cn(
               "flex min-w-0 items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors",
               activeTab === "images"
@@ -977,6 +994,7 @@ export function ChatGallery({
               setActiveTab("videos");
             }}
             disabled={!sceneVideosEnabled}
+            data-testid="chat-gallery-videos-tab"
             className={cn(
               "flex min-w-0 items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors",
               !sceneVideosEnabled
@@ -1053,6 +1071,7 @@ export function ChatGallery({
                       type="button"
                       onClick={() => (selectingImages ? toggleImageSelection(img.id) : setLightbox(img))}
                       className="block w-full"
+                      data-testid={`chat-gallery-image-${img.id}-button`}
                       aria-pressed={selectingImages ? selectedImageIds.has(img.id) : undefined}
                       aria-label={
                         selectingImages
@@ -1079,6 +1098,7 @@ export function ChatGallery({
                               type="button"
                               onClick={() => handlePinImage(img)}
                               aria-label={localizeUi("ui.chat.chatgallery.pinImageToChat")}
+                              data-testid={`chat-gallery-image-${img.id}-pin-button`}
                               className="pointer-events-auto rounded-md bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30"
                               title={localizeUi("ui.chat.chatgallery.pinToChat")}
                             >
@@ -1088,6 +1108,7 @@ export function ChatGallery({
                               href={img.url}
                               download={getChatImageDownloadName(img)}
                               aria-label={localizeUi("ui.chat.chatgallery.downloadGalleryImage")}
+                              data-testid={`chat-gallery-image-${img.id}-download-link`}
                               className="pointer-events-auto rounded-md bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30"
                               title={localizeUi("ui.chat.chatgallery.downloadImage")}
                             >
@@ -1099,6 +1120,7 @@ export function ChatGallery({
                                 onClick={() => void handleAnimateImage(img)}
                                 disabled={isGeneratingVideo}
                                 aria-label={localizeUi("ui.chat.chatgallery.animateGalleryIllustration")}
+                                data-testid={`chat-gallery-image-${img.id}-animate-button`}
                                 className="pointer-events-auto rounded-md bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30 disabled:cursor-wait disabled:opacity-60"
                                 title={localizeUi("ui.chat.chatgallery.animateIllustration")}
                               >
@@ -1118,6 +1140,7 @@ export function ChatGallery({
                               }}
                               disabled={!img.prompt.trim()}
                               aria-label={localizeUi("ui.chat.chatgallery.copyImagePrompt")}
+                              data-testid={`chat-gallery-image-${img.id}-copy-prompt-button`}
                               className="pointer-events-auto rounded-md bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30 disabled:cursor-not-allowed disabled:opacity-45"
                               title={
                                 img.prompt.trim()
@@ -1132,6 +1155,7 @@ export function ChatGallery({
                             type="button"
                             onClick={() => setConfirmDeleteId(img.id)}
                             aria-label={localizeUi("ui.chat.chatgallery.deleteGalleryImage")}
+                            data-testid={`chat-gallery-image-${img.id}-delete-button`}
                             className="mari-chrome-accent-surface mari-accent-animated pointer-events-auto rounded-md border p-1.5 transition-colors"
                           >
                             <Trash2 size="0.75rem" />
@@ -1182,6 +1206,7 @@ export function ChatGallery({
                         type="button"
                         onClick={() => setVideoLightbox(video)}
                         className="block w-full"
+                        data-testid={`chat-gallery-video-${video.id}-button`}
                         aria-label={localizeUi("ui.chat.chatgallery.openSceneVideo")}
                       >
                         <video
@@ -1206,6 +1231,7 @@ export function ChatGallery({
                               type="button"
                               onClick={() => handlePinVideo(video)}
                               aria-label={localizeUi("ui.chat.chatgallery.pinVideoToChat")}
+                              data-testid={`chat-gallery-video-${video.id}-pin-button`}
                               className="pointer-events-auto rounded-md bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30"
                               title={localizeUi("ui.chat.chatgallery.pinToChat")}
                             >
@@ -1215,6 +1241,7 @@ export function ChatGallery({
                               href={video.url}
                               download={getSceneVideoDownloadName(video)}
                               aria-label={localizeUi("ui.chat.chatgallery.downloadSceneVideo")}
+                              data-testid={`chat-gallery-video-${video.id}-download-link`}
                               className="pointer-events-auto rounded-md bg-white/20 p-1.5 text-white transition-colors hover:bg-white/30"
                               title={localizeUi("ui.chat.chatgallery.downloadVideo")}
                             >
@@ -1225,6 +1252,7 @@ export function ChatGallery({
                               onClick={() => void handleDeleteVideo(video)}
                               disabled={deleteVideo.isPending}
                               aria-label={localizeUi("ui.chat.chatgallery.deleteSceneVideo")}
+                              data-testid={`chat-gallery-video-${video.id}-delete-button`}
                               className="mari-chrome-accent-surface mari-accent-animated pointer-events-auto rounded-md border p-1.5 transition-colors disabled:cursor-wait disabled:opacity-60"
                               title={localizeUi("ui.chat.chatgallery.deleteSceneVideo")}
                             >
@@ -1259,12 +1287,14 @@ export function ChatGallery({
               <div className="flex gap-2">
                 <button
                   onClick={() => setConfirmDeleteId(null)}
+                  data-testid="chat-gallery-delete-cancel-button"
                   className="flex-1 rounded-lg bg-[var(--secondary)] px-4 py-2 text-xs transition-colors hover:bg-[var(--accent)]"
                 >
                   {localizeUi("chat.delete.dialog.cancel")}
                 </button>
                 <button
                   onClick={() => handleDelete(confirmDeleteId)}
+                  data-testid="chat-gallery-delete-confirm-button"
                   className="mari-chrome-accent-surface mari-accent-animated flex-1 rounded-lg border px-4 py-2 text-xs transition-colors"
                 >
                   {localizeUi("lorebook.editor.batch.delete")}

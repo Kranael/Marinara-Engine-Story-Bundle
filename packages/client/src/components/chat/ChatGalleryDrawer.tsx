@@ -167,6 +167,7 @@ export function ChatGalleryDrawer({
           </h3>
           <button
             type="button"
+            data-testid="chat-gallery-drawer-close-button"
             onClick={onClose}
             aria-label={localizeUi("ui.chat.chatgallerydrawer.closeGallery")}
             className={NEUTRAL_PANEL_CLOSE_BUTTON}

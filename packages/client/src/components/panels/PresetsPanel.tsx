@@ -1712,6 +1712,7 @@ function RegexSection({
                   type="button"
                   className="mari-chrome-accent-text-muted mari-accent-animated mt-0.5 shrink-0 cursor-grab rounded p-0.5 opacity-100 transition-all hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] active:cursor-grabbing [@media(pointer:fine)]:opacity-0 [@media(pointer:fine)]:group-focus-within:opacity-100 [@media(pointer:fine)]:group-hover:opacity-100"
                   title={localizeUi("ui.lorebooks.lorebookentryrow.dragToReorder")}
+                  data-testid={`preset-regex-drag-handle-${script.id}`}
                   onClick={(event) => event.stopPropagation()}
                   onMouseDown={(event) => {
                     event.stopPropagation();
@@ -1779,6 +1780,7 @@ function RegexSection({
                       checked={enabled}
                       onChange={(checked) => updateRegex.mutate({ id: script.id, enabled: checked })}
                       className="p-0 hover:bg-transparent"
+                      testId={`preset-regex-enabled-switch-${script.id}`}
                     />
                   </div>
                   <button
@@ -2056,6 +2058,7 @@ function FunctionsSection({
                   type="button"
                   className="mari-chrome-accent-text-muted mari-accent-animated mt-0.5 shrink-0 cursor-grab rounded p-0.5 opacity-100 transition-all hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] active:cursor-grabbing [@media(pointer:fine)]:opacity-0 [@media(pointer:fine)]:group-focus-within:opacity-100 [@media(pointer:fine)]:group-hover:opacity-100"
                   title={localizeUi("ui.lorebooks.lorebookentryrow.dragToReorder")}
+                  data-testid={`preset-function-drag-handle-${tool.id}`}
                   onClick={(event) => event.stopPropagation()}
                   onMouseDown={(event) => {
                     event.stopPropagation();
@@ -2121,6 +2124,7 @@ function FunctionsSection({
                       checked={enabled}
                       onChange={(checked) => updateCustomTool.mutate({ id: tool.id, enabled: checked })}
                       className="p-0 hover:bg-transparent"
+                      testId={`preset-function-enabled-switch-${tool.id}`}
                     />
                   </div>
                   <button

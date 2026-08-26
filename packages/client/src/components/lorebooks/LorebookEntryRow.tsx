@@ -629,6 +629,7 @@ export function LorebookEntryRow({
             checked={localEnabled}
             onChange={handleEnabledChange}
             className="p-0 hover:bg-transparent"
+            testId={`lorebook-entry-enabled-switch-${entry.id}`}
           />
         </div>
 
@@ -1332,11 +1333,13 @@ function FilterPills({
   selected,
   onChange,
   emptyLabel,
+  testIdPrefix,
 }: {
   values: Array<{ value: string; label: string }>;
   selected: string[];
   onChange: (next: string[]) => void;
   emptyLabel: string;
+  testIdPrefix: string;
 }) {
   if (values.length === 0) {
     return <p className="text-[0.625rem] text-[var(--muted-foreground)]">{emptyLabel}</p>;
@@ -1351,6 +1354,7 @@ function FilterPills({
             key={item.value}
             type="button"
             onClick={() => onChange(toggleStringValue(selected, item.value))}
+            data-testid={`${testIdPrefix}-${item.value}-pill`}
             className={cn(
               "mari-editor-chip min-h-6 max-w-full px-2 py-1 text-[0.625rem] leading-none transition-colors",
               active
@@ -1602,6 +1606,7 @@ function ExpandedDrawer({
             placeholder={localizeUi("ui.lorebooks.expandeddrawer.briefSummaryForRouting")}
             title={localizeUi("ui.lorebooks.expandeddrawer.editDescription")}
             showMarkdownPreview
+            testId={`lorebook-entry-description-textarea-${entry.id}`}
           />
         </FieldGroup>
 
@@ -1664,6 +1669,7 @@ function ExpandedDrawer({
                 selected={form.characterFilterIds ?? []}
                 onChange={(next) => update({ characterFilterIds: next })}
                 emptyLabel="No characters available."
+                testIdPrefix={`lorebook-entry-character-filter-${entry.id}`}
               />
             </div>
 
@@ -1683,6 +1689,7 @@ function ExpandedDrawer({
                 selected={form.characterTagFilters ?? []}
                 onChange={(next) => update({ characterTagFilters: next })}
                 emptyLabel="No character tags available."
+                testIdPrefix={`lorebook-entry-character-tag-filter-${entry.id}`}
               />
             </div>
 
@@ -1702,6 +1709,7 @@ function ExpandedDrawer({
                 selected={form.generationTriggerFilters ?? []}
                 onChange={(next) => update({ generationTriggerFilters: next })}
                 emptyLabel="No trigger filters available."
+                testIdPrefix={`lorebook-entry-generation-filter-${entry.id}`}
               />
             </div>
           </div>
@@ -1720,6 +1728,7 @@ function ExpandedDrawer({
               selected={form.additionalMatchingSources ?? []}
               onChange={(next) => update({ additionalMatchingSources: next as LorebookMatchingSource[] })}
               emptyLabel="No sources available."
+              testIdPrefix={`lorebook-entry-matching-source-${entry.id}`}
             />
           </div>
         </div>
@@ -1823,6 +1832,7 @@ function ExpandedDrawer({
           <select
             value={form.role ?? "system"}
             onChange={(e) => update({ role: e.target.value as "system" | "user" | "assistant" })}
+            data-testid={`lorebook-entry-role-select-${entry.id}`}
             className="mari-editor-field w-full px-2 py-1.5 text-xs"
           >
             <option value="system">{localizeUi("ui.lorebooks.expandeddrawer.system")}</option>

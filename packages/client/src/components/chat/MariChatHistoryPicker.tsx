@@ -245,6 +245,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
           {selected && (
             <button
               type="button"
+              data-testid="mari-history-back-button"
               onClick={() => {
                 setSelected(null);
                 requestTokenRef.current += 1;
@@ -260,6 +261,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
           </h2>
           <button
             type="button"
+            data-testid="mari-history-close-button"
             onClick={onClose}
             className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             aria-label={localizeUi("navigation.common.close")}
@@ -278,6 +280,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder={localizeUi("ui.chat.homeprofessormarichat.attachChatHistorySearch")}
                   className="w-full bg-transparent text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]"
+                  data-testid="mari-history-search-input"
                 />
               </div>
             </div>
@@ -293,6 +296,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
                     <button
                       key={chat.id}
                       type="button"
+                      data-testid={`mari-history-chat-${chat.id}-button`}
                       onClick={() => void selectChat(chat)}
                       className="flex w-full flex-col gap-0.5 rounded-lg px-3 py-2 text-left transition-colors hover:bg-[var(--accent)]"
                     >
@@ -334,6 +338,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
                       <input
                         type="radio"
                         name="mari-chat-history-mode"
+                        data-testid={`mari-history-mode-${option}-radio`}
                         checked={mode === option}
                         onChange={() => setMode(option)}
                         className="accent-[var(--primary)]"
@@ -347,6 +352,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
                             min={1}
                             max={total}
                             value={lastN}
+                            data-testid="mari-history-last-n-input"
                             onFocus={() => setMode("last")}
                             onChange={(event) => setLastN(Math.max(1, Number(event.target.value) || 1))}
                             className="w-16 rounded-md border border-[var(--border)] bg-[var(--background)] px-1.5 py-0.5 text-center text-sm text-[var(--foreground)] outline-none"
@@ -362,6 +368,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
                             min={1}
                             max={total}
                             value={rangeFrom}
+                            data-testid="mari-history-range-from-input"
                             onFocus={() => setMode("range")}
                             onChange={(event) => setRangeFrom(Math.max(1, Number(event.target.value) || 1))}
                             className="w-14 rounded-md border border-[var(--border)] bg-[var(--background)] px-1.5 py-0.5 text-center text-sm text-[var(--foreground)] outline-none"
@@ -372,6 +379,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
                             min={1}
                             max={total}
                             value={rangeTo}
+                            data-testid="mari-history-range-to-input"
                             onFocus={() => setMode("range")}
                             onChange={(event) => setRangeTo(Math.max(1, Number(event.target.value) || 1))}
                             className="w-14 rounded-md border border-[var(--border)] bg-[var(--background)] px-1.5 py-0.5 text-center text-sm text-[var(--foreground)] outline-none"
@@ -400,6 +408,7 @@ export function MariChatHistoryPicker({ open, onClose, workspaceChatId }: Props)
                 )}
                 <button
                   type="button"
+                  data-testid="mari-history-attach-button"
                   onClick={() => void handleAttach()}
                   disabled={selectedRows.length === 0 || overCap || addContext.isPending}
                   className={cn(

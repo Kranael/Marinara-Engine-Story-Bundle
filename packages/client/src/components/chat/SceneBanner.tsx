@@ -47,6 +47,7 @@ export function SceneBanner({ variant, sceneChatId, sceneChatName, originChatId,
         {originChatId && (
           <button
             onClick={() => setActiveChatId(originChatId)}
+            data-testid="scene-banner-back-to-conversation-button"
             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80"
             style={{
               background: "var(--muted)",
@@ -86,6 +87,7 @@ export function SceneBanner({ variant, sceneChatId, sceneChatName, originChatId,
       {sceneChatId && (
         <button
           onClick={() => setActiveChatId(sceneChatId)}
+          data-testid="scene-banner-go-to-scene-button"
           className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:opacity-90"
           style={{
             background: "var(--primary)",
@@ -149,6 +151,7 @@ export function EndSceneBar({
       {originChatId && (
         <button
           onClick={() => setActiveChatId(originChatId)}
+          data-testid="end-scene-back-to-conversation-button"
           className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium transition-all hover:opacity-80"
           style={{
             background: "var(--card)",
@@ -167,6 +170,7 @@ export function EndSceneBar({
             setConfirmDiscard(false);
             setConfirmEnd(true);
           }}
+          data-testid="end-scene-end-button"
           className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium transition-all hover:opacity-80"
           style={{
             background: "var(--card)",
@@ -187,6 +191,7 @@ export function EndSceneBar({
           <button
             onClick={handleConfirmEnd}
             disabled={isEnding}
+            data-testid="end-scene-confirm-yes-button"
             className="rounded-lg px-2 py-0.5 text-[0.6875rem] font-medium transition-all hover:opacity-80"
             style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}
           >
@@ -197,6 +202,7 @@ export function EndSceneBar({
           <button
             onClick={() => setConfirmEnd(false)}
             disabled={isEnding}
+            data-testid="end-scene-confirm-no-button"
             className="rounded-lg px-2 py-0.5 text-[0.6875rem] font-medium transition-all hover:opacity-80"
             style={{
               background: "var(--card)",
@@ -215,6 +221,7 @@ export function EndSceneBar({
             setConfirmDiscard(true);
           }}
           disabled={isEnding}
+          data-testid="end-scene-discard-button"
           className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium transition-all hover:opacity-80"
           style={{
             color: "var(--muted-foreground)",
@@ -229,6 +236,7 @@ export function EndSceneBar({
         <button
           onClick={handleConvert}
           disabled={isForking}
+          data-testid="end-scene-convert-button"
           className="flex items-center gap-1.5 rounded-lg px-3 py-1 text-xs font-medium transition-all hover:opacity-80"
           style={{
             color: "var(--muted-foreground)",
@@ -246,6 +254,7 @@ export function EndSceneBar({
           </span>
           <button
             onClick={() => onAbandon(sceneChatId)}
+            data-testid="end-scene-discard-yes-button"
             className="rounded-lg px-2 py-0.5 text-[0.6875rem] font-medium transition-all hover:opacity-80"
             style={{ background: "var(--destructive)", color: "var(--destructive-foreground)" }}
           >
@@ -253,6 +262,7 @@ export function EndSceneBar({
           </button>
           <button
             onClick={() => setConfirmDiscard(false)}
+            data-testid="end-scene-discard-no-button"
             className="rounded-lg px-2 py-0.5 text-[0.6875rem] font-medium transition-all hover:opacity-80"
             style={{
               background: "var(--card)",

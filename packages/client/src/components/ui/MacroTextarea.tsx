@@ -229,6 +229,7 @@ function MacrosReferenceModal({ open, onClose }: MacrosReferenceModalProps) {
             <button
               type="button"
               onClick={onClose}
+              data-testid="macro-reference-modal-close-button"
               className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] p-2 text-[var(--muted-foreground)] transition hover:border-[var(--primary)] hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               aria-label={localizeUi("ui.ui.macrosreferencemodal.closeMacroReference")}
               title={localizeUi("capabilities.actions.close")}
@@ -476,6 +477,7 @@ export function MacroTextarea({
               <button
                 type="button"
                 onClick={() => setShowMacroRef(true)}
+                data-testid={testId ? `${testId}-macro-reference-button` : "macro-textarea-macro-reference-button"}
                 className={affordanceButtonClassName}
                 aria-label={localizeUi("ui.ui.macrosreferencemodal.macroReference")}
                 title={localizeUi("ui.ui.macrosreferencemodal.macroReference")}

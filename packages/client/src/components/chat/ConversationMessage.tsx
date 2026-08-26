@@ -1010,6 +1010,7 @@ export const ConversationMessage = memo(function ConversationMessage({
           <div className="relative w-full max-w-xl">
             {!multiSelectMode && onDelete && (
               <button
+                data-testid={`conversation-message-${message.id}-delete-button`}
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(message.id);
@@ -1047,6 +1048,7 @@ export const ConversationMessage = memo(function ConversationMessage({
         <div className="relative">
           {!multiSelectMode && onDelete && (
             <button
+              data-testid={`conversation-message-${message.id}-delete-button`}
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(message.id);

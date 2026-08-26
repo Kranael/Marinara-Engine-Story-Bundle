@@ -1238,6 +1238,7 @@ export function ConversationView({
         {hasNextPage && (
           <div className="flex justify-center py-3">
             <button
+              data-testid="conversation-view-load-more-button"
               onClick={handleLoadMore}
               disabled={isFetchingNextPage}
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)] disabled:opacity-50"

@@ -410,6 +410,7 @@ export function YouTubePlayer({ mobile = false }: { mobile?: boolean } = {}) {
     >
       <button
         type="button"
+        data-testid="youtube-player-mute-button"
         onClick={toggleMute}
         className={cn(
           "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors",
@@ -428,6 +429,7 @@ export function YouTubePlayer({ mobile = false }: { mobile?: boolean } = {}) {
         min={0}
         max={100}
         step={1}
+        data-testid="youtube-player-volume-slider"
         value={playerVolume}
         onChange={(event) => setPlayerVolume(Number(event.target.value))}
         className="mari-youtube-volume-slider w-full"
@@ -470,6 +472,7 @@ export function YouTubePlayer({ mobile = false }: { mobile?: boolean } = {}) {
       {nowPlaying && (
         <button
           type="button"
+          data-testid="youtube-player-play-pause-button"
           onClick={togglePlay}
           className={cn(
             "inline-flex h-7 w-7 items-center justify-center rounded-full shadow-[0_1px_8px_rgba(255,255,255,0.18)] transition-transform hover:scale-105 active:scale-95",
@@ -486,6 +489,7 @@ export function YouTubePlayer({ mobile = false }: { mobile?: boolean } = {}) {
       {hasPlayerContent && (
         <button
           type="button"
+          data-testid="youtube-player-toggle-video-button"
           onClick={() => setShowVideo((v) => !v)}
           className={cn(
             "inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors active:scale-90",
@@ -502,6 +506,7 @@ export function YouTubePlayer({ mobile = false }: { mobile?: boolean } = {}) {
       {hasPlayerContent && (
         <button
           type="button"
+          data-testid="youtube-player-close-button"
           onClick={close}
           className={cn(
             "inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors active:scale-90",
@@ -584,6 +589,7 @@ export function YouTubePlayer({ mobile = false }: { mobile?: boolean } = {}) {
                   </span>
                   <button
                     type="button"
+                    data-testid="youtube-player-mobile-collapse-button"
                     onPointerDown={(event) => event.stopPropagation()}
                     onPointerMove={(event) => event.stopPropagation()}
                     onPointerUp={(event) => event.stopPropagation()}

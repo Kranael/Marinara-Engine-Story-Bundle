@@ -61,6 +61,7 @@ export function MariAttachButton({
       <button
         ref={buttonRef}
         type="button"
+        data-testid="mari-attach-button"
         onClick={() => setOpen((current) => !current)}
         disabled={disabled}
         className={cn(
@@ -87,6 +88,7 @@ export function MariAttachButton({
           <button
             type="button"
             role="menuitem"
+            data-testid="mari-attach-files-button"
             onClick={() => run(onAttachFiles)}
             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
           >
@@ -96,6 +98,7 @@ export function MariAttachButton({
           <button
             type="button"
             role="menuitem"
+            data-testid="mari-attach-chat-history-button"
             onClick={() => run(onAddChatHistory)}
             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
           >
@@ -105,6 +108,7 @@ export function MariAttachButton({
           <button
             type="button"
             role="menuitem"
+            data-testid="mari-attach-view-context-button"
             onClick={() => run(onViewContext)}
             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
           >

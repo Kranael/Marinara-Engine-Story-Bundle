@@ -407,6 +407,7 @@ function CustomNotificationSoundSetting() {
         onChange={handleUpload}
         className="sr-only"
         aria-label={t("settings.notifications.customSound.actions.choose")}
+        data-testid="custom-notification-sound-file-input"
       />
       <div>
         <div className="min-w-0">
@@ -432,6 +433,7 @@ function CustomNotificationSoundSetting() {
             type="button"
             onClick={() => playNotificationPing()}
             disabled={isLoading}
+            data-testid="custom-notification-sound-preview-button"
             className="mari-chrome-control inline-flex min-h-9 items-center gap-1.5 px-2.5 text-[0.625rem] disabled:opacity-50"
           >
             <Play size="0.6875rem" />
@@ -441,6 +443,7 @@ function CustomNotificationSoundSetting() {
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={isBusy}
+            data-testid="custom-notification-sound-upload-button"
             className="mari-chrome-control inline-flex min-h-9 items-center gap-1.5 px-2.5 text-[0.625rem] disabled:opacity-50"
           >
             {uploadSound.isPending ? (
@@ -457,6 +460,7 @@ function CustomNotificationSoundSetting() {
               type="button"
               onClick={() => void handleRemove()}
               disabled={isBusy}
+              data-testid="custom-notification-sound-remove-button"
               className="mari-chrome-control inline-flex min-h-9 items-center gap-1.5 px-2.5 text-[0.625rem] text-[var(--destructive)] disabled:opacity-50"
             >
               {removeSound.isPending ? (

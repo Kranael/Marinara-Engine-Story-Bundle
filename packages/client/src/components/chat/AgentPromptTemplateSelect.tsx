@@ -28,6 +28,7 @@ export function AgentPromptTemplateSelect({
           {localizeUi("ui.agents.customagentrepositoriesmodal.prompt")}
         </span>
         <select
+          data-testid="agent-prompt-template-select"
           value={activeOption?.id ?? DEFAULT_AGENT_PROMPT_TEMPLATE_ID}
           onChange={(event) => onChange(event.target.value)}
           className="w-full rounded-md bg-[var(--secondary)] px-2 py-1.5 text-[0.6875rem] text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"

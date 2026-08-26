@@ -107,6 +107,7 @@ function ReactionPill({
       <button
         ref={wrapRef}
         type="button"
+        data-testid={`message-reaction-${reaction.emoji}-button`}
         onClick={(event) => {
           event.stopPropagation();
           if (suppressClickRef.current) {

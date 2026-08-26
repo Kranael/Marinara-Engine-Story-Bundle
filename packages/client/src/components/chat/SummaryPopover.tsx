@@ -1391,6 +1391,7 @@ export function SummaryPopover({
               onClick={() => void handleClose()}
               className={NEUTRAL_PANEL_CLOSE_BUTTON}
               aria-label={localizeUi("ui.chat.summarypopover.closeSummary")}
+              data-testid="summary-popover-close-button"
             >
               <X size={NEUTRAL_PANEL_CLOSE_ICON_SIZE} />
             </button>
@@ -1410,6 +1411,7 @@ export function SummaryPopover({
                       key={mode}
                       type="button"
                       onClick={() => handleSourceModeChange(mode)}
+                      data-testid={`summary-popover-source-mode-${mode}-button`}
                       className={cn(
                         "rounded-md px-2 py-1 text-xs font-semibold transition-colors",
                         sourceMode === mode
@@ -1434,6 +1436,7 @@ export function SummaryPopover({
                   checked={hideSummarisedResolved}
                   // Writes per-chat metadata only — never the global ui.store.
                   onChange={(checked) => updateMeta.mutate({ id: chatId, hideSummarisedMessages: checked })}
+                  testId="summary-popover-hide-summarised-toggle"
                 />
                 {hideSummarisedResolved && (
                   <div className="space-y-1 px-1 pb-0.5">
@@ -1449,6 +1452,7 @@ export function SummaryPopover({
                             summaryTailMessages: value,
                           })
                         }
+                        testId="summary-popover-tail-messages-input"
                         className="w-16 rounded-md bg-[var(--secondary)] px-2 py-1 text-right text-xs outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
                       />
                     </label>
@@ -1463,6 +1467,7 @@ export function SummaryPopover({
                   label={localizeUi("ui.chat.summarypopover.collapseHiddenMessages")}
                   checked={summaryPopoverSettings.collapseHiddenMessages}
                   onChange={(checked) => setSummaryPopoverSettings({ collapseHiddenMessages: checked })}
+                  testId="summary-popover-collapse-hidden-toggle"
                 />
               </div>
             </div>
@@ -1494,6 +1499,7 @@ export function SummaryPopover({
                       label={localizeUi("ui.noodle.noodlehome.enabled")}
                       checked={automaticSummariesOn}
                       onChange={handleAutomaticSummaryToggle}
+                      testId="summary-popover-automatic-summaries-toggle"
                     />
                   </div>
                   <label className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-[var(--background)]/25 px-2 py-1.5 text-[0.6875rem] text-[var(--muted-foreground)]">
@@ -1522,6 +1528,7 @@ export function SummaryPopover({
                             event.currentTarget.blur();
                           }
                         }}
+                        data-testid="summary-popover-automatic-interval-input"
                         className="w-16 rounded-md bg-[var(--card)] px-2 py-1 text-center text-xs tabular-nums text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
                       />
                       <span>{localizeUi("ui.chat.summarypopover.userMessages")}</span>
@@ -1536,6 +1543,7 @@ export function SummaryPopover({
                         onChange={(checked) =>
                           updateMeta.mutate({ id: chatId, semanticSummaryRetrievalEnabled: checked })
                         }
+                        testId="summary-popover-semantic-retrieval-toggle"
                       />
                       <p className="px-1.5 pb-1 text-[0.625rem] leading-snug text-[var(--muted-foreground)]">
                         {localizeUi("ui.chat.summarypopover.semanticRetrievalDescription")}
@@ -1582,6 +1590,7 @@ export function SummaryPopover({
                       <button
                         type="button"
                         onClick={stopBackfill}
+                        data-testid="summary-popover-backfill-stop-button"
                         className="flex items-center gap-1.5 rounded-md bg-[var(--destructive)]/10 px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--destructive)] ring-1 ring-[var(--destructive)]/30 transition-colors hover:bg-[var(--destructive)]/20"
                       >
                         <Loader2 size="0.75rem" className="animate-spin" />
@@ -1592,6 +1601,7 @@ export function SummaryPopover({
                         type="button"
                         onClick={() => void handleBackfill()}
                         disabled={totalMessageCount === 0 || !globalPromptSettingsReady}
+                        data-testid="summary-popover-backfill-button"
                         className="flex items-center gap-1.5 rounded-md bg-[var(--secondary)] px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <RefreshCw size="0.75rem" />
@@ -1619,6 +1629,7 @@ export function SummaryPopover({
                     onClick={() => void handleToggleVisiblePromptEditor()}
                     disabled={!globalPromptSettingsReady || (promptSettingsSaveLocked && !visiblePromptEditorOpen)}
                     aria-expanded={visiblePromptEditorOpen}
+                    data-testid="summary-popover-prompt-editor-toggle-button"
                     className={cn(
                       "shrink-0 rounded-md px-2 py-1 text-xs transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50",
                       visiblePromptEditorOpen
@@ -1642,6 +1653,7 @@ export function SummaryPopover({
                     role="tab"
                     aria-selected={summaryPromptView === "summary"}
                     onClick={() => setSummaryPromptView("summary")}
+                    data-testid="summary-popover-prompt-view-summary-tab"
                     className={cn(
                       "rounded px-2 py-1 text-[0.625rem] font-semibold transition-colors",
                       summaryPromptView === "summary"
@@ -1656,6 +1668,7 @@ export function SummaryPopover({
                     role="tab"
                     aria-selected={summaryPromptView === "combine"}
                     onClick={() => setSummaryPromptView("combine")}
+                    data-testid="summary-popover-prompt-view-combine-tab"
                     className={cn(
                       "rounded px-2 py-1 text-[0.625rem] font-semibold transition-colors",
                       summaryPromptView === "combine"
@@ -1675,6 +1688,7 @@ export function SummaryPopover({
                           type="button"
                           onClick={() => setTemplateSelectOpen((open) => !open)}
                           disabled={!globalPromptSettingsReady || promptSettingsSaveLocked}
+                          data-testid="summary-popover-template-select-button"
                           className="flex w-full min-w-0 items-center justify-between gap-2 rounded-md bg-[var(--card)] py-1 pl-2 pr-2 text-left truncate text-xs font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
                           aria-haspopup="listbox"
                           aria-expanded={templateSelectOpen}
@@ -1699,6 +1713,7 @@ export function SummaryPopover({
                               label={localizeUi("ui.chat.summarypopover.builtInDefault")}
                               disabled={promptSettingsSaveLocked}
                               onSelect={() => void handleSelectPromptTemplate(null)}
+                              testId="summary-popover-template-default-option"
                             />
                             {longTermMemorySummaryPromptAvailable && (
                               <SummaryPromptSelectOption
@@ -1708,6 +1723,7 @@ export function SummaryPopover({
                                 onSelect={() =>
                                   void handleSelectPromptTemplate(LONG_TERM_MEMORY_CHAT_SUMMARY_PROMPT_ID)
                                 }
+                                testId="summary-popover-template-long-term-memory-option"
                               />
                             )}
                             {cleanedPromptTemplates.map((template) => (
@@ -1717,6 +1733,7 @@ export function SummaryPopover({
                                 label={template.name}
                                 disabled={promptSettingsSaveLocked}
                                 onSelect={() => void handleSelectPromptTemplate(template.id)}
+                                testId={`summary-popover-template-${template.id}-option`}
                               />
                             ))}
                           </div>
@@ -1740,6 +1757,7 @@ export function SummaryPopover({
                             disabled={promptSettingsSaveLocked}
                             onSelect={() => void handleSelectPromptTemplate(null)}
                             onCopy={() => handleDuplicatePromptTemplate(null, DEFAULT_CHAT_SUMMARY_PROMPT)}
+                            testIdPrefix="summary-popover-template-default"
                           />
                           {longTermMemorySummaryPromptAvailable && (
                             <SummaryPromptTemplateRow
@@ -1751,6 +1769,7 @@ export function SummaryPopover({
                               onCopy={() =>
                                 handleDuplicatePromptTemplate(null, DEFAULT_LONG_TERM_MEMORY_CHAT_SUMMARY_PROMPT)
                               }
+                              testIdPrefix="summary-popover-template-long-term-memory"
                             />
                           )}
                           {cleanedPromptTemplates.map((template) => (
@@ -1766,6 +1785,7 @@ export function SummaryPopover({
                               onCopy={() => handleDuplicatePromptTemplate(template)}
                               onEdit={() => handleEditPromptTemplate(template)}
                               onDelete={() => void handleDeletePromptTemplate(template.id)}
+                              testIdPrefix={`summary-popover-template-${template.id}`}
                             />
                           ))}
                         </div>
@@ -1774,6 +1794,7 @@ export function SummaryPopover({
                           type="button"
                           onClick={handleNewPromptTemplate}
                           disabled={!globalPromptSettingsReady || promptSettingsSaveLocked}
+                          data-testid="summary-popover-new-template-button"
                           className="flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-[var(--border)] bg-[var(--accent)]/35 px-2 py-1.5 text-[0.625rem] font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <Plus size="0.6875rem" />
@@ -1788,6 +1809,7 @@ export function SummaryPopover({
                               disabled={promptSettingsSaveLocked}
                               maxLength={80}
                               placeholder={localizeUi("ui.chat.summarypopover.templateName")}
+                              data-testid="summary-popover-template-name-input"
                               className="w-full rounded-md bg-[var(--card)] px-2 py-1 text-[0.6875rem] font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
                             />
                             <MacroTextarea
@@ -1798,6 +1820,7 @@ export function SummaryPopover({
                               ariaLabel={localizeUi("ui.chat.summarypopover.promptInstructionsForSummaryGeneration")}
                               placeholder={localizeUi("ui.chat.summarypopover.promptInstructionsForSummaryGeneration")}
                               readOnly={promptSettingsSaveLocked}
+                              testId="summary-popover-template-prompt-textarea"
                               wrapperClassName="min-w-0"
                               className="mari-chrome-field max-h-48 !rounded-md bg-[var(--card)] px-2 py-1.5 font-mono text-[0.625rem] leading-relaxed read-only:cursor-not-allowed read-only:opacity-50"
                             />
@@ -1806,6 +1829,7 @@ export function SummaryPopover({
                                 type="button"
                                 onClick={resetTemplateDraft}
                                 disabled={promptSettingsSaveLocked}
+                                data-testid="summary-popover-template-draft-cancel-button"
                                 className="rounded-md px-2 py-1 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 {localizeUi("chat.delete.dialog.cancel")}
@@ -1814,6 +1838,7 @@ export function SummaryPopover({
                                 type="button"
                                 onClick={() => void handleSavePromptTemplate()}
                                 disabled={!hasTemplateDraft || promptSettingsSaveLocked || !globalPromptSettingsReady}
+                                data-testid="summary-popover-template-draft-save-button"
                                 className="flex items-center gap-1 rounded-md bg-[var(--secondary)] px-2 py-1 text-[0.625rem] font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 <Save size="0.625rem" />
@@ -1849,6 +1874,7 @@ export function SummaryPopover({
                         title={localizeUi("ui.chat.summarypopover.combinePrompt")}
                         ariaLabel={localizeUi("ui.chat.summarypopover.combinePrompt")}
                         readOnly={!globalPromptSettingsReady || promptSettingsSaveLocked}
+                        testId="summary-popover-combine-prompt-textarea"
                         wrapperClassName="min-w-0"
                         className="mari-chrome-field h-28 resize-none !rounded-md bg-[var(--card)] px-2 py-1.5 font-mono text-[0.625rem] leading-relaxed read-only:cursor-not-allowed read-only:opacity-50"
                       />
@@ -1878,6 +1904,7 @@ export function SummaryPopover({
                 value={selectedSummaryConnectionId}
                 onChange={(event) => handleSummaryConnectionChange(event.target.value)}
                 disabled={updateMeta.isPending}
+                data-testid="summary-popover-connection-select"
                 className="w-full rounded-md bg-[var(--card)] px-2 py-1.5 text-xs font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label={localizeUi("ui.chat.summarypopover.summaryConnection_febe5c4")}
               >
@@ -1921,6 +1948,7 @@ export function SummaryPopover({
                     }
                   }}
                   disabled={updateMeta.isPending}
+                  data-testid="summary-popover-max-tokens-input"
                   className="w-full rounded-md bg-[var(--card)] px-2 py-1.5 text-xs font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-50"
                   aria-label={localizeUi("ui.chat.summarypopover.summaryMaximumOutputSize")}
                 />
@@ -1939,6 +1967,7 @@ export function SummaryPopover({
                         type="button"
                         onClick={() => void handleCombineSelected()}
                         disabled={combiningEntries || generateSummary.isPending}
+                        data-testid="summary-popover-combine-selected-button"
                         className="inline-flex items-center gap-1 rounded-md bg-[var(--primary)]/12 px-2 py-1 text-[0.625rem] font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/20 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {combiningEntries ? (
@@ -1958,6 +1987,7 @@ export function SummaryPopover({
                         type="button"
                         onClick={() => void handleDeleteSelectedEntries()}
                         disabled={entryMutationPending}
+                        data-testid="summary-popover-delete-selected-button"
                         className="inline-flex items-center gap-1 rounded-md bg-[var(--destructive)]/10 px-2 py-1 text-[0.625rem] font-semibold text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/15 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Trash2 size="0.6875rem" />
@@ -1972,6 +2002,7 @@ export function SummaryPopover({
                       type="button"
                       onClick={handleToggleSelectAllEntries}
                       disabled={entryMutationPending || visiblePersistedEntries.length === 0}
+                      data-testid="summary-popover-select-all-button"
                       className="rounded-md px-1 py-0.5 text-[0.625rem] font-semibold text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {visiblePersistedEntries.length > 0 && selectedEntries.length === visiblePersistedEntries.length
@@ -1982,6 +2013,7 @@ export function SummaryPopover({
                       <button
                         type="button"
                         onClick={() => setShowInactiveSummaries((show) => !show)}
+                        data-testid="summary-popover-show-inactive-button"
                         className={cn(
                           "rounded-md px-1 py-0.5 text-[0.625rem] font-semibold transition-colors hover:text-[var(--foreground)]",
                           showInactiveSummaries ? "text-[var(--foreground)]" : "text-[var(--muted-foreground)]",
@@ -1997,6 +2029,7 @@ export function SummaryPopover({
                       type="button"
                       onClick={() => void handleToggleAllEntries()}
                       disabled={entryMutationPending}
+                      data-testid="summary-popover-toggle-all-entries-button"
                       className="rounded-md px-1 py-0.5 text-[0.625rem] font-semibold text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {enabledEntryCount === 0
@@ -2112,6 +2145,7 @@ export function SummaryPopover({
                 <button
                   type="button"
                   onClick={() => setShowInactiveSummaries(true)}
+                  data-testid="summary-popover-show-hidden-entries-button"
                   className="w-full rounded-t-lg rounded-b-none border border-b-0 border-dashed border-[var(--border)] bg-[var(--secondary)]/20 p-5 text-center text-xs italic text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]/35"
                 >
                   {localizeUi("ui.chat.summarypopover.inactiveSummariesAreHiddenShowInactiveSummariesToView")}
@@ -2120,6 +2154,7 @@ export function SummaryPopover({
                 <button
                   type="button"
                   onClick={handleCreateManualEntry}
+                  data-testid="summary-popover-create-first-entry-button"
                   className="w-full rounded-t-lg rounded-b-none border border-b-0 border-dashed border-[var(--border)] bg-[var(--secondary)]/20 p-5 text-center text-xs italic text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]/35"
                 >
                   {localizeUi("ui.chat.summarypopover.noSummariesYetGenerateOneOrWriteYourOwn")}
@@ -2169,6 +2204,7 @@ export function SummaryPopover({
                     setLocalSize(String(clamped));
                     persistSummaryContextSize(clamped);
                   }}
+                  data-testid="summary-popover-message-count-input"
                   className="w-16 rounded-md bg-[var(--card)] px-2 py-1 text-center text-xs tabular-nums text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                 />
               </label>
@@ -2199,6 +2235,7 @@ export function SummaryPopover({
                         setRangeStart(String(normalizedRangeStart));
                         setSummaryPopoverSettings({ rangeStart: normalizedRangeStart });
                       }}
+                      data-testid="summary-popover-range-start-input"
                       className="w-full rounded-md bg-[var(--card)] px-2 py-1 text-center text-xs tabular-nums text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                     />
                   </label>
@@ -2226,6 +2263,7 @@ export function SummaryPopover({
                         setRangeEnd(String(normalizedRangeEnd));
                         setSummaryPopoverSettings({ rangeEnd: normalizedRangeEnd });
                       }}
+                      data-testid="summary-popover-range-end-input"
                       className="w-full rounded-md bg-[var(--card)] px-2 py-1 text-center text-xs tabular-nums text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                     />
                   </label>
@@ -2241,6 +2279,7 @@ export function SummaryPopover({
             <button
               type="button"
               onClick={handleCreateManualEntry}
+              data-testid="summary-popover-write-entry-button"
               className="flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)] hover:text-[var(--foreground)] active:scale-[0.98]"
               title={localizeUi("ui.chat.summarypopover.writeSummaryEntry")}
             >
@@ -2251,6 +2290,7 @@ export function SummaryPopover({
               type="button"
               onClick={handleGenerate}
               disabled={isGenerating || !canGenerate}
+              data-testid="summary-popover-generate-button"
               className={cn(
                 "flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all",
                 isGenerating || !canGenerate
@@ -2277,9 +2317,10 @@ interface SummarySettingsToggleProps {
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  testId?: string;
 }
 
-function SummarySettingsToggle({ label, checked, onChange }: SummarySettingsToggleProps) {
+function SummarySettingsToggle({ label, checked, onChange, testId }: SummarySettingsToggleProps) {
   return (
     <label className="flex cursor-pointer items-center justify-between gap-3 rounded-md px-1.5 py-1.5 text-[0.6875rem] text-[var(--popover-foreground)] transition-colors hover:bg-[var(--accent)]/50">
       <span className="min-w-0 truncate">{label}</span>
@@ -2287,6 +2328,7 @@ function SummarySettingsToggle({ label, checked, onChange }: SummarySettingsTogg
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
+        data-testid={testId}
         className="h-3.5 w-3.5 shrink-0 accent-[var(--muted-foreground)]"
       />
     </label>
@@ -2392,6 +2434,7 @@ function SummaryEntryRow({
             onMouseDown={() => onDragReadyChange(true)}
             onMouseUp={() => onDragReadyChange(false)}
             onTouchStart={onTouchStartDrag}
+            data-testid={`summary-popover-entry-${entry.id}-drag-handle`}
           >
             <GripVertical size="0.875rem" />
           </button>
@@ -2400,6 +2443,7 @@ function SummaryEntryRow({
               type="button"
               onClick={onMoveUp}
               disabled={!reorderable || entryIndex === 0 || mutationPending}
+              data-testid={`summary-popover-entry-${entry.id}-move-up-button`}
               className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:pointer-events-none disabled:opacity-30"
               title={localizeUi("ui.chat.summaryentryrow.moveSummaryUp", { title: entry.title })}
               aria-label={localizeUi("ui.chat.summaryentryrow.moveSummaryUp", { title: entry.title })}
@@ -2410,6 +2454,7 @@ function SummaryEntryRow({
               type="button"
               onClick={onMoveDown}
               disabled={!reorderable || entryIndex === entryCount - 1 || mutationPending}
+              data-testid={`summary-popover-entry-${entry.id}-move-down-button`}
               className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:pointer-events-none disabled:opacity-30"
               title={localizeUi("ui.chat.summaryentryrow.moveSummaryDown", { title: entry.title })}
               aria-label={localizeUi("ui.chat.summaryentryrow.moveSummaryDown", { title: entry.title })}
@@ -2423,6 +2468,7 @@ function SummaryEntryRow({
           checked={selected}
           onChange={onToggleSelected}
           disabled={editing}
+          data-testid={`summary-popover-entry-${entry.id}-select-checkbox`}
           className="h-3.5 w-3.5 shrink-0 accent-[var(--primary)]"
           aria-label={localizeUi("ui.chat.summaryentryrow.selectSummaryEntry", { title: entry.title })}
         />
@@ -2430,6 +2476,7 @@ function SummaryEntryRow({
           type="button"
           onClick={() => onToggleEnabled(!entry.enabled)}
           disabled={mutationPending}
+          data-testid={`summary-popover-entry-${entry.id}-enable-toggle-button`}
           className={cn(
             "flex h-5 w-5 shrink-0 items-center justify-center rounded-md transition-colors disabled:cursor-not-allowed disabled:opacity-50",
             entry.enabled
@@ -2451,7 +2498,12 @@ function SummaryEntryRow({
           <Check size="0.6875rem" className={cn(!entry.enabled && "opacity-0")} />
         </button>
 
-        <button type="button" onClick={onToggleExpanded} className="min-w-0 text-left">
+        <button
+          type="button"
+          onClick={onToggleExpanded}
+          data-testid={`summary-popover-entry-${entry.id}-title-button`}
+          className="min-w-0 text-left"
+        >
           <div className="flex min-w-0 items-center gap-1.5">
             <SummaryEntryOriginIcon entry={entry} />
             <span className="min-w-0 truncate text-xs font-semibold">{entry.title}</span>
@@ -2468,6 +2520,7 @@ function SummaryEntryRow({
           <button
             type="button"
             onClick={onToggleExpanded}
+            data-testid={`summary-popover-entry-${entry.id}-expand-button`}
             className={cn(
               "rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] active:scale-90",
               expanded && "bg-[var(--accent)] text-[var(--foreground)]",
@@ -2486,6 +2539,7 @@ function SummaryEntryRow({
           <button
             type="button"
             onClick={onStartEdit}
+            data-testid={`summary-popover-entry-${entry.id}-edit-button`}
             className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] active:scale-90"
             title={localizeUi("ui.noodle.noodlepostcard.edit")}
             aria-label={localizeUi("ui.chat.summaryentryrow.editSummaryEntry")}
@@ -2496,6 +2550,7 @@ function SummaryEntryRow({
             type="button"
             onClick={onDelete}
             disabled={mutationPending}
+            data-testid={`summary-popover-entry-${entry.id}-delete-button`}
             className="rounded p-1 text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/15 active:scale-90 disabled:cursor-not-allowed disabled:opacity-50"
             title={localizeUi("lorebook.editor.batch.delete")}
             aria-label={localizeUi("ui.chat.summaryentryrow.deleteSummaryEntry")}
@@ -2559,6 +2614,7 @@ function SummaryEntryEditor({ entry, textareaRef, mutationPending, onCancel, onS
         onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
         maxLength={120}
         placeholder={localizeUi("ui.chat.summaryentryeditor.summaryTitle")}
+        data-testid={`summary-popover-entry-${entry.id}-title-input`}
         className="w-full rounded-md bg-[var(--card)] px-2.5 py-1.5 text-xs font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
       />
       <MacroTextarea
@@ -2569,6 +2625,7 @@ function SummaryEntryEditor({ entry, textareaRef, mutationPending, onCancel, onS
         title={localizeUi("ui.chat.summaryentryeditor.summaryTitle")}
         ariaLabel={localizeUi("ui.chat.summaryentryeditor.writeOrPasteASummaryOfThisChat")}
         placeholder={localizeUi("ui.chat.summaryentryeditor.writeOrPasteASummaryOfThisChat")}
+        testId={`summary-popover-entry-${entry.id}-content-textarea`}
         className="max-h-64 min-h-36 rounded-md bg-[var(--card)] text-xs leading-relaxed"
       />
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -2579,6 +2636,7 @@ function SummaryEntryEditor({ entry, textareaRef, mutationPending, onCancel, onS
           <button
             type="button"
             onClick={onCancel}
+            data-testid={`summary-popover-entry-${entry.id}-edit-cancel-button`}
             className="rounded-md px-2.5 py-1 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
           >
             {localizeUi("chat.delete.dialog.cancel")}
@@ -2587,6 +2645,7 @@ function SummaryEntryEditor({ entry, textareaRef, mutationPending, onCancel, onS
             type="button"
             onClick={() => onSave(draft)}
             disabled={mutationPending || !draft.content.trim()}
+            data-testid={`summary-popover-entry-${entry.id}-edit-save-button`}
             className="flex items-center gap-1 rounded-md bg-[var(--secondary)] px-2.5 py-1 text-[0.625rem] font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] transition-all hover:bg-[var(--accent)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size="0.625rem" />
@@ -2684,9 +2743,10 @@ interface SummaryPromptSelectOptionProps {
   label: string;
   disabled?: boolean;
   onSelect: () => void;
+  testId?: string;
 }
 
-function SummaryPromptSelectOption({ active, label, disabled, onSelect }: SummaryPromptSelectOptionProps) {
+function SummaryPromptSelectOption({ active, label, disabled, onSelect, testId }: SummaryPromptSelectOptionProps) {
   return (
     <button
       type="button"
@@ -2694,6 +2754,7 @@ function SummaryPromptSelectOption({ active, label, disabled, onSelect }: Summar
       aria-selected={active}
       disabled={disabled}
       onClick={onSelect}
+      data-testid={testId}
       className={cn(
         "flex w-full min-w-0 items-center gap-1.5 rounded px-2 py-1.5 text-left text-[0.6875rem] transition-colors disabled:cursor-not-allowed disabled:opacity-50",
         active
@@ -2716,6 +2777,7 @@ interface SummaryPromptTemplateRowProps {
   onCopy: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  testIdPrefix?: string;
 }
 
 function SummaryPromptTemplateRow({
@@ -2727,6 +2789,7 @@ function SummaryPromptTemplateRow({
   onCopy,
   onEdit,
   onDelete,
+  testIdPrefix,
 }: SummaryPromptTemplateRowProps) {
   const { t: localizeUi } = useUiTranslation();
   return (
@@ -2742,6 +2805,7 @@ function SummaryPromptTemplateRow({
         type="button"
         onClick={onSelect}
         disabled={disabled}
+        data-testid={testIdPrefix ? `${testIdPrefix}-select-button` : undefined}
         className="flex min-w-0 flex-1 items-center gap-1.5 text-left disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("chat.summary.template.use", { name })}
       >
@@ -2764,6 +2828,7 @@ function SummaryPromptTemplateRow({
         type="button"
         onClick={onCopy}
         disabled={disabled}
+        data-testid={testIdPrefix ? `${testIdPrefix}-copy-button` : undefined}
         className="shrink-0 rounded p-1 text-[var(--muted-foreground)] opacity-80 transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("ui.chat.summaryprompttemplaterow.duplicateTemplate")}
         aria-label={localizeUi("ui.chat.summaryprompttemplaterow.duplicateTemplate")}
@@ -2775,6 +2840,7 @@ function SummaryPromptTemplateRow({
           type="button"
           onClick={onEdit}
           disabled={disabled}
+          data-testid={testIdPrefix ? `${testIdPrefix}-edit-button` : undefined}
           className="shrink-0 rounded p-1 text-[var(--muted-foreground)] opacity-80 transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
           title={localizeUi("ui.chat.summaryprompttemplaterow.editTemplate")}
           aria-label={localizeUi("ui.chat.summaryprompttemplaterow.editTemplate")}
@@ -2787,6 +2853,7 @@ function SummaryPromptTemplateRow({
           type="button"
           onClick={onDelete}
           disabled={disabled}
+          data-testid={testIdPrefix ? `${testIdPrefix}-delete-button` : undefined}
           className="shrink-0 rounded p-1 text-[var(--muted-foreground)] opacity-80 transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50"
           title={localizeUi("ui.chat.summaryprompttemplaterow.deleteTemplate")}
           aria-label={localizeUi("ui.chat.summaryprompttemplaterow.deleteTemplate")}

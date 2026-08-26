@@ -534,6 +534,7 @@ function RowCard({
         {/* The header is the accordion toggle: click to fold the details away and re-open later. */}
         <button
           type="button"
+          data-testid={`mari-edit-easy-viewer-change-${index}-collapse-button`}
           onClick={onToggleCollapse}
           aria-expanded={!collapsed}
           aria-label={localizeUi(
@@ -566,6 +567,7 @@ function RowCard({
           {canRender && (
             <button
               type="button"
+              data-testid={`mari-edit-easy-viewer-change-${index}-view-as-prompt-button`}
               onClick={() => onRender?.(change, index)}
               disabled={busy}
               title={localizeUi("ui.chat.mariediteasyviewer.viewAsPromptHint")}
@@ -579,6 +581,7 @@ function RowCard({
           {canReject && (
             <button
               type="button"
+              data-testid={`mari-edit-easy-viewer-change-${index}-reject-button`}
               onClick={() => onReject?.(change, index)}
               disabled={busy}
               title={localizeUi("ui.chat.mariediteasyviewer.rejectHint")}

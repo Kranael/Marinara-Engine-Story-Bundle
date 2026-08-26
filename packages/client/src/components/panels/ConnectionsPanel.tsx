@@ -654,6 +654,7 @@ function SidecarCard() {
                 onChange={(checked) => updateConfig({ useForTrackers: checked })}
                 className="p-0 hover:bg-transparent"
                 labelClassName="text-xs text-[var(--muted-foreground)]"
+                testId="sidecar-use-for-trackers-switch"
               />
               <SettingsSwitch
                 label={localizeUi("ui.panels.sidecarcard.useForGameSceneAnalysis")}
@@ -661,6 +662,7 @@ function SidecarCard() {
                 onChange={(checked) => updateConfig({ useForGameScene: checked })}
                 className="p-0 hover:bg-transparent"
                 labelClassName="text-xs text-[var(--muted-foreground)]"
+                testId="sidecar-use-for-game-scene-switch"
               />
             </div>
           )}

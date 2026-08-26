@@ -124,12 +124,14 @@ export function NumberField({
   onChange,
   min,
   max,
+  testId,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   min?: number;
   max?: number;
+  testId?: string;
 }) {
   return (
     <div>
@@ -140,6 +142,7 @@ export function NumberField({
         min={min}
         max={max}
         selectOnFocus
+        testId={testId}
         className="mari-editor-field w-full px-2 py-1.5 text-xs"
       />
     </div>

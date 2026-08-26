@@ -159,6 +159,7 @@ function CornerPicker({ current, onChange }: { current: EchoChamberSide; onChang
       {CORNERS.map((c) => (
         <button
           key={c}
+          data-testid={`echo-chamber-corner-${c}-button`}
           onClick={() => onChange(c)}
           className={cn(
             "h-[0.4375rem] w-[0.4375rem] rounded-[0.09375rem] transition-colors",
@@ -567,6 +568,7 @@ export function EchoChamberPanel({ hiddenOnMobile = false }: EchoChamberPanelPro
     return (
       <button
         type="button"
+        data-testid="echo-chamber-open-button"
         onClick={toggleEchoChamber}
         className={cn(
           NEUTRAL_PANEL_SHELL,
@@ -627,6 +629,7 @@ export function EchoChamberPanel({ hiddenOnMobile = false }: EchoChamberPanelPro
         </span>
         <div className="flex items-center gap-1.5">
           <button
+            data-testid="echo-chamber-collapse-button"
             onClick={toggleEchoChamber}
             className="rounded p-0.5 text-[var(--marinara-chat-chrome-button-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
             title={localizeUi("ui.chat.echochamberpanel.collapseEchoChamber")}
@@ -634,6 +637,7 @@ export function EchoChamberPanel({ hiddenOnMobile = false }: EchoChamberPanelPro
             <ChevronDown size="0.5625rem" />
           </button>
           <button
+            data-testid="echo-chamber-retry-button"
             onClick={() => {
               if (!activeChatId || echoRetryBusy) return;
               void retryAgents(activeChatId, ["echo-chamber"]);
@@ -650,6 +654,7 @@ export function EchoChamberPanel({ hiddenOnMobile = false }: EchoChamberPanelPro
           </button>
           {visibleMessages.length > 0 && (
             <button
+              data-testid="echo-chamber-clear-button"
               onClick={async () => {
                 if (!activeChatId) return;
                 clearEchoMessages();
@@ -701,6 +706,7 @@ export function EchoChamberPanel({ hiddenOnMobile = false }: EchoChamberPanelPro
       </div>
       <button
         type="button"
+        data-testid="echo-chamber-resize-button"
         aria-label={localizeUi("ui.chat.echochamberpanel.resizeEchoChamber")}
         title={localizeUi("ui.chat.echochamberpanel.dragToResizeEchoChamber")}
         className={cn(

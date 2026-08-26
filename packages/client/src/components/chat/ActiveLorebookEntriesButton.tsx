@@ -191,6 +191,7 @@ export function ActiveLorebookEntriesButton({
     <div className="relative" ref={ref} onClick={(e) => e.stopPropagation()}>
       <button
         ref={buttonRef}
+        data-testid="active-lorebook-entries-toggle-button"
         data-chat-help="context"
         onClick={() => {
           const nextOpen = !open;

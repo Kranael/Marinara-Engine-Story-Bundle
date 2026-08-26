@@ -108,6 +108,7 @@ export function MariPromptPreviewModal({
             </span>
           </div>
           <button
+            data-testid="mari-prompt-preview-close-button"
             onClick={onClose}
             className={cn(NEUTRAL_PANEL_CLOSE_BUTTON)}
             aria-label={localizeUi("ui.chat.maripromptpreviewmodal.close")}

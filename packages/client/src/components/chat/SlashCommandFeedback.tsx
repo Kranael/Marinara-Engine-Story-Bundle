@@ -95,6 +95,7 @@ export function SlashCommandFeedback({ feedback, onDismiss, className }: SlashCo
         </h3>
         <button
           type="button"
+          data-testid="slash-command-feedback-dismiss-button"
           onClick={onDismiss}
           className={cn(NEUTRAL_PANEL_CLOSE_BUTTON, "shrink-0")}
           aria-label={localizeUi("ui.chat.slashcommandfeedback.dismiss")}

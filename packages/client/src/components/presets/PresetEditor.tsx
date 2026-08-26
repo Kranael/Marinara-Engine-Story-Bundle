@@ -1119,6 +1119,7 @@ function PromptsTab({
           placeholder={localizeUi("ui.presets.promptstab.leaveEmptyToUseMarinaraSBuiltInConversation")}
           className="mari-editor-field min-h-[12rem] w-full p-3 font-mono text-xs"
           formatOnChange={formatPrompt}
+          testId="preset-editor-conversation-prompt-textarea"
           showMarkdownPreview
           spellCheck={false}
         />
@@ -1144,6 +1145,7 @@ function PromptsTab({
           placeholder={localizeUi("ui.presets.promptstab.leaveEmptyToUseMarinaraSBuiltInGame")}
           className="mari-editor-field min-h-[12rem] w-full p-3 font-mono text-xs"
           formatOnChange={formatPrompt}
+          testId="preset-editor-game-prompt-textarea"
           showMarkdownPreview
           spellCheck={false}
         />

@@ -569,6 +569,7 @@ function FaqDocsAccess({ compact }: { compact?: boolean }) {
       <button
         type="button"
         onClick={() => useUIStore.getState().openModal("docs-viewer")}
+        data-testid="home-faq-open-docs-button"
         className={cn(
           "inline-flex items-center gap-1.5 rounded-lg border border-[var(--primary)]/30 bg-[var(--primary)]/10 font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/20",
           compact ? "px-2 py-1 text-[0.625rem]" : "px-2.5 py-1.5 text-[0.6875rem]",
@@ -656,6 +657,7 @@ export function HomeFaq({
             <button
               type="button"
               onClick={() => setExpanded(!expanded)}
+              data-testid="home-faq-compact-toggle-button"
               className="flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5"
               aria-expanded={expanded}
             >
@@ -680,12 +682,14 @@ export function HomeFaq({
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder={localize("Search FAQ")}
                   aria-label={localize("Search FAQ")}
+                  data-testid="home-faq-compact-search-input"
                   className="min-w-0 flex-1 bg-transparent text-[0.6875rem] text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/65"
                 />
                 {searchQuery ? (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
+                    data-testid="home-faq-compact-search-clear-button"
                     className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     aria-label={localize("Clear FAQ search")}
                   >
@@ -711,6 +715,7 @@ export function HomeFaq({
                       <button
                         type="button"
                         onClick={() => setOpenItemId(openItemId === item.id ? null : item.id)}
+                        data-testid={`home-faq-compact-item-${item.id}-button`}
                         className="flex w-full items-start gap-2 px-2.5 py-2 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                         aria-expanded={isOpen}
                       >
@@ -778,6 +783,7 @@ export function HomeFaq({
           <button
             type="button"
             onClick={() => setMobileModalOpen(true)}
+            data-testid="home-faq-mobile-launcher-button"
             className="flex w-full items-center gap-2 rounded-lg border border-[var(--border)]/60 bg-[var(--card)]/70 px-3 py-2 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5"
             aria-label={localize("Open Professor Mari's FAQ")}
           >
@@ -828,6 +834,7 @@ export function HomeFaq({
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
+            data-testid="home-faq-toggle-button"
             className="flex w-full items-start gap-2.5 px-3.5 py-2.5 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5 sm:items-center sm:gap-3 sm:px-4"
             aria-expanded={expanded}
           >
@@ -919,12 +926,14 @@ export function HomeFaq({
                   onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder={localize("Search FAQ")}
                   aria-label={localize("Search FAQ")}
+                  data-testid="home-faq-search-input"
                   className="min-w-0 flex-1 bg-transparent text-xs text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/65"
                 />
                 {searchQuery ? (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
+                    data-testid="home-faq-search-clear-button"
                     className="flex h-6 w-6 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     aria-label={localize("Clear FAQ search")}
                   >
@@ -948,6 +957,7 @@ export function HomeFaq({
                       <button
                         type="button"
                         onClick={() => setOpenItemId(openItemId === item.id ? null : item.id)}
+                        data-testid={`home-faq-item-${item.id}-button`}
                         className="flex w-full items-start gap-3 px-3 py-3 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                         aria-expanded={isOpen}
                       >

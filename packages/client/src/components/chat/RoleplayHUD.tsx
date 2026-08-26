@@ -421,6 +421,7 @@ export function RoleplayHUD({
                   onRetriggerTrackers();
                 }}
                 disabled={isTrackerBusy}
+                data-testid="roleplay-hud-mobile-run-trackers-button"
                 className={cn(
                   MOBILE_HUD_BTN,
                   "justify-center text-[0.5625rem] font-medium",
@@ -536,6 +537,7 @@ export function RoleplayHUD({
                   onRetriggerTrackers();
                 }}
                 disabled={isTrackerBusy}
+                data-testid="roleplay-hud-desktop-run-trackers-button"
                 className={cn(WIDGET, isTrackerBusy && "text-[var(--marinara-chat-chrome-button-text-active)]")}
                 title={
                   isTrackerBusy
@@ -624,6 +626,7 @@ function TrackerPanelToggleButton({ onToggle }: { onToggle: () => void }) {
     <button
       data-tracker-panel-toggle="roleplay-hud"
       onClick={onToggle}
+      data-testid="roleplay-hud-tracker-panel-toggle-button"
       className={WIDGET}
       title={localizeUi("ui.chat.trackerpaneltogglebutton.showTrackerPanel")}
       aria-label={localizeUi("ui.chat.trackerpaneltogglebutton.showTrackerPanel")}
@@ -793,6 +796,7 @@ function ActionsGroup({
       <button
         ref={btnRef}
         onClick={() => setAgentsOpen(!agentsOpen)}
+        data-testid="roleplay-hud-agents-toggle-button"
         className={cn(
           getChatToolbarButtonClass({
             compact: true,
@@ -901,6 +905,7 @@ function CombinedPlayerWidget({
       <button
         ref={buttonRef}
         onClick={() => setOpen(!open)}
+        data-testid="roleplay-hud-player-widget-toggle-button"
         className={WIDGET}
         title={localizeUi("ui.chat.combinedplayerwidget.playerTracker")}
       >
@@ -1071,6 +1076,7 @@ function CharactersWidget({
       <button
         ref={buttonRef}
         onClick={() => setOpen(!open)}
+        data-testid="roleplay-hud-characters-widget-toggle-button"
         className={WIDGET}
         title={localizeUi("ui.chat.characterswidget.presentCharacters")}
       >
@@ -1125,6 +1131,7 @@ function PersonaStatsWidget({
       <button
         ref={buttonRef}
         onClick={() => setOpen(!open)}
+        data-testid="roleplay-hud-persona-stats-widget-toggle-button"
         className={WIDGET}
         title={localizeUi("ui.chat.personastatswidget.personaStats")}
       >
@@ -1225,6 +1232,7 @@ function CustomTrackerWidget({
       <button
         ref={buttonRef}
         onClick={() => setOpen(!open)}
+        data-testid="roleplay-hud-custom-tracker-widget-toggle-button"
         className={WIDGET}
         title={localizeUi("ui.chat.customtrackerwidget.customTracker")}
       >
@@ -1293,6 +1301,7 @@ function InventoryTrackerWidget({
       <button
         ref={buttonRef}
         onClick={() => setOpen(!open)}
+        data-testid="roleplay-hud-inventory-widget-toggle-button"
         className={WIDGET}
         title={localizeUi("ui.chat.inventoryTracker.title")}
       >
@@ -1352,6 +1361,7 @@ function QuestsWidget({
       <button
         ref={buttonRef}
         onClick={() => setOpen(!open)}
+        data-testid="roleplay-hud-quests-widget-toggle-button"
         className={WIDGET}
         title={localizeUi("ui.chat.questswidget.activeQuests")}
       >
@@ -1459,6 +1469,7 @@ function CombinedWorldWidget({
       <button
         ref={buttonRef}
         onClick={() => setOpen(!open)}
+        data-testid="roleplay-hud-world-widget-toggle-button"
         className={cn(
           getChatToolbarButtonClass({
             compact: true,

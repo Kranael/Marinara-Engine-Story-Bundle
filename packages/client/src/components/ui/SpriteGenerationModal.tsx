@@ -2526,6 +2526,7 @@ export function SpriteGenerationModal({
                         step={step}
                         value={sliceAdjustments[key]}
                         onChange={(e) => handleSliceAdjustmentChange(key, Number(e.target.value))}
+                        data-testid={`sprite-generation-slice-${key}-slider`}
                         className="min-w-0 flex-1 accent-[var(--primary)]"
                       />
                       <span className="w-12 text-right tabular-nums">{sliceAdjustments[key].toFixed(1)}%</span>
@@ -2546,6 +2547,7 @@ export function SpriteGenerationModal({
                         step={step}
                         value={sliceAdjustments[key]}
                         onChange={(e) => handleSliceAdjustmentChange(key, Number(e.target.value))}
+                        data-testid={`sprite-generation-slice-${key}-slider`}
                         className="min-w-0 flex-1 accent-[var(--primary)]"
                       />
                       <span className="w-12 text-right tabular-nums">{sliceAdjustments[key].toFixed(1)}%</span>

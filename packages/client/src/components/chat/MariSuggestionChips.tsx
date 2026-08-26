@@ -88,6 +88,7 @@ export function MariSuggestionChips({ chips, onSelect, disabled = false, compact
               <button
                 key={chip.id}
                 type="button"
+                data-testid={`mari-suggestion-chip-${chip.id}-button`}
                 onClick={() => onSelect(chip)}
                 disabled={disabled}
                 className={cn(

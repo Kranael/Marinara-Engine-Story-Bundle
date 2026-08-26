@@ -2758,6 +2758,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                   <span className="flex-1 truncate text-xs">{lb.name}</span>
                   <button
                     onClick={() => toggleLorebook(lb.id)}
+                    data-testid={`chat-setup-wizard-roleplay-remove-lorebook-${lb.id}-button`}
                     className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                     title={localizeUi("settings.notifications.customSound.actions.remove")}
                   >
@@ -2777,6 +2778,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               value={lbSearch}
               onChange={(e) => setLbSearch(e.target.value)}
               placeholder={localizeUi("ui.chat.roleplaysetupwizard.searchLorebooks")}
+              data-testid="chat-setup-wizard-roleplay-lorebook-search-input"
               className="flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
             />
           </div>
@@ -2785,6 +2787,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               <button
                 key={lb.id}
                 onClick={() => toggleLorebook(lb.id)}
+                data-testid={`chat-setup-wizard-roleplay-available-lorebook-${lb.id}-button`}
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
               >
                 <BookOpen size="0.875rem" className="text-[var(--muted-foreground)]" />
@@ -2866,6 +2869,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               onFinish();
               openRightPanel("agents");
             }}
+            data-testid="chat-setup-wizard-roleplay-open-agents-tab-button"
             className={cn(WIZARD_PRIMARY_BUTTON_CLASS, "gap-2")}
           >
             <Sparkles size="0.8125rem" />
@@ -2885,6 +2889,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               activeAgentIds: !agentsEnabled ? readLatestActiveAgentIds() : [],
             })
           }
+          data-testid="chat-setup-wizard-roleplay-agents-toggle-button"
           className={cn(
             "mari-chat-option-field flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-all",
             agentsEnabled && "mari-chat-option-field--active",
@@ -2958,6 +2963,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                         }}
                         disabled={addingAgentToChat}
                         selectOnFocus
+                        testId="chat-setup-wizard-roleplay-agent-context-size-input"
                         className={WIZARD_NUMBER_INPUT_CLASS}
                       />
                     </label>
@@ -2980,6 +2986,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                         }}
                         disabled={addingAgentToChat}
                         selectOnFocus
+                        testId="chat-setup-wizard-roleplay-agent-max-tokens-input"
                         className={WIZARD_NUMBER_INPUT_CLASS}
                       />
                     </label>
@@ -3007,6 +3014,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                       }}
                       disabled={addingAgentToChat}
                       selectOnFocus
+                      testId="chat-setup-wizard-roleplay-agent-run-interval-input"
                       className={WIZARD_NUMBER_INPUT_CLASS}
                     />
                     <span className="block text-[0.5625rem] text-[var(--muted-foreground)]">
@@ -3035,6 +3043,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                     type="button"
                     onClick={() => setAgentAddPreview(null)}
                     disabled={addingAgentToChat}
+                    data-testid="chat-setup-wizard-roleplay-agent-add-cancel-button"
                     className={WIZARD_GHOST_BUTTON_CLASS}
                   >
                     {localizeUi("chat.delete.dialog.cancel")}
@@ -3043,6 +3052,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                     type="button"
                     onClick={() => void confirmAddAgent()}
                     disabled={addingAgentToChat}
+                    data-testid="chat-setup-wizard-roleplay-agent-add-confirm-button"
                     className={WIZARD_PRIMARY_BUTTON_CLASS}
                   >
                     {addingAgentToChat
@@ -3060,6 +3070,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                   value={agentSearch}
                   onChange={(event) => setAgentSearch(event.target.value)}
                   placeholder={localizeUi("ui.agents.agentcatalogview.searchAgents")}
+                  data-testid="chat-setup-wizard-roleplay-agent-search-input"
                   className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
                 />
               </div>
@@ -3088,6 +3099,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                             key={agent.id}
                             type="button"
                             onClick={() => (active ? removeAgentFromChat(agent.id) : openAgentAddPreview(agent))}
+                            data-testid={`chat-setup-wizard-roleplay-agent-${agent.id}-button`}
                             className={cn(
                               "flex w-full items-start gap-2.5 px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                               active && "bg-[var(--primary)]/10",
@@ -3147,6 +3159,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
           value={shortcutPresetId}
           onChange={(event) => setShortcutPresetId(event.target.value)}
           aria-label={localizeUi("chat.settingsProfile.label")}
+          data-testid="chat-setup-wizard-shortcut-preset-select"
           className={WIZARD_INPUT_CLASS}
         >
           {chatPresetList.length === 0 && (
@@ -3236,6 +3249,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                 type="button"
                 onClick={() => setShortcutMode(true)}
                 title={localizeUi("chat.settingsProfile.wizard.applyDescription")}
+                data-testid="chat-setup-wizard-shortcut-mode-button"
                 className={WIZARD_SECONDARY_BUTTON_CLASS}
               >
                 <span className="hidden xs:inline sm:inline">{localizeUi("chat.settingsProfile.wizard.action")}</span>
