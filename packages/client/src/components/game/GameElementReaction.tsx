@@ -116,7 +116,11 @@ export function GameElementReaction({ reaction, onDismiss }: GameElementReaction
           {reaction.attackerName} → {reaction.defenderName}
         </div>
 
-        <button onClick={onDismiss} data-testid="game-element-reaction-dismiss-button" className="absolute right-2 top-2 rounded p-0.5 text-white/30 hover:text-white">
+        <button
+          onClick={onDismiss}
+          data-testid="game-element-reaction-dismiss-button"
+          className="absolute right-2 top-2 rounded p-0.5 text-white/30 hover:text-white"
+        >
           <X size={12} />
         </button>
       </div>

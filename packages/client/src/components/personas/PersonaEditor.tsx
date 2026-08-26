@@ -2030,7 +2030,14 @@ export function PersonaEditor() {
                 if (!mutationBusy) setAvatarGeneratorOpen(true);
               }}
             />
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} data-testid="persona-editor-avatar-file-input" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+              data-testid="persona-editor-avatar-file-input"
+            />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -2638,7 +2645,14 @@ function PersonaSpritesTab({
 
       {categoryTabs}
 
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} data-testid="persona-sprites-file-input" />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleUpload}
+        data-testid="persona-sprites-file-input"
+      />
       <input
         ref={folderInputRef}
         type="file"

@@ -1083,7 +1083,14 @@ export function CharacterEditor() {
               generationAvailable={imageGenerationAvailable}
               onGenerate={() => setAvatarGeneratorOpen(true)}
             />
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} data-testid="character-editor-avatar-file-input" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+              data-testid="character-editor-avatar-file-input"
+            />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -4545,7 +4552,14 @@ function SpritesTab({
 
       {categoryTabs}
 
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} data-testid="sprites-file-input" />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleUpload}
+        data-testid="sprites-file-input"
+      />
       <input
         ref={folderInputRef}
         type="file"

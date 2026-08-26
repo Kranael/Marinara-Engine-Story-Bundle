@@ -762,7 +762,14 @@ export function PersonasPanel() {
       )}
 
       {/* Hidden file input for avatar uploads */}
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" data-testid="personas-panel-avatar-input" onChange={handleAvatarUpload} />
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        data-testid="personas-panel-avatar-input"
+        onChange={handleAvatarUpload}
+      />
 
       <div className="flex flex-col gap-0.5">
         {/* Folder rows */}

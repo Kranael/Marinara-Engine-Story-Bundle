@@ -1635,7 +1635,13 @@ function RegexSection({
             title={localizeUi("ui.characters.characterregexsection.importRegexesFromJson")}
             aria-label={localizeUi("ui.characters.characterregexsection.importRegexesFromJson")}
           >
-            <input type="file" accept="application/json" className="hidden" data-testid="presets-panel-import-regex-input" onChange={handleImportRegex} />
+            <input
+              type="file"
+              accept="application/json"
+              className="hidden"
+              data-testid="presets-panel-import-regex-input"
+              onChange={handleImportRegex}
+            />
             <Download size="0.8125rem" />
           </label>
           <button

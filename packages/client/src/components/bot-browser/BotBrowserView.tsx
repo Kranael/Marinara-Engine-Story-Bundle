@@ -3130,7 +3130,11 @@ function LoginModal({
               </>
             )}
           </h3>
-          <button onClick={onClose} data-testid="bot-browser-login-modal-close-button" className="mari-chrome-control mari-chrome-control--small p-1">
+          <button
+            onClick={onClose}
+            data-testid="bot-browser-login-modal-close-button"
+            className="mari-chrome-control mari-chrome-control--small p-1"
+          >
             <X size="1rem" />
           </button>
         </div>
@@ -3219,7 +3223,11 @@ function LoginModal({
                     {localizeUi("ui.botBrowser.loginmodal.saveConnect")}
                   </button>
                 ) : (
-                  <button onClick={onPygLogout} data-testid="bot-browser-pyg-logout-button" className="mari-chrome-control px-4 py-2 text-xs">
+                  <button
+                    onClick={onPygLogout}
+                    data-testid="bot-browser-pyg-logout-button"
+                    className="mari-chrome-control px-4 py-2 text-xs"
+                  >
                     <LogOut size="0.75rem" /> {localizeUi("ui.botBrowser.loginmodal.logOut")}
                   </button>
                 )}
@@ -3297,7 +3305,11 @@ function LoginModal({
                     {localizeUi("ui.botBrowser.loginmodal.saveConnect")}
                   </button>
                 ) : (
-                  <button onClick={onCtLogout} data-testid="bot-browser-ct-logout-button" className="mari-chrome-control px-4 py-2 text-xs">
+                  <button
+                    onClick={onCtLogout}
+                    data-testid="bot-browser-ct-logout-button"
+                    className="mari-chrome-control px-4 py-2 text-xs"
+                  >
                     <LogOut size="0.75rem" /> {localizeUi("ui.botBrowser.loginmodal.logOut")}
                   </button>
                 )}

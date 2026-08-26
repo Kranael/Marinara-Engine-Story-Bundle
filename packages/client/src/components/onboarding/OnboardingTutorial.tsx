@@ -508,10 +508,18 @@ function TourCardContent({
 
       {/* Buttons */}
       <div className="flex items-center justify-between">
-        <button onClick={onSkip} className={TUTORIAL_SECONDARY_BUTTON_CLASS} data-testid="onboarding-tutorial-skip-button">
+        <button
+          onClick={onSkip}
+          className={TUTORIAL_SECONDARY_BUTTON_CLASS}
+          data-testid="onboarding-tutorial-skip-button"
+        >
           {localize(step === 0 ? "Skip Tutorial" : "Skip")}
         </button>
-        <button onClick={onNext} className={TUTORIAL_PRIMARY_BUTTON_CLASS} data-testid="onboarding-tutorial-next-button">
+        <button
+          onClick={onNext}
+          className={TUTORIAL_PRIMARY_BUTTON_CLASS}
+          data-testid="onboarding-tutorial-next-button"
+        >
           {localize(isLast ? "Get Started" : "Next")}
           {!isLast && <ChevronRight size="0.75rem" />}
         </button>

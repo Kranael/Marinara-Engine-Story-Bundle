@@ -4490,7 +4490,11 @@ function GameAssetsSettings() {
             data-testid="game-assets-file-input"
             onChange={(e) => setAssetFiles(Array.from(e.target.files ?? []))}
           />
-          <button onClick={() => assetFileRef.current?.click()} data-testid="game-assets-choose-files-button" className={cn(SETTINGS_BUTTON_CLASS, "justify-center")}>
+          <button
+            onClick={() => assetFileRef.current?.click()}
+            data-testid="game-assets-choose-files-button"
+            className={cn(SETTINGS_BUTTON_CLASS, "justify-center")}
+          >
             <Upload size="0.875rem" />
             {localizeUi("ui.panels.gameassetssettings.chooseFiles")}
           </button>
@@ -5026,7 +5030,11 @@ function AppearanceSettings() {
                 {localizeUi("ui.panels.appearancesettings.folderToAddCustomFonts")}
               </p>
             )}
-            <button onClick={handleOpenFontsFolder} data-testid="appearance-open-fonts-folder-button" className={cn(SETTINGS_BUTTON_CLASS, "mt-1 self-start")}>
+            <button
+              onClick={handleOpenFontsFolder}
+              data-testid="appearance-open-fonts-folder-button"
+              className={cn(SETTINGS_BUTTON_CLASS, "mt-1 self-start")}
+            >
               <FolderOpen size="0.75rem" />
               {localizeUi("ui.panels.appearancesettings.openFontsFolder")}
             </button>
@@ -6000,7 +6008,12 @@ function GenerationsSettings() {
           <p className="max-w-md text-xs leading-relaxed text-[var(--marinara-chat-chrome-panel-text)]">
             {localizeUi("ui.panels.generationssettings.downloadIllustratorAgentFirstFromAgentsTabToEnable")}
           </p>
-          <button type="button" onClick={openDownloadAgents} data-testid="generations-download-illustrator-button" className={SETTINGS_PRIMARY_BUTTON_CLASS}>
+          <button
+            type="button"
+            onClick={openDownloadAgents}
+            data-testid="generations-download-illustrator-button"
+            className={SETTINGS_PRIMARY_BUTTON_CLASS}
+          >
             {localizeUi("ui.panels.generationssettings.downloadIllustratorAgent")}
           </button>
         </div>
@@ -6287,7 +6300,12 @@ function ThemesSettings({ showIntro = true }: { showIntro?: boolean } = {}) {
               {livePreview ? <Eye size="0.6875rem" /> : <EyeOff size="0.6875rem" />}
               {localizeUi("settings.notifications.customSound.actions.preview")}
             </button>
-            <button onClick={handleSave} disabled={isSavingTheme} data-testid="themes-editor-save-button" className={SETTINGS_COMPACT_PRIMARY_BUTTON_CLASS}>
+            <button
+              onClick={handleSave}
+              disabled={isSavingTheme}
+              data-testid="themes-editor-save-button"
+              className={SETTINGS_COMPACT_PRIMARY_BUTTON_CLASS}
+            >
               {isSavingTheme ? <Loader2 size="0.6875rem" className="animate-spin" /> : <Save size="0.6875rem" />}
               {isSavingTheme
                 ? localizeUi("ui.noodle.stageprofileform.saving")
@@ -7429,7 +7447,10 @@ function ImportButton({
   };
 
   return (
-    <label className={cn(SETTINGS_BUTTON_CLASS, "cursor-pointer py-2.5")} data-testid={`import-button-${endpoint.replace(/\//g, "-")}`}>
+    <label
+      className={cn(SETTINGS_BUTTON_CLASS, "cursor-pointer py-2.5")}
+      data-testid={`import-button-${endpoint.replace(/\//g, "-")}`}
+    >
       {label}
       <input type="file" accept={accept} onChange={handleImport} className="hidden" />
     </label>
@@ -8471,7 +8492,12 @@ function AdvancedSettings() {
               </div>
             </div>
           )}
-          <button onClick={handleCreateBackup} disabled={creatingBackup} data-testid="advanced-download-backup-button" className={SETTINGS_PRIMARY_BUTTON_CLASS}>
+          <button
+            onClick={handleCreateBackup}
+            disabled={creatingBackup}
+            data-testid="advanced-download-backup-button"
+            className={SETTINGS_PRIMARY_BUTTON_CLASS}
+          >
             {creatingBackup ? (
               <>
                 <Loader2 size="0.8125rem" className="animate-spin" />

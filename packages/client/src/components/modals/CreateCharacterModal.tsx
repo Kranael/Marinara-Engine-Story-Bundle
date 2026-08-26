@@ -109,7 +109,14 @@ export function CreateCharacterModal({ open, onClose }: Props) {
             <Camera size="1.25rem" className="text-white" />
           </div>
         </button>
-        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarPick} data-testid="create-character-modal-avatar-input" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleAvatarPick}
+          data-testid="create-character-modal-avatar-input"
+        />
 
         {/* Name */}
         <div className="w-full">

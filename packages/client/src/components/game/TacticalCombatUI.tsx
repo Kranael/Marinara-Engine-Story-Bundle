@@ -1519,7 +1519,12 @@ export function TacticalCombatUI({
                 {selectedUnit.isPlayer && <Crown className="mr-1 inline h-3.5 w-3.5 shrink-0 text-amber-300" />}
                 <span className="truncate">{selectedUnit.name}</span>
               </span>
-              <button type="button" onClick={resetSelection} data-testid="tactical-combat-reset-selection-button" className="text-white/50 hover:text-white">
+              <button
+                type="button"
+                onClick={resetSelection}
+                data-testid="tactical-combat-reset-selection-button"
+                className="text-white/50 hover:text-white"
+              >
                 <X size={16} />
               </button>
             </div>
@@ -1734,7 +1739,12 @@ export function TacticalCombatUI({
           >
             <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
               <span className="text-sm font-bold">{localizeUi("ui.game.gamecombatui.combatLog")}</span>
-              <button type="button" onClick={() => setLogOpen(false)} data-testid="tactical-combat-log-close-button" className="text-white/50 hover:text-white">
+              <button
+                type="button"
+                onClick={() => setLogOpen(false)}
+                data-testid="tactical-combat-log-close-button"
+                className="text-white/50 hover:text-white"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -2173,7 +2183,12 @@ function TileInspect({
           <GripVertical className="h-3 w-3 text-white/40" />
           {info.label}
         </span>
-        <button type="button" onClick={onClose} data-testid="tactical-combat-tile-inspect-close-button" className="text-white/40 hover:text-white">
+        <button
+          type="button"
+          onClick={onClose}
+          data-testid="tactical-combat-tile-inspect-close-button"
+          className="text-white/40 hover:text-white"
+        >
           <X size={13} />
         </button>
       </div>

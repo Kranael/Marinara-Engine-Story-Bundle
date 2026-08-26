@@ -2121,7 +2121,11 @@ export function LorebookEditor() {
                       className="mari-editor-field flex-1 px-3 py-2 text-xs"
                       data-testid="lorebook-editor-add-tag-input"
                     />
-                    <button onClick={handleAddTags} className="mari-editor-action px-3 py-2" data-testid="lorebook-editor-add-tag-button">
+                    <button
+                      onClick={handleAddTags}
+                      className="mari-editor-action px-3 py-2"
+                      data-testid="lorebook-editor-add-tag-button"
+                    >
                       <Plus size="0.75rem" />
                     </button>
                   </div>

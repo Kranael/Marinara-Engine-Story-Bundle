@@ -509,7 +509,12 @@ export function PresetEditor() {
           </p>
           {stockCopyError ? <p className="text-sm text-[var(--destructive)]">{stockCopyError}</p> : null}
           <div className="flex flex-wrap justify-center gap-2">
-            <button type="button" onClick={closePresetDetail} className="mari-editor-action inline-flex px-3 py-2" data-testid="preset-editor-stock-back-button">
+            <button
+              type="button"
+              onClick={closePresetDetail}
+              className="mari-editor-action inline-flex px-3 py-2"
+              data-testid="preset-editor-stock-back-button"
+            >
               <ArrowLeft size="0.875rem" />
               {localizeUi("ui.presets.preseteditor.backToPresets")}
             </button>
@@ -540,7 +545,11 @@ export function PresetEditor() {
       {/* ── Header ── */}
       <div className="mari-editor-header mari-editor-header--with-nav">
         <div className="mari-editor-header-main">
-          <button onClick={handleClose} className="mari-editor-action inline-flex" data-testid="preset-editor-back-button">
+          <button
+            onClick={handleClose}
+            className="mari-editor-action inline-flex"
+            data-testid="preset-editor-back-button"
+          >
             <ArrowLeft size="1.125rem" />
           </button>
           <div className="mari-editor-icon-tile mari-panel-gradient-surface mari-panel-gradient--presets overflow-hidden">
@@ -604,7 +613,11 @@ export function PresetEditor() {
               <rect x="3" y="15" width="14" height="2" rx="1" fill="currentColor" />
             </svg>
           </button>
-          <button onClick={handleDelete} className="mari-editor-action inline-flex" data-testid="preset-editor-delete-button">
+          <button
+            onClick={handleDelete}
+            className="mari-editor-action inline-flex"
+            data-testid="preset-editor-delete-button"
+          >
             <Trash2 size="0.9375rem" />
           </button>
         </div>
@@ -1055,7 +1068,14 @@ function PresetPictureField({ preset }: { preset: PromptPreset }) {
       label={localizeUi("ui.presets.overviewtab.picture")}
       help={localizeUi("ui.presets.overviewtab.pictureHelp")}
     >
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelected} data-testid="preset-editor-picture-file-input" />
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleImageSelected}
+        data-testid="preset-editor-picture-file-input"
+      />
       <button
         type="button"
         data-preset-overview-picture
@@ -2553,7 +2573,11 @@ function VariableCard({
             <ArrowDown size="0.75rem" />
           </button>
         </div>
-        <button onClick={onToggle} className="shrink-0 rounded p-0.5 hover:bg-[var(--accent)]" data-testid={`preset-variable-toggle-${variable.id}`}>
+        <button
+          onClick={onToggle}
+          className="shrink-0 rounded p-0.5 hover:bg-[var(--accent)]"
+          data-testid={`preset-variable-toggle-${variable.id}`}
+        >
           {isExpanded ? (
             <ChevronDown size="0.875rem" className="text-[var(--muted-foreground)]" />
           ) : (
@@ -2610,7 +2634,11 @@ function VariableCard({
             <label className="text-[0.625rem] font-medium text-[var(--muted-foreground)]">
               {localizeUi("ui.presets.variablecard.variableName")}
             </label>
-            <VariableNameInput value={varName} onCommit={(v) => update({ variableName: v })} testId={`preset-variable-name-input-${variable.id}`} />
+            <VariableNameInput
+              value={varName}
+              onCommit={(v) => update({ variableName: v })}
+              testId={`preset-variable-name-input-${variable.id}`}
+            />
             <p className="text-[0.5625rem] text-[var(--muted-foreground)]">
               {localizeUi("ui.presets.variablecard.use")}{" "}
               <code className="mari-chrome-accent-text mari-accent-animated">{`{{${varName}}}`}</code>{" "}
@@ -2623,7 +2651,11 @@ function VariableCard({
             <label className="text-[0.625rem] font-medium text-[var(--muted-foreground)]">
               {localizeUi("ui.presets.variablecard.questionShownToUser")}
             </label>
-            <VariableQuestionInput value={question} onCommit={(v) => update({ question: v })} testId={`preset-variable-question-input-${variable.id}`} />
+            <VariableQuestionInput
+              value={question}
+              onCommit={(v) => update({ question: v })}
+              testId={`preset-variable-question-input-${variable.id}`}
+            />
           </div>
 
           {/* Multi-Select & Random Pick (not shown for single-option/boolean variables) */}
@@ -3280,12 +3312,20 @@ function ExpandedEditorModal({
         data-chat-floating-panel
         className="fixed inset-0 z-50 flex items-center justify-center p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))] sm:p-6"
       >
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} data-testid="preset-expanded-editor-backdrop" />
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={handleClose}
+          data-testid="preset-expanded-editor-backdrop"
+        />
         <div className="mari-editor-shell mari-editor-legacy-bridge relative flex h-[80vh] max-h-[calc(100vh-1.5rem)] w-full max-w-3xl flex-col rounded-2xl border border-[var(--marinara-editor-border)] bg-[var(--marinara-editor-surface-bg)] shadow-2xl shadow-black/50 supports-[height:100dvh]:h-[80dvh] supports-[height:100dvh]:max-h-[calc(100dvh-1.5rem)]">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
             <h3 className="text-sm font-semibold">{title}</h3>
-            <button onClick={handleClose} className="rounded-lg p-1.5 hover:bg-[var(--accent)]" data-testid="preset-expanded-editor-close-button">
+            <button
+              onClick={handleClose}
+              className="rounded-lg p-1.5 hover:bg-[var(--accent)]"
+              data-testid="preset-expanded-editor-close-button"
+            >
               <X size="1rem" />
             </button>
           </div>

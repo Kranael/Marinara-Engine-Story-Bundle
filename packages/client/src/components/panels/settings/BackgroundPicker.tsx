@@ -139,7 +139,12 @@ function CardNameForm({
         className={CARD_TEXT_FIELD_CLASS}
         autoFocus
       />
-      <button type="submit" disabled={pending} data-testid="background-rename-save-button" className={INLINE_ACCENT_BUTTON_CLASS}>
+      <button
+        type="submit"
+        disabled={pending}
+        data-testid="background-rename-save-button"
+        className={INLINE_ACCENT_BUTTON_CLASS}
+      >
         {saveLabel}
       </button>
     </form>
@@ -200,7 +205,13 @@ function CardTagInput({
           <option key={tag} value={tag} />
         ))}
       </datalist>
-      <button type="button" onClick={submit} disabled={!value.trim() || pending} data-testid="background-tag-add-button" className={INLINE_ACCENT_BUTTON_CLASS}>
+      <button
+        type="button"
+        onClick={submit}
+        disabled={!value.trim() || pending}
+        data-testid="background-tag-add-button"
+        className={INLINE_ACCENT_BUTTON_CLASS}
+      >
         {addLabel}
       </button>
     </div>

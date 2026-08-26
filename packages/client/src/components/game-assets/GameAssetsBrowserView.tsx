@@ -474,8 +474,16 @@ export function GameAssetsBrowserView({
 
       if (node.type === "folder") {
         items.push(
-          { label: "Create subfolder", testId: "game-assets-action-create-subfolder", onSelect: () => setModal({ type: "create-folder" }) },
-          { label: "Open in system folder", testId: "game-assets-action-open-system-folder", onSelect: () => openFolder.mutate(node.path) },
+          {
+            label: "Create subfolder",
+            testId: "game-assets-action-create-subfolder",
+            onSelect: () => setModal({ type: "create-folder" }),
+          },
+          {
+            label: "Open in system folder",
+            testId: "game-assets-action-open-system-folder",
+            onSelect: () => openFolder.mutate(node.path),
+          },
         );
         if (node.path !== "" && !PROTECTED_PATHS.has(node.path) && !node.native) {
           items.push({
@@ -514,7 +522,12 @@ export function GameAssetsBrowserView({
           },
           { label: "Move", testId: "game-assets-action-move", onSelect: () => setModal({ type: "move", node }) },
           { label: "Copy", testId: "game-assets-action-copy", onSelect: () => handleCopy(node) },
-          { label: "Delete", testId: "game-assets-action-delete", onSelect: () => setModal({ type: "delete", node }), destructive: true },
+          {
+            label: "Delete",
+            testId: "game-assets-action-delete",
+            onSelect: () => setModal({ type: "delete", node }),
+            destructive: true,
+          },
         );
       }
       return items;

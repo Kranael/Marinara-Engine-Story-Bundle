@@ -11070,11 +11070,19 @@ function GameSurfaceComponent({
                       {/* Retry only when scene analysis actually failed */}
                       {hasEverHadPlayableContent && !isStreaming && sceneAnalysisFailed && (
                         <div className="flex items-center gap-2">
-                          <button onClick={() => retrySceneAnalysis()} data-testid="game-surface-retry-scene-analysis-button" className={SURFACE_BTN}>
+                          <button
+                            onClick={() => retrySceneAnalysis()}
+                            data-testid="game-surface-retry-scene-analysis-button"
+                            className={SURFACE_BTN}
+                          >
                             <RefreshCw size={14} />
                             {localizeUi("ui.game.gamesurfacecomponent.retrySceneAnalysis")}
                           </button>
-                          <button onClick={() => skipSceneAnalysis()} data-testid="game-surface-skip-scene-analysis-button" className={SURFACE_BTN}>
+                          <button
+                            onClick={() => skipSceneAnalysis()}
+                            data-testid="game-surface-skip-scene-analysis-button"
+                            className={SURFACE_BTN}
+                          >
                             {localizeUi("onboarding.actions.skip")}
                           </button>
                         </div>
@@ -11085,7 +11093,11 @@ function GameSurfaceComponent({
                         !sceneProcessed &&
                         sceneStuckVisible &&
                         !sceneAnalysisFailed && (
-                          <button onClick={() => skipSceneAnalysis()} data-testid="game-surface-skip-stuck-button" className={cn("mt-1", SURFACE_BTN)}>
+                          <button
+                            onClick={() => skipSceneAnalysis()}
+                            data-testid="game-surface-skip-stuck-button"
+                            className={cn("mt-1", SURFACE_BTN)}
+                          >
                             {localizeUi("onboarding.actions.skip")}
                           </button>
                         )}
@@ -11093,7 +11105,11 @@ function GameSurfaceComponent({
                   )}
                   {/* Show retry when generation stopped but no content arrived. */}
                   {!isStreaming && !hasEverHadPlayableContent && !startGame.isPending && (
-                    <button onClick={generateInitialGameTurn} data-testid="game-surface-retry-initial-turn-button" className={SURFACE_BTN}>
+                    <button
+                      onClick={generateInitialGameTurn}
+                      data-testid="game-surface-retry-initial-turn-button"
+                      className={SURFACE_BTN}
+                    >
                       <RefreshCw size={14} />
                       {localizeUi("ui.game.gamesurfacecomponent.retry")}
                     </button>
@@ -11666,7 +11682,12 @@ function GameSurfaceComponent({
                           <RotateCcw size={13} />
                           <span>{t("game.toolbar.retryTurn")}</span>
                         </button>
-                        <button onClick={handleRetryScene} disabled={!canRetryScene} data-testid="game-surface-retry-scene-button" className={GAME_ACTION_MENU_ITEM}>
+                        <button
+                          onClick={handleRetryScene}
+                          disabled={!canRetryScene}
+                          data-testid="game-surface-retry-scene-button"
+                          className={GAME_ACTION_MENU_ITEM}
+                        >
                           <RefreshCw size={13} className={sceneAnalysis.isPending ? "animate-spin" : ""} />
                           <span>{t("game.toolbar.retrySceneAnalysis")}</span>
                         </button>

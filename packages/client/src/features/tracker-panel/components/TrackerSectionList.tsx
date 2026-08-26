@@ -183,7 +183,12 @@ export function TrackerSectionList({
       ? "A tracker or reply is already running"
       : (TRACKER_SECTION_RERUN_TITLES[section] ?? `Re-run ${agentType} tracker`);
     return (
-      <SectionIconButton onClick={() => void rerunTracker(agentType)} disabled={trackerRetryBusy} title={title} testId={`tracker-section-rerun-${section}`}>
+      <SectionIconButton
+        onClick={() => void rerunTracker(agentType)}
+        disabled={trackerRetryBusy}
+        title={title}
+        testId={`tracker-section-rerun-${section}`}
+      >
         <RefreshCw size="0.75rem" className={trackerRetryBusy ? "animate-spin" : ""} />
       </SectionIconButton>
     );

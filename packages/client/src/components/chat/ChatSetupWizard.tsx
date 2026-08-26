@@ -536,12 +536,22 @@ function SetupWizardShell({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex min-w-0 flex-wrap items-center gap-2">
                   {onBack && (
-                    <button type="button" onClick={onBack} data-testid="chat-setup-wizard-back-button" className={WIZARD_GHOST_BUTTON_CLASS}>
+                    <button
+                      type="button"
+                      onClick={onBack}
+                      data-testid="chat-setup-wizard-back-button"
+                      className={WIZARD_GHOST_BUTTON_CLASS}
+                    >
                       {localizeUi("ui.noodle.noodlerframe.back")}
                     </button>
                   )}
                   {onSkip && (
-                    <button type="button" onClick={onSkip} data-testid="chat-setup-wizard-skip-button" className={WIZARD_GHOST_BUTTON_CLASS}>
+                    <button
+                      type="button"
+                      onClick={onSkip}
+                      data-testid="chat-setup-wizard-skip-button"
+                      className={WIZARD_GHOST_BUTTON_CLASS}
+                    >
                       {localizeUi("onboarding.actions.skip")}
                     </button>
                   )}

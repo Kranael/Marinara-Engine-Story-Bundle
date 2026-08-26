@@ -805,7 +805,13 @@ function ParamInput({
 
   return (
     <div>
-      <ParameterHeader testId={testId} label={label} help={help} sendEnabled={sendEnabled} onSendChange={onSendChange} />
+      <ParameterHeader
+        testId={testId}
+        label={label}
+        help={help}
+        sendEnabled={sendEnabled}
+        onSendChange={onSendChange}
+      />
       <input
         type="text"
         inputMode="decimal"

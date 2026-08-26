@@ -217,13 +217,21 @@ export function ImpersonatePromptTemplateField() {
       </div>
       <div className="flex flex-wrap items-center justify-end gap-1">
         {usingBuiltInDefault && (
-          <AgentSettingsActionButton onClick={handleStartStandalonePrompt} disabled={saveAsPending} data-testid="impersonate-prompt-copy-default-button">
+          <AgentSettingsActionButton
+            onClick={handleStartStandalonePrompt}
+            disabled={saveAsPending}
+            data-testid="impersonate-prompt-copy-default-button"
+          >
             <Copy size="0.625rem" />
             {localizeUi("ui.chatSettings.impersonatesection.copyBuiltInDefaultToEdit")}
           </AgentSettingsActionButton>
         )}
         {displayedPromptTemplate.trim() && (
-          <AgentSettingsActionButton onClick={handleStartSaveAs} disabled={promptTemplateCatalogBusy} data-testid="impersonate-prompt-save-as-button">
+          <AgentSettingsActionButton
+            onClick={handleStartSaveAs}
+            disabled={promptTemplateCatalogBusy}
+            data-testid="impersonate-prompt-save-as-button"
+          >
             <Copy size="0.625rem" />
             {localizeUi("ui.chatSettings.impersonatesection.saveAs")}
           </AgentSettingsActionButton>
@@ -312,7 +320,11 @@ export function ImpersonatePromptTemplateField() {
       {promptTemplatesQuery.isError && (
         <div className="flex items-center justify-between gap-2 rounded-lg bg-[var(--destructive)]/10 px-2.5 py-2 text-[0.6875rem] text-[var(--destructive)]">
           <span>{localizeUi("ui.chatSettings.impersonatesection.loadFailed")}</span>
-          <AgentSettingsActionButton onClick={() => void promptTemplatesQuery.refetch()} className="shrink-0" data-testid="impersonate-prompt-retry-button">
+          <AgentSettingsActionButton
+            onClick={() => void promptTemplatesQuery.refetch()}
+            className="shrink-0"
+            data-testid="impersonate-prompt-retry-button"
+          >
             {localizeUi("ui.chatSettings.impersonatesection.retry")}
           </AgentSettingsActionButton>
         </div>

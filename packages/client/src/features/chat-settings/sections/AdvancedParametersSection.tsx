@@ -337,7 +337,12 @@ export function AdvancedParametersSection({
                 : localizeUi("ui.chatSettings.advancedparameterssection.saveAsConnectionDefault")}
             </AgentSettingsActionButton>
           )}
-          <AgentSettingsActionButton type="button" onClick={() => onChatParametersChange({})} className="w-full" data-testid="advanced-parameters-reset-button">
+          <AgentSettingsActionButton
+            type="button"
+            onClick={() => onChatParametersChange({})}
+            className="w-full"
+            data-testid="advanced-parameters-reset-button"
+          >
             {localizeUi("ui.chatSettings.advancedparameterssection.resetToDefaults")}
           </AgentSettingsActionButton>
         </div>

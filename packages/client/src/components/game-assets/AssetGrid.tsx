@@ -126,7 +126,12 @@ export function AssetGrid({
         {localizeUi("ui.gameAssets.assetgrid.showing")} {visibleNodes.length} {localizeUi("ui.noodle.noodlehome.of")}{" "}
         {nodes.length}
       </span>
-      <button type="button" onClick={loadMore} data-testid="game-assets-load-more-button" className="mari-chrome-control mari-chrome-control--small text-xs">
+      <button
+        type="button"
+        onClick={loadMore}
+        data-testid="game-assets-load-more-button"
+        className="mari-chrome-control mari-chrome-control--small text-xs"
+      >
         {localizeUi("ui.gameAssets.assetgrid.loadMore")}
       </button>
     </div>

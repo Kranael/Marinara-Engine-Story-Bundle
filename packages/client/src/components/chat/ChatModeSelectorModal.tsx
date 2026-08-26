@@ -38,7 +38,13 @@ export function ChatModeSelectorModal({ open, onClose, onSelectMode, isPending =
   const { t: localizeUi } = useUiTranslation();
 
   return (
-    <Modal open={open} onClose={onClose} title={localizeUi("home.newChat.chooseMode")} width="max-w-2xl" testId="chat-mode-selector-dialog">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={localizeUi("home.newChat.chooseMode")}
+      width="max-w-2xl"
+      testId="chat-mode-selector-dialog"
+    >
       <div data-component="ChatModeSelectorModal" className="grid gap-2 sm:grid-cols-3">
         {CHAT_MODE_OPTIONS.map(({ mode, labelKey, descriptionKey }) => (
           <button

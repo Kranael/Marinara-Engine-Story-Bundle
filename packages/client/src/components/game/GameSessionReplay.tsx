@@ -594,7 +594,12 @@ export function GameSessionReplay({
           {localizeUi("ui.game.gamesessionreplay.sessionReplayComplete")}
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={restart} data-testid="game-session-replay-watch-again-button" className="mari-chrome-control px-3 py-1.5 text-xs">
+          <button
+            type="button"
+            onClick={restart}
+            data-testid="game-session-replay-watch-again-button"
+            className="mari-chrome-control px-3 py-1.5 text-xs"
+          >
             <RotateCcw size={12} />
             {localizeUi("ui.game.gamesessionreplay.watchAgain")}
           </button>
@@ -614,7 +619,12 @@ export function GameSessionReplay({
           <span className="text-xs text-amber-300/80">
             {localizeUi("ui.game.gamesessionreplay.theOriginalChoiceWasNotRecordedForThisTurn")}
           </span>
-          <button type="button" onClick={advance} data-testid="game-session-replay-continue-button" className="mari-chrome-control px-3 py-1.5 text-xs">
+          <button
+            type="button"
+            onClick={advance}
+            data-testid="game-session-replay-continue-button"
+            className="mari-chrome-control px-3 py-1.5 text-xs"
+          >
             {localizeUi("ui.game.gamesessionreplay.continueReplay")}
             <ChevronRight size={12} />
           </button>

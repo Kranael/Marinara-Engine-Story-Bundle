@@ -651,7 +651,14 @@ function BrowserBookmark({
     );
   }
   return (
-    <button type="button" onClick={onClick} className={className} style={style} data-tour={tourTarget} data-testid={testId}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={className}
+      style={style}
+      data-tour={tourTarget}
+      data-testid={testId}
+    >
       {content}
     </button>
   );

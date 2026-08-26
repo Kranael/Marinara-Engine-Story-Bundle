@@ -368,7 +368,13 @@ export function CharacterRegexSection({
               className="mari-chrome-accent-text-muted mari-accent-animated inline-flex cursor-pointer items-center justify-center rounded-lg p-1.5 transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
               title={localizeUi("ui.characters.characterregexsection.importRegexesFromJson")}
             >
-              <input type="file" accept="application/json" className="hidden" onChange={handleImport} data-testid="character-regex-import-input" />
+              <input
+                type="file"
+                accept="application/json"
+                className="hidden"
+                onChange={handleImport}
+                data-testid="character-regex-import-input"
+              />
               <Upload size="0.8125rem" />
             </label>
             <button

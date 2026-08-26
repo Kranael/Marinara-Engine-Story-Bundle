@@ -4766,13 +4766,21 @@ export function GameNarration({
                 </span>
                 <div className="flex gap-2">
                   {onRetryScene && (
-                    <button onClick={onRetryScene} data-testid="game-narration-retry-scene-button" className={NARRATION_ACTION_BTN}>
+                    <button
+                      onClick={onRetryScene}
+                      data-testid="game-narration-retry-scene-button"
+                      className={NARRATION_ACTION_BTN}
+                    >
                       <RefreshCw size={12} />
                       {localizeUi("ui.game.gamesurfacecomponent.retry")}
                     </button>
                   )}
                   {onSkipScene && (
-                    <button onClick={onSkipScene} data-testid="game-narration-skip-scene-button" className={NARRATION_ACTION_BTN}>
+                    <button
+                      onClick={onSkipScene}
+                      data-testid="game-narration-skip-scene-button"
+                      className={NARRATION_ACTION_BTN}
+                    >
                       {localizeUi("onboarding.actions.skip")}
                     </button>
                   )}
@@ -5018,7 +5026,11 @@ export function GameNarration({
                       </button>
                     )}
                     {onOpenInventory && (
-                      <button onClick={onOpenInventory} data-testid="game-narration-open-inventory-button" className={cn("relative", NARRATION_META_BTN)}>
+                      <button
+                        onClick={onOpenInventory}
+                        data-testid="game-narration-open-inventory-button"
+                        className={cn("relative", NARRATION_META_BTN)}
+                      >
                         <Package size={12} />
                         <span className="hidden sm:inline">{localizeUi("ui.game.gamecharactersheet.inventory")}</span>
                         {(inventoryCount ?? 0) > 0 && <span className={NARRATION_COUNT_BADGE}>{inventoryCount}</span>}
@@ -5096,7 +5108,11 @@ export function GameNarration({
                       </button>
                     )}
                     {onOpenInventory && (
-                      <button onClick={onOpenInventory} data-testid="game-narration-open-inventory-button" className={cn("relative", NARRATION_META_BTN)}>
+                      <button
+                        onClick={onOpenInventory}
+                        data-testid="game-narration-open-inventory-button"
+                        className={cn("relative", NARRATION_META_BTN)}
+                      >
                         <Package size={12} />
                         <span className="hidden sm:inline">{localizeUi("ui.game.gamecharactersheet.inventory")}</span>
                         {(inventoryCount ?? 0) > 0 && <span className={NARRATION_COUNT_BADGE}>{inventoryCount}</span>}

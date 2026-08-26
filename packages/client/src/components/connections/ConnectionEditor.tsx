@@ -1365,7 +1365,11 @@ export function ConnectionEditor() {
     <div className="mari-editor-shell mari-editor-legacy-bridge flex flex-1 flex-col overflow-hidden">
       {/* ── Header ── */}
       <div className="mari-editor-header">
-        <button onClick={handleClose} className="mari-editor-action inline-flex shrink-0" data-testid="connection-editor-back-button">
+        <button
+          onClick={handleClose}
+          className="mari-editor-action inline-flex shrink-0"
+          data-testid="connection-editor-back-button"
+        >
           <ArrowLeft size="1.125rem" />
         </button>
         <div className="mari-editor-icon-tile">
@@ -1470,7 +1474,11 @@ export function ConnectionEditor() {
         <div className="flex items-center gap-2 bg-red-500/10 px-4 py-2 text-xs text-red-400">
           <AlertCircle size="0.8125rem" />
           <span className="flex-1">{saveError}</span>
-          <button onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20" data-testid="connection-editor-dismiss-save-error-button">
+          <button
+            onClick={() => setSaveError(null)}
+            className="rounded-lg px-2 py-0.5 hover:bg-red-500/20"
+            data-testid="connection-editor-dismiss-save-error-button"
+          >
             <X size="0.75rem" />
           </button>
         </div>

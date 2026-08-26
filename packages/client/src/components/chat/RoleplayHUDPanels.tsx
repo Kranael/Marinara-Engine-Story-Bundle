@@ -705,7 +705,11 @@ export function CombinedPlayerPanel({
                   busy={isTrackerRetryBusy}
                   title={localizeUi("ui.chat.combinedplayerpanel.reRunQuestTrackerOnly")}
                 />
-                <button onClick={addQuest} className={TRACKER_SECTION_ACTION} data-testid="roleplay-hud-combined-add-quest-button">
+                <button
+                  onClick={addQuest}
+                  className={TRACKER_SECTION_ACTION}
+                  data-testid="roleplay-hud-combined-add-quest-button"
+                >
                   <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
                 </button>
               </span>
@@ -773,7 +777,11 @@ export function CombinedPlayerPanel({
                   busy={isTrackerRetryBusy}
                   title={localizeUi("ui.chat.combinedplayerpanel.reRunCustomTrackerOnly")}
                 />
-                <button onClick={addCustomField} className={TRACKER_SECTION_ACTION} data-testid="roleplay-hud-combined-add-custom-field-button">
+                <button
+                  onClick={addCustomField}
+                  className={TRACKER_SECTION_ACTION}
+                  data-testid="roleplay-hud-combined-add-custom-field-button"
+                >
                   <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
                 </button>
               </span>
@@ -1351,7 +1359,11 @@ export function QuestsPanel({ quests, onUpdate, onRerunSingleTracker, isTrackerR
             title={localizeUi("ui.chat.combinedplayerpanel.reRunQuestTrackerOnly")}
           />
           <HudLockModeToggle testId="roleplay-hud-quests-lock-mode-toggle" />
-          <button onClick={addQuest} className={TRACKER_SECTION_ACTION} data-testid="roleplay-hud-quests-add-quest-button">
+          <button
+            onClick={addQuest}
+            className={TRACKER_SECTION_ACTION}
+            data-testid="roleplay-hud-quests-add-quest-button"
+          >
             <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
           </button>
         </span>
@@ -1433,7 +1445,11 @@ export function CustomTrackerPanel({
             title={localizeUi("ui.chat.combinedplayerpanel.reRunCustomTrackerOnly")}
           />
           <HudLockModeToggle testId="roleplay-hud-custom-tracker-lock-mode-toggle" />
-          <button onClick={addField} className={TRACKER_SECTION_ACTION} data-testid="roleplay-hud-custom-tracker-add-field-button">
+          <button
+            onClick={addField}
+            className={TRACKER_SECTION_ACTION}
+            data-testid="roleplay-hud-custom-tracker-add-field-button"
+          >
             <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
           </button>
         </span>

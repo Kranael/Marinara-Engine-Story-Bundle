@@ -710,7 +710,11 @@ export function RegexScriptEditor() {
         <div className="flex items-center gap-2 bg-red-500/10 px-4 py-2 text-xs text-red-400">
           <AlertCircle size="0.8125rem" />
           <span className="flex-1">{saveError}</span>
-          <button data-testid="regex-script-editor-save-error-close" onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20">
+          <button
+            data-testid="regex-script-editor-save-error-close"
+            onClick={() => setSaveError(null)}
+            className="rounded-lg px-2 py-0.5 hover:bg-red-500/20"
+          >
             <X size="0.75rem" />
           </button>
         </div>
