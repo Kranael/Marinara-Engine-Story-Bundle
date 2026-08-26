@@ -1209,9 +1209,11 @@ const CompactMarkdown = memo(function CompactMarkdown({
 });
 
 function ProfessorMariAttachedFiles({
+  messageId,
   attachments,
   onRemove,
 }: {
+  messageId: string;
   attachments: ProfessorMariAttachment[];
   onRemove?: (index: number) => void;
 }) {
@@ -1240,7 +1242,7 @@ function ProfessorMariAttachedFiles({
               <button
                 type="button"
                 onClick={() => onRemove(index)}
-                data-testid={`professor-mari-chat-remove-image-attachment-${index}-button`}
+                data-testid={`professor-mari-chat-message-${messageId}-remove-image-attachment-${index}-button`}
                 className="absolute right-1 top-1 rounded bg-[var(--background)]/80 p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)] focus-visible:text-[var(--primary)]"
                 aria-label={localizeUi("ui.chat.homeprofessormarichat.removeAttachment")}
                 title={localizeUi("ui.chat.homeprofessormarichat.removeAttachment")}
@@ -1269,7 +1271,7 @@ function ProfessorMariAttachedFiles({
               <button
                 type="button"
                 onClick={() => onRemove(index)}
-                data-testid={`professor-mari-chat-remove-file-attachment-${index}-button`}
+                data-testid={`professor-mari-chat-message-${messageId}-remove-file-attachment-${index}-button`}
                 className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)] focus-visible:text-[var(--primary)]"
                 aria-label={localizeUi("ui.chat.homeprofessormarichat.removeAttachment")}
                 title={localizeUi("ui.chat.homeprofessormarichat.removeAttachment")}
@@ -1632,6 +1634,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
           <CompactMarkdown content={content} />
         )}
         <ProfessorMariAttachedFiles
+          messageId={message.id}
           attachments={attachments}
           onRemove={onRemoveAttachment ? (index) => onRemoveAttachment(message.id, index) : undefined}
         />

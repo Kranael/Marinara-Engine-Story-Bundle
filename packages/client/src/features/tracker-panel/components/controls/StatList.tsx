@@ -98,6 +98,7 @@ function StatBar({
   onToggleNameLock,
   onToggleValueLock,
   onToggleMaxLock,
+  rowIndex,
 }: {
   stat: CharacterStat;
   onUpdateName: (name: string) => void;
@@ -116,6 +117,8 @@ function StatBar({
   onToggleNameLock?: () => void;
   onToggleValueLock?: () => void;
   onToggleMaxLock?: () => void;
+  /** Row position — stat names can duplicate (e.g. several "New Stat"), so the index disambiguates. */
+  rowIndex?: number;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const percent = getStatPercent(stat);
@@ -221,7 +224,7 @@ function StatBar({
           <button
             type="button"
             onClick={onRemove}
-            data-testid={`stat-list-remove-${stat.name}`}
+            data-testid={rowIndex !== undefined ? `stat-list-remove-${rowIndex}` : `stat-list-remove-${stat.name}`}
             className="flex h-4 w-4 items-center justify-center rounded text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
             title={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", {
               value1: visibleText(stat.name, "stat"),
@@ -350,6 +353,7 @@ export function StatList({
                 nameLocked={isTrackerFieldLocked(fieldLocks, getLockKey(index, "name", stat))}
                 valueLocked={isTrackerFieldLocked(fieldLocks, getLockKey(index, "value", stat))}
                 maxLocked={isTrackerFieldLocked(fieldLocks, getLockKey(index, "max", stat))}
+                testIdKey={String(index)}
               />
               {(index < stats.length - 1 || showGaugeOrnaments) && (
                 <GaugeDivider ornamentEdge={showGaugeOrnaments && index === stats.length - 1} />
@@ -397,6 +401,7 @@ export function StatList({
             onToggleNameLock={buildLockToggle(index, "name")}
             onToggleValueLock={buildLockToggle(index, "value")}
             onToggleMaxLock={buildLockToggle(index, "max")}
+            rowIndex={index}
           />
         ))}
         {shouldRenderWideColumnGhost && <StatColumnFiller density={density} />}

@@ -982,7 +982,7 @@ export function EmojiPicker({
                     <button
                       key={emoji}
                       type="button"
-                      data-testid={`emoji-picker-emoji-${emoji}`}
+                      data-testid={`emoji-picker-emoji-${cat.label}-${emoji}`}
                       onClick={() => handleSelect(emoji)}
                       aria-label={EMOJI_SEARCH_NAMES[emoji] ?? EMOJI_KEYWORDS[emoji] ?? emoji}
                       title={EMOJI_SEARCH_NAMES[emoji] ?? EMOJI_KEYWORDS[emoji] ?? emoji}

@@ -108,7 +108,7 @@ function InventoryGroup({ group, label, rows, onUpdate, deleteMode, addMode }: I
                 { name: nextPlaceholderName(rows, localizeUi("ui.trackerPanel.inventoryTracker.newItem")) },
               ])
             }
-            testId={`inventory-tracker-add-to-group-${label}`}
+            testId={`inventory-tracker-add-to-group-${group}`}
             className="h-5 min-h-5 w-5 min-w-5"
           />
         )}
@@ -171,7 +171,7 @@ function InventoryGroup({ group, label, rows, onUpdate, deleteMode, addMode }: I
                 <button
                   type="button"
                   onClick={() => removeRow(index)}
-                  data-testid={`inventory-tracker-remove-item-${row.name}`}
+                  data-testid={`inventory-tracker-remove-item-${group}-${index}`}
                   className="mari-chrome-tag grid h-4 w-4 shrink-0 place-items-center p-0 leading-none text-current ring-1 ring-[color-mix(in_srgb,var(--tracker-profile-text)_28%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--tracker-profile-text)_8%,transparent)] focus-visible:outline-none focus-visible:ring-[color-mix(in_srgb,var(--tracker-profile-text)_48%,transparent)]"
                   title={localizeUi("ui.trackerPanel.inventoryTracker.removeItem", { item: row.name })}
                   aria-label={localizeUi("ui.trackerPanel.inventoryTracker.removeItem", { item: row.name })}

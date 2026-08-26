@@ -92,6 +92,7 @@ function CompactThoughtBubble({
   hidden = false,
   hideMode = false,
   onToggleHidden,
+  testIdPrefix,
 }: {
   value: string | null | undefined;
   onSave: (value: string) => void;
@@ -99,6 +100,7 @@ function CompactThoughtBubble({
   hidden?: boolean;
   hideMode?: boolean;
   onToggleHidden: () => void;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const lock = useTrackerFieldLock(lockKey);
@@ -114,7 +116,11 @@ function CompactThoughtBubble({
             <button
               type="button"
               onClick={onToggleHidden}
-              data-testid="character-tracker-thought-visibility-toggle-button"
+              data-testid={
+                testIdPrefix
+                  ? `character-tracker-${testIdPrefix}-thought-visibility-toggle-button`
+                  : "character-tracker-thought-visibility-toggle-button"
+              }
               title={
                 hidden
                   ? localizeUi("ui.trackerPanel.thoughtbubble.showThoughts")
@@ -228,6 +234,7 @@ export function CharacterTrackerCard({
   const hasDenseContent = characterStats.length > 0 || customFields.length > 0 || addMode;
   const readableDetailRows = hasDenseContent;
   const readableCustomFields = trackerPanelSizeProfile === "expanded";
+  const cardTestIdKey = character.characterId?.trim() || String(characterIndex);
   const emojiLockKey = characterTrackerLockKey(character, characterIndex, "emoji");
   const avatarSize = hasDenseContent
     ? "z-[5] mt-0 w-[clamp(2.25rem,28%,3rem)] -translate-y-0.5"
@@ -358,6 +365,7 @@ export function CharacterTrackerCard({
               hidden={thoughtsHidden}
               hideMode={hideMode}
               onToggleHidden={() => toggleCharacterFieldHidden("thoughts")}
+              testIdPrefix={cardTestIdKey}
             />
           )}
           {!showThoughts && <div className={CHARACTER_HEADER_FILLER_CLASS} />}
@@ -380,6 +388,7 @@ export function CharacterTrackerCard({
               hidden={moodHidden}
               hideMode={hideMode}
               onToggleHidden={() => toggleCharacterFieldHidden("mood")}
+              testIdPrefix={cardTestIdKey}
             />
           )}
           {showAppearance && (
@@ -395,6 +404,7 @@ export function CharacterTrackerCard({
               hidden={appearanceHidden}
               hideMode={hideMode}
               onToggleHidden={() => toggleCharacterFieldHidden("appearance")}
+              testIdPrefix={cardTestIdKey}
             />
           )}
           {showOutfit && (
@@ -410,6 +420,7 @@ export function CharacterTrackerCard({
               hidden={outfitHidden}
               hideMode={hideMode}
               onToggleHidden={() => toggleCharacterFieldHidden("outfit")}
+              testIdPrefix={cardTestIdKey}
             />
           )}
         </div>

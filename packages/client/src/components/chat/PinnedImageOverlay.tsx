@@ -223,7 +223,7 @@ function PinnedMediaViewer({
       <div className="relative h-full w-full">
         <button
           type="button"
-          data-testid="pinned-media-dismiss-button"
+          data-testid={`pinned-media-dismiss-button-${media.id}`}
           onClick={(event) => {
             event.stopPropagation();
             onClose();

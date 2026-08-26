@@ -25,6 +25,7 @@ export function RoleplayStoryboardMessageMedia({
     [frames],
   );
   const activeFrame = frames.find((frame) => frame.id === activeFrameId) ?? firstVisibleFrame;
+  const storyboardKey = storyboard?.id ?? "pending";
   const activeIndex = activeFrame
     ? Math.max(
         0,
@@ -100,7 +101,7 @@ export function RoleplayStoryboardMessageMedia({
       ) : activeFrame?.image ? (
         <button
           type="button"
-          data-testid="storyboard-media-open-image-button"
+          data-testid={`storyboard-media-${storyboardKey}-open-image-button`}
           onClick={() => onOpenImage(activeFrame)}
           className="block w-full cursor-zoom-in bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--primary)]"
           title={localizeUi("ui.noodle.noodlepostcard.openImage")}
@@ -138,7 +139,7 @@ export function RoleplayStoryboardMessageMedia({
             <div className="flex shrink-0 items-center gap-1">
               <button
                 type="button"
-                data-testid="storyboard-media-previous-frame-button"
+                data-testid={`storyboard-media-${storyboardKey}-previous-frame-button`}
                 onClick={() => selectRelativeFrame(-1)}
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/8 text-white/60",
@@ -151,7 +152,7 @@ export function RoleplayStoryboardMessageMedia({
               </button>
               <button
                 type="button"
-                data-testid="storyboard-media-next-frame-button"
+                data-testid={`storyboard-media-${storyboardKey}-next-frame-button`}
                 onClick={() => selectRelativeFrame(1)}
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-md border border-white/10 bg-white/8 text-white/60",

@@ -1279,6 +1279,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
             ...connectionOptions.map((connection) => ({ value: connection.id, label: connection.name })),
           ]}
           onChange={(nextValue) => setConnection(nextValue || null)}
+          testId="chat-setup-wizard-conversation-connection-select"
         />
         {connectionOptions.length === 0 && (
           <button
@@ -1316,6 +1317,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
             ...promptPresetOptions.map((preset) => ({ value: preset.id, label: preset.name })),
           ]}
           onChange={(nextValue) => setPreset(nextValue || null)}
+          testId="chat-setup-wizard-conversation-preset-select"
         />
         <p className="text-[0.625rem] leading-relaxed text-[var(--muted-foreground)]">
           {localizeUi("ui.chat.conversationquicksetup.thisSelectsTheConversationModePromptStoredInThe")}

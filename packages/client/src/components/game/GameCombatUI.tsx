@@ -2289,6 +2289,7 @@ export function GameCombatUI({
                           : undefined
                       }
                       damagePopups={damagePopups.filter((p) => p.targetId === member.id)}
+                      stage="drawer"
                     />
                   ))}
                 </div>
@@ -2602,7 +2603,7 @@ export function GameCombatUI({
                   setSelectedSkillId(null);
                   setSelectedItemName(null);
                 }}
-                data-testid="game-combat-skill-back-button"
+                data-testid="game-combat-skill-select-back-button"
                 className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:bg-white/10 hover:text-white"
               >
                 {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2682,7 +2683,7 @@ export function GameCombatUI({
                   setSelectedSkillId(null);
                   setSelectedItemName(null);
                 }}
-                data-testid="game-combat-custom-action-back-button"
+                data-testid="game-combat-item-select-back-button"
                 className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:bg-white/10 hover:text-white"
               >
                 {localizeUi("ui.noodle.noodlerframe.back")}
@@ -3011,6 +3012,7 @@ function CombatantCard({
   sideCount = 1,
   onDismissDialogue,
   compact = false,
+  stage = "stage",
 }: {
   combatant: Combatant;
   side: "player" | "enemy";
@@ -3022,6 +3024,8 @@ function CombatantCard({
   sideCount?: number;
   onDismissDialogue?: (line: PartyDialogueLine) => void;
   compact?: boolean;
+  /** Where this card instance renders — the battle stage or the mobile party drawer. */
+  stage?: "stage" | "drawer";
 }) {
   const { t: localizeUi } = useUiTranslation();
   const hpPercent = combatant.maxHp > 0 ? (combatant.hp / combatant.maxHp) * 100 : 0;
@@ -3075,7 +3079,7 @@ function CombatantCard({
       aria-disabled={!canSelect}
       onClick={canSelect ? onSelect : undefined}
       onKeyDown={handleKeyDown}
-      data-testid={`game-combat-combatant-${combatant.id}-card`}
+      data-testid={`game-combat-combatant-${combatant.id}-${stage}-card`}
       style={cardStyle}
       className={cn(
         "relative flex min-w-0 flex-col items-center rounded-2xl border border-transparent p-1 text-center transition-all duration-200",
@@ -3101,7 +3105,7 @@ function CombatantCard({
                 event.stopPropagation();
                 onDismissDialogue(line);
               }}
-              data-testid={`game-combat-dialogue-dismiss-${index}-button`}
+              data-testid={`game-combat-dialogue-dismiss-${combatant.id}-button`}
               className={cn(
                 "game-combat-action-bark max-h-[var(--combat-dialogue-max-height)] w-full overflow-y-auto rounded-xl border px-2 py-1.5 text-left shadow-lg backdrop-blur-md transition-colors animate-party-slide-in hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
                 side === "enemy"

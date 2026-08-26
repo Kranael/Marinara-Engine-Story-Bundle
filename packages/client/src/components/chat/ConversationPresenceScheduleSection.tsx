@@ -175,7 +175,7 @@ export function ConversationPresenceScheduleSection({
         {onOpenScheduleEditor && (
           <button
             type="button"
-            data-testid="conversation-presence-schedule-edit-button"
+            data-testid={`conversation-presence-${characterId}-schedule-edit-button`}
             onClick={() => openEditor()}
             className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--foreground)]/8 px-2 py-1 text-[0.625rem] font-medium text-[var(--foreground)]/78 ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--foreground)]/12 hover:text-[var(--foreground)]"
           >
@@ -201,7 +201,7 @@ export function ConversationPresenceScheduleSection({
               {extraBlocks.length > 0 && (
                 <button
                   type="button"
-                  data-testid="conversation-presence-schedule-more-toggle-button"
+                  data-testid={`conversation-presence-${characterId}-schedule-more-toggle-button`}
                   aria-expanded={expanded}
                   onClick={() => setExpanded((value) => !value)}
                   className="rounded px-1.5 py-0.5 text-[0.5625rem] font-medium text-[var(--foreground)]/70 transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
@@ -225,7 +225,7 @@ export function ConversationPresenceScheduleSection({
                 <button
                   key={`${block.day}-${block.blockIndex}-${block.time}`}
                   type="button"
-                  data-testid={`conversation-presence-schedule-block-${block.day}-${block.blockIndex}-button`}
+                  data-testid={`conversation-presence-${characterId}-schedule-block-${block.day}-${block.blockIndex}-button`}
                   onClick={() => openEditor(block.day)}
                   className="w-full min-w-0 rounded-md bg-[var(--foreground)]/[0.025] px-1.5 py-1 text-left transition-colors hover:bg-[var(--accent)]/20"
                 >

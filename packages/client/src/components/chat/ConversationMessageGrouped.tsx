@@ -215,6 +215,7 @@ export function ConversationMessageGrouped({
                 resolveReactorName={resolveReactorName}
                 onToggle={onToggleReactionEntry}
                 onRemoveCharacter={onRemoveCharacterReaction}
+                testIdPrefix={`conversation-message-${message.id}-segment-${i}`}
               />
             ) : null;
 

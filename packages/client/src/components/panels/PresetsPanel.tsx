@@ -1275,7 +1275,11 @@ export function PresetsPanel() {
         )}
       </div>
 
-      <PanelSection title={localizeUi("ui.panels.presetspanel.prompts")} icon={<FileText size="0.8125rem" />}>
+      <PanelSection
+        title={localizeUi("ui.panels.presetspanel.prompts")}
+        icon={<FileText size="0.8125rem" />}
+        testId="presets-panel-prompts-section-toggle-button"
+      >
         <div className="flex flex-col gap-0.5">
           {presetFolders.map((folder) => {
             const isEditing = editingFolderId === folder.id;
@@ -1618,6 +1622,7 @@ function RegexSection({
     <PanelSection
       title={localizeUi("ui.panels.regexsection.regexes")}
       icon={<Regex size="0.8125rem" />}
+      testId="presets-panel-regexes-section-toggle-button"
       action={
         <div className="flex items-center gap-1">
           <button
@@ -1896,6 +1901,7 @@ function FunctionsSection({
     <PanelSection
       title={localizeUi("ui.panels.functionssection.functions")}
       icon={<Wrench size="0.8125rem" />}
+      testId="presets-panel-functions-section-toggle-button"
       action={
         <div className="flex items-center gap-1">
           <button
@@ -2195,12 +2201,14 @@ function PanelSection({
   icon,
   action,
   defaultOpen = true,
+  testId,
   children,
 }: {
   title: string;
   icon: ReactNode;
   action?: ReactNode;
   defaultOpen?: boolean;
+  testId?: string;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -2210,7 +2218,7 @@ function PanelSection({
       <div className="flex items-center justify-between">
         <button
           onClick={() => setOpen((current) => !current)}
-          data-testid="presets-panel-section-toggle-button"
+          data-testid={testId ?? "presets-panel-section-toggle-button"}
           className="flex items-center gap-1.5 px-1 py-1 text-left text-[0.6875rem] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]"
         >
           <ChevronDown

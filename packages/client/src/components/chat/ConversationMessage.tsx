@@ -933,6 +933,7 @@ export const ConversationMessage = memo(function ConversationMessage({
           resolveReactorName={resolveReactorName}
           onToggle={handleToggleReactionEntry}
           onRemoveCharacter={handleRemoveCharacterReaction}
+          testIdPrefix={`conversation-message-${message.id}`}
         />
       </div>
     ) : null;

@@ -1465,7 +1465,12 @@ export function AgentsPanel() {
           );
           if (visibleAgents.length === 0 && agentFilterActive) return null;
           return (
-            <PanelSection key={section.category} title={section.title} icon={section.icon}>
+            <PanelSection
+              key={section.category}
+              title={section.title}
+              icon={section.icon}
+              testId={`agents-panel-${section.category}-section-toggle-button`}
+            >
               {visibleAgents.length === 0 ? (
                 <p className="mari-chrome-text-muted px-1 py-2 text-[0.625rem]">{section.emptyMessage}</p>
               ) : (
@@ -1536,7 +1541,11 @@ export function AgentsPanel() {
         })}
 
       {hasInstalledAgents && (visibleCustomAgents.length > 0 || !agentFilterActive) && (
-        <PanelSection title={localizeUi("ui.panels.agentspanel.customAgents")} icon={<Sparkles size="0.8125rem" />}>
+        <PanelSection
+          title={localizeUi("ui.panels.agentspanel.customAgents")}
+          icon={<Sparkles size="0.8125rem" />}
+          testId="agents-panel-custom-agents-section-toggle-button"
+        >
           {visibleCustomAgents.length === 0 ? (
             <p className="mari-chrome-text-muted px-1 py-2 text-[0.625rem]">
               {localizeUi("ui.panels.agentspanel.noCustomAgentsYet")}
@@ -1829,7 +1838,11 @@ function renderAgentCard({
       )}
     >
       {onTouchStart && (
-        <TouchDragHandle label={localizeUi("ui.panels.agentcard.dragAgent")} onTouchStart={onTouchStart} />
+        <TouchDragHandle
+          label={localizeUi("ui.panels.agentcard.dragAgent")}
+          testId={`agent-card-${id}-drag-handle`}
+          onTouchStart={onTouchStart}
+        />
       )}
       {selectionMode && (
         <div
@@ -1949,12 +1962,14 @@ function PanelSection({
   icon,
   action,
   defaultOpen = true,
+  testId,
   children,
 }: {
   title: string;
   icon: ReactNode;
   action?: ReactNode;
   defaultOpen?: boolean;
+  testId?: string;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -1964,7 +1979,7 @@ function PanelSection({
       <div className="flex items-center justify-between">
         <button
           onClick={() => setOpen((o) => !o)}
-          data-testid="agents-panel-section-toggle-button"
+          data-testid={testId ?? "agents-panel-section-toggle-button"}
           className="flex items-center gap-1.5 px-1 py-1 text-left text-[0.6875rem] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]"
         >
           <ChevronDown

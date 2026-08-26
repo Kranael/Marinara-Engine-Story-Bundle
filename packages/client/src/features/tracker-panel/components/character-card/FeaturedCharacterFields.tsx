@@ -53,6 +53,7 @@ function FeaturedFieldTile({
   hidden = false,
   hideMode = false,
   onToggleHidden,
+  testIdKey,
 }: {
   icon: ReactNode;
   accessibleLabel: string;
@@ -65,6 +66,7 @@ function FeaturedFieldTile({
   hidden?: boolean;
   hideMode?: boolean;
   onToggleHidden: () => void;
+  testIdKey?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const lock = useTrackerFieldLock(lockKey);
@@ -92,7 +94,11 @@ function FeaturedFieldTile({
         <button
           type="button"
           onClick={onToggleHidden}
-          data-testid="featured-field-toggle-hidden"
+          data-testid={
+            testIdKey
+              ? `featured-field-${fieldKey}-${testIdKey}-toggle-hidden`
+              : `featured-field-${fieldKey}-toggle-hidden`
+          }
           title={
             hidden
               ? localizeUi("ui.trackerPanel.compactcharacterfield.showValue1", {
@@ -155,6 +161,7 @@ export function FeaturedFieldList({
   characterIndex: number;
 }) {
   const { hiddenTrackerFields, hideMode, onUpdateFieldLocks, onUpdateHiddenFields } = useTrackerLockContext();
+  const testIdKey = character.characterId?.trim() || String(characterIndex);
   const fieldKey = (field: FeaturedCharacterFieldKey) => characterTrackerLockKey(character, characterIndex, field);
   const fieldHidden = (field: FeaturedCharacterFieldKey) => isTrackerFieldHidden(hiddenTrackerFields, fieldKey(field));
   const toggleFieldHidden = (field: FeaturedCharacterFieldKey) => {
@@ -220,6 +227,7 @@ export function FeaturedFieldList({
           hidden={field.hidden}
           hideMode={hideMode}
           onToggleHidden={() => toggleFieldHidden(field.key)}
+          testIdKey={testIdKey}
         />
       ))}
     </div>

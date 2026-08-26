@@ -22,6 +22,8 @@ const OBJECTIVE_REMOVE_BUTTON_CLASS =
 
 export function QuestObjectiveRow({
   objective,
+  questKey,
+  objectiveIndex,
   deleteMode,
   objectiveGridColumns,
   previewLineCount,
@@ -34,6 +36,8 @@ export function QuestObjectiveRow({
   completedLockKey,
 }: {
   objective: QuestObjective;
+  questKey: string;
+  objectiveIndex: number;
   deleteMode: boolean;
   objectiveGridColumns: string;
   previewLineCount: 2 | 3 | undefined;
@@ -61,7 +65,7 @@ export function QuestObjectiveRow({
         <button
           type="button"
           onClick={lockMode ? () => onToggleFieldLock?.(completedLockKey) : onToggle}
-          data-testid="quest-objective-toggle-completed"
+          data-testid={`quest-objective-${questKey}-${objectiveIndex}-toggle-completed`}
           className={cn(
             OBJECTIVE_TOGGLE_BUTTON_CLASS,
             wrapsText && "mt-px",
@@ -139,7 +143,7 @@ export function QuestObjectiveRow({
         <button
           type="button"
           onClick={onRemove}
-          data-testid="quest-objective-remove-button"
+          data-testid={`quest-objective-${questKey}-${objectiveIndex}-remove-button`}
           className={OBJECTIVE_REMOVE_BUTTON_CLASS}
           title={localizeUi("ui.trackerPanel.questobjectiverow.removeObjective")}
           aria-label={localizeUi("ui.trackerPanel.questobjectiverow.removeObjective")}

@@ -517,11 +517,13 @@ function ActiveContextLinksButton({
   chatMeta,
   chatCharIds,
   characterMap,
+  testId = "chat-toolbar-active-context-button",
 }: {
   chat: ChatData | null | undefined;
   chatMeta: Record<string, any>;
   chatCharIds: string[];
   characterMap: CharacterMap;
+  testId?: string;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -733,7 +735,7 @@ function ActiveContextLinksButton({
       <button
         ref={buttonRef}
         data-chat-help="context"
-        data-testid="chat-toolbar-active-context-button"
+        data-testid={testId}
         onClick={() => setOpen((prev) => !prev)}
         className={getChatToolbarButtonClass({ compact, open })}
         title={t("chat.toolbar.activeContext")}
@@ -808,6 +810,7 @@ function SummaryButton({
   automaticSummariesAvailable,
   totalMessageCount,
   promptPresetId,
+  testId = "chat-toolbar-summary-button",
 }: {
   chatId: string | null;
   summary: string | null;
@@ -827,6 +830,7 @@ function SummaryButton({
   automaticSummariesAvailable: boolean;
   totalMessageCount: number;
   promptPresetId?: string | null;
+  testId?: string;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -918,7 +922,7 @@ function SummaryButton({
         ref={buttonRef}
         data-chat-help="summary"
         data-chat-toolbar-panel-action="summary"
-        data-testid="chat-toolbar-summary-button"
+        data-testid={testId}
         onClick={() => {
           if (open && document.querySelector("[data-macro-modal]")) return;
           setAnchor(readSummaryAnchor());
@@ -976,6 +980,7 @@ function AuthorNotesButton({
   onOpenChange,
   renderPanel,
   mobilePanel,
+  testId = "chat-toolbar-author-notes-button",
 }: {
   chatId: string | null;
   chatMeta: Record<string, any>;
@@ -983,6 +988,7 @@ function AuthorNotesButton({
   onOpenChange: (open: boolean) => void;
   renderPanel: boolean;
   mobilePanel: boolean;
+  testId?: string;
 }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
@@ -1077,7 +1083,7 @@ function AuthorNotesButton({
       <button
         ref={buttonRef}
         data-chat-help="author-notes"
-        data-testid="chat-toolbar-author-notes-button"
+        data-testid={testId}
         onClick={() => {
           const nextOpen = !open;
           setMobileFrame(nextOpen && useMobilePanel ? getMobileFloatingPanelFrame(buttonRef.current, 288) : null);
@@ -2041,6 +2047,7 @@ export function ChatRoleplaySurface({
                           compact
                         />
                         <SummaryButton
+                          testId="chat-toolbar-compact-summary-button"
                           chatId={chat?.id ?? null}
                           summary={chatMeta.summary ?? null}
                           summaryEntries={
@@ -2073,12 +2080,14 @@ export function ChatRoleplaySurface({
                           promptPresetId={typeof chat?.promptPresetId === "string" ? chat.promptPresetId : null}
                         />
                         <ActiveContextLinksButton
+                          testId="chat-toolbar-compact-active-context-button"
                           chat={chat}
                           chatMeta={chatMeta}
                           chatCharIds={chatCharIds}
                           characterMap={characterMap}
                         />
                         <AuthorNotesButton
+                          testId="chat-toolbar-compact-author-notes-button"
                           chatId={chat?.id ?? null}
                           chatMeta={chatMeta}
                           open={compactAuthorNotesOpen}
@@ -2130,6 +2139,7 @@ export function ChatRoleplaySurface({
                         compact
                       />
                       <SummaryButton
+                        testId="chat-toolbar-compact-summary-button"
                         chatId={chat?.id ?? null}
                         summary={chatMeta.summary ?? null}
                         summaryEntries={
@@ -2160,12 +2170,14 @@ export function ChatRoleplaySurface({
                         promptPresetId={typeof chat?.promptPresetId === "string" ? chat.promptPresetId : null}
                       />
                       <ActiveContextLinksButton
+                        testId="chat-toolbar-compact-active-context-button"
                         chat={chat}
                         chatMeta={chatMeta}
                         chatCharIds={chatCharIds}
                         characterMap={characterMap}
                       />
                       <AuthorNotesButton
+                        testId="chat-toolbar-compact-author-notes-button"
                         chatId={chat?.id ?? null}
                         chatMeta={chatMeta}
                         open={compactAuthorNotesOpen}

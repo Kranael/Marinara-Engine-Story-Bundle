@@ -62,6 +62,7 @@ export function StatGauge({
   nameLocked,
   valueLocked,
   maxLocked,
+  testIdKey,
 }: {
   stat: CharacterStat;
   iconValue?: SupportedStatIcon | null;
@@ -72,6 +73,8 @@ export function StatGauge({
   nameLocked?: boolean;
   valueLocked?: boolean;
   maxLocked?: boolean;
+  /** Stable per-gauge key (e.g. the stat index) to disambiguate the edit-values button. */
+  testIdKey?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const percent = getStatPercent(stat);
@@ -227,7 +230,11 @@ export function StatGauge({
               <button
                 type="button"
                 onClick={() => setEditingValues(true)}
-                data-testid="stat-gauge-edit-values-button"
+                data-testid={
+                  testIdKey !== undefined
+                    ? `stat-gauge-${testIdKey}-edit-values-button`
+                    : "stat-gauge-edit-values-button"
+                }
                 className={cn(
                   "min-w-[2.25rem] rounded px-1 py-0 text-center outline-none hover:bg-[color-mix(in_srgb,var(--tracker-profile-text)_7%,transparent)] focus-visible:ring-1 focus-visible:ring-[color-mix(in_srgb,var(--tracker-profile-rule)_58%,transparent)]",
                   isCritical &&

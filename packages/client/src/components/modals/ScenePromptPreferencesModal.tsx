@@ -87,6 +87,7 @@ export function ScenePromptPreferencesModal({
               active={pov === option.id}
               label={option.label}
               onClick={() => setPov(option.id)}
+              testId={`scene-prompt-preferences-pov-${option.id}-option`}
             />
           ))}
         </OptionGroup>
@@ -98,6 +99,7 @@ export function ScenePromptPreferencesModal({
               active={tense === option.id}
               label={option.label}
               onClick={() => setTense(option.id)}
+              testId={`scene-prompt-preferences-tense-${option.id}-option`}
             />
           ))}
         </OptionGroup>
@@ -149,13 +151,23 @@ function OptionGroup({ label, children }: { label: string; children: ReactNode }
   );
 }
 
-function OptionButton({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
+function OptionButton({
+  active,
+  label,
+  onClick,
+  testId,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+  testId: string;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      data-testid={`scene-prompt-preferences-option-${label.toLowerCase().replace(/\s+/g, "-")}`}
+      data-testid={testId}
       className={[
         "min-h-10 rounded-md border px-2 text-xs font-semibold transition-colors",
         active

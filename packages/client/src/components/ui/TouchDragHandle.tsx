@@ -6,6 +6,8 @@ type TouchDragHandleProps = {
   label?: string;
   size?: string;
   className?: string;
+  /** Optional data-testid (defaults to "touch-drag-handle") */
+  testId?: string;
   onTouchStart: (event: TouchEvent<HTMLButtonElement>) => void;
 };
 
@@ -13,12 +15,13 @@ export function TouchDragHandle({
   label = "Drag to move",
   size = "0.8125rem",
   className,
+  testId,
   onTouchStart,
 }: TouchDragHandleProps) {
   return (
     <button
       type="button"
-      data-testid="touch-drag-handle"
+      data-testid={testId ?? "touch-drag-handle"}
       aria-hidden="true"
       tabIndex={-1}
       title={label}

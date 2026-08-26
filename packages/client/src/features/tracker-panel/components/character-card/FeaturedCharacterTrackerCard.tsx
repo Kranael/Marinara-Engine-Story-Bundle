@@ -374,6 +374,7 @@ export function FeaturedCharacterTrackerCard({
             className={FEATURED_DOCKED_THOUGHT_CLASS}
             surfaceClassName={FEATURED_DOCKED_THOUGHT_SURFACE_CLASS}
             lockKey={characterTrackerLockKey(character, characterIndex, "thoughts")}
+            testIdKey={character.characterId?.trim() || String(characterIndex)}
             hidden={thoughtsHidden}
             hideMode={hideMode}
             onToggleHidden={toggleThoughtsHidden}
@@ -431,6 +432,7 @@ export function FeaturedCharacterTrackerCard({
           onSave={(thoughts) => onUpdate({ ...character, thoughts: thoughts || null })}
           panelSide={trackerPanelSide}
           lockKey={characterTrackerLockKey(character, characterIndex, "thoughts")}
+          testIdKey={character.characterId?.trim() || String(characterIndex)}
           hidden={thoughtsHidden}
           hideMode={hideMode}
           onToggleHidden={toggleThoughtsHidden}

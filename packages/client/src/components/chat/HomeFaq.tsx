@@ -569,7 +569,7 @@ function FaqDocsAccess({ compact }: { compact?: boolean }) {
       <button
         type="button"
         onClick={() => useUIStore.getState().openModal("docs-viewer")}
-        data-testid="home-faq-open-docs-button"
+        data-testid={compact ? "home-faq-compact-open-docs-button" : "home-faq-open-docs-button"}
         className={cn(
           "inline-flex items-center gap-1.5 rounded-lg border border-[var(--primary)]/30 bg-[var(--primary)]/10 font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/20",
           compact ? "px-2 py-1 text-[0.625rem]" : "px-2.5 py-1.5 text-[0.6875rem]",

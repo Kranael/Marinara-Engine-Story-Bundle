@@ -30,6 +30,8 @@ interface HelpTooltipProps {
   /** Increment to programmatically open the tooltip (e.g. on a mobile tap where there's
    *  no hover). Opens it pinned; changes are ignored while equal to the previous value. */
   openSignal?: number;
+  /** Optional data-testid for the help trigger button (defaults to "help-tooltip-trigger") */
+  testId?: string;
 }
 
 export function HelpTooltip({
@@ -41,6 +43,7 @@ export function HelpTooltip({
   buttonClassName,
   wide,
   openSignal,
+  testId,
 }: HelpTooltipProps) {
   const { t: localizeUi } = useUiTranslation();
   const localize = useLocalizedUiText();
@@ -159,7 +162,7 @@ export function HelpTooltip({
     >
       <button
         type="button"
-        data-testid="help-tooltip-trigger"
+        data-testid={testId ?? "help-tooltip-trigger"}
         aria-label={
           localizedLabel
             ? localizeUi("ui.ui.customemojitagbutton.value1Value2", {

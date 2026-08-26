@@ -68,6 +68,7 @@ export function QuestRow({
     ? "grid-cols-[0.875rem_minmax(0,1fr)_1rem]"
     : "grid-cols-[0.875rem_minmax(0,1fr)]";
   const questTitle = visibleText(quest.name, "Quest");
+  const questKey = quest.questEntryId?.trim() || String(questIndex);
   const questCompletedLockKey = questTrackerLockKey(quest, questIndex, "completed");
   const questNameLockKey = questTrackerLockKey(quest, questIndex, "name");
   const questCompletedLocked = isTrackerFieldLocked(fieldLocks, questCompletedLockKey);
@@ -123,7 +124,7 @@ export function QuestRow({
                 ? onToggleFieldLock?.(questCompletedLockKey)
                 : onUpdate({ ...quest, completed: !quest.completed })
             }
-            data-testid="quest-row-toggle-completed"
+            data-testid={`quest-row-${questKey}-toggle-completed`}
             className={cn(
               QUEST_TOGGLE_BUTTON_CLASS,
               quest.completed && !lockMode && "text-emerald-300",
@@ -201,7 +202,7 @@ export function QuestRow({
           <button
             type="button"
             onClick={onRemove}
-            data-testid="quest-row-remove-button"
+            data-testid={`quest-row-${questKey}-remove-button`}
             className={QUEST_REMOVE_BUTTON_CLASS}
             title={localizeUi("ui.trackerPanel.questrow.removeQuest")}
             aria-label={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", {
@@ -227,6 +228,8 @@ export function QuestRow({
             <QuestObjectiveRow
               key={`${objective.text}-${index}`}
               objective={objective}
+              questKey={questKey}
+              objectiveIndex={index}
               deleteMode={deleteMode}
               objectiveGridColumns={objectiveGridColumns}
               previewLineCount={previewLineCount}
@@ -243,7 +246,7 @@ export function QuestRow({
             <button
               type="button"
               onClick={addObjective}
-              data-testid="quest-row-add-objective-button"
+              data-testid={`quest-row-${questKey}-add-objective-button`}
               className={ADD_OBJECTIVE_BUTTON_CLASS}
               title={localizeUi("ui.trackerPanel.questrow.addObjective")}
               aria-label={localizeUi("ui.trackerPanel.questrow.addObjective")}

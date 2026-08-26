@@ -403,7 +403,7 @@ function HideFromAIAction({
     <div ref={rootRef} className="relative">
       <ActionBtn
         icon={hasRestriction ? <Eye size={MESSAGE_ACTION_ICON_SIZE} /> : <EyeOff size={MESSAGE_ACTION_ICON_SIZE} />}
-        testId="chat-message-hide-from-ai-button"
+        testId={`chat-message-${messageId}-hide-from-ai-button`}
         onClick={() => {
           if (isGroupChat) {
             setOpen((value) => !value);
@@ -445,7 +445,7 @@ function HideFromAIAction({
             aria-checked={hiddenFromAll}
             aria-label={localizeUi("ui.chat.hidefromaiaction.hideFromAllCharacters")}
             title={localizeUi("ui.chat.hidefromaiaction.allCharacters")}
-            data-testid="chat-message-hide-from-all-button"
+            data-testid={`chat-message-${messageId}-hide-from-all-button`}
             onClick={() => onToggle(messageId, hiddenFromAll)}
             className={cn(
               "flex aspect-square w-[clamp(1.5rem,8vw,2.25rem)] shrink-0 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -538,7 +538,7 @@ function ConversationStartAction({
     <div ref={rootRef} className="relative">
       <ActionBtn
         icon={<Flag size={MESSAGE_ACTION_ICON_SIZE} />}
-        testId="chat-message-conversation-start-button"
+        testId={`chat-message-${messageId}-conversation-start-button`}
         onClick={() => {
           if (isGroupChat) setOpen((value) => !value);
           else onToggle(messageId, !sharedStart, characterIds);
@@ -575,7 +575,7 @@ function ConversationStartAction({
             aria-checked={sharedStart}
             aria-label={localizeUi("ui.chat.conversationstartaction.newStartForAllCharacters")}
             title={localizeUi("ui.chat.hidefromaiaction.allCharacters")}
-            data-testid="chat-message-start-for-all-button"
+            data-testid={`chat-message-${messageId}-start-for-all-button`}
             onClick={() => onToggle(messageId, !sharedStart, characterIds)}
             className={cn(
               "flex aspect-square w-[clamp(1.5rem,8vw,2.25rem)] shrink-0 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -695,6 +695,7 @@ function ConversationStartMarkers({
 }
 
 function HiddenFromAIMessageButton({
+  messageId,
   roleplay,
   canCollapse,
   onExpand,
@@ -702,6 +703,7 @@ function HiddenFromAIMessageButton({
   recipientAvatars,
   statusLabel = "Hidden from AI",
 }: {
+  messageId: string;
   roleplay?: boolean;
   canCollapse: boolean;
   onExpand: () => void;
@@ -729,7 +731,7 @@ function HiddenFromAIMessageButton({
       <button
         type="button"
         onClick={onExpand}
-        data-testid="chat-message-hidden-from-ai-toggle-button"
+        data-testid={`chat-message-${messageId}-hidden-from-ai-toggle-button`}
         className={cn(
           "inline-flex items-center gap-1 rounded px-1 py-0.5 text-[0.625rem] font-medium text-[var(--marinara-chat-chrome-highlight-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -757,11 +759,13 @@ function HiddenFromAIMessageButton({
 }
 
 function HiddenFromAIMessageSummary({
+  messageId,
   roleplay,
   onExpand,
   recipientAvatars,
   statusLabel = "Hidden from AI",
 }: {
+  messageId: string;
   roleplay?: boolean;
   onExpand: () => void;
   recipientAvatars?: ReactNode;
@@ -775,7 +779,7 @@ function HiddenFromAIMessageSummary({
         event.stopPropagation();
         onExpand();
       }}
-      data-testid="chat-message-hidden-from-ai-summary-button"
+      data-testid={`chat-message-${messageId}-hidden-from-ai-summary-button`}
       className={cn(
         "flex w-full items-center gap-2 rounded-lg border border-[var(--marinara-chat-chrome-button-border-active)] bg-[var(--marinara-chat-chrome-highlight-bg)] px-3 py-2 text-left text-[0.75rem] text-[var(--marinara-chat-chrome-highlight-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)]",
         roleplay && "opacity-85 hover:opacity-100",
@@ -795,6 +799,7 @@ function HiddenFromAIMessageSummary({
 
 /** Isolated edit textarea — uncontrolled to avoid React re-renders on every keystroke. */
 const EditTextarea = memo(function EditTextarea({
+  messageId,
   initialContent,
   fontSize,
   quoteFormat,
@@ -802,6 +807,7 @@ const EditTextarea = memo(function EditTextarea({
   onSave,
   onCancel,
 }: {
+  messageId: string;
   initialContent: string;
   fontSize: string | number | undefined;
   quoteFormat: QuoteFormat;
@@ -842,7 +848,7 @@ const EditTextarea = memo(function EditTextarea({
         defaultValue={formatTextQuotes(initialContent, quoteFormat)}
         readOnly={saving}
         aria-busy={saving}
-        data-testid="chat-message-edit-textarea"
+        data-testid={`chat-message-${messageId}-edit-textarea`}
         aria-keyshortcuts="Control+Enter Meta+Enter"
         rows={1}
         onInput={(event) => {
@@ -862,7 +868,7 @@ const EditTextarea = memo(function EditTextarea({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          data-testid="chat-message-edit-cancel-button"
+          data-testid={`chat-message-${messageId}-edit-cancel-button`}
           aria-label={localizeUi("ui.chat.edittextarea.cancelEdit")}
           className="pointer-events-auto relative z-30 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-white/40 hover:bg-white/10 hover:text-white/70 disabled:pointer-events-none disabled:opacity-50"
           title={localizeUi("ui.chat.edittextarea.cancelEsc")}
@@ -873,7 +879,7 @@ const EditTextarea = memo(function EditTextarea({
           type="button"
           onClick={handleSave}
           disabled={saving}
-          data-testid="chat-message-edit-save-button"
+          data-testid={`chat-message-${messageId}-edit-save-button`}
           aria-label={localizeUi("ui.chat.edittextarea.saveEdit")}
           className="pointer-events-auto relative z-30 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-emerald-400/70 hover:bg-emerald-400/10 hover:text-emerald-400 disabled:pointer-events-none disabled:opacity-50"
           title={localizeUi("ui.chat.edittextarea.saveCmdEnter")}
@@ -934,6 +940,7 @@ const INLINE_MARKDOWN_CONTAINER_RE =
   /\*\*\*[\s\S]+?\*\*\*|\*\*[\s\S]+?\*\*|__[\s\S]+?__|(?<!\*)\*(?!\*)[\s\S]+?(?<!\*)\*(?!\*)|==[\s\S]+?==|~~[\s\S]+?~~|(?<![_\w])_[^_]+?_(?![_\w])/g;
 
 function RoleplayThinkingDisclosure({
+  messageId,
   thinking,
   summaryUnavailable,
   isStreaming,
@@ -941,6 +948,7 @@ function RoleplayThinkingDisclosure({
   keepExpanded,
   durationMs,
 }: {
+  messageId: string;
   thinking: string | null;
   summaryUnavailable: boolean;
   isStreaming: boolean;
@@ -991,7 +999,7 @@ function RoleplayThinkingDisclosure({
         aria-expanded={expanded}
         aria-controls={expanded ? contentId : undefined}
         title={t(expanded ? "chat.message.thoughts.collapse" : "chat.message.thoughts.expand")}
-        data-testid="chat-message-thinking-disclosure-button"
+        data-testid={`chat-message-${messageId}-thinking-disclosure-button`}
         onClick={() => setExpanded((value) => !value)}
         className="flex w-full items-center gap-2 px-2.5 py-2 text-left text-[0.75rem] font-medium text-[var(--marinara-chat-chrome-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-button-bg-hover)]"
       >
@@ -2921,6 +2929,7 @@ export const ChatMessage = memo(function ChatMessage({
   );
   const hiddenFromAIHeader = isHiddenFromAI ? (
     <HiddenFromAIMessageButton
+      messageId={message.id}
       roleplay={isRoleplay}
       canCollapse={collapseHiddenMessages}
       isHiddenExpanded={isHiddenExpanded}
@@ -2931,6 +2940,7 @@ export const ChatMessage = memo(function ChatMessage({
   ) : null;
   const roleplayBubbleContent = isHiddenCollapsed ? (
     <HiddenFromAIMessageSummary
+      messageId={message.id}
       roleplay={isRoleplay}
       onExpand={() => setManuallyExpandedHidden(true)}
       recipientAvatars={hiddenFromAIRecipientAvatars}
@@ -2938,6 +2948,7 @@ export const ChatMessage = memo(function ChatMessage({
     />
   ) : editing ? (
     <EditTextarea
+      messageId={message.id}
       initialContent={message.content}
       fontSize={chatFontSize}
       quoteFormat={quoteFormat}
@@ -2949,6 +2960,7 @@ export const ChatMessage = memo(function ChatMessage({
     <>
       {showInlineThinking && (
         <RoleplayThinkingDisclosure
+          messageId={message.id}
           thinking={thinking}
           summaryUnavailable={reasoningSummaryUnavailable}
           isStreaming={!!isStreaming}
@@ -3103,6 +3115,7 @@ export const ChatMessage = memo(function ChatMessage({
                 </div>
                 {isHiddenCollapsed ? (
                   <HiddenFromAIMessageSummary
+                    messageId={message.id}
                     roleplay
                     onExpand={() => setManuallyExpandedHidden(true)}
                     recipientAvatars={hiddenFromAIRecipientAvatars}
@@ -3731,7 +3744,12 @@ export const ChatMessage = memo(function ChatMessage({
                     disabled={!hasTTSContent || (ttsBusy && !isSpeakingThis)}
                     testId={`chat-message-${message.id}-tts-speak-button`}
                   />
-                  <TTSLineVolumeControl volume={ttsLineVolume} onVolumeChange={handleTTSLineVolumeChange} dark />
+                  <TTSLineVolumeControl
+                    messageId={message.id}
+                    volume={ttsLineVolume}
+                    onVolumeChange={handleTTSLineVolumeChange}
+                    dark
+                  />
                 </>
               )}
             </div>
@@ -3899,12 +3917,14 @@ export const ChatMessage = memo(function ChatMessage({
           >
             {isHiddenCollapsed ? (
               <HiddenFromAIMessageSummary
+                messageId={message.id}
                 onExpand={() => setManuallyExpandedHidden(true)}
                 recipientAvatars={hiddenFromAIRecipientAvatars}
                 statusLabel={hiddenFromAIStatusLabel}
               />
             ) : editing ? (
               <EditTextarea
+                messageId={message.id}
                 initialContent={message.content}
                 fontSize={chatFontSize}
                 quoteFormat={quoteFormat}
@@ -4226,7 +4246,11 @@ export const ChatMessage = memo(function ChatMessage({
                   disabled={!hasTTSContent || (ttsBusy && !isSpeakingThis)}
                   testId={`chat-message-${message.id}-tts-speak-button`}
                 />
-                <TTSLineVolumeControl volume={ttsLineVolume} onVolumeChange={handleTTSLineVolumeChange} />
+                <TTSLineVolumeControl
+                  messageId={message.id}
+                  volume={ttsLineVolume}
+                  onVolumeChange={handleTTSLineVolumeChange}
+                />
               </>
             )}
           </div>
@@ -4264,10 +4288,12 @@ export const ChatMessage = memo(function ChatMessage({
 });
 
 function TTSLineVolumeControl({
+  messageId,
   volume,
   onVolumeChange,
   dark,
 }: {
+  messageId: string;
   volume: number;
   onVolumeChange: (volume: number) => void;
   dark?: boolean;
@@ -4310,7 +4336,7 @@ function TTSLineVolumeControl({
         onClick={() => setOpen((value) => !value)}
         title={label}
         ariaPressed={open}
-        testId="chat-message-tts-line-volume-button"
+        testId={`chat-message-${messageId}-tts-line-volume-button`}
         className={
           open ? (dark ? MESSAGE_CHROME_ACTIVE_ICON_CLASS : "bg-[var(--accent)] text-[var(--foreground)]") : undefined
         }
@@ -4348,7 +4374,7 @@ function TTSLineVolumeControl({
             value={volume}
             onChange={(event) => onVolumeChange(Number(event.currentTarget.value))}
             className="mari-tts-line-volume-slider w-full"
-            data-testid="chat-message-tts-line-volume-input"
+            data-testid={`chat-message-${messageId}-tts-line-volume-input`}
             aria-label={localizeUi("ui.chat.ttslinevolumecontrol.lineVolume")}
             title={localizeUi("ui.chat.ttslinevolumecontrol.lineVolume")}
             style={{ "--range-progress": `${volume}%` } as React.CSSProperties}

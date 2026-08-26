@@ -30,6 +30,7 @@ export function CompactCharacterField({
   hidden = false,
   hideMode = false,
   onToggleHidden,
+  testIdPrefix,
 }: {
   icon: ReactNode;
   accessibleLabel: string;
@@ -44,6 +45,7 @@ export function CompactCharacterField({
   hidden?: boolean;
   hideMode?: boolean;
   onToggleHidden: () => void;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const lock = useTrackerFieldLock(lockKey);
@@ -72,7 +74,11 @@ export function CompactCharacterField({
         <button
           type="button"
           onClick={onToggleHidden}
-          data-testid="compact-character-field-toggle-hidden"
+          data-testid={
+            testIdPrefix
+              ? `character-tracker-${testIdPrefix}-${tone}-field-toggle-hidden`
+              : "compact-character-field-toggle-hidden"
+          }
           title={
             hidden
               ? localizeUi("ui.trackerPanel.compactcharacterfield.showValue1", {

@@ -126,6 +126,7 @@ function ThoughtBubble({
   onSave,
   tailSide = "left",
   lockKey,
+  testIdKey,
   hidden = false,
   hideMode = false,
   onToggleHidden,
@@ -134,6 +135,7 @@ function ThoughtBubble({
   onSave: (value: string) => void;
   tailSide?: "left" | "right";
   lockKey?: string;
+  testIdKey?: string;
   hidden?: boolean;
   hideMode?: boolean;
   onToggleHidden: () => void;
@@ -221,7 +223,7 @@ function ThoughtBubble({
                   : localizeUi("ui.trackerPanel.thoughtbubble.hideThoughts")
               }
               aria-pressed={hidden}
-              data-testid="thought-bubble-toggle-hidden"
+              data-testid={testIdKey ? `thought-bubble-${testIdKey}-toggle-hidden` : "thought-bubble-toggle-hidden"}
               className={cn(
                 "px-0 py-0 text-left font-medium italic text-[color-mix(in_srgb,var(--foreground)_86%,transparent)] transition-colors hover:bg-[var(--foreground)]/8",
                 compactThoughtBubble && "w-fit max-w-full",
@@ -267,6 +269,7 @@ export function InlineThoughtBubble({
   className,
   surfaceClassName,
   lockKey,
+  testIdKey,
   hidden = false,
   hideMode = false,
   onToggleHidden,
@@ -277,6 +280,7 @@ export function InlineThoughtBubble({
   className?: string;
   surfaceClassName?: string;
   lockKey?: string;
+  testIdKey?: string;
   hidden?: boolean;
   hideMode?: boolean;
   onToggleHidden: () => void;
@@ -327,7 +331,9 @@ export function InlineThoughtBubble({
                   : localizeUi("ui.trackerPanel.thoughtbubble.hideThoughts")
               }
               aria-pressed={hidden}
-              data-testid="inline-thought-bubble-toggle-hidden"
+              data-testid={
+                testIdKey ? `inline-thought-bubble-${testIdKey}-toggle-hidden` : "inline-thought-bubble-toggle-hidden"
+              }
               className={cn(
                 "w-full px-0 py-0 text-left font-medium italic text-[color:var(--tracker-profile-text)] transition-colors hover:bg-[color-mix(in_srgb,var(--tracker-profile-accent-solid)_10%,transparent)]",
                 editMinHeightClassName,
@@ -368,6 +374,7 @@ export function ExternalThoughtBubble({
   panelSide,
   bubbleRef,
   lockKey,
+  testIdKey,
   hidden = false,
   hideMode = false,
   onToggleHidden,
@@ -378,6 +385,7 @@ export function ExternalThoughtBubble({
   panelSide: TrackerPanelSide;
   bubbleRef?: RefObject<HTMLDivElement | null>;
   lockKey?: string;
+  testIdKey?: string;
   hidden?: boolean;
   hideMode?: boolean;
   onToggleHidden: () => void;
@@ -479,6 +487,7 @@ export function ExternalThoughtBubble({
         onSave={onSave}
         tailSide={position.outsideSide === "left" ? "right" : "left"}
         lockKey={lockKey}
+        testIdKey={testIdKey}
         hidden={hidden}
         hideMode={hideMode}
         onToggleHidden={onToggleHidden}

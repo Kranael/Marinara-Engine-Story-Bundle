@@ -1202,6 +1202,7 @@ export function LorebooksPanel() {
         <PanelLoadMoreBar
           onLoadMore={() => void lorebookPages.fetchNextPage()}
           disabled={lorebookPages.isFetchingNextPage}
+          testId="lorebooks-panel-load-more-button"
         >
           {lorebookPages.isFetchingNextPage
             ? localizeUi("ui.characters.characterlibraryview.loading")

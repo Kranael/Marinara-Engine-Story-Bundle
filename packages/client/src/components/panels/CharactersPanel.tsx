@@ -1724,6 +1724,7 @@ export function CharactersPanel() {
         <PanelLoadMoreBar
           onLoadMore={() => void characterPages.fetchNextPage()}
           disabled={characterPages.isFetchingNextPage}
+          testId="characters-panel-load-more-button"
         >
           {characterPages.isFetchingNextPage
             ? localizeUi("ui.characters.characterlibraryview.loading")

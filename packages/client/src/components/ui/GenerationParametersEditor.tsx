@@ -442,6 +442,7 @@ export function GenerationParametersFields({
             help={localizeUi("ui.ui.generationparametersfields.howMuchReasoningWorkTheProviderShouldSpendBefore")}
             sendEnabled={isSendEnabled("reasoningEffort")}
             onSendChange={(enabled) => setSend("reasoningEffort", enabled)}
+            testId={testIdPrefix ? `${testIdPrefix}-reasoning` : undefined}
           />
           <div className="mt-1 flex flex-wrap gap-1.5">
             {REASONING_LEVELS.map((level) => (
@@ -469,6 +470,7 @@ export function GenerationParametersFields({
             help={localizeUi("ui.ui.generationparametersfields.controlsHowLongAndDetailedResponsesShouldBeLow")}
             sendEnabled={isSendEnabled("verbosity")}
             onSendChange={(enabled) => setSend("verbosity", enabled)}
+            testId={testIdPrefix ? `${testIdPrefix}-verbosity` : undefined}
           />
           <div className="mt-1 flex flex-wrap gap-1.5">
             {VERBOSITY_LEVELS.map((level) => (

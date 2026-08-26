@@ -21,6 +21,8 @@ interface MessageReactionsProps {
   onToggle: (reaction: MessageReaction) => void;
   /** Remove character membership from this reaction entry. */
   onRemoveCharacter: (reaction: MessageReaction) => void;
+  /** Stable owning-message prefix so reaction selectors stay unique per message. */
+  testIdPrefix?: string;
 }
 
 export function MessageReactions({
@@ -28,6 +30,7 @@ export function MessageReactions({
   resolveReactorName,
   onToggle,
   onRemoveCharacter,
+  testIdPrefix,
 }: MessageReactionsProps) {
   if (reactions.length === 0) return null;
   return (
@@ -42,6 +45,7 @@ export function MessageReactions({
           who={reaction.by.map(resolveReactorName).join(", ")}
           onToggle={() => onToggle(reaction)}
           onRemoveCharacter={() => onRemoveCharacter(reaction)}
+          testIdPrefix={testIdPrefix}
         />
       ))}
     </div>
@@ -54,12 +58,14 @@ function ReactionPill({
   who,
   onToggle,
   onRemoveCharacter,
+  testIdPrefix,
 }: {
   reaction: MessageReaction;
   mine: boolean;
   who: string;
   onToggle: () => void;
   onRemoveCharacter: () => void;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const [show, setShow] = useState(false);
@@ -107,7 +113,11 @@ function ReactionPill({
       <button
         ref={wrapRef}
         type="button"
-        data-testid={`message-reaction-${reaction.emoji}-button`}
+        data-testid={
+          testIdPrefix
+            ? `${testIdPrefix}-reaction-${reaction.emoji}-button`
+            : `message-reaction-${reaction.emoji}-button`
+        }
         onClick={(event) => {
           event.stopPropagation();
           if (suppressClickRef.current) {
