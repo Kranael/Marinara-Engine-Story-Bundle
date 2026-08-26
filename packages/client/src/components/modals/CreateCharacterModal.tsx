@@ -98,6 +98,7 @@ export function CreateCharacterModal({ open, onClose }: Props) {
           type="button"
           onClick={() => fileInputRef.current?.click()}
           className="mari-chrome-accent-tile mari-accent-animated group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full transition-transform hover:scale-105"
+          data-testid="create-character-modal-avatar-button"
         >
           {avatarDataUrl ? (
             <img src={avatarDataUrl} alt={localizeUi("editor.avatar.label")} className="h-full w-full object-cover" />
@@ -108,7 +109,7 @@ export function CreateCharacterModal({ open, onClose }: Props) {
             <Camera size="1.25rem" className="text-white" />
           </div>
         </button>
-        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarPick} />
+        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarPick} data-testid="create-character-modal-avatar-input" />
 
         {/* Name */}
         <div className="w-full">
@@ -124,6 +125,7 @@ export function CreateCharacterModal({ open, onClose }: Props) {
               if (e.key === "Enter") handleCreate();
             }}
             className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-sm outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]"
+            data-testid="create-character-modal-name-input"
           />
         </div>
 
@@ -135,6 +137,7 @@ export function CreateCharacterModal({ open, onClose }: Props) {
               reset();
             }}
             className="rounded-lg px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
+            data-testid="create-character-modal-cancel-button"
           >
             {localizeUi("chat.delete.dialog.cancel")}
           </button>
@@ -142,6 +145,7 @@ export function CreateCharacterModal({ open, onClose }: Props) {
             onClick={handleCreate}
             disabled={!name.trim() || createCharacter.isPending}
             className="flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50"
+            data-testid="create-character-modal-create-button"
           >
             {createCharacter.isPending ? (
               <Loader2 size="0.75rem" className="animate-spin" />

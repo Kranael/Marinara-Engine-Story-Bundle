@@ -37,6 +37,7 @@ export function CharacterTrackerAvatar({
         type="button"
         onClick={onUploadAvatar}
         disabled={!onUploadAvatar}
+        data-testid="character-tracker-avatar-upload-button"
         title={avatarMedia ? localizeUi("ui.panels.personaspanel.changeAvatar") : localizeUi("editor.avatar.upload")}
         aria-label={
           avatarMedia

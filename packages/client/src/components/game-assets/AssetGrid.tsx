@@ -126,7 +126,7 @@ export function AssetGrid({
         {localizeUi("ui.gameAssets.assetgrid.showing")} {visibleNodes.length} {localizeUi("ui.noodle.noodlehome.of")}{" "}
         {nodes.length}
       </span>
-      <button type="button" onClick={loadMore} className="mari-chrome-control mari-chrome-control--small text-xs">
+      <button type="button" onClick={loadMore} data-testid="game-assets-load-more-button" className="mari-chrome-control mari-chrome-control--small text-xs">
         {localizeUi("ui.gameAssets.assetgrid.loadMore")}
       </button>
     </div>
@@ -166,6 +166,7 @@ export function AssetGrid({
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => onToggleSelect(node)}
+                      data-testid={`game-assets-select-${node.path}`}
                       className="h-3.5 w-3.5 accent-[var(--primary)]"
                     />
                   </label>
@@ -177,6 +178,7 @@ export function AssetGrid({
                       e.stopPropagation();
                       onOpenFolderSelection?.(node, e.currentTarget);
                     }}
+                    data-testid={`game-assets-folder-selection-${node.path}`}
                     className={
                       "absolute left-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full border shadow-sm transition-colors " +
                       (folderSelectionStatus === "excluded"
@@ -197,6 +199,7 @@ export function AssetGrid({
                     e.stopPropagation();
                     onOpenActionMenu(node, e.currentTarget);
                   }}
+                  data-testid={`game-assets-action-menu-${node.path}`}
                   className="absolute right-1.5 top-1.5 rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                 >
                   <MoreHorizontal size="0.875rem" />
@@ -273,6 +276,7 @@ export function AssetGrid({
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => onToggleSelect(node)}
+                  data-testid={`game-assets-select-${node.path}`}
                   className="h-3.5 w-3.5 rounded border-[var(--border)] accent-[var(--primary)]"
                 />
               )}
@@ -283,6 +287,7 @@ export function AssetGrid({
                     e.stopPropagation();
                     onOpenFolderSelection?.(node, e.currentTarget);
                   }}
+                  data-testid={`game-assets-folder-selection-${node.path}`}
                   className={
                     "flex h-5 w-5 items-center justify-center rounded-full border transition-colors " +
                     (folderSelectionStatus === "excluded"
@@ -333,6 +338,7 @@ export function AssetGrid({
                 e.stopPropagation();
                 onOpenActionMenu(node, e.currentTarget);
               }}
+              data-testid={`game-assets-action-menu-${node.path}`}
               className="justify-self-end rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             >
               <MoreHorizontal size="0.875rem" />

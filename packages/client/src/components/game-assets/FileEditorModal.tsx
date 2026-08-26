@@ -132,6 +132,7 @@ export function FileEditorModal({ node, onClose, initialMode = "edit" }: FileEdi
               <div className="flex items-center rounded-lg border border-[var(--border)] bg-[var(--background)] p-0.5">
                 <button
                   onClick={() => setMode("preview")}
+                  data-testid="game-assets-file-editor-preview-button"
                   className={cn(
                     "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
                     mode === "preview"
@@ -143,6 +144,7 @@ export function FileEditorModal({ node, onClose, initialMode = "edit" }: FileEdi
                 </button>
                 <button
                   onClick={() => setMode("edit")}
+                  data-testid="game-assets-file-editor-edit-button"
                   className={cn(
                     "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
                     mode === "edit"
@@ -156,6 +158,7 @@ export function FileEditorModal({ node, onClose, initialMode = "edit" }: FileEdi
             )}
             <button
               onClick={handleRequestClose}
+              data-testid="game-assets-file-editor-close-button"
               className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             >
               <X size="1rem" />
@@ -191,6 +194,7 @@ export function FileEditorModal({ node, onClose, initialMode = "edit" }: FileEdi
                 onKeyDown={handleKeyDown}
                 spellCheck={false}
                 maxLength={MAX_TEXT_LENGTH}
+                data-testid="game-assets-file-editor-textarea"
                 className="h-full w-full resize-none bg-[var(--card)] p-3 font-mono text-xs leading-relaxed text-[var(--foreground)] outline-none"
               />
             </div>
@@ -205,6 +209,7 @@ export function FileEditorModal({ node, onClose, initialMode = "edit" }: FileEdi
           <div className="flex items-center gap-2">
             <button
               onClick={handleRequestClose}
+              data-testid="game-assets-file-editor-cancel-button"
               className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
             >
               {localizeUi("chat.delete.dialog.cancel")}
@@ -212,6 +217,7 @@ export function FileEditorModal({ node, onClose, initialMode = "edit" }: FileEdi
             <button
               onClick={handleSave}
               disabled={saveFile.isPending || !isDirty}
+              data-testid="game-assets-file-editor-save-button"
               className="rounded-lg bg-[var(--secondary)] px-4 py-2 text-xs font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saveFile.isPending

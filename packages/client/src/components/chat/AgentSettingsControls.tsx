@@ -279,6 +279,7 @@ export function AgentSettingsTextarea({
   rows,
   onChange,
   onBlur,
+  testId,
 }: {
   label: string;
   value: string;
@@ -286,6 +287,7 @@ export function AgentSettingsTextarea({
   rows?: number;
   onChange: (value: string) => void;
   onBlur?: () => void;
+  testId?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -299,6 +301,7 @@ export function AgentSettingsTextarea({
         onChange={onChange}
         onBlur={onBlur}
         onExpandedClose={onBlur}
+        testId={testId}
         className="mari-chrome-field min-h-[3.25rem] w-full !rounded-md px-2.5 py-2 pr-8 text-xs leading-relaxed"
       />
     </div>
@@ -313,6 +316,7 @@ export function AgentSettingsToggle({
   overridden = false,
   onReset,
   surface = "card",
+  testId,
 }: {
   label: string;
   description: string;
@@ -321,6 +325,7 @@ export function AgentSettingsToggle({
   overridden?: boolean;
   onReset?: () => void;
   surface?: "card" | "secondary";
+  testId?: string;
 }) {
   return (
     <div className="flex h-full flex-col gap-1">
@@ -330,6 +335,7 @@ export function AgentSettingsToggle({
         checked={enabled}
         onChange={() => onToggle()}
         labelPosition="start"
+        testId={testId}
         className={cn(
           "flex-1 justify-between rounded-md px-3 py-2.5 text-left",
           enabled
@@ -415,11 +421,13 @@ export function AgentSettingsSegmentedControl<T extends string>({
   options,
   onChange,
   columns = 2,
+  testIdPrefix,
 }: {
   value: T;
   options: Array<{ id: T; label: string; description?: string }>;
   onChange: (value: T) => void;
   columns?: 2 | 3;
+  testIdPrefix?: string;
 }) {
   return (
     <div
@@ -434,6 +442,7 @@ export function AgentSettingsSegmentedControl<T extends string>({
           type="button"
           onClick={() => onChange(option.id)}
           aria-pressed={value === option.id}
+          data-testid={testIdPrefix ? `${testIdPrefix}-${option.id}-button` : undefined}
           className={cn(
             "flex min-h-8 items-center justify-center rounded-md px-2.5 py-2 text-center transition-all",
             value === option.id

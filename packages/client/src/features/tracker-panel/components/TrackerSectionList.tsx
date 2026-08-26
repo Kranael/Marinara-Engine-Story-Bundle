@@ -183,7 +183,7 @@ export function TrackerSectionList({
       ? "A tracker or reply is already running"
       : (TRACKER_SECTION_RERUN_TITLES[section] ?? `Re-run ${agentType} tracker`);
     return (
-      <SectionIconButton onClick={() => void rerunTracker(agentType)} disabled={trackerRetryBusy} title={title}>
+      <SectionIconButton onClick={() => void rerunTracker(agentType)} disabled={trackerRetryBusy} title={title} testId={`tracker-section-rerun-${section}`}>
         <RefreshCw size="0.75rem" className={trackerRetryBusy ? "animate-spin" : ""} />
       </SectionIconButton>
     );
@@ -201,6 +201,7 @@ export function TrackerSectionList({
             title={autoAvatarTitle}
             pressed={autoGenerateCharacterAvatars}
             tone="feature"
+            testId="tracker-section-toggle-auto-avatars"
           >
             <Sparkles size="0.6875rem" />
           </SectionIconButton>
@@ -342,6 +343,7 @@ export function TrackerSectionList({
         type="file"
         accept="image/*"
         className="hidden"
+        data-testid="tracker-section-avatar-file-input"
         onChange={handleAvatarFileInputChange}
       />
       {orderedTrackerSections.map((section) => (

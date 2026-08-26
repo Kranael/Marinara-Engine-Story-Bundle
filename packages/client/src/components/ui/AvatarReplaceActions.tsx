@@ -31,6 +31,7 @@ export function AvatarReplaceActions({
       <div className="grid grid-cols-2 gap-2 max-[360px]:grid-cols-1">
         <button
           type="button"
+          data-testid="avatar-replace-upload-button"
           onClick={onUpload}
           disabled={uploading}
           aria-busy={uploading}
@@ -41,6 +42,7 @@ export function AvatarReplaceActions({
         </button>
         <button
           type="button"
+          data-testid="avatar-replace-generate-button"
           onClick={onGenerate}
           disabled={!generationAvailable || uploading}
           title={!generationAvailable ? t("editor.avatar.generate.unavailable") : undefined}

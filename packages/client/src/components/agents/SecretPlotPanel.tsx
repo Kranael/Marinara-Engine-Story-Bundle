@@ -194,6 +194,7 @@ export function SecretPlotPanel({
       <div className="flex items-center gap-1.5">
         <button
           type="button"
+          data-testid="secret-plot-toggle"
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           className="flex min-h-7 min-w-0 flex-1 items-center gap-1.5 rounded-md text-left text-[0.6875rem] font-semibold text-[var(--foreground)] transition-colors hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
@@ -232,6 +233,7 @@ export function SecretPlotPanel({
               <div className="flex flex-wrap items-center gap-1.5">
                 <button
                   type="button"
+                  data-testid="secret-plot-reveal"
                   onClick={() => setRevealed((value) => !value)}
                   className="inline-flex min-h-7 items-center gap-1.5 rounded-md border border-[var(--border)]/70 bg-[var(--secondary)]/45 px-2 py-1 text-[0.625rem] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
                 >
@@ -244,6 +246,7 @@ export function SecretPlotPanel({
                 </button>
                 <button
                   type="button"
+                  data-testid="secret-plot-regenerate"
                   disabled={busy || !target}
                   onClick={handleRegenerate}
                   title={
@@ -258,6 +261,7 @@ export function SecretPlotPanel({
                 </button>
                 <button
                   type="button"
+                  data-testid="secret-plot-save"
                   disabled={saving || isAgentProcessing || !draft || !hasUnsavedChanges}
                   onClick={handleSave}
                   title={saveLabel}
@@ -285,6 +289,7 @@ export function SecretPlotPanel({
                       {localizeUi("ui.agents.secretplotpanel.arcDescription")}
                     </span>
                     <MacroTextarea
+                      testId="secret-plot-arc-description"
                       value={draft.arcDescription}
                       onChange={(value) => {
                         setSaved(false);
@@ -303,6 +308,7 @@ export function SecretPlotPanel({
                       {localizeUi("ui.agents.secretplotpanel.protagonistArc")}
                     </span>
                     <MacroTextarea
+                      testId="secret-plot-arc-protagonist"
                       value={draft.arcProtagonist}
                       onChange={(value) => {
                         setSaved(false);
@@ -321,6 +327,7 @@ export function SecretPlotPanel({
                       {localizeUi("ui.agents.secretplotpanel.characterArc")}
                     </span>
                     <MacroTextarea
+                      testId="secret-plot-arc-character"
                       value={draft.arcCharacter}
                       onChange={(value) => {
                         setSaved(false);
@@ -335,6 +342,7 @@ export function SecretPlotPanel({
                     />
                   </label>
                   <SettingsSwitch
+                    testId="secret-plot-completed"
                     label={localizeUi("ui.noodle.noodlehome.completed")}
                     checked={draft.arcCompleted}
                     onChange={(checked) => {

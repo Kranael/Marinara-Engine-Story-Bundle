@@ -50,6 +50,7 @@ export function PersonalExtensionContributionSlot({
           )}
           title={contribution.description || contribution.label}
           aria-label={contribution.label}
+          data-testid={`personal-extension-contribution-button-${contribution.key}`}
         >
           <PersonalExtensionContributionIcon icon={contribution.icon} size="0.8125rem" />
           {!compact && <span className="min-w-0 truncate">{contribution.label}</span>}

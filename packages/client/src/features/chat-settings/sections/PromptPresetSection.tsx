@@ -53,6 +53,7 @@ export function PromptPresetSection({
           <select
             value={promptPresetId ?? ""}
             onChange={(event) => onPromptPresetChange(event.target.value || null)}
+            data-testid="prompt-preset-select"
             className="mari-preset-native-select w-full appearance-none truncate rounded-lg bg-[var(--secondary)] px-3 py-2 pr-8 text-xs text-[var(--foreground)] outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
           >
             <option value="">{localizeUi("ui.game.gamesurfacecomponent.none")}</option>
@@ -74,6 +75,7 @@ export function PromptPresetSection({
             type="button"
             aria-label={t("chat.settings.promptPreset.editVariables")}
             onClick={onEditVariables}
+            data-testid="prompt-preset-edit-variables-button"
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             title={t("chat.settings.promptPreset.editVariables")}
           >
@@ -103,6 +105,7 @@ export function PromptPresetSection({
                 : t("chat.settings.promptPreset.quickEdit.show")
             }
             onClick={() => setSectionExpanded(QUICK_PRESET_EDITOR_SECTION_ID, !quickEditorExpanded)}
+            data-testid="prompt-preset-quick-editor-toggle"
             className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--primary)]/40"
           >
             <Layers size="0.75rem" className="shrink-0 text-[var(--primary)]" />

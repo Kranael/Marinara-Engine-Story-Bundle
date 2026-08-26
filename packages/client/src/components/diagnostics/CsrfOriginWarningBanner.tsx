@@ -165,6 +165,7 @@ export function CsrfOriginWarningBanner() {
               <button
                 type="button"
                 onClick={copyEnv}
+                data-testid="csrf-origin-warning-copy-env-button"
                 style={{
                   background: "rgba(255,255,255,0.18)",
                   border: "1px solid rgba(255,255,255,0.35)",
@@ -197,6 +198,7 @@ export function CsrfOriginWarningBanner() {
         <button
           type="button"
           onClick={dismiss}
+          data-testid="csrf-origin-warning-dismiss-button"
           aria-label={localizeUi("ui.diagnostics.csrforiginwarningbanner.hideWarningForThisSession")}
           title={localizeUi("ui.diagnostics.csrforiginwarningbanner.hideForThisSession")}
           style={{

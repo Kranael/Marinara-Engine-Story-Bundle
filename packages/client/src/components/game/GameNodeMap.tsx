@@ -156,6 +156,7 @@ export function GameNodeMap({
                   key={node.id}
                   onClick={() => handleTap(node.id, isClickable)}
                   onMouseEnter={() => setHoveredNodeId(node.id)}
+                  data-testid={`game-node-map-node-${node.id}`}
                   className={cn(isClickable && "cursor-pointer")}
                 >
                   {/* Background circle */}

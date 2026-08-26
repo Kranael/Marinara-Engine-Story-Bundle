@@ -297,6 +297,7 @@ export function FeaturedCharacterTrackerCard({
           <button
             type="button"
             onClick={onRemove}
+            data-testid="featured-character-tracker-card-remove-button"
             className={FEATURED_REMOVE_BUTTON_CLASS}
             title={localizeUi("ui.trackerPanel.charactertrackercard.removeCharacter")}
             aria-label={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", {
@@ -488,6 +489,7 @@ export function FeaturedCharacterTrackerCard({
                 <button
                   type="button"
                   onClick={() => removeCustomField(name)}
+                  data-testid={`featured-character-tracker-card-remove-custom-field-${name}`}
                   title={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", { value1: name })}
                   aria-label={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", { value1: name })}
                   className="flex h-5 w-5 items-center justify-center justify-self-end rounded text-[var(--destructive)] transition-all hover:bg-[var(--destructive)]/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--border)] active:scale-90 [@media(pointer:coarse)]:h-6 [@media(pointer:coarse)]:w-6"

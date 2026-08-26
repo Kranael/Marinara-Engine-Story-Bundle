@@ -363,6 +363,7 @@ export function GameJournal({
           <h2 className="text-sm font-bold text-white/90">{localizeUi("ui.game.gamejournal.adventureJournal")}</h2>
           <button
             onClick={onClose}
+            data-testid="game-journal-close-button"
             className="flex h-7 w-7 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white"
           >
             <X size={14} />
@@ -380,6 +381,7 @@ export function GameJournal({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
+                data-testid={`game-journal-tab-${tab.id}`}
                 aria-pressed={activeTab === tab.id}
                 className={cn(
                   "flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[0.625rem] font-medium transition-colors",
@@ -447,6 +449,7 @@ export function GameJournal({
                 type="button"
                 onClick={() => setEditingEntry(null)}
                 disabled={entrySaving}
+                data-testid="game-journal-cancel-edit-button"
                 aria-label={localizeUi("ui.game.gamejournal.cancelEntryEdit")}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)] disabled:opacity-50"
               >
@@ -460,6 +463,7 @@ export function GameJournal({
                 onChange={(event) =>
                   setEditingEntry((current) => (current ? { ...current, title: event.target.value } : current))
                 }
+                data-testid="game-journal-entry-title-input"
                 maxLength={500}
                 className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
@@ -471,6 +475,7 @@ export function GameJournal({
                 onChange={(event) =>
                   setEditingEntry((current) => (current ? { ...current, content: event.target.value } : current))
                 }
+                data-testid="game-journal-entry-content-textarea"
                 maxLength={20_000}
                 className="min-h-48 resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
               />
@@ -483,6 +488,7 @@ export function GameJournal({
                 type="button"
                 onClick={() => setEditingEntry(null)}
                 disabled={entrySaving}
+                data-testid="game-journal-cancel-edit-footer-button"
                 className="rounded-lg px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)] disabled:opacity-50"
               >
                 {localizeUi("ui.game.gamejournal.cancelEntryEdit")}
@@ -491,6 +497,7 @@ export function GameJournal({
                 type="button"
                 onClick={() => void saveJournalEntry()}
                 disabled={entrySaving || !editingEntry.title.trim()}
+                data-testid="game-journal-save-entry-button"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition-opacity disabled:opacity-50"
               >
                 {entrySaving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
@@ -545,6 +552,7 @@ function TimelineView({
                 onClick={() => onEdit(entry)}
                 title={localizeUi("ui.game.gamejournal.editEntry")}
                 aria-label={localizeUi("ui.game.gamejournal.editEntry")}
+                data-testid={`game-journal-timeline-edit-${i}`}
                 className="flex h-6 w-6 items-center justify-center rounded-md text-white/45 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <PenLine size={12} />
@@ -555,6 +563,7 @@ function TimelineView({
                 disabled={deletingEntryIndex === allEntries.indexOf(entry)}
                 title={localizeUi("ui.game.gamejournal.deleteEntry")}
                 aria-label={localizeUi("ui.game.gamejournal.deleteEntry")}
+                data-testid={`game-journal-timeline-delete-${i}`}
                 className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--destructive)]/70 transition-colors hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)] disabled:opacity-40"
               >
                 {deletingEntryIndex === allEntries.indexOf(entry) ? (
@@ -668,6 +677,7 @@ function NpcsView({
                   <button
                     type="button"
                     onClick={() => handleNpcPortraitAvatarClick(entry.npc.name)}
+                    data-testid={`game-journal-npc-avatar-${normalizeNpcName(name)}`}
                     className="rounded-full transition-transform hover:scale-[1.05] focus:outline-none focus:ring-2 focus:ring-white/20"
                     title={localizeUi("ui.game.npcsview.uploadOrReplaceNpcPortrait")}
                   >
@@ -691,6 +701,7 @@ function NpcsView({
                         onNpcPortraitGenerate?.(entry.npc.name);
                       }}
                       disabled={portraitGenerating}
+                      data-testid={`game-journal-npc-generate-portrait-${normalizeNpcName(name)}`}
                       className={cn(
                         "absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-black/75 text-white/75 opacity-0 ring-1 ring-white/15 transition-opacity disabled:cursor-wait md:group-hover/journal-avatar:opacity-100",
                         (portraitGenerating || mobilePortraitActionsNpc === normalizeNpcName(entry.npc.name)) &&
@@ -723,6 +734,7 @@ function NpcsView({
                   type="button"
                   onClick={() => onNpcRemove(entry.originalName)}
                   disabled={isRemoving}
+                  data-testid={`game-journal-npc-remove-${normalizeNpcName(name)}`}
                   title={localizeUi("ui.game.npcsview.removeThisNpcFromTheJournal")}
                   className="rounded p-1 text-white/35 transition-colors hover:bg-red-500/15 hover:text-red-300 disabled:opacity-40"
                 >
@@ -857,6 +869,7 @@ function LibraryView({
                 onClick={() => onEdit(entry)}
                 title={localizeUi("ui.game.gamejournal.editEntry")}
                 aria-label={localizeUi("ui.game.gamejournal.editEntry")}
+                data-testid={`game-journal-library-edit-${i}`}
                 className="flex h-6 w-6 items-center justify-center rounded-md text-white/45 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <PenLine size={12} />
@@ -867,6 +880,7 @@ function LibraryView({
                 disabled={deletingEntryIndex === allEntries.indexOf(entry)}
                 title={localizeUi("ui.game.gamejournal.deleteEntry")}
                 aria-label={localizeUi("ui.game.gamejournal.deleteEntry")}
+                data-testid={`game-journal-library-delete-${i}`}
                 className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--destructive)]/70 transition-colors hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)] disabled:opacity-40"
               >
                 {deletingEntryIndex === allEntries.indexOf(entry) ? (
@@ -901,6 +915,7 @@ function NotesView({ notes, onChange, saved }: { notes: string; onChange: (text:
         <textarea
           value={notes}
           onChange={(e) => onChange(e.target.value)}
+          data-testid="game-journal-notes-textarea"
           placeholder={localizeUi("ui.game.notesview.writeYourNotesHereTrackCluesPlansNpcNames")}
           className="min-h-44 resize-none rounded-lg border border-white/10 bg-black/40 px-3 py-2.5 text-xs leading-relaxed text-white/80 outline-none placeholder:text-white/25 focus:border-white/20 md:min-h-0"
           spellCheck={false}

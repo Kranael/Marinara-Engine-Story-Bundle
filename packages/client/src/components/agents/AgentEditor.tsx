@@ -1861,6 +1861,7 @@ export function AgentEditor() {
       <div className="mari-editor-header">
         <button
           type="button"
+          data-testid="agent-editor-back"
           onClick={handleClose}
           aria-label={localizeUi("ui.agents.agenteditor.backToAgents")}
           className="mari-editor-action inline-flex"
@@ -1871,6 +1872,7 @@ export function AgentEditor() {
           <Sparkles size="1.125rem" className="max-md:!h-[0.875rem] max-md:!w-[0.875rem]" />
         </div>
         <input
+          data-testid="agent-editor-name"
           value={localName}
           onChange={(e) => {
             setLocalName(e.target.value);
@@ -1896,6 +1898,7 @@ export function AgentEditor() {
             </span>
           )}
           <button
+            data-testid="agent-editor-save"
             onClick={handleSave}
             disabled={isPending}
             className="mari-editor-action mari-editor-action--primary inline-flex disabled:opacity-50"
@@ -1903,6 +1906,7 @@ export function AgentEditor() {
             <Save size="0.8125rem" /> <span className="max-md:hidden">{localizeUi("ui.noodle.noodlehome.save")}</span>
           </button>
           <button
+            data-testid="agent-editor-export"
             onClick={handleExportAgent}
             className="mari-editor-action inline-flex"
             title={localizeUi("ui.agents.agenteditor.exportAgent")}
@@ -1912,6 +1916,7 @@ export function AgentEditor() {
           </button>
           {isCustomAgent && dbConfig && (
             <button
+              data-testid="agent-editor-delete"
               onClick={handleDelete}
               className="mari-editor-action inline-flex"
               title={localizeUi("ui.agents.agenteditor.deleteAgent")}
@@ -1929,18 +1934,21 @@ export function AgentEditor() {
           <span>{localizeUi("ui.agents.agenteditor.youHaveUnsavedChanges")}</span>
           <div className="flex gap-2">
             <button
+              data-testid="agent-editor-unsaved-keep-editing"
               onClick={() => setShowUnsavedWarning(false)}
               className="rounded-lg px-3 py-1 hover:bg-[var(--accent)]"
             >
               {localizeUi("ui.agents.agenteditor.keepEditing")}
             </button>
             <button
+              data-testid="agent-editor-unsaved-discard"
               onClick={() => closeAgentDetail()}
               className="rounded-lg px-3 py-1 text-[var(--destructive)] hover:bg-[var(--destructive)]/15"
             >
               {localizeUi("ui.agents.agenteditor.discard")}
             </button>
             <button
+              data-testid="agent-editor-unsaved-save-close"
               onClick={async () => {
                 await handleSave();
                 closeAgentDetail();
@@ -1958,7 +1966,7 @@ export function AgentEditor() {
         <div className="flex items-center gap-2 bg-red-500/10 px-4 py-2 text-xs text-red-400">
           <AlertCircle size="0.8125rem" />
           <span className="flex-1">{saveError}</span>
-          <button onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20">
+          <button data-testid="agent-editor-save-error-close" onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20">
             <X size="0.75rem" />
           </button>
         </div>
@@ -1995,6 +2003,7 @@ export function AgentEditor() {
                   {localizeUi("chat.settings.inlineEditor.fields.description")}
                 </span>
                 <input
+                  data-testid="agent-editor-description"
                   value={localDescription}
                   onChange={(e) => {
                     setLocalDescription(e.target.value);
@@ -2009,6 +2018,7 @@ export function AgentEditor() {
                   {localizeUi("ui.agents.agenteditor.author")}
                 </span>
                 <input
+                  data-testid="agent-editor-author"
                   value={localAuthor}
                   onChange={(e) => {
                     setLocalAuthor(e.target.value);
@@ -2034,6 +2044,7 @@ export function AgentEditor() {
                 return (
                   <button
                     key={phase}
+                    data-testid={`agent-editor-phase-${phase}`}
                     onClick={() => {
                       setLocalPhase(normalizeAgentPhaseForType(currentAgentType, phase));
                       markDirty();
@@ -2066,6 +2077,7 @@ export function AgentEditor() {
                   return (
                     <EditorSwitchRow
                       key={capability.id}
+                      testId={`agent-editor-capability-${capability.id}`}
                       label={localizeUi(capability.label)}
                       description={localizeUi(capability.description)}
                       checked={enabled}
@@ -2076,6 +2088,7 @@ export function AgentEditor() {
               </div>
               <div className="mt-3 border-t border-[var(--border)] pt-3">
                 <EditorSwitchRow
+                  testId="agent-editor-trigger-lorebooks"
                   label={localizeUi("ui.agents.agenteditor.triggerLorebooksForAgentCalls")}
                   description={localizeUi("ui.agents.agenteditor.triggerLorebooksForAgentCallsDescription")}
                   checked={localTriggerLorebooksForAgentCalls}
@@ -2104,6 +2117,7 @@ export function AgentEditor() {
                   return (
                     <EditorSwitchRow
                       key={source.id}
+                      testId={`agent-editor-context-source-${source.id}`}
                       label={localizeUi(source.label)}
                       description={localizeUi(source.description)}
                       checked={allowed && localContextSources[source.id]}
@@ -2133,6 +2147,7 @@ export function AgentEditor() {
                     <button
                       key={option.id}
                       type="button"
+                      data-testid={`agent-editor-result-type-${option.id}`}
                       disabled={!isAllowed}
                       onClick={() => {
                         if (!isAllowed) return;
@@ -2187,6 +2202,7 @@ export function AgentEditor() {
             >
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <EditorSwitchRow
+                  testId="agent-editor-turn-data-pre-gen"
                   label={localizeUi("ui.agents.agenteditor.preGenerationInjections")}
                   checked={localIncludePreGenInjections}
                   onChange={() => {
@@ -2196,6 +2212,7 @@ export function AgentEditor() {
                   description={localizeUi("ui.agents.agenteditor.currentTurnContextInjectedBeforeTheReply")}
                 />
                 <EditorSwitchRow
+                  testId="agent-editor-turn-data-parallel"
                   label={localizeUi("ui.agents.agenteditor.parallelAgentResults")}
                   checked={localIncludeParallelResults}
                   onChange={() => {
@@ -2216,6 +2233,7 @@ export function AgentEditor() {
             >
               <div className="space-y-3">
                 <EditorSwitchRow
+                  testId="agent-editor-lorebook-write-enabled"
                   label={localizeUi("ui.agents.agenteditor.allowLorebookEntryWrites")}
                   checked={localLorebookWriteEnabled}
                   disabled={localCustomCapabilities.edit_lorebooks !== true}
@@ -2237,6 +2255,7 @@ export function AgentEditor() {
                   </p>
                   {allLorebooks && allLorebooks.length > 0 ? (
                     <select
+                      data-testid="agent-editor-writable-lorebook"
                       value={localWritableLorebookId}
                       disabled={!canConfigureLorebookTarget}
                       onChange={(event) => {
@@ -2265,6 +2284,7 @@ export function AgentEditor() {
                   </span>
                   <input
                     type="number"
+                    data-testid="agent-editor-lorebook-read-behind"
                     min={0}
                     max={MAX_LOREBOOK_READ_BEHIND_MESSAGES}
                     step={1}
@@ -2282,6 +2302,7 @@ export function AgentEditor() {
                 </label>
 
                 <EditorSwitchRow
+                  testId="agent-editor-lorebook-backfill-enabled"
                   label={localizeUi("ui.agents.agenteditor.enableChunkedBackfill")}
                   checked={localLorebookBackfillEnabled}
                   disabled={!canConfigureLorebookReadBehind}
@@ -2299,6 +2320,7 @@ export function AgentEditor() {
                   </span>
                   <input
                     type="number"
+                    data-testid="agent-editor-lorebook-backfill-chunk-size"
                     min={1}
                     max={MAX_LOREBOOK_BACKFILL_CHUNK_SIZE}
                     step={1}
@@ -2325,6 +2347,7 @@ export function AgentEditor() {
             help={localizeUi("ui.agents.agenteditor.useADifferentAiConnectionForThisAgentFor")}
           >
             <select
+              data-testid="agent-editor-connection-override"
               value={localConnectionId}
               onChange={(e) => {
                 setLocalConnectionId(e.target.value);
@@ -2367,6 +2390,7 @@ export function AgentEditor() {
               help={localizeUi("ui.agents.agenteditor.theConnectionUsedToGenerateImagesThisShouldPoint")}
             >
               <select
+                data-testid="agent-editor-image-connection"
                 value={localImageConnectionId}
                 onChange={(e) => {
                   setLocalImageConnectionId(e.target.value);
@@ -2403,6 +2427,7 @@ export function AgentEditor() {
                     {localizeUi("ui.agents.agenteditor.positivePromptTags")}
                   </span>
                   <MacroTextarea
+                    testId="agent-editor-image-positive-prompt"
                     value={localImagePositivePrompt}
                     onChange={(value) => {
                       setLocalImagePositivePrompt(value);
@@ -2419,6 +2444,7 @@ export function AgentEditor() {
                     {localizeUi("ui.agents.agenteditor.negativePrompt")}
                   </span>
                   <MacroTextarea
+                    testId="agent-editor-image-negative-prompt"
                     value={localImageNegativePrompt}
                     onChange={(value) => {
                       setLocalImageNegativePrompt(value);
@@ -2440,6 +2466,7 @@ export function AgentEditor() {
               </p>
               <div className="mt-3 grid gap-2">
                 <EditorSwitchRow
+                  testId="agent-editor-use-avatar-references"
                   label={localizeUi("ui.agents.agenteditor.sendMatchingCharacterAndPersonaAvatarsAsReferenceImages")}
                   checked={localUseAvatarReferences}
                   onChange={(checked) => {
@@ -2451,6 +2478,7 @@ export function AgentEditor() {
                   )}
                 />
                 <EditorSwitchRow
+                  testId="agent-editor-include-character-appearance"
                   label={localizeUi(
                     "ui.agents.agenteditor.attachMatchingCharacterAppearanceDescriptionsToImagePrompts",
                   )}
@@ -2473,6 +2501,7 @@ export function AgentEditor() {
               help={localizeUi("ui.agents.agenteditor.whenEnabledTheCharacterTrackerWillAutomaticallyGeneratePortrait")}
             >
               <EditorSwitchRow
+                testId="agent-editor-auto-generate-avatars"
                 label={localizeUi("ui.agents.agenteditor.generateAvatarPortraitsForNewNpcs")}
                 checked={localAutoGenerateAvatars}
                 onChange={(checked) => {
@@ -2486,6 +2515,7 @@ export function AgentEditor() {
                     {localizeUi("ui.agents.agenteditor.imageGenerationConnection")}
                   </label>
                   <select
+                    data-testid="agent-editor-npc-avatar-image-connection"
                     value={localImageConnectionId}
                     onChange={(e) => {
                       setLocalImageConnectionId(e.target.value);
@@ -2519,6 +2549,7 @@ export function AgentEditor() {
                   <div className="flex items-center gap-3">
                     <input
                       type="number"
+                      data-testid="agent-editor-context-size"
                       min={1}
                       max={200}
                       value={localContextSize}
@@ -2542,6 +2573,7 @@ export function AgentEditor() {
                   <div className="flex items-center gap-3">
                     <input
                       type="number"
+                      data-testid="agent-editor-max-tokens"
                       min={MIN_AGENT_MAX_TOKENS}
                       value={localMaxTokens}
                       onChange={(e) => {
@@ -2584,6 +2616,7 @@ export function AgentEditor() {
                     {localizeUi("ui.agents.agenteditor.bannedWords")} {localizeUi("ui.agents.agenteditor.banned")}
                   </span>
                   <textarea
+                    data-testid="agent-editor-prose-banned"
                     value={localProseGuardianBanned}
                     onChange={(e) => {
                       setLocalProseGuardianBanned(e.target.value);
@@ -2599,6 +2632,7 @@ export function AgentEditor() {
                     {localizeUi("ui.agents.agenteditor.preferInWriting")} {localizeUi("ui.agents.agenteditor.prefer")}
                   </span>
                   <textarea
+                    data-testid="agent-editor-prose-prefer"
                     value={localProseGuardianPrefer}
                     onChange={(e) => {
                       setLocalProseGuardianPrefer(e.target.value);
@@ -2615,6 +2649,7 @@ export function AgentEditor() {
                   {localizeUi("ui.agents.agenteditor.removeFromWriting")} {localizeUi("ui.agents.agenteditor.avoid")}
                 </span>
                 <textarea
+                  data-testid="agent-editor-prose-avoid"
                   value={localProseGuardianAvoid}
                   onChange={(e) => {
                     setLocalProseGuardianAvoid(e.target.value);
@@ -2626,6 +2661,7 @@ export function AgentEditor() {
                 />
               </label>
               <EditorSwitchRow
+                testId="agent-editor-prose-hold-for-rewrite"
                 label={localizeUi("ui.agents.agenteditor.holdMessageUntilRewrite")}
                 checked={localProseGuardianHoldForRewrite}
                 onChange={() => {
@@ -2649,6 +2685,7 @@ export function AgentEditor() {
               help={localizeUi("ui.agents.agenteditor.chooseWhetherContinuityCheckerShouldHoldTheRawResponse")}
             >
               <EditorSwitchRow
+                testId="agent-editor-continuity-hold-for-rewrite"
                 label={localizeUi("ui.agents.agenteditor.holdMessageUntilRewrite")}
                 checked={localProseGuardianHoldForRewrite}
                 onChange={() => {
@@ -2671,6 +2708,7 @@ export function AgentEditor() {
               help={localizeUi("ui.agents.agenteditor.chooseWhetherImmersiveHtmlShouldHoldTheRawResponse")}
             >
               <EditorSwitchRow
+                testId="agent-editor-html-hold-for-rewrite"
                 label={localizeUi("ui.agents.agenteditor.holdMessageUntilRewrite")}
                 checked={localProseGuardianHoldForRewrite}
                 onChange={() => {
@@ -2697,6 +2735,7 @@ export function AgentEditor() {
                 <div className="relative w-28">
                   <input
                     type="text"
+                    data-testid="agent-editor-cadence"
                     inputMode="numeric"
                     value={
                       customCadenceInputFocused ? String(localRunInterval) : getCadenceInputValue(localRunInterval)
@@ -2722,6 +2761,7 @@ export function AgentEditor() {
                   <div className="absolute right-1 top-1/2 flex -translate-y-1/2 flex-col overflow-hidden rounded-md">
                     <button
                       type="button"
+                      data-testid="agent-editor-cadence-increase"
                       aria-label={localizeUi("ui.agents.agenteditor.increaseTriggerCadence")}
                       onClick={() => {
                         setLocalRunInterval(stepCadenceValue(localRunInterval, 1, customRunIntervalMeta.max));
@@ -2733,6 +2773,7 @@ export function AgentEditor() {
                     </button>
                     <button
                       type="button"
+                      data-testid="agent-editor-cadence-decrease"
                       aria-label={localizeUi("ui.agents.agenteditor.decreaseTriggerCadence")}
                       onClick={() => {
                         setLocalRunInterval(stepCadenceValue(localRunInterval, -1, customRunIntervalMeta.max));
@@ -2761,6 +2802,7 @@ export function AgentEditor() {
                     {localizeUi("ui.agents.agenteditor.keywords")}
                   </label>
                   <textarea
+                    data-testid="agent-editor-activation-keywords"
                     value={localActivationKeywordsText}
                     onChange={(e) => {
                       setLocalActivationKeywordsText(e.target.value);
@@ -2778,6 +2820,7 @@ export function AgentEditor() {
                   <div className="flex items-center gap-3">
                     <input
                       type="number"
+                      data-testid="agent-editor-activation-scan-depth"
                       min={1}
                       max={MAX_CUSTOM_AGENT_ACTIVATION_SCAN_DEPTH}
                       value={localActivationScanDepth}
@@ -2814,6 +2857,7 @@ export function AgentEditor() {
               <div className="flex items-center gap-3">
                 <input
                   type="number"
+                  data-testid="agent-editor-echo-message-delay"
                   aria-label={localizeUi("ui.agents.agenteditor.messageDelay")}
                   min={MIN_ECHO_CHAMBER_MESSAGE_DELAY_SECONDS}
                   max={MAX_ECHO_CHAMBER_MESSAGE_DELAY_SECONDS}
@@ -2844,6 +2888,7 @@ export function AgentEditor() {
               <div className="flex items-center gap-3">
                 <input
                   type="number"
+                  data-testid="agent-editor-lorebook-keeper-run-interval"
                   min={1}
                   max={100}
                   value={localRunInterval}
@@ -2875,6 +2920,7 @@ export function AgentEditor() {
               <div className="flex items-center gap-3">
                 <input
                   type="number"
+                  data-testid="agent-editor-card-auditor-run-interval"
                   min={1}
                   max={100}
                   value={localRunInterval}
@@ -2903,6 +2949,7 @@ export function AgentEditor() {
               help={localizeUi("ui.agents.agenteditor.defaultHiddenArcMaintenanceForRoleplayChatsThatUse")}
             >
               <EditorSwitchRow
+                testId="agent-editor-secret-plot-enabled"
                 label={localizeUi("ui.agents.agenteditor.maintainHiddenArc")}
                 checked={localSecretPlotEnabled}
                 onChange={() => {
@@ -2919,6 +2966,7 @@ export function AgentEditor() {
                   <div className="flex items-center gap-3">
                     <input
                       type="number"
+                      data-testid="agent-editor-secret-plot-run-interval"
                       min={1}
                       max={100}
                       value={localSecretPlotRunInterval}
@@ -2951,6 +2999,7 @@ export function AgentEditor() {
               <div className="flex items-center gap-3">
                 <input
                   type="number"
+                  data-testid="agent-editor-illustrator-run-interval"
                   min={1}
                   max={100}
                   value={localRunInterval}
@@ -2979,6 +3028,7 @@ export function AgentEditor() {
             help={localizeUi("ui.agents.agenteditor.whenEnabledThisAgentSOutputBecomesAvailableAs")}
           >
             <EditorSwitchRow
+              testId="agent-editor-inject-as-section"
               label={
                 localInjectAsSection
                   ? localizeUi("ui.noodle.noodlehome.enabled")
@@ -3015,6 +3065,7 @@ export function AgentEditor() {
                       <button
                         key={provider}
                         type="button"
+                        data-testid={`agent-editor-music-provider-${provider}`}
                         onClick={() => handleMusicProviderChange(provider)}
                         aria-pressed={active}
                         className={cn(
@@ -3063,6 +3114,7 @@ export function AgentEditor() {
                   </label>
                   <input
                     type="text"
+                    data-testid="agent-editor-spotify-client-id"
                     value={localSpotifyClientId}
                     onChange={(e) => {
                       setLocalSpotifyClientId(e.target.value);
@@ -3084,6 +3136,7 @@ export function AgentEditor() {
                     </span>
                     <button
                       type="button"
+                      data-testid="agent-editor-spotify-disconnect"
                       onClick={async () => {
                         if (!dbConfig?.id) return;
                         await fetch("/api/spotify/disconnect", {
@@ -3126,6 +3179,7 @@ export function AgentEditor() {
                 ) : (
                   <button
                     type="button"
+                    data-testid="agent-editor-spotify-connect"
                     disabled={!localSpotifyClientId.trim() || !dbConfig?.id || spotifyConnecting}
                     onClick={async () => {
                       if (!localSpotifyClientId.trim() || !dbConfig?.id) return;
@@ -3228,6 +3282,7 @@ export function AgentEditor() {
                   <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-[0.6875rem] text-white/50 space-y-2">
                     <button
                       type="button"
+                      data-testid="agent-editor-spotify-paste-toggle"
                       onClick={() => setSpotifyPasteOpen((v) => !v)}
                       className="text-white/60 hover:text-white/80 transition-colors text-left w-full"
                     >
@@ -3242,6 +3297,7 @@ export function AgentEditor() {
                           {localizeUi("ui.agents.agenteditor.orHttpsCallbacksCopyTheFullUrlFromThe")}
                         </p>
                         <textarea
+                          data-testid="agent-editor-spotify-paste-value"
                           value={spotifyPasteValue}
                           onChange={(e) => {
                             setSpotifyPasteValue(e.target.value);
@@ -3254,6 +3310,7 @@ export function AgentEditor() {
                         {spotifyPasteError && <p className="text-red-400/80 text-[0.625rem]">{spotifyPasteError}</p>}
                         <button
                           type="button"
+                          data-testid="agent-editor-spotify-paste-submit"
                           disabled={!spotifyPasteValue.trim() || spotifyPasteSubmitting}
                           onClick={async () => {
                             if (!dbConfig?.id || !spotifyPasteValue.trim()) return;
@@ -3379,6 +3436,7 @@ export function AgentEditor() {
                   </label>
                   <input
                     type="password"
+                    data-testid="agent-editor-youtube-api-key"
                     value={localYoutubeApiKey}
                     onChange={(e) => {
                       setLocalYoutubeApiKey(e.target.value);
@@ -3396,6 +3454,7 @@ export function AgentEditor() {
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
+                    data-testid="agent-editor-youtube-save-key"
                     disabled={youtubeSaving || !localYoutubeApiKey.trim()}
                     onClick={async () => {
                       setYoutubeSaving(true);
@@ -3440,6 +3499,7 @@ export function AgentEditor() {
                       </span>
                       <button
                         type="button"
+                        data-testid="agent-editor-youtube-disconnect"
                         onClick={async () => {
                           if (!dbConfig?.id) return;
                           await fetch("/api/youtube/disconnect", {
@@ -3509,6 +3569,7 @@ export function AgentEditor() {
             >
               <div className="space-y-3">
                 <EditorSwitchRow
+                  testId="agent-editor-custom-music-source"
                   label={localizeUi("ui.agents.agenteditor.useGameAssetsMusicFolder")}
                   checked={localCustomMusicSource === "game-assets"}
                   onChange={(checked) => {
@@ -3530,6 +3591,7 @@ export function AgentEditor() {
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <input
                         type="text"
+                        data-testid="agent-editor-custom-music-folder"
                         value={localCustomMusicFolder}
                         onChange={(event) => {
                           setLocalCustomMusicFolder(event.target.value);
@@ -3541,6 +3603,7 @@ export function AgentEditor() {
                       />
                       <button
                         type="button"
+                        data-testid="agent-editor-open-custom-music-folder"
                         onClick={handleOpenCustomMusicFolder}
                         className="mari-editor-action mari-editor-action--secondary inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
                       >
@@ -3566,6 +3629,7 @@ export function AgentEditor() {
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <input
                         type="text"
+                        data-testid="agent-editor-custom-music-external-folder"
                         value={localCustomMusicExternalFolder}
                         onChange={(event) => {
                           setLocalCustomMusicExternalFolder(event.target.value);
@@ -3579,6 +3643,7 @@ export function AgentEditor() {
                       />
                       <button
                         type="button"
+                        data-testid="agent-editor-select-custom-music-folder"
                         onClick={handleSelectCustomMusicFolder}
                         className="mari-editor-action mari-editor-action--secondary inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold"
                       >
@@ -3616,6 +3681,7 @@ export function AgentEditor() {
             >
               <div className="space-y-4">
                 <EditorSwitchRow
+                  testId="agent-editor-use-chat-active-lorebooks"
                   label={localizeUi("ui.agents.agenteditor.useThisChatSActiveLorebooks")}
                   checked={localUseChatActiveLorebooks}
                   onChange={() => {
@@ -3680,6 +3746,7 @@ export function AgentEditor() {
                           <button
                             key={lb.id}
                             type="button"
+                            data-testid={`agent-editor-source-lorebook-${lb.id}`}
                             onClick={() => {
                               setLocalSourceLorebookIds((prev) =>
                                 selected ? prev.filter((id) => id !== lb.id) : [...prev, lb.id],
@@ -3761,6 +3828,7 @@ export function AgentEditor() {
                             >
                               <button
                                 type="button"
+                                data-testid={`agent-editor-source-file-${src.id}`}
                                 onClick={() => {
                                   setLocalSourceFileIds((prev) =>
                                     selected ? prev.filter((id) => id !== src.id) : [...prev, src.id],
@@ -3786,6 +3854,7 @@ export function AgentEditor() {
                               </button>
                               <button
                                 type="button"
+                                data-testid={`agent-editor-delete-source-file-${src.id}`}
                                 onClick={() => {
                                   deleteSource.mutate(src.id, {
                                     onSuccess: () => {
@@ -3808,6 +3877,7 @@ export function AgentEditor() {
                     <input
                       ref={fileInputRef}
                       type="file"
+                      data-testid="agent-editor-upload-file-input"
                       accept=".txt,.md,.csv,.json,.xml,.html,.htm,.log,.yaml,.yml,.tsv,.pdf"
                       className="hidden"
                       onChange={async (e) => {
@@ -3826,6 +3896,7 @@ export function AgentEditor() {
                     />
                     <button
                       type="button"
+                      data-testid="agent-editor-upload-file"
                       disabled={uploadSource.isPending}
                       onClick={() => fileInputRef.current?.click()}
                       className={cn(
@@ -3913,6 +3984,7 @@ export function AgentEditor() {
                   <div className="flex-1" />
                   {!isUsingDefaultPrompt && (
                     <button
+                      data-testid="agent-editor-prompt-reset"
                       onClick={handleResetPrompt}
                       className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     >
@@ -3921,6 +3993,7 @@ export function AgentEditor() {
                   )}
                   {isUsingDefaultPrompt && defaultPrompt && (
                     <button
+                      data-testid="agent-editor-prompt-copy-default"
                       onClick={handleLoadDefault}
                       className="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     >
@@ -3941,6 +4014,7 @@ export function AgentEditor() {
                 </div>
               ) : (
                 <MacroTextarea
+                  testId="agent-editor-prompt"
                   value={localPrompt}
                   onChange={(value) => {
                     setLocalPrompt(value);
@@ -3976,6 +4050,7 @@ export function AgentEditor() {
                   </div>
                   <button
                     type="button"
+                    data-testid="agent-editor-add-prompt-option"
                     onClick={handleAddPromptTemplate}
                     className="flex items-center gap-1.5 rounded-lg bg-[var(--secondary)] px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)]"
                   >
@@ -4004,6 +4079,7 @@ export function AgentEditor() {
                               {index + 1}
                             </span>
                             <input
+                              data-testid={`agent-editor-prompt-option-name-${option.id}`}
                               value={option.name}
                               onChange={(e) => handleUpdatePromptTemplate(option.id, { name: e.target.value })}
                               className="min-w-0 flex-1 rounded-lg bg-[var(--background)] px-2.5 py-1.5 text-sm ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
@@ -4012,6 +4088,7 @@ export function AgentEditor() {
                             {defaultPromptTemplate && (
                               <button
                                 type="button"
+                                data-testid={`agent-editor-prompt-option-reset-${option.id}`}
                                 onClick={() => handleResetPromptTemplate(option.id)}
                                 disabled={matchesDefaultPrompt}
                                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[var(--muted-foreground)]"
@@ -4026,6 +4103,7 @@ export function AgentEditor() {
                             )}
                             <button
                               type="button"
+                              data-testid={`agent-editor-prompt-option-remove-${option.id}`}
                               onClick={() => handleRemovePromptTemplate(option.id)}
                               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                               title={localizeUi("ui.agents.agenteditor.removePromptOption")}
@@ -4034,12 +4112,14 @@ export function AgentEditor() {
                             </button>
                           </div>
                           <input
+                            data-testid={`agent-editor-prompt-option-description-${option.id}`}
                             value={option.description ?? ""}
                             onChange={(e) => handleUpdatePromptTemplate(option.id, { description: e.target.value })}
                             className="mb-2 w-full rounded-lg bg-[var(--background)] px-2.5 py-1.5 text-xs ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                             placeholder={localizeUi("ui.agents.agenteditor.shortDescriptionShownInChatSettings")}
                           />
                           <MacroTextarea
+                            testId={`agent-editor-prompt-option-template-${option.id}`}
                             value={option.promptTemplate}
                             onChange={(value) => handleUpdatePromptTemplate(option.id, { promptTemplate: value })}
                             rows={7}
@@ -4064,6 +4144,7 @@ export function AgentEditor() {
 
           {/* ── Available Tools (Function Calling) ── */}
           <FieldGroup
+            testId="agent-editor-tools"
             label={localizeUi("ui.agents.agenteditor.toolsFunctionCalling")}
             icon={<Wrench size="0.875rem" className="text-[var(--primary)]" />}
             help={localizeUi("ui.agents.agenteditor.selectWhichToolsThisAgentCanUseDuringGeneration")}
@@ -4089,6 +4170,7 @@ export function AgentEditor() {
                   {visibleBuiltInTools.map((tool: ToolDefinition) => (
                     <ToolCard
                       key={tool.name}
+                      testId={`agent-editor-tool-${tool.name}`}
                       tool={tool}
                       enabled={localEnabledTools.includes(tool.name)}
                       onToggle={(name) => {
@@ -4102,6 +4184,7 @@ export function AgentEditor() {
                   {selectableCustomTools.map((tool) => (
                     <ToolCard
                       key={tool.name}
+                      testId={`agent-editor-tool-${tool.name}`}
                       tool={{
                         name: tool.name,
                         description: tool.description,
@@ -4142,6 +4225,7 @@ function FieldGroup({
   expanded = true,
   onExpandedChange,
   summary,
+  testId,
   children,
 }: {
   label: string;
@@ -4151,6 +4235,7 @@ function FieldGroup({
   expanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
   summary?: React.ReactNode;
+  testId?: string;
   children: React.ReactNode;
 }) {
   const contentVisible = !collapsible || expanded;
@@ -4160,6 +4245,7 @@ function FieldGroup({
         {collapsible ? (
           <button
             type="button"
+            data-testid={testId ? `${testId}-toggle` : undefined}
             onClick={() => onExpandedChange?.(!expanded)}
             className="flex min-w-0 flex-1 items-center gap-1.5 rounded-lg py-1 text-left transition-colors hover:text-[var(--foreground)]"
             aria-expanded={expanded}
@@ -4198,6 +4284,7 @@ function EditorSwitchRow({
   disabled = false,
   className,
   labelClassName,
+  testId,
 }: {
   label: React.ReactNode;
   description?: React.ReactNode;
@@ -4206,6 +4293,7 @@ function EditorSwitchRow({
   disabled?: boolean;
   className?: string;
   labelClassName?: string;
+  testId?: string;
 }) {
   return (
     <SettingsSwitch
@@ -4214,6 +4302,7 @@ function EditorSwitchRow({
       checked={checked}
       onChange={onChange}
       disabled={disabled}
+      testId={testId}
       labelPosition="start"
       className={cn(
         "w-full items-start justify-between rounded-xl p-3 text-left text-xs ring-1",
@@ -4234,11 +4323,13 @@ function ToolCard({
   enabled,
   onToggle,
   isCustom,
+  testId,
 }: {
   tool: ToolDefinition;
   enabled: boolean;
   onToggle: (name: string) => void;
   isCustom?: boolean;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const [expanded, setExpanded] = useState(false);
@@ -4247,6 +4338,7 @@ function ToolCard({
 
   return (
     <div
+      data-testid={testId}
       className={cn(
         "rounded-xl ring-1 overflow-hidden transition-all",
         enabled ? "ring-[var(--primary)]/50 bg-[var(--primary)]/5" : "ring-[var(--border)] bg-[var(--card)]",
@@ -4257,9 +4349,11 @@ function ToolCard({
           ariaLabel={`${enabled ? "Disable" : "Enable"} ${tool.name}`}
           checked={enabled}
           onChange={() => onToggle(tool.name)}
+          testId={testId ? `${testId}-toggle` : undefined}
           className="shrink-0 p-0 hover:bg-transparent"
         />
         <button
+          data-testid={testId ? `${testId}-expand` : undefined}
           onClick={() => setExpanded(!expanded)}
           className="flex min-w-0 flex-1 items-center gap-2.5 text-left hover:opacity-80 transition-opacity"
         >

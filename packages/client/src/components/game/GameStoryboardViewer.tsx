@@ -105,6 +105,7 @@ export function GameStoryboardInlineViewer({
             event.stopPropagation();
             onClose();
           }}
+          data-testid="game-storyboard-viewer-close-button"
           onPointerDown={(event) => event.stopPropagation()}
           className={getChatToolbarButtonClass({
             compact: true,
@@ -190,6 +191,7 @@ export function GameStoryboardInlineViewer({
                     <button
                       type="button"
                       onClick={onReplay}
+                      data-testid="game-storyboard-viewer-replay-button"
                       className={STORYBOARD_VIEWER_CONTROL_BUTTON}
                       title={localizeUi("ui.game.gamesurfacecomponent.replayStoryboardVideo")}
                     >
@@ -198,6 +200,7 @@ export function GameStoryboardInlineViewer({
                     <button
                       type="button"
                       onClick={onTogglePlayback}
+                      data-testid="game-storyboard-viewer-playback-toggle-button"
                       className={STORYBOARD_VIEWER_CONTROL_BUTTON}
                       title={
                         playing
@@ -210,6 +213,7 @@ export function GameStoryboardInlineViewer({
                     <button
                       type="button"
                       onClick={onToggleMute}
+                      data-testid="game-storyboard-viewer-mute-toggle-button"
                       className={STORYBOARD_VIEWER_CONTROL_BUTTON}
                       title={
                         muted
@@ -224,6 +228,7 @@ export function GameStoryboardInlineViewer({
                 <button
                   type="button"
                   onClick={onChangeSize}
+                  data-testid="game-storyboard-viewer-size-button"
                   className={STORYBOARD_VIEWER_CONTROL_BUTTON}
                   title={localizeUi("ui.game.replaystoryboardmedia.changeStoryboardViewerSizeCurrentValue1", {
                     value1: size,
@@ -257,6 +262,7 @@ export function GameStoryboardInlineViewer({
           </div>
         </div>
         <div
+          data-testid="game-storyboard-viewer-resize-handle"
           className="absolute -bottom-2 -right-2 z-20 flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] text-[var(--marinara-chat-chrome-button-text)] shadow-lg transition-all duration-150 hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)] active:scale-95"
           aria-label={localizeUi("ui.game.gamesurfacecomponent.resizeStoryboardViewer")}
           role="separator"

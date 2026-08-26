@@ -113,6 +113,7 @@ export function ScenePromptPreferencesModal({
             rows={4}
             placeholder={localizeUi("ui.modals.scenepromptpreferencesmodal.optionalNotesForTheGeneratedScenePrompt")}
             className="min-h-24 w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--secondary)] p-3 text-sm leading-relaxed text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/50 focus:border-[var(--primary)]/45 focus:ring-1 focus:ring-[var(--primary)]/25"
+            data-testid="scene-prompt-preferences-extra-instructions-textarea"
           />
         </label>
 
@@ -121,6 +122,7 @@ export function ScenePromptPreferencesModal({
             type="button"
             onClick={handleClose}
             className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+            data-testid="scene-prompt-preferences-cancel-button"
           >
             {localizeUi("chat.delete.dialog.cancel")}
           </button>
@@ -128,6 +130,7 @@ export function ScenePromptPreferencesModal({
             type="button"
             onClick={handleSubmit}
             className="rounded-lg bg-[var(--primary)] px-3 py-2 text-sm font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
+            data-testid="scene-prompt-preferences-submit-button"
           >
             {localizeUi("ui.modals.scenepromptpreferencesmodal.planScene")}
           </button>
@@ -152,6 +155,7 @@ function OptionButton({ active, label, onClick }: { active: boolean; label: stri
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      data-testid={`scene-prompt-preferences-option-${label.toLowerCase().replace(/\s+/g, "-")}`}
       className={[
         "min-h-10 rounded-md border px-2 text-xs font-semibold transition-colors",
         active

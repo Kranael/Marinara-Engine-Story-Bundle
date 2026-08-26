@@ -134,6 +134,7 @@ export function PromptOverridesEditor({
           onClick={toggleOpen}
           aria-expanded={isOpen}
           aria-controls={contentId}
+          data-testid="prompt-overrides-toggle-button"
           className="flex min-w-0 flex-1 items-start gap-2 rounded-lg text-left transition-colors hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
         >
           <ChevronDown
@@ -326,6 +327,7 @@ function PromptOverridesEditorBody({ keys, preferredKey }: { keys?: readonly str
           value={selectedKey ?? ""}
           disabled={loadingEntries || filteredEntries.length === 0}
           onChange={(event) => setSelectedKey(event.target.value)}
+          data-testid="prompt-overrides-select"
           className="w-full rounded-lg bg-[var(--background)] px-3 py-2 text-xs text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] focus:ring-[var(--primary)] disabled:opacity-60"
         >
           {loadingEntries && (
@@ -359,6 +361,7 @@ function PromptOverridesEditorBody({ keys, preferredKey }: { keys?: readonly str
                 type="button"
                 key={variable.name}
                 onClick={() => insertVariable(variable.name)}
+                data-testid={`prompt-overrides-variable-${variable.name}`}
                 title={
                   selectedEntry?.key === ROLEPLAY_GALLERY_VIDEO_DIRECTOR_PROMPT_KEY &&
                   variable.name === "durationSeconds"
@@ -392,6 +395,7 @@ function PromptOverridesEditorBody({ keys, preferredKey }: { keys?: readonly str
             setDraft(event.target.value);
             setLastError(null);
           }}
+          data-testid="prompt-overrides-template-textarea"
           placeholder={
             loadingPrompt
               ? localizeUi("ui.panels.promptoverrideseditorbody.loadingTemplate")
@@ -429,6 +433,7 @@ function PromptOverridesEditorBody({ keys, preferredKey }: { keys?: readonly str
         checked={enabled}
         disabled={loadingPrompt || !selectedKey}
         onChange={setEnabled}
+        testId="prompt-overrides-enabled-switch"
         labelPosition="start"
         className="justify-between rounded-lg bg-[var(--background)]/45 px-2.5 py-2 ring-1 ring-[var(--border)]/70"
         labelClassName="text-xs font-medium text-[var(--foreground)]"
@@ -446,6 +451,7 @@ function PromptOverridesEditorBody({ keys, preferredKey }: { keys?: readonly str
           type="button"
           onClick={() => void handleSave()}
           disabled={!canSave}
+          data-testid="prompt-overrides-save-button"
           className={cn(
             "mari-chrome-control flex-1 text-xs disabled:cursor-not-allowed",
             canSave && "mari-chrome-control--selected",
@@ -458,6 +464,7 @@ function PromptOverridesEditorBody({ keys, preferredKey }: { keys?: readonly str
           type="button"
           onClick={() => void handleReset()}
           disabled={!canReset}
+          data-testid="prompt-overrides-reset-button"
           className="mari-chrome-control flex-1 text-xs disabled:cursor-not-allowed"
         >
           {resetOverride.isPending ? (

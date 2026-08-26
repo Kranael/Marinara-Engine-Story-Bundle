@@ -124,6 +124,7 @@ export function BotBrowserPanel() {
       {/* Download cards button */}
       <button
         onClick={openBotBrowser}
+        data-testid="bot-browser-download-cards-button"
         className={cn(
           "mari-chrome-control mari-chrome-control--primary w-full text-xs",
           botBrowserOpen && "mari-chrome-control--selected",
@@ -145,6 +146,7 @@ export function BotBrowserPanel() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={localize("Search imported...")}
+            data-testid="bot-browser-search-input"
             className="mari-chrome-field h-10 w-full py-0 pl-8 pr-3 text-xs md:h-9"
           />
         </div>
@@ -152,6 +154,7 @@ export function BotBrowserPanel() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as ResourcePanelSort)}
+            data-testid="bot-browser-sort-select"
             className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
             title={localizeUi("ui.panels.agentspanel.sortOrder")}
             aria-label={localizeUi("ui.panels.botbrowserpanel.sortImportedCharacters")}
@@ -201,6 +204,7 @@ export function BotBrowserPanel() {
               <button
                 type="button"
                 onClick={() => openCharacterDetail(char.id)}
+                data-testid={`bot-browser-character-button-${char.id}`}
                 className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl p-2 text-left"
               >
                 <div className="mari-panel-gradient-surface mari-panel-gradient--browser relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-sm">
@@ -230,6 +234,7 @@ export function BotBrowserPanel() {
                   event.stopPropagation();
                 }}
                 disabled={deletingCharacterId !== null}
+                data-testid={`bot-browser-delete-character-button-${char.id}`}
                 className="mari-chrome-control mari-chrome-control--small mr-1 h-8 w-8 shrink-0 p-0 disabled:cursor-wait disabled:opacity-50"
                 title={localizeUi("ui.panels.botbrowserpanel.deleteValue1", { value1: char.name })}
                 aria-label={localizeUi("ui.panels.botbrowserpanel.deleteValue1", { value1: char.name })}

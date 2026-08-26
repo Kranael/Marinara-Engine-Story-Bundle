@@ -147,6 +147,7 @@ export function GamePartyBar({
               }
               setMobileMenuOpen((open) => !open);
             }}
+            data-testid="game-party-bar-mobile-menu-button"
             className="group relative block rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
             aria-expanded={mobileMenuOpen}
             aria-label={
@@ -185,6 +186,7 @@ export function GamePartyBar({
                       openCharacterSheet(visual.member.id);
                       setMobileMenuOpen(false);
                     }}
+                    data-testid={`game-party-bar-mobile-member-${visual.member.id}`}
                     className="block rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
                     title={localizeUi("ui.game.gamepartybar.value1ClickToOpenCharacterSheet", {
                       value1: visual.member.name,
@@ -200,6 +202,7 @@ export function GamePartyBar({
                         onRemovePartyMember(visual.member);
                       }}
                       disabled={removingPartyMemberId === visual.member.id}
+                      data-testid={`game-party-bar-mobile-remove-${visual.member.id}`}
                       className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] text-[var(--marinara-chat-chrome-button-text-hover)] shadow-md transition-colors hover:bg-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-60"
                       aria-label={localizeUi("ui.game.gamepartybar.removeValue1FromParty", {
                         value1: visual.member.name,
@@ -228,6 +231,7 @@ export function GamePartyBar({
               <button
                 type="button"
                 onClick={() => openCharacterSheet(member.id)}
+                data-testid={`game-party-bar-member-${member.id}`}
                 className="block rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
                 title={localizeUi("ui.game.gamepartybar.value1ClickToOpenCharacterSheet", { value1: member.name })}
               >
@@ -241,6 +245,7 @@ export function GamePartyBar({
                     onRemovePartyMember(member);
                   }}
                   disabled={removingPartyMemberId === member.id}
+                  data-testid={`game-party-bar-remove-${member.id}`}
                   className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] text-[var(--marinara-chat-chrome-button-text-hover)] opacity-80 shadow-md transition-opacity hover:bg-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-60 group-hover:opacity-100 focus:opacity-100 md:opacity-0"
                   aria-label={localizeUi("ui.game.gamepartybar.removeValue1FromParty", { value1: member.name })}
                   title={localizeUi("ui.game.gamepartybar.removeValue1FromParty", { value1: member.name })}

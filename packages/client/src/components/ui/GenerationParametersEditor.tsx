@@ -221,11 +221,13 @@ export function GenerationParametersFields({
   onChange,
   showOpenRouterServiceTier = false,
   enabledParametersFallback = LEGACY_PARAMETER_SEND_DEFAULTS,
+  testIdPrefix,
 }: {
   value: EditableGenerationParameters;
   onChange: (next: EditableGenerationParameters) => void;
   showOpenRouterServiceTier?: boolean;
   enabledParametersFallback?: GenerationParameterSendMap;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const { data: managedDefinitions = [] } = useCustomGenerationParameters();
@@ -258,6 +260,7 @@ export function GenerationParametersFields({
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2">
         <ParamInput
+          testId={testIdPrefix ? `${testIdPrefix}-temperature` : undefined}
           label={localizeUi("ui.ui.generationparametersfields.temperature")}
           help={localizeUi("ui.ui.generationparametersfields.controlsRandomnessLowerValuesMakeOutputMoreFocusedAnd")}
           value={value.temperature}
@@ -269,6 +272,7 @@ export function GenerationParametersFields({
           step={0.05}
         />
         <ParamInput
+          testId={testIdPrefix ? `${testIdPrefix}-max-tokens` : undefined}
           label={localizeUi("ui.agents.agenteditor.maxOutputTokens")}
           help={localizeUi("ui.ui.generationparametersfields.theMaximumNumberOfTokensTheModelCanGenerate")}
           value={value.maxTokens}
@@ -279,6 +283,7 @@ export function GenerationParametersFields({
           step={256}
         />
         <ParamInput
+          testId={testIdPrefix ? `${testIdPrefix}-top-p` : undefined}
           label={localizeUi("ui.ui.generationparametersfields.topP")}
           help={localizeUi(
             "ui.ui.generationparametersfields.nucleusSamplingOnlyConsidersTokensWhoseCumulativeProbabilityReaches",
@@ -292,6 +297,7 @@ export function GenerationParametersFields({
           step={0.05}
         />
         <ParamInput
+          testId={testIdPrefix ? `${testIdPrefix}-top-k` : undefined}
           label={localizeUi("ui.ui.generationparametersfields.topK")}
           help={localizeUi("ui.ui.generationparametersfields.limitsTheModelToOnlyConsiderTheTopK")}
           value={value.topK}
@@ -305,6 +311,7 @@ export function GenerationParametersFields({
       </div>
       <div className="grid grid-cols-2 gap-2">
         <ParamInput
+          testId={testIdPrefix ? `${testIdPrefix}-frequency-penalty` : undefined}
           label={localizeUi("ui.ui.generationparametersfields.frequency")}
           help={localizeUi("ui.ui.generationparametersfields.penalizesTokensBasedOnHowOftenTheyVeAlready")}
           value={value.frequencyPenalty}
@@ -316,6 +323,7 @@ export function GenerationParametersFields({
           step={0.05}
         />
         <ParamInput
+          testId={testIdPrefix ? `${testIdPrefix}-presence-penalty` : undefined}
           label={localizeUi("ui.ui.generationparametersfields.presence")}
           help={localizeUi("ui.ui.generationparametersfields.penalizesTokensThatHaveAppearedAtAllRegardlessOf")}
           value={value.presencePenalty}
@@ -334,6 +342,7 @@ export function GenerationParametersFields({
             return (
               <ParamInput
                 key={definition.id}
+                testId={testIdPrefix ? `${testIdPrefix}-managed-${definition.id}` : undefined}
                 label={definition.name}
                 help={definition.tooltip}
                 value={stored?.value ?? definition.min}
@@ -358,6 +367,7 @@ export function GenerationParametersFields({
             />
           </span>
           <DraftMacroTextarea
+            testId={testIdPrefix ? `${testIdPrefix}-assistant-prefill` : undefined}
             value={value.assistantPrefill ?? ""}
             onCommit={(nextValue) => set("assistantPrefill", nextValue)}
             rows={3}
@@ -378,6 +388,7 @@ export function GenerationParametersFields({
             />
           </span>
           <DraftMacroTextarea
+            testId={testIdPrefix ? `${testIdPrefix}-assistant-reasoning-prefill` : undefined}
             value={value.assistantReasoningPrefill ?? ""}
             onCommit={(nextValue) => set("assistantReasoningPrefill", nextValue)}
             rows={3}
@@ -386,10 +397,12 @@ export function GenerationParametersFields({
           />
         </div>
         <ThinkingTagsInput
+          testId={testIdPrefix ? `${testIdPrefix}-thinking-tags` : undefined}
           value={value.customThinkingTags}
           onChange={(nextValue) => set("customThinkingTags", nextValue)}
         />
         <CustomParametersInput
+          testId={testIdPrefix ? `${testIdPrefix}-custom-parameters` : undefined}
           value={value.customParameters}
           onChange={(nextValue) => set("customParameters", nextValue)}
         />
@@ -409,6 +422,7 @@ export function GenerationParametersFields({
                 <button
                   key={tier ?? "default"}
                   type="button"
+                  data-testid={testIdPrefix ? `${testIdPrefix}-service-tier-${tier ?? "default"}` : undefined}
                   onClick={() => set("serviceTier", tier)}
                   aria-pressed={value.serviceTier === tier}
                   className={cn(
@@ -434,6 +448,7 @@ export function GenerationParametersFields({
               <button
                 key={level ?? "none"}
                 type="button"
+                data-testid={testIdPrefix ? `${testIdPrefix}-reasoning-${level ?? "none"}` : undefined}
                 onClick={() => set("reasoningEffort", level)}
                 aria-pressed={value.reasoningEffort === level}
                 className={cn(
@@ -460,6 +475,7 @@ export function GenerationParametersFields({
               <button
                 key={level ?? "none"}
                 type="button"
+                data-testid={testIdPrefix ? `${testIdPrefix}-verbosity-${level ?? "none"}` : undefined}
                 onClick={() => set("verbosity", level)}
                 aria-pressed={value.verbosity === level}
                 className={cn(
@@ -485,10 +501,12 @@ function DraftMacroTextarea({
   onFocus,
   onBlur,
   onExpandedClose,
+  testId,
   ...props
 }: Omit<MacroTextareaProps, "value" | "onChange"> & {
   value: string;
   onCommit: (value: string) => void;
+  testId?: string;
 }) {
   const [draft, setDraft] = useState(value);
   const [focused, setFocused] = useState(false);
@@ -517,6 +535,7 @@ function DraftMacroTextarea({
   return (
     <MacroTextarea
       {...props}
+      testId={testId}
       value={draft}
       onChange={setDraft}
       onFocus={() => {
@@ -539,9 +558,11 @@ function DraftMacroTextarea({
 function ThinkingTagsInput({
   value,
   onChange,
+  testId,
 }: {
   value: ThinkingTagPair[];
   onChange: (next: ThinkingTagPair[]) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const serialized = stringifyThinkingTags(value);
@@ -577,6 +598,7 @@ function ThinkingTagsInput({
         />
       </span>
       <MacroTextarea
+        testId={testId}
         value={draft}
         onFocus={() => setFocused(true)}
         onChange={(nextValue) => {
@@ -654,9 +676,11 @@ function parseThinkingTagsDraft(draft: string): { ok: true; value: ThinkingTagPa
 function CustomParametersInput({
   value,
   onChange,
+  testId,
 }: {
   value: Record<string, unknown>;
   onChange: (next: Record<string, unknown>) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const serialized = stringifyCustomParameters(value);
@@ -691,6 +715,7 @@ function CustomParametersInput({
         />
       </span>
       <MacroTextarea
+        testId={testId}
         value={draft}
         onFocus={() => setFocused(true)}
         onChange={(nextValue) => {
@@ -741,6 +766,7 @@ function ParamInput({
   max,
   step,
   help,
+  testId,
 }: {
   label: string;
   value: number;
@@ -751,6 +777,7 @@ function ParamInput({
   max?: number;
   step: number;
   help?: string;
+  testId?: string;
 }) {
   const [draft, setDraft] = useState(String(value));
   const [error, setError] = useState<string | null>(null);
@@ -778,10 +805,11 @@ function ParamInput({
 
   return (
     <div>
-      <ParameterHeader label={label} help={help} sendEnabled={sendEnabled} onSendChange={onSendChange} />
+      <ParameterHeader testId={testId} label={label} help={help} sendEnabled={sendEnabled} onSendChange={onSendChange} />
       <input
         type="text"
         inputMode="decimal"
+        data-testid={testId ? `${testId}-input` : undefined}
         aria-label={label}
         value={draft}
         onChange={(event) => {
@@ -809,11 +837,13 @@ function ParameterHeader({
   help,
   sendEnabled,
   onSendChange,
+  testId,
 }: {
   label: string;
   help?: string;
   sendEnabled: boolean;
   onSendChange: (enabled: boolean) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   return (
@@ -823,6 +853,7 @@ function ParameterHeader({
         {help && <HelpTooltip text={help} size="0.625rem" />}
       </span>
       <SettingsSwitch
+        testId={testId ? `${testId}-send-toggle` : undefined}
         ariaLabel={`Send ${label} parameter`}
         checked={sendEnabled}
         onChange={onSendChange}

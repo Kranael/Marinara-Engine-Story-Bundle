@@ -223,6 +223,7 @@ export function GameInventory({
           </div>
           <button
             onClick={onClose}
+            data-testid="game-inventory-close-button"
             className="rounded p-1 text-white/40 transition-colors hover:bg-white/10 hover:text-white/70"
           >
             <X size={14} />
@@ -238,6 +239,7 @@ export function GameInventory({
                   <button
                     onClick={() => setPageIndex((page) => Math.max(0, page - 1))}
                     disabled={pageIndex === 0}
+                    data-testid="game-inventory-prev-page-button"
                     className="flex h-6 w-6 items-center justify-center rounded border border-white/8 bg-white/[0.03] transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-35"
                     title={localizeUi("ui.game.gameinventory.previousInventoryPage")}
                   >
@@ -249,6 +251,7 @@ export function GameInventory({
                   <button
                     onClick={() => setPageIndex((page) => Math.min(pageCount - 1, page + 1))}
                     disabled={pageIndex >= pageCount - 1}
+                    data-testid="game-inventory-next-page-button"
                     className="flex h-6 w-6 items-center justify-center rounded border border-white/8 bg-white/[0.03] transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-35"
                     title={localizeUi("ui.game.gameinventory.nextInventoryPage")}
                   >
@@ -304,6 +307,7 @@ export function GameInventory({
                 <input
                   value={renameDraft}
                   onChange={(e) => setRenameDraft(e.target.value)}
+                  data-testid="game-inventory-rename-input"
                   onKeyDown={(e) => {
                     if (e.key === "Escape") {
                       setRenameDraft(selectedInventoryItem.name);
@@ -322,6 +326,7 @@ export function GameInventory({
                   disabled={
                     renamePending || !renameDraft.trim() || renameDraft.trim() === selectedInventoryItem.name.trim()
                   }
+                  data-testid="game-inventory-rename-save-button"
                   className="flex shrink-0 items-center justify-center gap-1 rounded border border-amber-500/20 bg-amber-500/10 px-2 py-1.5 text-[0.7rem] font-semibold text-amber-300 transition-colors hover:bg-amber-500/15 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Check size={12} />
@@ -334,6 +339,7 @@ export function GameInventory({
                 <button
                   onClick={() => void handleAdd()}
                   disabled={addPending}
+                  data-testid="game-inventory-add-item-button"
                   className="flex flex-1 items-center justify-center gap-1 rounded border border-white/8 bg-white/[0.03] py-1.5 text-[0.7rem] text-white/70 transition-colors hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Plus size={12} />
@@ -352,6 +358,7 @@ export function GameInventory({
                       type="button"
                       onClick={() => void handleDecrement(selectedInventoryItem.name)}
                       disabled={amountPending !== null}
+                      data-testid="game-inventory-decrement-button"
                       className="flex h-full w-7 items-center justify-center text-white/65 transition-colors hover:bg-white/[0.07] hover:text-white/90 disabled:cursor-not-allowed disabled:opacity-40"
                       aria-label={
                         selectedInventoryItem.quantity > 1
@@ -377,6 +384,7 @@ export function GameInventory({
                       type="button"
                       onClick={() => void handleIncrement(selectedInventoryItem.name)}
                       disabled={amountPending !== null}
+                      data-testid="game-inventory-increment-button"
                       className="flex h-full w-7 items-center justify-center text-white/65 transition-colors hover:bg-white/[0.07] hover:text-white/90 disabled:cursor-not-allowed disabled:opacity-40"
                       aria-label={localizeUi("ui.game.gameinventory.increaseValue1Amount", {
                         value1: selectedInventoryItem.name,
@@ -391,6 +399,7 @@ export function GameInventory({
               {selectedItem && canInteract && onUseItem && (
                 <button
                   onClick={() => handleUse(selectedItem)}
+                  data-testid="game-inventory-use-item-button"
                   className="flex flex-1 items-center justify-center gap-1 rounded border border-amber-500/20 bg-amber-500/10 py-1.5 text-[0.7rem] font-semibold text-amber-400 transition-colors hover:bg-amber-500/15"
                 >
                   <Wand2 size={12} />
@@ -443,6 +452,7 @@ function InventorySlot({ item, globalIndex, selected, reorderEnabled, onClick }:
       {...listeners}
       onClick={onClick}
       disabled={!item}
+      data-testid={`game-inventory-slot-${globalIndex}`}
       title={
         item
           ? item.quantity > 1

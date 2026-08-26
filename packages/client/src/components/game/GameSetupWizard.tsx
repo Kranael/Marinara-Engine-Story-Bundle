@@ -368,6 +368,7 @@ function LearnedOptionChips({
   onSelect,
   onForget,
   selected,
+  testIdPrefix,
 }: {
   options: string[];
   expanded: boolean;
@@ -375,6 +376,7 @@ function LearnedOptionChips({
   onSelect: (value: string) => void;
   onForget?: (value: string) => void;
   selected?: (value: string) => boolean;
+  testIdPrefix?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   if (options.length === 0) return null;
@@ -384,7 +386,7 @@ function LearnedOptionChips({
 
   return (
     <div className="mt-1.5 flex flex-wrap gap-1">
-      {visible.map((option) => {
+      {visible.map((option, optionIndex) => {
         const isSelected = selected?.(option) ?? false;
         return (
           <span
@@ -396,7 +398,12 @@ function LearnedOptionChips({
                 : "bg-[var(--secondary)] text-[var(--muted-foreground)] hover:bg-[var(--primary)]/10 hover:text-[var(--primary)]",
             )}
           >
-            <button type="button" onClick={() => onSelect(option)} className="px-2 py-0.5">
+            <button
+              type="button"
+              onClick={() => onSelect(option)}
+              data-testid={testIdPrefix ? `${testIdPrefix}-option-${optionIndex}` : undefined}
+              className="px-2 py-0.5"
+            >
               {option}
             </button>
             {onForget && (
@@ -406,6 +413,7 @@ function LearnedOptionChips({
                   e.stopPropagation();
                   onForget(option);
                 }}
+                data-testid={testIdPrefix ? `${testIdPrefix}-forget-${optionIndex}` : undefined}
                 aria-label={localizeUi("ui.game.learnedoptionchips.forgetValue1", { value1: option })}
                 title={localizeUi("ui.game.learnedoptionchips.forgetThisOption")}
                 className="ml-0.5 mr-1 inline-flex rounded-full p-0.5 opacity-40 transition-opacity hover:bg-[var(--destructive)]/20 hover:text-[var(--destructive)] hover:opacity-100 focus-visible:opacity-100 group-hover/learned:opacity-100"
@@ -421,6 +429,7 @@ function LearnedOptionChips({
           type="button"
           onClick={onToggleExpanded}
           aria-expanded={expanded}
+          data-testid={testIdPrefix ? `${testIdPrefix}-expand-toggle-button` : undefined}
           className="rounded-md border border-[var(--border)] bg-[var(--card)] px-2 py-0.5 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
         >
           {expanded
@@ -1389,6 +1398,7 @@ export function GameSetupWizard({
                         accept=".json,application/json"
                         onChange={(event) => void handleImportSetupFile(event)}
                         className="sr-only"
+                        data-testid="game-setup-wizard-import-setup-file-input"
                         aria-label={localizeUi("ui.game.gamesetupwizard.importGameModeSetupFile")}
                       />
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -1407,6 +1417,7 @@ export function GameSetupWizard({
                           type="button"
                           onClick={() => setupImportInputRef.current?.click()}
                           disabled={isLoading || !setupImportResourcesReady}
+                          data-testid="game-setup-wizard-import-setup-button"
                           className="flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40 disabled:cursor-wait disabled:opacity-50"
                         >
                           <FileUp size={13} />
@@ -1437,6 +1448,7 @@ export function GameSetupWizard({
                         value={gameName}
                         onChange={(e) => setGameName(e.target.value)}
                         placeholder={localizeUi("ui.game.gamesetupwizard.nameYourAdventure")}
+                        data-testid="game-setup-wizard-game-name-input"
                         className={GAME_SETUP_INPUT_CLASS}
                       />
                     </div>
@@ -1449,6 +1461,7 @@ export function GameSetupWizard({
                       <select
                         value={gmConnectionId ?? ""}
                         onChange={(e) => setGmConnectionId(e.target.value || null)}
+                        data-testid="game-setup-wizard-gm-connection-select"
                         className={GAME_SETUP_INPUT_CLASS}
                       >
                         <option value="">{localizeUi("ui.game.gamesetupwizard.selectAConnection")}</option>
@@ -1465,6 +1478,7 @@ export function GameSetupWizard({
                       <div className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3">
                         <button
                           onClick={() => setCustomizeParameters((prev) => !prev)}
+                          data-testid="game-setup-wizard-customize-parameters-toggle-button"
                           className="flex w-full items-center justify-between gap-3 text-left"
                         >
                           <div>
@@ -1495,6 +1509,7 @@ export function GameSetupWizard({
                               value={generationParameters}
                               showOpenRouterServiceTier={selectedGmConnection?.provider === "openrouter"}
                               onChange={setGenerationParameters}
+                              testIdPrefix="game-setup-wizard-generation-parameters"
                             />
                           </div>
                         )}
@@ -1525,6 +1540,7 @@ export function GameSetupWizard({
                             setSceneConnectionId(v || null);
                           }
                         }}
+                        data-testid="game-setup-wizard-scene-effects-connection-select"
                         className={GAME_SETUP_INPUT_CLASS}
                       >
                         <option value="">{localizeUi("ui.game.gamesetupwizard.skipUseInlineTagsFromGm")}</option>
@@ -1556,11 +1572,12 @@ export function GameSetupWizard({
                         {genres.length} {localizeUi("ui.game.gamesetupwizard.selected")}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
-                        {GENRES.map((g) => (
+                        {GENRES.map((g, genreIndex) => (
                           <button
                             key={g}
                             onClick={() => toggleGenre(g)}
                             aria-pressed={genres.includes(g)}
+                            data-testid={`game-setup-wizard-genre-button-${genreIndex}`}
                             className={cn(
                               "rounded-md px-3 py-1 text-xs transition-colors",
                               genres.includes(g)
@@ -1574,11 +1591,12 @@ export function GameSetupWizard({
                         {/* Custom genres */}
                         {genres
                           .filter((g) => !GENRES.includes(g))
-                          .map((g) => (
+                          .map((g, customGenreIndex) => (
                             <button
                               key={g}
                               onClick={() => toggleGenre(g)}
                               aria-pressed={genres.includes(g)}
+                              data-testid={`game-setup-wizard-custom-genre-button-${customGenreIndex}`}
                               className="flex items-center gap-1 rounded-md bg-[var(--primary)]/20 px-3 py-1 text-xs text-[var(--primary)] ring-1 ring-[var(--primary)]/40 transition-colors"
                             >
                               {g}
@@ -1593,6 +1611,7 @@ export function GameSetupWizard({
                         onSelect={toggleGenre}
                         onForget={(value) => forgetGameSetupOption("genres", value)}
                         selected={(value) => genres.includes(value)}
+                        testIdPrefix="game-setup-wizard-learned-genres"
                       />
                       <div className="mt-2 flex items-center gap-1.5">
                         <input
@@ -1601,11 +1620,13 @@ export function GameSetupWizard({
                           onChange={(e) => setCustomGenre(e.target.value)}
                           onKeyDown={(e) => e.key === "Enter" && addCustomGenre()}
                           placeholder={localizeUi("ui.game.gamesetupwizard.addCustomGenre")}
+                          data-testid="game-setup-wizard-custom-genre-input"
                           className="flex-1 rounded-lg bg-[var(--secondary)] px-3 py-1.5 text-xs text-[var(--foreground)] outline-none ring-1 ring-transparent transition-all placeholder:text-[var(--muted-foreground)] focus:ring-[var(--primary)]/40"
                         />
                         <button
                           onClick={addCustomGenre}
                           disabled={!customGenre.trim()}
+                          data-testid="game-setup-wizard-add-custom-genre-button"
                           className="rounded-lg bg-[var(--secondary)] p-1.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--primary)] disabled:opacity-40"
                         >
                           <Plus size={14} />
@@ -1623,13 +1644,15 @@ export function GameSetupWizard({
                         value={setting}
                         onChange={(e) => setSetting(e.target.value)}
                         placeholder={localizeUi("ui.game.gamesetupwizard.describeYourWorld")}
+                        data-testid="game-setup-wizard-setting-input"
                         className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs text-[var(--foreground)] outline-none ring-1 ring-transparent transition-all placeholder:text-[var(--muted-foreground)] focus:ring-[var(--primary)]/40"
                       />
                       <div className="mt-1.5 flex flex-wrap gap-1">
-                        {SETTING_SUGGESTIONS.map((s) => (
+                        {SETTING_SUGGESTIONS.map((s, settingSuggestionIndex) => (
                           <button
                             key={s}
                             onClick={() => applySuggestion(setSetting, s)}
+                            data-testid={`game-setup-wizard-setting-suggestion-button-${settingSuggestionIndex}`}
                             className="flex items-center gap-1 rounded-md bg-[var(--secondary)] px-2 py-0.5 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:text-[var(--primary)] hover:bg-[var(--primary)]/10"
                           >
                             {s === "Surprise me!" && <Sparkles size={9} />}
@@ -1643,6 +1666,7 @@ export function GameSetupWizard({
                         onToggleExpanded={() => toggleLearnedOptions("settings")}
                         onSelect={setSetting}
                         onForget={(value) => forgetGameSetupOption("settings", value)}
+                        testIdPrefix="game-setup-wizard-learned-settings"
                       />
                     </div>
 
@@ -1653,11 +1677,12 @@ export function GameSetupWizard({
                         {tones.length} {localizeUi("ui.game.gamesetupwizard.selected")}
                       </label>
                       <div className="flex flex-wrap gap-1.5">
-                        {TONES.map((t) => (
+                        {TONES.map((t, toneIndex) => (
                           <button
                             key={t}
                             onClick={() => toggleTone(t)}
                             aria-pressed={tones.includes(t)}
+                            data-testid={`game-setup-wizard-tone-button-${toneIndex}`}
                             className={cn(
                               "rounded-md px-3 py-1 text-xs transition-colors",
                               tones.includes(t)
@@ -1671,11 +1696,12 @@ export function GameSetupWizard({
                         {/* Custom tones */}
                         {tones
                           .filter((t) => !TONES.includes(t))
-                          .map((t) => (
+                          .map((t, customToneIndex) => (
                             <button
                               key={t}
                               onClick={() => toggleTone(t)}
                               aria-pressed={tones.includes(t)}
+                              data-testid={`game-setup-wizard-custom-tone-button-${customToneIndex}`}
                               className="flex items-center gap-1 rounded-md bg-[var(--primary)]/20 px-3 py-1 text-xs text-[var(--primary)] ring-1 ring-[var(--primary)]/40 transition-colors"
                             >
                               {t}
@@ -1690,6 +1716,7 @@ export function GameSetupWizard({
                         onSelect={toggleTone}
                         onForget={(value) => forgetGameSetupOption("tones", value)}
                         selected={(value) => tones.includes(value)}
+                        testIdPrefix="game-setup-wizard-learned-tones"
                       />
                       <div className="mt-2 flex items-center gap-1.5">
                         <input
@@ -1698,11 +1725,13 @@ export function GameSetupWizard({
                           onChange={(e) => setCustomTone(e.target.value)}
                           onKeyDown={(e) => e.key === "Enter" && addCustomTone()}
                           placeholder={localizeUi("ui.game.gamesetupwizard.addCustomTone")}
+                          data-testid="game-setup-wizard-custom-tone-input"
                           className="flex-1 rounded-lg bg-[var(--secondary)] px-3 py-1.5 text-xs text-[var(--foreground)] outline-none ring-1 ring-transparent transition-all placeholder:text-[var(--muted-foreground)] focus:ring-[var(--primary)]/40"
                         />
                         <button
                           onClick={addCustomTone}
                           disabled={!customTone.trim()}
+                          data-testid="game-setup-wizard-add-custom-tone-button"
                           className="rounded-lg bg-[var(--secondary)] p-1.5 text-[var(--muted-foreground)] transition-colors hover:text-[var(--primary)] disabled:opacity-40"
                         >
                           <Plus size={14} />
@@ -1716,11 +1745,12 @@ export function GameSetupWizard({
                         {localizeUi("ui.game.gamesetupwizard.difficulty")}
                       </label>
                       <div className="flex gap-1.5">
-                        {DIFFICULTIES.map((d) => (
+                        {DIFFICULTIES.map((d, difficultyIndex) => (
                           <button
                             key={d}
                             onClick={() => setDifficulty(d)}
                             aria-pressed={difficulty === d}
+                            data-testid={`game-setup-wizard-difficulty-button-${difficultyIndex}`}
                             className={cn(
                               "rounded-md px-3 py-1 text-xs transition-colors",
                               difficulty === d
@@ -1743,6 +1773,7 @@ export function GameSetupWizard({
                         <button
                           onClick={() => setCombatStyle("classic")}
                           aria-pressed={combatStyle === "classic"}
+                          data-testid="game-setup-wizard-combat-style-classic-button"
                           className={cn(
                             "flex-1 rounded-lg p-3 text-left text-xs transition-colors ring-1",
                             combatStyle === "classic"
@@ -1760,6 +1791,7 @@ export function GameSetupWizard({
                         <button
                           onClick={() => setCombatStyle("tactical")}
                           aria-pressed={combatStyle === "tactical"}
+                          data-testid="game-setup-wizard-combat-style-tactical-button"
                           className={cn(
                             "flex-1 rounded-lg p-3 text-left text-xs transition-colors ring-1",
                             combatStyle === "tactical"
@@ -1787,6 +1819,7 @@ export function GameSetupWizard({
                           type="button"
                           onClick={() => setRating("sfw")}
                           aria-pressed={rating === "sfw"}
+                          data-testid="game-setup-wizard-rating-sfw-button"
                           className={cn(
                             "rounded-md px-3 py-1 text-xs transition-colors",
                             rating === "sfw"
@@ -1800,6 +1833,7 @@ export function GameSetupWizard({
                           type="button"
                           onClick={() => setRating("nsfw")}
                           aria-pressed={rating === "nsfw"}
+                          data-testid="game-setup-wizard-rating-nsfw-button"
                           className={cn(
                             "rounded-md px-3 py-1 text-xs transition-colors",
                             rating === "nsfw"
@@ -1827,14 +1861,16 @@ export function GameSetupWizard({
                         value={language}
                         onChange={(e) => setLanguage(e.target.value)}
                         placeholder={localizeUi("ui.game.gamesetupwizard.english")}
+                        data-testid="game-setup-wizard-language-input"
                         className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs text-[var(--foreground)] outline-none ring-1 ring-transparent transition-all placeholder:text-[var(--muted-foreground)] focus:ring-[var(--primary)]/40"
                       />
                       <div className="mt-1.5 flex flex-wrap gap-1">
-                        {GAME_LANGUAGE_OPTIONS.map((option) => (
+                        {GAME_LANGUAGE_OPTIONS.map((option, languageOptionIndex) => (
                           <button
                             key={option.value}
                             onClick={() => setLanguage(option.label)}
                             aria-pressed={normalizedLanguage === option.value}
+                            data-testid={`game-setup-wizard-language-option-button-${languageOptionIndex}`}
                             className={cn(
                               "rounded-md px-2 py-0.5 text-[0.625rem] transition-colors",
                               normalizedLanguage === option.value
@@ -1864,6 +1900,7 @@ export function GameSetupWizard({
                         <button
                           onClick={() => setGmMode("standalone")}
                           aria-pressed={gmMode === "standalone"}
+                          data-testid="game-setup-wizard-gm-mode-standalone-button"
                           className={cn(
                             "flex-1 rounded-lg p-3 text-left text-xs transition-colors ring-1",
                             gmMode === "standalone"
@@ -1881,6 +1918,7 @@ export function GameSetupWizard({
                         <button
                           onClick={() => setGmMode("character")}
                           aria-pressed={gmMode === "character"}
+                          data-testid="game-setup-wizard-gm-mode-character-button"
                           className={cn(
                             "flex-1 rounded-lg p-3 text-left text-xs transition-colors ring-1",
                             gmMode === "character"
@@ -1915,6 +1953,7 @@ export function GameSetupWizard({
                                 <span className="flex-1 truncate text-xs">{c.name}</span>
                                 <button
                                   onClick={() => setGmCharacterId(null)}
+                                  data-testid="game-setup-wizard-gm-character-remove-button"
                                   className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                                   title={localizeUi("settings.notifications.customSound.actions.remove")}
                                 >
@@ -1931,6 +1970,7 @@ export function GameSetupWizard({
                               value={gmSearch}
                               onChange={(e) => setGmSearch(e.target.value)}
                               placeholder={localizeUi("ui.game.gamesetupwizard.searchCharacters")}
+                              data-testid="game-setup-wizard-gm-character-search-input"
                               className="flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
                             />
                           </div>
@@ -1939,6 +1979,7 @@ export function GameSetupWizard({
                               <button
                                 key={c.id}
                                 onClick={() => setGmCharacterId(c.id === gmCharacterId ? null : c.id)}
+                                data-testid={`game-setup-wizard-gm-character-option-${c.id}`}
                                 className={cn(
                                   "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                                   c.id === gmCharacterId && "bg-[var(--primary)]/5",
@@ -2000,6 +2041,7 @@ export function GameSetupWizard({
                                 </div>
                                 <button
                                   onClick={() => togglePartyMember(cid)}
+                                  data-testid={`game-setup-wizard-party-member-remove-${cid}`}
                                   className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                                   title={localizeUi("settings.notifications.customSound.actions.remove")}
                                 >
@@ -2018,6 +2060,7 @@ export function GameSetupWizard({
                             value={partySearch}
                             onChange={(e) => setPartySearch(e.target.value)}
                             placeholder={localizeUi("ui.game.gamesetupwizard.searchCharacters")}
+                            data-testid="game-setup-wizard-party-search-input"
                             className="flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
                           />
                         </div>
@@ -2028,6 +2071,7 @@ export function GameSetupWizard({
                               value={partyFolderId}
                               onChange={(event) => setPartyFolderId(event.target.value)}
                               className="min-w-0 flex-1 bg-transparent text-xs text-[var(--foreground)] outline-none"
+                              data-testid="game-setup-wizard-party-folder-select"
                               aria-label={localizeUi("ui.game.gamesetupwizard.addPartyMembersFromFolder")}
                             >
                               <option value="">{localizeUi("ui.noodle.noodlehome.addFromFolder")}</option>
@@ -2053,6 +2097,7 @@ export function GameSetupWizard({
                               type="button"
                               onClick={() => addPartyMembersFromFolder(partyFolderId)}
                               disabled={!partyFolderId}
+                              data-testid="game-setup-wizard-party-folder-add-button"
                               className="rounded-lg bg-[var(--primary)]/15 px-2.5 py-1 text-[0.625rem] font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/25 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {localizeUi("ui.characters.metadatatab.add")}
@@ -2066,6 +2111,7 @@ export function GameSetupWizard({
                               <button
                                 key={c.id}
                                 onClick={() => togglePartyMember(c.id)}
+                                data-testid={`game-setup-wizard-party-character-option-${c.id}`}
                                 className={cn(
                                   "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                                   isSelected && "bg-[var(--primary)]/5",
@@ -2131,6 +2177,7 @@ export function GameSetupWizard({
                               </div>
                               <button
                                 onClick={() => setPersonaId(null)}
+                                data-testid="game-setup-wizard-persona-remove-button"
                                 className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                                 title={localizeUi("settings.notifications.customSound.actions.remove")}
                               >
@@ -2146,6 +2193,7 @@ export function GameSetupWizard({
                             value={personaSearch}
                             onChange={(e) => setPersonaSearch(e.target.value)}
                             placeholder={localizeUi("ui.game.gamesetupwizard.searchPersonasOrTitles")}
+                            data-testid="game-setup-wizard-persona-search-input"
                             className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
                           />
                         </div>
@@ -2156,6 +2204,7 @@ export function GameSetupWizard({
                               <button
                                 key={p.id}
                                 onClick={() => setPersonaId(p.id === personaId ? null : p.id)}
+                                data-testid={`game-setup-wizard-persona-option-${p.id}`}
                                 className={cn(
                                   "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                                   p.id === personaId && "bg-[var(--primary)]/5",
@@ -2209,6 +2258,7 @@ export function GameSetupWizard({
                           type="button"
                           aria-pressed={enableQuickTimeEvents}
                           onClick={() => setEnableQuickTimeEvents((enabled) => !enabled)}
+                          data-testid="game-setup-wizard-quick-time-events-toggle-button"
                           className={cn(
                             "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-all",
                             enableQuickTimeEvents
@@ -2267,6 +2317,7 @@ export function GameSetupWizard({
                               <button
                                 type="button"
                                 onClick={openDownloadAgents}
+                                data-testid="game-setup-wizard-download-agents-button"
                                 className={cn(GAME_SETUP_PRIMARY_BUTTON_CLASS, "mx-auto mt-3 gap-2")}
                               >
                                 <Sparkles size={13} />
@@ -2280,6 +2331,7 @@ export function GameSetupWizard({
                           <button
                             type="button"
                             onClick={() => setEnableAgents((enabled) => !enabled)}
+                            data-testid="game-setup-wizard-enable-agents-toggle-button"
                             className={cn(
                               "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-all",
                               enableAgents
@@ -2323,6 +2375,7 @@ export function GameSetupWizard({
                             <button
                               type="button"
                               onClick={() => setEnableSpotifyDj((prev) => !prev)}
+                              data-testid="game-setup-wizard-spotify-dj-toggle-button"
                               className={cn(
                                 "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-all",
                                 enableSpotifyDj
@@ -2380,6 +2433,7 @@ export function GameSetupWizard({
                                         setGameSpotifyArtist("");
                                       }
                                     }}
+                                    data-testid="game-setup-wizard-spotify-source-select"
                                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1.5 text-xs text-[var(--foreground)]"
                                   >
                                     {GAME_SPOTIFY_SOURCE_OPTIONS.map((option) => (
@@ -2409,6 +2463,7 @@ export function GameSetupWizard({
                                           setGameSpotifyPlaylistId(event.target.value);
                                           setGameSpotifyPlaylistName(playlist?.name ?? "");
                                         }}
+                                        data-testid="game-setup-wizard-spotify-playlist-select"
                                         className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1.5 text-xs text-[var(--foreground)]"
                                       >
                                         <option value="">{localizeUi("ui.game.gamesetupwizard.choosePlaylist")}</option>
@@ -2434,6 +2489,7 @@ export function GameSetupWizard({
                                           setGameSpotifyPlaylistId(event.target.value);
                                           setGameSpotifyPlaylistName("");
                                         }}
+                                        data-testid="game-setup-wizard-spotify-playlist-input"
                                         placeholder={
                                           spotifyPlaylistsQuery.isFetching
                                             ? localizeUi("ui.game.gamesetupwizard.loadingPlaylists")
@@ -2459,6 +2515,7 @@ export function GameSetupWizard({
                                       value={gameSpotifyArtist}
                                       onChange={(event) => setGameSpotifyArtist(event.target.value)}
                                       placeholder={localizeUi("ui.game.gamesetupwizard.hoyoMix")}
+                                      data-testid="game-setup-wizard-spotify-artist-input"
                                       className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1.5 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50"
                                     />
                                   </label>
@@ -2472,6 +2529,7 @@ export function GameSetupWizard({
                           <button
                             type="button"
                             onClick={() => setEnableLorebookKeeper((prev) => !prev)}
+                            data-testid="game-setup-wizard-lorebook-keeper-toggle-button"
                             className={cn(
                               "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-all",
                               enableLorebookKeeper
@@ -2516,6 +2574,7 @@ export function GameSetupWizard({
                             <button
                               type="button"
                               onClick={toggleVisualGeneration}
+                              data-testid="game-setup-wizard-illustrator-toggle-button"
                               className={cn(
                                 "flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-all",
                                 enableSpriteGeneration
@@ -2563,6 +2622,7 @@ export function GameSetupWizard({
                                 <select
                                   value={imageConnectionId ?? ""}
                                   onChange={(e) => setImageConnectionId(e.target.value || null)}
+                                  data-testid="game-setup-wizard-image-connection-select"
                                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1.5 text-xs text-[var(--foreground)]"
                                 >
                                   <option value="">
@@ -2593,6 +2653,7 @@ export function GameSetupWizard({
                                   type="button"
                                   aria-pressed={gameImageDynamicPromptEnabled}
                                   onClick={() => setGameImageDynamicPromptEnabled((enabled) => !enabled)}
+                                  data-testid="game-setup-wizard-dynamic-image-prompt-toggle-button"
                                   className="mt-3 flex w-full items-center justify-between gap-3 border-t border-[var(--border)] pt-3 text-left"
                                 >
                                   <span className="min-w-0">
@@ -2631,6 +2692,7 @@ export function GameSetupWizard({
                                   <select
                                     value={videoConnectionId ?? ""}
                                     onChange={(e) => setVideoConnectionId(e.target.value || null)}
+                                    data-testid="game-setup-wizard-video-connection-select"
                                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1.5 text-xs text-[var(--foreground)]"
                                   >
                                     <option value="">
@@ -2683,6 +2745,7 @@ export function GameSetupWizard({
                         <select
                           value={audioConnectionId ?? ""}
                           onChange={(e) => setAudioConnectionId(e.target.value || null)}
+                          data-testid="game-setup-wizard-audio-connection-select"
                           className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1.5 text-xs text-[var(--foreground)]"
                         >
                           <option value="">{localizeUi("ui.game.gamesetupwizard.useTheDefaultAudioConnection")}</option>
@@ -2704,6 +2767,7 @@ export function GameSetupWizard({
                         aria-pressed={enableGameSoundEffects && audioConnectionSupportsSfx}
                         disabled={!audioConnectionSupportsSfx}
                         onClick={() => setEnableGameSoundEffects((enabled) => !enabled)}
+                        data-testid="game-setup-wizard-sound-effects-toggle-button"
                         className={cn(
                           "mt-3 flex w-full items-center justify-between gap-3 border-t border-[var(--border)] pt-3 text-left",
                           !audioConnectionSupportsSfx && "cursor-not-allowed opacity-50",
@@ -2738,6 +2802,7 @@ export function GameSetupWizard({
                         aria-pressed={enableGameMusic && audioConnectionSupportsMusic}
                         disabled={!audioConnectionSupportsMusic}
                         onClick={() => setEnableGameMusic((enabled) => !enabled)}
+                        data-testid="game-setup-wizard-game-music-toggle-button"
                         className={cn(
                           "mt-2 flex w-full items-center justify-between gap-3 text-left",
                           !audioConnectionSupportsMusic && "cursor-not-allowed opacity-50",
@@ -2785,6 +2850,7 @@ export function GameSetupWizard({
                           setEnableCustomWidgets(nextEnabled);
                           if (!nextEnabled) setManualWidgetSetupEnabled(false);
                         }}
+                        data-testid="game-setup-wizard-custom-widgets-toggle-button"
                         className="flex w-full items-center justify-between gap-2 text-left"
                       >
                         <div className="flex items-center gap-2">
@@ -2833,6 +2899,7 @@ export function GameSetupWizard({
                           <button
                             type="button"
                             onClick={() => setManualWidgetSetupEnabled((enabled) => !enabled)}
+                            data-testid="game-setup-wizard-manual-widget-setup-toggle-button"
                             className={cn(
                               "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left transition-all",
                               manualWidgetSetupEnabled
@@ -2884,13 +2951,15 @@ export function GameSetupWizard({
                         onChange={(e) => setPlayerGoals(e.target.value)}
                         placeholder={localizeUi("ui.game.gamesetupwizard.whatDoYouWantToAchieve")}
                         rows={3}
+                        data-testid="game-setup-wizard-player-goals-textarea"
                         className="w-full resize-none rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs text-[var(--foreground)] outline-none ring-1 ring-transparent transition-all placeholder:text-[var(--muted-foreground)] focus:ring-[var(--primary)]/40"
                       />
                       <div className="mt-1.5 flex flex-wrap gap-1">
-                        {GOAL_SUGGESTIONS.map((s) => (
+                        {GOAL_SUGGESTIONS.map((s, goalSuggestionIndex) => (
                           <button
                             key={s}
                             onClick={() => applySuggestion(setPlayerGoals, s)}
+                            data-testid={`game-setup-wizard-goal-suggestion-button-${goalSuggestionIndex}`}
                             className="flex items-center gap-1 rounded-md bg-[var(--secondary)] px-2 py-0.5 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:text-[var(--primary)] hover:bg-[var(--primary)]/10"
                           >
                             {s === "Surprise me!" && <Sparkles size={9} />}
@@ -2904,6 +2973,7 @@ export function GameSetupWizard({
                         onToggleExpanded={() => toggleLearnedOptions("goals")}
                         onSelect={setPlayerGoals}
                         onForget={(value) => forgetGameSetupOption("goals", value)}
+                        testIdPrefix="game-setup-wizard-learned-goals"
                       />
                     </div>
 
@@ -2917,13 +2987,15 @@ export function GameSetupWizard({
                         onChange={(e) => setPreferences(e.target.value)}
                         placeholder={localizeUi("ui.game.gamesetupwizard.anyExtraDetailsForTheGm")}
                         rows={3}
+                        data-testid="game-setup-wizard-preferences-textarea"
                         className="w-full resize-none rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs text-[var(--foreground)] outline-none ring-1 ring-transparent transition-all placeholder:text-[var(--muted-foreground)] focus:ring-[var(--primary)]/40"
                       />
                       <div className="mt-1.5 flex flex-wrap gap-1">
-                        {PREFERENCE_SUGGESTIONS.map((s) => (
+                        {PREFERENCE_SUGGESTIONS.map((s, preferenceSuggestionIndex) => (
                           <button
                             key={s}
                             onClick={() => setPreferences((prev) => (prev ? `${prev}, ${s.toLowerCase()}` : s))}
+                            data-testid={`game-setup-wizard-preference-suggestion-button-${preferenceSuggestionIndex}`}
                             className="rounded-md bg-[var(--secondary)] px-2 py-0.5 text-[0.625rem] text-[var(--muted-foreground)] transition-colors hover:text-[var(--primary)] hover:bg-[var(--primary)]/10"
                           >
                             {s}
@@ -2936,6 +3008,7 @@ export function GameSetupWizard({
                         onToggleExpanded={() => toggleLearnedOptions("preferences")}
                         onSelect={setPreferences}
                         onForget={(value) => forgetGameSetupOption("preferences", value)}
+                        testIdPrefix="game-setup-wizard-learned-preferences"
                       />
                     </div>
                   </>
@@ -2968,6 +3041,7 @@ export function GameSetupWizard({
                                 <span className="flex-1 truncate text-xs">{lb.name}</span>
                                 <button
                                   onClick={() => toggleLorebook(lb.id)}
+                                  data-testid={`game-setup-wizard-lorebook-remove-${lb.id}`}
                                   className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                                   title={localizeUi("settings.notifications.customSound.actions.remove")}
                                 >
@@ -2987,6 +3061,7 @@ export function GameSetupWizard({
                             value={lbSearch}
                             onChange={(e) => setLbSearch(e.target.value)}
                             placeholder={localizeUi("ui.game.gamesetupwizard.searchLorebooks")}
+                            data-testid="game-setup-wizard-lorebook-search-input"
                             className="flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
                           />
                         </div>
@@ -2995,6 +3070,7 @@ export function GameSetupWizard({
                             <button
                               key={lb.id}
                               onClick={() => toggleLorebook(lb.id)}
+                              data-testid={`game-setup-wizard-lorebook-option-${lb.id}`}
                               className="flex w-full items-center gap-2.5 px-3 py-1.5 text-left transition-all hover:bg-[var(--accent)]"
                             >
                               <BookOpen size={12} className="text-[var(--muted-foreground)]" />
@@ -3030,6 +3106,7 @@ export function GameSetupWizard({
                         setTemplateSpatialMap(false);
                         setSpatialTemplateSelection(null);
                       }}
+                      data-testid="game-setup-wizard-spatial-map-draft-toggle-button"
                       className={cn(
                         "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-all",
                         draftSpatialMap
@@ -3076,6 +3153,7 @@ export function GameSetupWizard({
                         setTemplateSpatialMap(false);
                         setSpatialTemplateSelection(null);
                       }}
+                      data-testid="game-setup-wizard-spatial-map-manual-toggle-button"
                       className={cn(
                         "mt-2 flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-all",
                         manualSpatialMap
@@ -3121,6 +3199,7 @@ export function GameSetupWizard({
                       onClick={() => {
                         setSpatialTemplatePickerOpen(true);
                       }}
+                      data-testid="game-setup-wizard-spatial-map-template-toggle-button"
                       className={cn(
                         "mt-2 flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition-all",
                         templateSpatialMap
@@ -3180,6 +3259,7 @@ export function GameSetupWizard({
                             onChange={(event) => setSpatialMapInstructions(event.target.value)}
                             maxLength={4_000}
                             rows={3}
+                            data-testid="game-setup-wizard-spatial-map-instructions-textarea"
                             placeholder={localizeUi(
                               "ui.game.gamesetupwizard.aMistyCoastalCityWithAHarborMarketHaunted",
                             )}
@@ -3195,7 +3275,7 @@ export function GameSetupWizard({
                             {localizeUi("ui.game.gamesetupwizard.mapSize")}
                           </legend>
                           <div className="mt-2 grid grid-cols-3 gap-2">
-                            {SPATIAL_MAP_DRAFT_SIZE_OPTIONS.map((option) => (
+                            {SPATIAL_MAP_DRAFT_SIZE_OPTIONS.map((option, mapSizeOptionIndex) => (
                               <button
                                 key={option.value}
                                 type="button"
@@ -3205,6 +3285,7 @@ export function GameSetupWizard({
                                   setSpatialMapTargetLocationCount(option.targetLocationCount);
                                   setSpatialMapTargetLocationCountInput(String(option.targetLocationCount));
                                 }}
+                                data-testid={`game-setup-wizard-spatial-map-size-button-${mapSizeOptionIndex}`}
                                 className={cn(
                                   "min-h-12 rounded-lg px-2 py-2 text-left transition-colors",
                                   spatialMapTargetLocationCount === option.targetLocationCount
@@ -3229,6 +3310,7 @@ export function GameSetupWizard({
                               max={SPATIAL_CUSTOM_TARGET_LOCATION_LIMIT}
                               step={1}
                               value={spatialMapTargetLocationCountInput}
+                              data-testid="game-setup-wizard-spatial-map-target-count-input"
                               aria-invalid={!spatialMapTargetLocationCountValid}
                               aria-describedby="game-setup-spatial-map-target-count-help"
                               onChange={(event) => {
@@ -3291,6 +3373,7 @@ export function GameSetupWizard({
                                 aria-pressed={spatialMapGroundingMode === option.value}
                                 disabled={option.value !== "setup" && activeLorebookIds.length === 0}
                                 onClick={() => setSpatialMapGroundingMode(option.value)}
+                                data-testid={`game-setup-wizard-spatial-map-grounding-${option.value}-button`}
                                 className={cn(
                                   "min-h-11 rounded-lg px-2 py-2 text-left text-[0.625rem] font-semibold ring-1 transition-colors disabled:cursor-not-allowed disabled:opacity-40",
                                   spatialMapGroundingMode === option.value
@@ -3338,6 +3421,7 @@ export function GameSetupWizard({
                     <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-3">
                       <button
                         onClick={() => setStartMuted(!startMuted)}
+                        data-testid="game-setup-wizard-start-muted-toggle-button"
                         className="flex w-full items-center justify-between gap-2 text-left"
                       >
                         <div className="flex items-center gap-2">
@@ -3376,6 +3460,7 @@ export function GameSetupWizard({
                         type="button"
                         onClick={() => setAdjustGameAssetsOpen((open) => !open)}
                         aria-expanded={adjustGameAssetsOpen}
+                        data-testid="game-setup-wizard-adjust-game-assets-toggle-button"
                         className="flex w-full items-center justify-between gap-3 text-left"
                       >
                         <div className="flex min-w-0 items-center gap-2">
@@ -3429,6 +3514,7 @@ export function GameSetupWizard({
                       <select
                         value={gamePresentation}
                         onChange={(event) => setGamePresentation(event.target.value === "anime" ? "anime" : "standard")}
+                        data-testid="game-setup-wizard-game-presentation-select"
                         className={GAME_SETUP_INPUT_CLASS}
                       >
                         <option value="standard">{localizeUi("ui.game.gamesetupwizard.standard")}</option>
@@ -3448,6 +3534,7 @@ export function GameSetupWizard({
                       <select
                         value={promptPresetId ?? ""}
                         onChange={(event) => handlePromptPresetChange(event.target.value || null)}
+                        data-testid="game-setup-wizard-prompt-preset-select"
                         className={GAME_SETUP_INPUT_CLASS}
                       >
                         <option value="">{localizeUi("ui.game.gamesurfacecomponent.none")}</option>
@@ -3475,6 +3562,7 @@ export function GameSetupWizard({
                         placeholder={localizeUi("ui.game.gamesetupwizard.writeInTheStyleOfTerryPratchett")}
                         rows={4}
                         maxLength={2000}
+                        data-testid="game-setup-wizard-extra-instructions-textarea"
                         className="w-full resize-y rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs leading-relaxed text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] transition-all placeholder:text-[var(--muted-foreground)]/50 focus:ring-[var(--primary)]/40"
                       />
                       <div className="mt-1 flex justify-end text-[0.5625rem] text-[var(--muted-foreground)]">
@@ -3486,6 +3574,7 @@ export function GameSetupWizard({
                       <button
                         type="button"
                         onClick={() => setCustomGamePromptEnabled((enabled) => !enabled)}
+                        data-testid="game-setup-wizard-custom-game-prompt-toggle-button"
                         className="flex w-full items-center justify-between gap-2 text-left"
                       >
                         <div className="flex min-w-0 items-center gap-2">
@@ -3552,6 +3641,7 @@ export function GameSetupWizard({
                             }}
                             rows={10}
                             maxLength={16000}
+                            data-testid="game-setup-wizard-game-system-prompt-textarea"
                             className="max-h-72 min-h-48 w-full resize-y rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs leading-relaxed text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] transition-all placeholder:text-[var(--muted-foreground)]/50 focus:ring-[var(--primary)]/40"
                           />
                           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -3566,6 +3656,7 @@ export function GameSetupWizard({
                                 setGameSystemPromptDraft(effectiveGameSystemPrompt);
                                 setGameSystemPromptEdited(false);
                               }}
+                              data-testid="game-setup-wizard-game-system-prompt-reset-button"
                               className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                             >
                               <RotateCcw size={11} />
@@ -3628,6 +3719,7 @@ export function GameSetupWizard({
                     onClick={() => {
                       if (i < step) setStep(i);
                     }}
+                    data-testid={`game-setup-wizard-step-dot-${i}`}
                     className={cn(
                       "h-1.5 rounded-full transition-all duration-300 disabled:cursor-default",
                       i === step
@@ -3673,6 +3765,7 @@ export function GameSetupWizard({
                       type="button"
                       onClick={handleExportSetup}
                       disabled={isLoading}
+                      data-testid="game-setup-wizard-export-setup-button"
                       className={cn(GAME_SETUP_GHOST_BUTTON_CLASS, "disabled:cursor-wait disabled:opacity-40")}
                     >
                       <Download size={14} />
@@ -3682,6 +3775,7 @@ export function GameSetupWizard({
                       type="button"
                       onClick={handleComplete}
                       disabled={isLoading || !canStart}
+                      data-testid="game-setup-wizard-start-game-button"
                       className={GAME_SETUP_PRIMARY_BUTTON_CLASS}
                       title={canStartMessage ?? undefined}
                     >

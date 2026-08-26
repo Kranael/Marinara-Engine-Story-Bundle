@@ -66,6 +66,7 @@ export function FunctionCallingSection({
           description={localizeUi("ui.chatSettings.functioncallingsection.allowAiToCallFunctionsDiceRollsGameState")}
           checked={!!enableTools}
           onChange={onEnableToolsChange}
+          testId="function-calling-enable-tools-switch"
           labelPosition="start"
           className={cn(
             "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -88,6 +89,7 @@ export function FunctionCallingSection({
               description={localizeUi("ui.chatSettings.functioncallingsection.forceToCallToolDescription")}
               checked={!!forceToolCall}
               onChange={onForceToolCallChange}
+              testId="function-calling-force-tool-switch"
               labelPosition="start"
               className={cn(
                 "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -117,6 +119,7 @@ export function FunctionCallingSection({
                       </div>
                       <button
                         onClick={() => onToggleTool(tool.id)}
+                        data-testid={`function-calling-remove-tool-${tool.id}`}
                         className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                         title={localizeUi("ui.chatSettings.functioncallingsection.removeFromChat")}
                       >
@@ -137,6 +140,7 @@ export function FunctionCallingSection({
                     onToolSearchChange("");
                     onPendingToolIdsChange(() => []);
                   }}
+                  data-testid="function-calling-add-functions-button"
                   className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                 >
                   <Plus size="0.75rem" /> {localizeUi("ui.chatSettings.functioncallingsection.addFunctions")}
@@ -144,6 +148,7 @@ export function FunctionCallingSection({
                 <button
                   type="button"
                   onClick={onCreateCustomTool}
+                  data-testid="function-calling-new-custom-function-button"
                   className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                 >
                   <FilePlus2 size="0.75rem" /> {localizeUi("ui.chatSettings.functioncallingsection.newCustomFunction")}
@@ -160,6 +165,7 @@ export function FunctionCallingSection({
                     <button
                       type="button"
                       onClick={onCreateCustomTool}
+                      data-testid="function-calling-picker-new-custom-function-button"
                       className="flex w-full items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     >
                       <FilePlus2 size="0.75rem" />{" "}
@@ -169,6 +175,7 @@ export function FunctionCallingSection({
                       type="button"
                       disabled={pendingToolIds.length === 0}
                       onClick={onAddPendingTools}
+                      data-testid="function-calling-add-selected-button"
                       className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
                     >
                       <Plus size="0.75rem" />
@@ -192,6 +199,7 @@ export function FunctionCallingSection({
                           previous.includes(tool.id) ? previous.filter((id) => id !== tool.id) : [...previous, tool.id],
                         )
                       }
+                      data-testid={`function-calling-picker-tool-${tool.id}`}
                       className={cn(
                         "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                         selected && "bg-[var(--primary)]/10 ring-1 ring-[var(--primary)]/30",

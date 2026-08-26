@@ -221,6 +221,7 @@ function ThoughtBubble({
                   : localizeUi("ui.trackerPanel.thoughtbubble.hideThoughts")
               }
               aria-pressed={hidden}
+              data-testid="thought-bubble-toggle-hidden"
               className={cn(
                 "px-0 py-0 text-left font-medium italic text-[color-mix(in_srgb,var(--foreground)_86%,transparent)] transition-colors hover:bg-[var(--foreground)]/8",
                 compactThoughtBubble && "w-fit max-w-full",
@@ -326,6 +327,7 @@ export function InlineThoughtBubble({
                   : localizeUi("ui.trackerPanel.thoughtbubble.hideThoughts")
               }
               aria-pressed={hidden}
+              data-testid="inline-thought-bubble-toggle-hidden"
               className={cn(
                 "w-full px-0 py-0 text-left font-medium italic text-[color:var(--tracker-profile-text)] transition-colors hover:bg-[color-mix(in_srgb,var(--tracker-profile-accent-solid)_10%,transparent)]",
                 editMinHeightClassName,

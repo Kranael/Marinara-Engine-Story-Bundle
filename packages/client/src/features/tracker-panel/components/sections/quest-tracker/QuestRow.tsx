@@ -123,6 +123,7 @@ export function QuestRow({
                 ? onToggleFieldLock?.(questCompletedLockKey)
                 : onUpdate({ ...quest, completed: !quest.completed })
             }
+            data-testid="quest-row-toggle-completed"
             className={cn(
               QUEST_TOGGLE_BUTTON_CLASS,
               quest.completed && !lockMode && "text-emerald-300",
@@ -200,6 +201,7 @@ export function QuestRow({
           <button
             type="button"
             onClick={onRemove}
+            data-testid="quest-row-remove-button"
             className={QUEST_REMOVE_BUTTON_CLASS}
             title={localizeUi("ui.trackerPanel.questrow.removeQuest")}
             aria-label={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", {
@@ -241,6 +243,7 @@ export function QuestRow({
             <button
               type="button"
               onClick={addObjective}
+              data-testid="quest-row-add-objective-button"
               className={ADD_OBJECTIVE_BUTTON_CLASS}
               title={localizeUi("ui.trackerPanel.questrow.addObjective")}
               aria-label={localizeUi("ui.trackerPanel.questrow.addObjective")}

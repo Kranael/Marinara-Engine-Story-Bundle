@@ -49,6 +49,7 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
           <select
             value={provider}
             onChange={(e) => onMetadataChange({ translationProvider: e.target.value })}
+            data-testid="translation-provider-select"
             className="mt-0.5 w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
           >
             <option value="google">{localizeUi("ui.chatSettings.translationsection.googleTranslate")}</option>
@@ -66,6 +67,7 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
           provider={provider}
           value={inputTargetLanguage}
           onChange={(value) => onMetadataChange({ translationInputTargetLang: value })}
+          testId="translation-input-language"
         />
 
         <TranslationLanguageField
@@ -76,6 +78,7 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
           provider={provider}
           value={outputTargetLanguage}
           onChange={(value) => onMetadataChange({ translationOutputTargetLang: value })}
+          testId="translation-output-language"
         />
 
         {provider === "ai" && (
@@ -91,6 +94,7 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
               <select
                 value={(metadata.translationConnectionId as string | undefined) ?? ""}
                 onChange={(e) => onMetadataChange({ translationConnectionId: e.target.value })}
+                data-testid="translation-connection-select"
                 className="mt-0.5 w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
               >
                 <option value="">{localizeUi("ui.chatSettings.translationsection.selectConnection")}</option>
@@ -107,12 +111,14 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
               customPrompt={inputPrompt}
               onChange={(value) => updatePrompt("translationInputPrompt", value)}
               onRestore={() => onMetadataChange({ translationInputPrompt: null })}
+              testId="translation-input-prompt"
             />
             <TranslationPromptField
               label={localizeUi("ui.chatSettings.translationsection.incomingResponsePrompt")}
               customPrompt={outputPrompt}
               onChange={(value) => updatePrompt("translationOutputPrompt", value)}
               onRestore={() => onMetadataChange({ translationOutputPrompt: null })}
+              testId="translation-output-prompt"
             />
           </>
         )}
@@ -127,6 +133,7 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
               value={(metadata.translationDeeplApiKey as string | undefined) ?? ""}
               onChange={(e) => onMetadataChange({ translationDeeplApiKey: e.target.value })}
               placeholder={localizeUi("ui.chatSettings.translationsection.xxxxxxxxXxxxXxxxXxxxXxxxxxxxxxxxFx")}
+              data-testid="translation-deepl-api-key-input"
               className="mt-0.5 w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
             />
           </div>
@@ -146,6 +153,7 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
               value={(metadata.translationDeeplxUrl as string | undefined) ?? ""}
               onChange={(e) => onMetadataChange({ translationDeeplxUrl: e.target.value })}
               placeholder={localizeUi("ui.chatSettings.translationsection.httpLocalhost1188")}
+              data-testid="translation-deeplx-url-input"
               className="mt-0.5 w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
             />
           </div>
@@ -158,6 +166,7 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
             "ui.chatSettings.translationsection.automaticallyTranslateAiResponsesAfterGeneration",
           )}
           onToggle={() => onMetadataChange({ autoTranslate: !metadata.autoTranslate })}
+          testId="translation-auto-translate-switch"
         />
         <TranslationToggle
           enabled={metadata.translateInput === true}
@@ -166,18 +175,21 @@ export function TranslationSection({ metadata, textConnections, onMetadataChange
             "ui.chatSettings.translationsection.translateYourMessagesToTheTargetLanguageBeforeSending",
           )}
           onToggle={() => onMetadataChange({ translateInput: !metadata.translateInput })}
+          testId="translation-translate-input-switch"
         />
         <TranslationToggle
           enabled={metadata.showInputTranslateButton === true}
           title={localizeUi("ui.chatSettings.translationsection.showDraftTranslateButton")}
           description={localizeUi("ui.chatSettings.translationsection.addATranslateButtonBesideSendSoYouCan")}
           onToggle={() => onMetadataChange({ showInputTranslateButton: !metadata.showInputTranslateButton })}
+          testId="translation-show-input-translate-button-switch"
         />
         <TranslationToggle
           enabled={metadata.translationDisplayOnly === true}
           title={localizeUi("ui.chatSettings.translationsection.showOnlyTranslation")}
           description={localizeUi("ui.chatSettings.translationsection.onceAMessageIsTranslatedShowJustTheTranslation")}
           onToggle={() => onMetadataChange({ translationDisplayOnly: !metadata.translationDisplayOnly })}
+          testId="translation-display-only-switch"
         />
       </div>
     </ChatSettingsSection>
@@ -190,12 +202,14 @@ function TranslationLanguageField({
   provider,
   value,
   onChange,
+  testId,
 }: {
   label: string;
   description: string;
   provider: string;
   value: string;
   onChange: (value: string) => void;
+  testId: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   return (
@@ -219,6 +233,7 @@ function TranslationLanguageField({
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        data-testid={`${testId}-input`}
         placeholder={
           provider === "ai"
             ? localizeUi("ui.chatSettings.translationlanguagefield.english")
@@ -235,11 +250,13 @@ function TranslationPromptField({
   customPrompt,
   onChange,
   onRestore,
+  testId,
 }: {
   label: string;
   customPrompt: string;
   onChange: (value: string) => void;
   onRestore: () => void;
+  testId: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   return (
@@ -258,6 +275,7 @@ function TranslationPromptField({
           <button
             type="button"
             onClick={onRestore}
+            data-testid={`${testId}-restore-button`}
             className="flex shrink-0 items-center gap-1 rounded-md bg-[var(--secondary)] px-2 py-0.5 text-[0.625rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             title={localizeUi("ui.agents.agenteditor.restoreDefaultPrompt")}
           >
@@ -270,6 +288,7 @@ function TranslationPromptField({
         value={customPrompt || DEFAULT_TRANSLATION_SYSTEM_PROMPT}
         onChange={(event) => onChange(event.target.value)}
         rows={5}
+        data-testid={`${testId}-textarea`}
         className="min-h-28 w-full resize-y rounded-lg bg-[var(--secondary)] px-3 py-2 font-mono text-xs leading-relaxed outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
       />
     </div>
@@ -281,11 +300,13 @@ function TranslationToggle({
   title,
   description,
   onToggle,
+  testId,
 }: {
   enabled: boolean;
   title: string;
   description: string;
   onToggle: () => void;
+  testId: string;
 }) {
   return (
     <SettingsSwitch
@@ -293,6 +314,7 @@ function TranslationToggle({
       description={description}
       checked={enabled}
       onChange={onToggle}
+      testId={testId}
       labelPosition="start"
       className={[
         "justify-between rounded-lg px-3 py-2.5 text-left",

@@ -284,6 +284,7 @@ export function TrackerPortraitStage({
               event.stopPropagation();
               updateZoom(-TRACKER_PORTRAIT_ZOOM_STEP);
             }}
+            data-testid="tracker-portrait-zoom-out-button"
             title={localizeUi("ui.trackerPanel.trackerportraitstage.zoomPortraitOut")}
             aria-label={localizeUi("ui.trackerPanel.trackerportraitstage.zoomPortraitOut")}
             className={PORTRAIT_VIEW_BUTTON_CLASS}
@@ -296,6 +297,7 @@ export function TrackerPortraitStage({
               event.stopPropagation();
               updateZoom(TRACKER_PORTRAIT_ZOOM_STEP);
             }}
+            data-testid="tracker-portrait-zoom-in-button"
             title={localizeUi("ui.trackerPanel.trackerportraitstage.zoomPortraitIn")}
             aria-label={localizeUi("ui.trackerPanel.trackerportraitstage.zoomPortraitIn")}
             className={PORTRAIT_VIEW_BUTTON_CLASS}
@@ -308,6 +310,7 @@ export function TrackerPortraitStage({
               event.stopPropagation();
               resetPortraitView();
             }}
+            data-testid="tracker-portrait-reset-view-button"
             title={localizeUi("ui.trackerPanel.trackerportraitstage.resetPortraitView")}
             aria-label={localizeUi("ui.trackerPanel.trackerportraitstage.resetPortraitView")}
             className={PORTRAIT_VIEW_BUTTON_CLASS}
@@ -334,6 +337,7 @@ export function TrackerPortraitStage({
         <button
           type="button"
           onClick={uploadAction.onClick}
+          data-testid="tracker-portrait-upload-hit-target"
           title={uploadAction.title}
           aria-label={uploadAction.ariaLabel}
           className={cn(
@@ -349,6 +353,7 @@ export function TrackerPortraitStage({
             event.stopPropagation();
             uploadAction.onClick();
           }}
+          data-testid="tracker-portrait-upload-button"
           title={uploadAction.title}
           aria-label={uploadAction.ariaLabel}
           className={PORTRAIT_UPLOAD_BUTTON_CLASS}

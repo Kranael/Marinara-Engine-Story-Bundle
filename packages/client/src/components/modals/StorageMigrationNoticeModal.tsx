@@ -74,6 +74,7 @@ export function StorageMigrationNoticeModal({ presentationAllowed }: { presentat
           onClick={() => setShowTechnical((value) => !value)}
           aria-expanded={showTechnical}
           className="flex items-center gap-1.5 text-sm font-medium text-[var(--primary)] active:scale-95"
+          data-testid="storage-migration-notice-toggle-technical-button"
         >
           {showTechnical ? (
             <ChevronDown size="0.875rem" aria-hidden="true" />
@@ -109,6 +110,7 @@ export function StorageMigrationNoticeModal({ presentationAllowed }: { presentat
             type="button"
             onClick={openStorageGuide}
             className="mari-chrome-control min-h-10 justify-center px-4 py-2 text-sm"
+            data-testid="storage-migration-notice-open-guide-button"
           >
             <BookOpen size="0.875rem" aria-hidden="true" />
             {localizeUi("ui.modals.storagemigrationnoticemodal.openTheStorageGuide")}
@@ -117,6 +119,7 @@ export function StorageMigrationNoticeModal({ presentationAllowed }: { presentat
             type="button"
             onClick={handleDismiss}
             className="mari-chrome-control mari-chrome-control--primary min-h-10 justify-center px-5 py-2 text-sm"
+            data-testid="storage-migration-notice-dismiss-button"
           >
             {localizeUi("ui.modals.storagemigrationnoticemodal.gotIt")}
           </button>

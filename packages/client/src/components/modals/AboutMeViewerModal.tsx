@@ -369,6 +369,7 @@ export function AboutMeViewerModal({
           onClick={onClose}
           className="absolute right-2 top-2 rounded-lg bg-black/25 p-1 text-white/90 transition-colors hover:bg-black/40"
           aria-label={localizeUi("capabilities.actions.close")}
+          data-testid="about-me-viewer-close-button"
         >
           <X size="0.875rem" />
         </button>
@@ -491,6 +492,7 @@ export function AboutMeViewerModal({
                       "w-full rounded-lg border border-[var(--border)] bg-[var(--background)] p-2 pr-9 text-[0.8125rem] leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20",
                       isMobile ? "h-full resize-none" : "resize-y",
                     )}
+                    data-testid="about-me-viewer-textarea"
                   />
                   <button
                     ref={emojiBtnRef}
@@ -506,6 +508,7 @@ export function AboutMeViewerModal({
                     }}
                     aria-label={localizeUi("chat.input.emoji")}
                     className="absolute bottom-2 right-2 rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                    data-testid="about-me-viewer-emoji-toggle-button"
                   >
                     <Smile size="1rem" />
                   </button>
@@ -524,6 +527,7 @@ export function AboutMeViewerModal({
                     onClick={handleClear}
                     disabled={isPending}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
+                    data-testid="about-me-viewer-clear-button"
                   >
                     <Trash2 size="0.8125rem" />
                     {localizeUi("lorebook.editor.batch.clear")}
@@ -537,6 +541,7 @@ export function AboutMeViewerModal({
                     setEditing(true);
                   }}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-2.5 py-1.5 text-xs font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
+                  data-testid="about-me-viewer-edit-button"
                 >
                   <Pencil size="0.8125rem" />
                   {localizeUi("ui.noodle.noodlepostcard.edit")}
@@ -550,6 +555,7 @@ export function AboutMeViewerModal({
                     onClick={() => setDraft(editBaseline)}
                     title={localizeUi("ui.characters.convoprofilefields.undoTheChangesToThisAboutMe")}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
+                    data-testid="about-me-viewer-revert-button"
                   >
                     <Undo2 size="0.8125rem" />
                     {localizeUi("ui.characters.convoprofilefields.revert")}
@@ -559,6 +565,7 @@ export function AboutMeViewerModal({
                   type="button"
                   onClick={() => setEditing(false)}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
+                  data-testid="about-me-viewer-cancel-edit-button"
                 >
                   <RotateCcw size="0.8125rem" />
                   {localizeUi("chat.delete.dialog.cancel")}
@@ -568,6 +575,7 @@ export function AboutMeViewerModal({
                   onClick={handleSave}
                   disabled={isPending}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-2.5 py-1.5 text-xs font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
+                  data-testid="about-me-viewer-save-button"
                 >
                   <Save size="0.8125rem" />
                   {isPending

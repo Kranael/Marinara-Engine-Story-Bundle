@@ -11,17 +11,20 @@ export function AddRowButton({
   onClick,
   title,
   className,
+  testId,
 }: {
   children?: ReactNode;
   onClick: () => void;
   title?: string;
   className?: string;
+  testId?: string;
 }) {
   const label = title ?? (typeof children === "string" ? `Add ${children}` : "Add row");
   return (
     <button
       type="button"
       onClick={onClick}
+      data-testid={testId}
       title={label}
       aria-label={label}
       className={cn(
@@ -44,6 +47,7 @@ export function SectionIconButton({
   pressed,
   tone = "utility",
   className,
+  testId,
 }: {
   children: ReactNode;
   onClick: () => void;
@@ -52,12 +56,14 @@ export function SectionIconButton({
   pressed?: boolean;
   tone?: "utility" | "feature";
   className?: string;
+  testId?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      data-testid={testId}
       title={title}
       aria-label={title}
       aria-pressed={pressed}
@@ -86,6 +92,7 @@ export function SectionHeader({
   className,
   collapsed = false,
   onToggle,
+  testId,
 }: {
   icon: ReactNode;
   title: string;
@@ -96,6 +103,7 @@ export function SectionHeader({
   className?: string;
   collapsed?: boolean;
   onToggle?: () => void;
+  testId?: string;
 }) {
   const collapsible = !!onToggle;
   const toggleTitle = `${collapsed ? "Expand" : "Collapse"} ${title}`;
@@ -147,6 +155,7 @@ export function SectionHeader({
           aria-expanded={!collapsed}
           title={toggleTitle}
           onClick={onToggle}
+          data-testid={testId}
           className={mainClassName}
         >
           {mainContent}

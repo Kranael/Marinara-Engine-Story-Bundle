@@ -88,6 +88,7 @@ export function FolderTree({
             }
             aria-expanded={isExpanded}
             onClick={() => onToggle(node.path)}
+            data-testid={`game-assets-folder-toggle-${node.path}`}
             className="flex shrink-0 items-center justify-center rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           >
             {isExpanded ? <ChevronDown size="0.75rem" /> : <ChevronRight size="0.75rem" />}
@@ -98,6 +99,7 @@ export function FolderTree({
         <button
           type="button"
           onClick={() => onSelect(node.path)}
+          data-testid={`game-assets-folder-select-${node.path}`}
           className="flex flex-1 items-center gap-1.5 overflow-hidden"
         >
           <CategoryIcon size="0.875rem" className="shrink-0" />
@@ -110,6 +112,7 @@ export function FolderTree({
               e.stopPropagation();
               onOpenFolderSelection?.(node, e.currentTarget);
             }}
+            data-testid={`game-assets-folder-selection-${node.path}`}
             className={
               "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors " +
               (selectionStatus === "excluded"

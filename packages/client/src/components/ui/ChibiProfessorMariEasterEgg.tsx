@@ -33,6 +33,7 @@ function showChibiProfessorMariToast() {
       <div className="relative flex max-w-[360px] gap-3 pr-8 text-[var(--foreground)]">
         <button
           type="button"
+          data-testid="chibi-professor-mari-dismiss-button"
           onClick={() => toast.dismiss(toastId)}
           className="absolute right-0 top-0 rounded-full p-1 text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/60"
           aria-label={translate("ui.chibiProfessorMari.dismiss")}

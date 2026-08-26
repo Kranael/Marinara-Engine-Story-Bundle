@@ -354,6 +354,7 @@ export function AgentCatalogView() {
       <header className="relative z-10 flex shrink-0 items-center gap-3 border-b border-[var(--border)]/50 bg-[var(--card)]/90 px-3 py-2 backdrop-blur-md md:px-6 md:py-3">
         <button
           type="button"
+          data-testid="agent-catalog-back"
           onClick={closeAgentCatalog}
           className="mari-chrome-control h-9 w-9 shrink-0 rounded-xl p-0 md:h-10 md:w-10"
           title={localizeUi("capabilities.actions.backToAgents")}
@@ -378,6 +379,7 @@ export function AgentCatalogView() {
         {customRepositories.data?.enabled && (
           <button
             type="button"
+            data-testid="agent-catalog-custom-sources"
             className="mari-chrome-control h-9 shrink-0 px-3 text-xs md:h-10 md:px-4"
             onClick={() => setCustomRepositoriesOpen(true)}
             aria-label={localizeUi("ui.agents.agentcatalogview.customSources")}
@@ -388,6 +390,7 @@ export function AgentCatalogView() {
         )}
         <button
           type="button"
+          data-testid="agent-catalog-refresh"
           className="mari-chrome-control h-9 shrink-0 px-3 text-xs md:h-10 md:px-4"
           onClick={() => void Promise.all([catalog.refetch(), installed.refetch()])}
           disabled={catalog.isFetching || installed.isFetching || packageActionPending}
@@ -411,6 +414,7 @@ export function AgentCatalogView() {
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]"
               />
               <input
+                data-testid="agent-catalog-search"
                 className="mari-chrome-field h-10 w-full pl-9 pr-3 text-sm"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
@@ -422,6 +426,7 @@ export function AgentCatalogView() {
             <div className="mt-2 grid grid-cols-2 gap-2">
               <button
                 type="button"
+                data-testid="agent-catalog-install-all"
                 className="mari-chrome-control mari-chrome-control--primary h-9 min-h-9! min-w-0 px-2! text-xs"
                 onClick={() => void handleInstallAll()}
                 disabled={
@@ -449,6 +454,7 @@ export function AgentCatalogView() {
               </button>
               <button
                 type="button"
+                data-testid="agent-catalog-uninstall-all"
                 className="mari-chrome-control h-9 min-w-0 px-2 text-xs"
                 onClick={() => void handleUninstallAll()}
                 disabled={
@@ -509,6 +515,7 @@ export function AgentCatalogView() {
                   </p>
                 </div>
                 <button
+                  data-testid="agent-catalog-retry"
                   className="mari-chrome-control mari-chrome-control--primary px-4 py-2"
                   onClick={() => void catalog.refetch()}
                 >
@@ -568,6 +575,7 @@ export function AgentCatalogView() {
                                     <button
                                       key={entry.manifest.id}
                                       type="button"
+                                      data-testid={`agent-catalog-item-${entry.manifest.id}`}
                                       onClick={() => {
                                         setSelectedId(entry.manifest.id);
                                         setMobileDetail(true);
@@ -636,6 +644,7 @@ export function AgentCatalogView() {
             <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col gap-6 px-4 py-4 md:px-8 md:py-8 lg:px-12">
               <button
                 type="button"
+                data-testid="agent-catalog-mobile-back"
                 className="mari-chrome-control mb-1 w-fit px-3 py-2 text-sm md:!hidden"
                 onClick={() => setMobileDetail(false)}
               >
@@ -745,7 +754,13 @@ export function AgentCatalogView() {
 
               <div className="mt-auto flex flex-wrap items-center gap-3 border-t border-[var(--border)] pt-5">
                 {selected.documentationUrl && (
-                  <a href={selected.documentationUrl} target="_blank" rel="noreferrer" className={DETAIL_ACTION_CLASS}>
+                  <a
+                    data-testid="agent-catalog-documentation"
+                    href={selected.documentationUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={DETAIL_ACTION_CLASS}
+                  >
                     <ExternalLink size="0.85rem" /> {localizeUi("ui.agents.agentcatalogview.readHowThisAgentWorks")}
                   </a>
                 )}
@@ -754,6 +769,7 @@ export function AgentCatalogView() {
                     <>
                       <button
                         type="button"
+                        data-testid="agent-catalog-uninstall"
                         className={DETAIL_ACTION_CLASS}
                         disabled={packageActionPending}
                         onClick={() => void handleUninstall(selected)}
@@ -768,6 +784,7 @@ export function AgentCatalogView() {
                       {selectedVersionComparison > 0 && (
                         <button
                           type="button"
+                          data-testid="agent-catalog-update"
                           className={DETAIL_ACTION_CLASS}
                           disabled={packageActionPending}
                           onClick={() => void handleInstall(selected)}
@@ -779,6 +796,7 @@ export function AgentCatalogView() {
                   ) : (
                     <button
                       type="button"
+                      data-testid="agent-catalog-install"
                       className={DETAIL_ACTION_CLASS}
                       disabled={packageActionPending}
                       onClick={() => void handleInstall(selected)}

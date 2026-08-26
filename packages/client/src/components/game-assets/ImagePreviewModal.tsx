@@ -60,6 +60,7 @@ export function ImagePreviewModal({ node, onClose }: { node: TreeNode; onClose: 
               e.stopPropagation();
               setShowInfo(!showInfo);
             }}
+            data-testid="game-assets-image-info-toggle-button"
             className="absolute right-2 top-2 rounded-full bg-black/50 p-1.5 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/70 hover:text-white"
             title={localizeUi("ui.gameAssets.imagepreviewmodal.fileInfo")}
           >

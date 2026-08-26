@@ -598,6 +598,7 @@ export function PersonasPanel() {
       <div className="flex gap-2">
         <button
           onClick={handleCreate}
+          data-testid="personas-panel-create-persona-button"
           className="mari-panel-gradient-button mari-panel-gradient--personas flex-1 text-xs"
           title={localizeUi("ui.lorebooks.lorebookassignmentsection.new")}
         >
@@ -605,6 +606,7 @@ export function PersonasPanel() {
         </button>
         <button
           onClick={() => openModal("import-persona")}
+          data-testid="personas-panel-import-persona-button"
           className="mari-chrome-control mari-chrome-control--primary flex-1 text-xs"
           title={localizeUi("ui.chat.chatbranchselector.import")}
         >
@@ -615,6 +617,7 @@ export function PersonasPanel() {
             if (selectionMode) exitSelectionMode();
             else setSelectionMode(true);
           }}
+          data-testid="personas-panel-select-button"
           className={cn(
             "mari-chrome-control mari-chrome-control--primary flex-1 text-xs",
             selectionMode && "mari-chrome-control--selected",
@@ -641,6 +644,7 @@ export function PersonasPanel() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
+            data-testid="personas-panel-sort-select"
             className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
             title={localizeUi("ui.panels.agentspanel.sortOrder")}
           >
@@ -661,6 +665,7 @@ export function PersonasPanel() {
         <div className="flex items-center gap-1">
           <button
             onClick={handleCreateFolder}
+            data-testid="personas-panel-create-folder-button"
             className="mari-chrome-control mari-chrome-control--small flex-1 justify-start text-[0.6875rem]"
           >
             <FolderPlus size="0.75rem" />
@@ -680,6 +685,7 @@ export function PersonasPanel() {
           <button
             key={opt}
             onClick={() => setFavFilter(opt)}
+            data-testid={`personas-panel-fav-filter-${opt}`}
             className={cn(
               "mari-chrome-control mari-chrome-control--compact",
               favFilter === opt && "mari-chrome-control--selected",
@@ -695,6 +701,7 @@ export function PersonasPanel() {
         {allTags.length > 0 && (
           <button
             onClick={() => setTagsExpanded(!tagsExpanded)}
+            data-testid="personas-panel-tags-toggle-button"
             className={cn(
               "mari-chrome-control mari-chrome-control--compact",
               activeTag && "mari-chrome-control--selected",
@@ -712,6 +719,7 @@ export function PersonasPanel() {
           {activeTag && (
             <button
               onClick={() => setActiveTag(null)}
+              data-testid="personas-panel-clear-tag-filter-button"
               className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--danger"
             >
               <X size="0.5rem" /> {localizeUi("lorebook.editor.batch.clear")}
@@ -722,6 +730,7 @@ export function PersonasPanel() {
               key={tag}
               role="button"
               tabIndex={0}
+              data-testid={`personas-panel-tag-toggle-${tag}`}
               onClick={() => setActiveTag(activeTag === tag ? null : tag)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -741,6 +750,7 @@ export function PersonasPanel() {
                   e.stopPropagation();
                   handleDeleteTag(tag);
                 }}
+                data-testid={`personas-panel-delete-tag-button-${tag}`}
                 className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-[var(--destructive)]/20 hover:text-[var(--destructive)]"
                 title={localizeUi("ui.panels.characterspanel.deleteTagValue1", { value1: tag })}
               >
@@ -752,7 +762,7 @@ export function PersonasPanel() {
       )}
 
       {/* Hidden file input for avatar uploads */}
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" data-testid="personas-panel-avatar-input" onChange={handleAvatarUpload} />
 
       <div className="flex flex-col gap-0.5">
         {/* Folder rows */}
@@ -826,6 +836,7 @@ export function PersonasPanel() {
                     <input
                       autoFocus
                       value={editGroupName}
+                      data-testid={`personas-panel-folder-name-input-${group.id}`}
                       onChange={(e) => setEditGroupName(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") e.currentTarget.blur();
@@ -870,6 +881,7 @@ export function PersonasPanel() {
                       e.stopPropagation();
                       void handleDeleteGroup(group);
                     }}
+                    data-testid={`personas-panel-delete-folder-button-${group.id}`}
                     className="mari-chrome-control mari-chrome-control--small p-1"
                     title={localizeUi("ui.panels.backgroundpicker.deleteFolder")}
                   >
@@ -961,6 +973,7 @@ export function PersonasPanel() {
                                 e.stopPropagation();
                                 toggleSelection(pid);
                               }}
+                              data-testid={`persona-folder-select-checkbox-${pid}`}
                               className={cn(
                                 "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
                                 isBulkSelected
@@ -1033,6 +1046,7 @@ export function PersonasPanel() {
                                   e.stopPropagation();
                                   void movePersonasToFolder([pid], null);
                                 }}
+                                data-testid={`persona-folder-remove-button-${pid}`}
                                 className="rounded p-0.5 text-[var(--muted-foreground)] transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]"
                                 title={localizeUi("ui.panels.characterspanel.removeFromFolder")}
                               >
@@ -1149,6 +1163,7 @@ export function PersonasPanel() {
                     e.stopPropagation();
                     toggleSelection(persona.id);
                   }}
+                  data-testid={`persona-select-checkbox-${persona.id}`}
                   className={cn(
                     "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
                     isBulkSelected
@@ -1182,6 +1197,7 @@ export function PersonasPanel() {
               {/* Avatar */}
               <button
                 onClick={(e) => handleAvatarClick(e, persona.id)}
+                data-testid={`persona-avatar-button-${persona.id}`}
                 className="mari-avatar-placeholder mari-avatar-placeholder--persona relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm group/avatar"
                 title={localizeUi("ui.panels.personaspanel.changeAvatar")}
               >
@@ -1245,6 +1261,7 @@ export function PersonasPanel() {
                         e.stopPropagation();
                         activatePersona.mutate(persona.id);
                       }}
+                      data-testid={`persona-activate-button-${persona.id}`}
                       className="mari-chrome-control mari-chrome-control--small mari-chrome-control--selected p-1.5"
                       title={localizeUi("ui.panels.personaspanel.setAsActive")}
                     >
@@ -1262,6 +1279,7 @@ export function PersonasPanel() {
                         },
                       });
                     }}
+                    data-testid={`persona-duplicate-button-${persona.id}`}
                     className="mari-chrome-control mari-chrome-control--small p-1.5"
                     title={localizeUi("ui.presets.sectionstab.duplicate")}
                   >
@@ -1284,6 +1302,7 @@ export function PersonasPanel() {
                       }
                       deletePersona.mutate(persona.id);
                     }}
+                    data-testid={`persona-delete-button-${persona.id}`}
                     className="mari-chrome-control mari-chrome-control--small p-1.5"
                     title={localizeUi("lorebook.editor.batch.delete")}
                   >

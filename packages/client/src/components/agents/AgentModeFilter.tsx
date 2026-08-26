@@ -31,6 +31,7 @@ export function AgentModeFilter({
         <button
           key={mode}
           type="button"
+          data-testid={`agent-mode-filter-${mode}`}
           className={cn(
             "mari-chrome-control h-8 min-h-8 w-full min-w-0 px-1 text-[0.625rem]",
             value === mode && "mari-chrome-control--selected",

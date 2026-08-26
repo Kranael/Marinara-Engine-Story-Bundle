@@ -410,6 +410,7 @@ export function GameSessionHistory({
           </div>
           <button
             onClick={onClose}
+            data-testid="game-session-history-close-button"
             className="rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           >
             <X size={16} />
@@ -434,6 +435,7 @@ export function GameSessionHistory({
                       setSecretDraft(buildCurrentSecretsDraft(currentSecrets));
                     }
                   }}
+                  data-testid="game-session-history-spoilers-toggle-button"
                   className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--secondary)] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                   title={
                     spoilersVisible
@@ -453,6 +455,7 @@ export function GameSessionHistory({
                     type="button"
                     onClick={onCurrentSessionAction}
                     disabled={currentSessionActionDisabled}
+                    data-testid="game-session-history-current-session-action-button"
                     className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--secondary)] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                     title={currentSessionActionLabel}
                     aria-label={currentSessionActionLabel}
@@ -482,6 +485,7 @@ export function GameSessionHistory({
                         }
                         rows={5}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secret-world-overview-textarea"
                         className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                       />
                     </label>
@@ -496,6 +500,7 @@ export function GameSessionHistory({
                         }
                         rows={5}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secret-story-arc-textarea"
                         className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                       />
                     </label>
@@ -510,6 +515,7 @@ export function GameSessionHistory({
                         }
                         rows={5}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secret-plot-twists-textarea"
                         placeholder={localizeUi("ui.game.gamesessionhistory.onePlotTwistPerLine")}
                         className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                       />
@@ -525,6 +531,7 @@ export function GameSessionHistory({
                         }
                         rows={8}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secret-party-arcs-textarea"
                         className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 font-mono text-xs leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                       />
                     </label>
@@ -539,6 +546,7 @@ export function GameSessionHistory({
                         }
                         rows={10}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secret-maps-textarea"
                         className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 font-mono text-xs leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                       />
                     </label>
@@ -553,6 +561,7 @@ export function GameSessionHistory({
                         }
                         rows={8}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secret-npcs-textarea"
                         className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 font-mono text-xs leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                       />
                     </label>
@@ -567,6 +576,7 @@ export function GameSessionHistory({
                         }
                         rows={8}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secret-character-cards-textarea"
                         className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 font-mono text-xs leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                       />
                     </label>
@@ -575,6 +585,7 @@ export function GameSessionHistory({
                         type="button"
                         onClick={handleCancelEditingSecrets}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secrets-cancel-button"
                         className="rounded-md bg-[var(--secondary)] px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-50"
                       >
                         {localizeUi("chat.delete.dialog.cancel")}
@@ -583,6 +594,7 @@ export function GameSessionHistory({
                         type="button"
                         onClick={() => void handleSaveCurrentSecrets()}
                         disabled={savingCurrentSecrets}
+                        data-testid="game-session-history-secrets-save-button"
                         className="rounded-md bg-[var(--foreground)]/12 px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--foreground)]/18 disabled:opacity-50"
                       >
                         {savingCurrentSecrets
@@ -598,6 +610,7 @@ export function GameSessionHistory({
                         <button
                           type="button"
                           onClick={handleStartEditingSecrets}
+                          data-testid="game-session-history-secrets-edit-button"
                           className="rounded-md bg-[var(--secondary)] px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                         >
                           {localizeUi("ui.game.gamesessionhistory.editSpoilers")}
@@ -644,6 +657,7 @@ export function GameSessionHistory({
                 type="button"
                 onClick={() => setInitialSetupVisible((visible) => !visible)}
                 aria-expanded={initialSetupVisible}
+                data-testid="game-session-history-initial-setup-toggle-button"
                 className="flex min-h-11 w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--accent)]"
               >
                 {initialSetupVisible ? (
@@ -701,6 +715,7 @@ export function GameSessionHistory({
                 <div key={session.sessionNumber} className="rounded-lg border border-[var(--border)] bg-[var(--card)]">
                   <button
                     onClick={() => setExpandedSession(isExpanded ? null : session.sessionNumber)}
+                    data-testid={`game-session-history-session-toggle-${session.sessionNumber}`}
                     className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[var(--accent)]"
                   >
                     {isExpanded ? (
@@ -730,6 +745,7 @@ export function GameSessionHistory({
                         type="button"
                         onClick={() => void onRegenerateLorebook?.(session.sessionNumber)}
                         disabled={isRegeneratingLorebook}
+                        data-testid={`game-session-history-lorebook-retry-${session.sessionNumber}`}
                         className="inline-flex items-center gap-1.5 rounded-md bg-[var(--primary)]/14 px-2 py-1 text-xs font-semibold text-[var(--primary)] hover:bg-[var(--primary)]/22 disabled:opacity-50"
                       >
                         <RefreshCw size={12} className={isRegeneratingLorebook ? "animate-spin" : undefined} />
@@ -754,6 +770,7 @@ export function GameSessionHistory({
                                 <button
                                   type="button"
                                   onClick={() => onReplaySession(session.sessionNumber)}
+                                  data-testid={`game-session-history-replay-session-${session.sessionNumber}`}
                                   title={localizeUi("ui.game.gamesessionhistory.replaySessionValue1FromTheBeginning", {
                                     value1: session.sessionNumber,
                                   })}
@@ -784,6 +801,7 @@ export function GameSessionHistory({
                                 <button
                                   onClick={() => void onRegenerateLorebook?.(session.sessionNumber)}
                                   disabled={isRegeneratingLorebook}
+                                  data-testid={`game-session-history-regenerate-lorebook-${session.sessionNumber}`}
                                   title={localizeUi(
                                     "ui.game.gamesessionhistory.regenerateTheGameLorebookKeeperEntriesForThisLatest",
                                   )}
@@ -802,6 +820,7 @@ export function GameSessionHistory({
                                 <button
                                   onClick={() => void onUpdatePlotArcs(session.sessionNumber)}
                                   disabled={isUpdatingPlotArcs || isRegenerating}
+                                  data-testid={`game-session-history-update-plot-arcs-${session.sessionNumber}`}
                                   title={localizeUi("ui.game.gamesessionhistory.updateGamePlotArcsFromThisSession")}
                                   className="inline-flex items-center gap-1 rounded-md bg-[var(--secondary)] px-2 py-1 text-[0.6875rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                                 >
@@ -815,6 +834,7 @@ export function GameSessionHistory({
                                 <button
                                   onClick={() => void onRegenerateSession(session.sessionNumber)}
                                   disabled={isRegenerating}
+                                  data-testid={`game-session-history-regenerate-session-${session.sessionNumber}`}
                                   title={localizeUi("ui.game.gamesessionhistory.regenerateThisSessionConclusion")}
                                   className="inline-flex items-center gap-1 rounded-md bg-[var(--secondary)] px-2 py-1 text-[0.6875rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                                 >
@@ -828,6 +848,7 @@ export function GameSessionHistory({
                                 <button
                                   onClick={() => handleStartEditing(session)}
                                   disabled={isRegenerating}
+                                  data-testid={`game-session-history-edit-details-${session.sessionNumber}`}
                                   className="rounded-md bg-[var(--secondary)] px-2 py-1 text-[0.6875rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                   {localizeUi("ui.game.gamesessionhistory.editDetails")}
@@ -849,6 +870,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={8}
+                                data-testid="game-session-history-edit-summary-textarea"
                                 className="min-h-32 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                               />
                             </label>
@@ -863,6 +885,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={4}
+                                data-testid="game-session-history-edit-resume-point-textarea"
                                 placeholder={localizeUi("ui.game.gamesessionhistory.howTheNextSessionShouldResume")}
                                 className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                               />
@@ -878,6 +901,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={4}
+                                data-testid="game-session-history-edit-party-dynamics-textarea"
                                 className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                               />
                             </label>
@@ -892,6 +916,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={3}
+                                data-testid="game-session-history-edit-party-state-textarea"
                                 className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                               />
                             </label>
@@ -906,6 +931,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={4}
+                                data-testid="game-session-history-edit-key-discoveries-textarea"
                                 placeholder={localizeUi(
                                   "ui.game.gamesessionhistory.oneContinuityFactPerLineIncludingDiscoveriesTwistsAnd",
                                 )}
@@ -923,6 +949,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={4}
+                                data-testid="game-session-history-edit-character-moments-textarea"
                                 placeholder={localizeUi("ui.game.gamesessionhistory.oneMomentPerLine")}
                                 className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                               />
@@ -938,6 +965,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={4}
+                                data-testid="game-session-history-edit-little-details-textarea"
                                 placeholder={localizeUi(
                                   "ui.game.gamesessionhistory.oneSmallPreferenceHabitPromiseOrPastDetailPer",
                                 )}
@@ -955,6 +983,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={4}
+                                data-testid="game-session-history-edit-npc-updates-textarea"
                                 placeholder={localizeUi("ui.game.gamesessionhistory.oneUpdatePerLine")}
                                 className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                               />
@@ -970,6 +999,7 @@ export function GameSessionHistory({
                                 }
                                 disabled={isSaving}
                                 rows={8}
+                                data-testid="game-session-history-edit-stats-snapshot-textarea"
                                 className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 font-mono text-xs leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--foreground)]/40"
                               />
                             </label>
@@ -977,6 +1007,7 @@ export function GameSessionHistory({
                               <button
                                 onClick={handleCancelEditing}
                                 disabled={isSaving}
+                                data-testid="game-session-history-edit-cancel-button"
                                 className="rounded-md bg-[var(--secondary)] px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 {localizeUi("chat.delete.dialog.cancel")}
@@ -984,6 +1015,7 @@ export function GameSessionHistory({
                               <button
                                 onClick={() => void handleSaveSession(session)}
                                 disabled={isSaving || !(draft?.summary ?? "").trim()}
+                                data-testid="game-session-history-edit-save-button"
                                 className="rounded-md bg-[var(--foreground)]/12 px-2.5 py-1.5 text-[0.6875rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--foreground)]/18 disabled:cursor-not-allowed disabled:opacity-50"
                               >
                                 {isSaving

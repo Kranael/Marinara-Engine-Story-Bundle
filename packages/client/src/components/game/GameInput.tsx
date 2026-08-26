@@ -429,6 +429,7 @@ export function GameInput({
               type="button"
               key={d}
               onClick={() => handleDiceRoll(d)}
+              data-testid={`game-input-quick-dice-${d}`}
               className="rounded bg-foreground/10 px-2 py-1 text-xs font-mono text-foreground/70 transition-colors hover:bg-foreground/15"
             >
               🎲 {d}
@@ -439,6 +440,7 @@ export function GameInput({
               type="text"
               value={customDice}
               onChange={(e) => setCustomDice(e.target.value)}
+              data-testid="game-input-custom-dice-input"
               placeholder={localizeUi("ui.game.gameinput.text3d82")}
               className="h-[26px] w-16 rounded bg-foreground/10 px-1.5 text-xs font-mono text-foreground/70 outline-none ring-1 ring-foreground/10 placeholder:text-foreground/35 focus:ring-foreground/20"
               onKeyDown={(e) => {
@@ -456,6 +458,7 @@ export function GameInput({
                   setCustomDice("");
                 }
               }}
+              data-testid="game-input-custom-dice-submit-button"
               className="flex h-[26px] items-center rounded bg-foreground/10 px-1.5 text-foreground/70 hover:bg-foreground/15"
             >
               <Send size={14} />
@@ -478,6 +481,7 @@ export function GameInput({
               <span className="max-w-[80px] truncate">{att.name}</span>
               <button
                 onClick={() => setAttachments((prev) => prev.filter((_, idx) => idx !== i))}
+                data-testid={`game-input-remove-attachment-${i}`}
                 className="text-foreground/45 hover:text-[var(--destructive)]"
               >
                 ✕
@@ -497,6 +501,7 @@ export function GameInput({
             {onClearPendingMove && (
               <button
                 onClick={onClearPendingMove}
+                data-testid="game-input-clear-pending-move-button"
                 className="shrink-0 text-foreground/45 transition-colors hover:text-foreground/80"
                 title={localizeUi("ui.game.gameinput.clearDestination")}
               >
@@ -533,10 +538,12 @@ export function GameInput({
           accept="image/*,video/*,audio/*,.pdf,.txt,.md,.json,.csv"
           multiple
           className="hidden"
+          data-testid="game-input-file-input"
           onChange={handleFileUpload}
         />
         <button
           onClick={() => fileInputRef.current?.click()}
+          data-testid="game-input-attach-button"
           aria-label={localizeUi("chat.input.attachFiles")}
           className={cn(
             "shrink-0 rounded-lg p-1 transition-all active:scale-90 sm:p-1.5",
@@ -558,6 +565,7 @@ export function GameInput({
               {hasPartyMembers && (
                 <button
                   onClick={() => handleAddressModeSelect("party")}
+                  data-testid="game-input-address-party-button"
                   className={cn(
                     "flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-colors",
                     addressMode === "party"
@@ -576,6 +584,7 @@ export function GameInput({
               )}
               <button
                 onClick={() => handleAddressModeSelect("gm")}
+                data-testid="game-input-address-gm-button"
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-colors",
                   addressMode === "gm"
@@ -594,6 +603,7 @@ export function GameInput({
           <button
             ref={addressButtonRef}
             onClick={() => setAddressMenuOpen((open) => !open)}
+            data-testid="game-input-address-menu-button"
             className={cn(
               "shrink-0 rounded-lg p-1 transition-all active:scale-90 sm:p-1.5",
               addressMode === "party"
@@ -630,6 +640,7 @@ export function GameInput({
             el.style.height = "auto";
             el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
           }}
+          data-testid="game-input-textarea"
           onKeyDown={handleKeyDown}
           placeholder={
             isStreaming
@@ -654,6 +665,7 @@ export function GameInput({
             <button
               type="button"
               onClick={() => setQueuedDice(null)}
+              data-testid="game-input-clear-queued-dice-button"
               className="ml-1 text-foreground/45 transition-colors hover:text-foreground/80"
               title={t("game.input.clearQueuedRoll")}
             >
@@ -679,6 +691,7 @@ export function GameInput({
         <button
           type="button"
           onClick={() => setShowDice(!showDice)}
+          data-testid="game-input-dice-toggle-button"
           className={cn(
             "shrink-0 rounded-lg p-1 transition-all active:scale-90 sm:p-1.5",
             showDice
@@ -702,6 +715,7 @@ export function GameInput({
             type="button"
             ref={emojiButtonRef}
             onClick={() => setEmojiOpen((v) => !v)}
+            data-testid="game-input-emoji-button"
             className={cn(
               "flex h-8 w-8 items-center justify-center rounded-full transition-colors",
               emojiOpen
@@ -726,6 +740,7 @@ export function GameInput({
             type="button"
             onClick={() => void handleTranslateDraft()}
             disabled={disabled || !text.trim() || isTranslatingDraft}
+            data-testid="game-input-translate-button"
             className={cn(
               "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all duration-200 active:scale-90",
               !disabled && text.trim() && !isTranslatingDraft
@@ -759,6 +774,7 @@ export function GameInput({
               !canSubmitSpatialMove &&
               !queuedDice)
           }
+          data-testid="game-input-send-button"
           className={cn(
             "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all duration-200 active:scale-90",
             (text.trim() ||

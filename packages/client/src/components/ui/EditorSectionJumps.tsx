@@ -25,6 +25,7 @@ export function EditorSectionJumps({ items, className }: { items: readonly Edito
         <button
           key={item.id}
           type="button"
+          data-testid={`editor-section-jump-${item.id}`}
           onClick={() => scrollToSection(item.id)}
           className="mari-editor-section-jump"
         >

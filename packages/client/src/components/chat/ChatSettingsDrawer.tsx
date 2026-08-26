@@ -942,6 +942,7 @@ export function ChatSettingsDrawer({
       description={localizeUi("ui.chat.chatsettingsdrawer.timelineRefreshesMayIncludeRecentMessagesFromThisChat")}
       checked={noodleTimelineContextEnabled}
       onChange={(checked) => updateMeta.mutate({ id: chat.id, noodleTimelineContextEnabled: checked })}
+      testId="chat-settings-drawer-noodle-timeline-context-switch"
       labelPosition="start"
       className={cn(
         "justify-between rounded-md px-3 py-2.5 text-left",
@@ -1863,6 +1864,7 @@ export function ChatSettingsDrawer({
       <select
         value={illustratorPromptConnectionId}
         onChange={(event) => updateIllustratorPromptConnection(event.target.value)}
+        data-testid="chat-settings-drawer-illustrator-prompt-connection-select"
         className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
       >
         <option value="">{localizeUi("ui.chat.chatsettingsdrawer.agentDefault")}</option>
@@ -1901,6 +1903,7 @@ export function ChatSettingsDrawer({
       <select
         value={illustratorImageConnectionId}
         onChange={(event) => updateIllustratorImageConnection(event.target.value)}
+        data-testid="chat-settings-drawer-illustrator-image-connection-select"
         className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
       >
         <option value="">{localizeUi("ui.chat.chatsettingsdrawer.agentDefault")}</option>
@@ -1954,6 +1957,7 @@ export function ChatSettingsDrawer({
       <select
         value={(metadata.imageStyleProfileId as string) ?? ""}
         onChange={(event) => updateMeta.mutate({ id: chat.id, imageStyleProfileId: event.target.value || null })}
+        data-testid="chat-settings-drawer-illustrator-image-style-select"
         className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
       >
         <option value="">
@@ -1983,6 +1987,7 @@ export function ChatSettingsDrawer({
             illustratorImagesPerGeneration: normalizeIllustratorImagesPerGeneration(event.target.value),
           })
         }
+        data-testid="chat-settings-drawer-illustrator-images-per-generation-select"
         className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
       >
         {Array.from({ length: MAX_ILLUSTRATOR_IMAGES_PER_GENERATION }, (_, index) => index + 1).map((count) => (
@@ -3966,6 +3971,7 @@ export function ChatSettingsDrawer({
           onChange={(event) =>
             void updateCustomMusicLibrary({ customMusicSource: event.target.value as CustomMusicSource })
           }
+          data-testid={`chat-settings-drawer-custom-music-source-${surface}-select`}
           className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)]"
         >
           <option value="game-assets">{localizeUi("game.toolbar.assets")}</option>
@@ -3989,11 +3995,13 @@ export function ChatSettingsDrawer({
                 })
               }
               placeholder={localizeUi("ui.agents.agenteditor.noFolderSelected")}
+              data-testid={`chat-settings-drawer-custom-music-external-folder-${surface}-input`}
               className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 font-mono text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50"
             />
             <button
               type="button"
               onClick={() => void selectCustomMusicExternalFolder()}
+              data-testid={`chat-settings-drawer-custom-music-external-folder-${surface}-choose-button`}
               className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--muted)] px-3 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
             >
               <FolderOpen size="0.75rem" />
@@ -4014,6 +4022,7 @@ export function ChatSettingsDrawer({
             defaultValue={customMusicFolder}
             onBlur={(event) => void saveCustomMusicFolder(event.target.value)}
             placeholder={localizeUi("ui.agents.agenteditor.music")}
+            data-testid={`chat-settings-drawer-custom-music-folder-${surface}-input`}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 font-mono text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50"
           />
           <span className="text-[0.5625rem] text-[var(--muted-foreground)]">
@@ -4260,6 +4269,7 @@ export function ChatSettingsDrawer({
           description={localizeUi("ui.chat.chatsettingsdrawer.recallRelevantFragmentsFromEarlierInThisChatAnd")}
           checked={effectiveValue}
           onChange={(enableMemoryRecall) => updateMeta.mutate({ id: chat.id, enableMemoryRecall })}
+          testId="chat-settings-drawer-enable-memory-recall-switch"
           labelPosition="start"
           className={cn(
             "justify-between rounded-md px-3 py-2.5 text-left",
@@ -4269,7 +4279,12 @@ export function ChatSettingsDrawer({
           )}
           labelClassName="text-[0.6875rem] font-medium"
         />
-        <AgentSettingsActionButton type="button" onClick={() => setShowMemoriesModal(true)} className="w-full">
+        <AgentSettingsActionButton
+          type="button"
+          onClick={() => setShowMemoriesModal(true)}
+          className="w-full"
+          data-testid="chat-settings-drawer-access-memories-button"
+        >
           <Brain size="0.75rem" />
           {localizeUi("ui.chat.chatsettingsdrawer.accessMemoriesForThisChat")}
         </AgentSettingsActionButton>
@@ -4292,6 +4307,7 @@ export function ChatSettingsDrawer({
               <button
                 key={agent.id}
                 onClick={() => openAgentAddModal(agent)}
+                data-testid={`chat-settings-drawer-custom-agent-add-${agent.id}-button`}
                 className="flex items-center gap-2.5 rounded-lg bg-[var(--secondary)] px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
               >
                 <Plus size="0.75rem" className="shrink-0 text-[var(--muted-foreground)]" />
@@ -4317,6 +4333,7 @@ export function ChatSettingsDrawer({
                 ui.openRightPanel("agents");
                 ui.openAgentDetail("__new__");
               }}
+              data-testid="chat-settings-drawer-create-custom-agent-button"
               className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[var(--secondary)] px-3 py-2 text-[0.6875rem] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
             >
               <Plus size="0.75rem" />
@@ -4392,6 +4409,7 @@ export function ChatSettingsDrawer({
                       void handleRerunCustomAgent(agent.id);
                     }}
                     disabled={agentProcessing}
+                    data-testid={`chat-settings-drawer-custom-agent-rerun-${agent.id}-button`}
                     className={cn(
                       "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors",
                       agentProcessing
@@ -4408,6 +4426,7 @@ export function ChatSettingsDrawer({
                         void handleSnapshotCustomAgent(agent.id);
                       }}
                       disabled={agentProcessing}
+                      data-testid={`chat-settings-drawer-custom-agent-snapshot-${agent.id}-button`}
                       className={cn(
                         "flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors",
                         agentProcessing
@@ -4425,6 +4444,7 @@ export function ChatSettingsDrawer({
                     onClick={() => {
                       void toggleAgent(agent.id);
                     }}
+                    data-testid={`chat-settings-drawer-custom-agent-remove-${agent.id}-button`}
                     className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                     title={localizeUi("ui.chat.chatsettingsdrawer.removeFromChat")}
                   >
@@ -4449,6 +4469,7 @@ export function ChatSettingsDrawer({
                           lorebookBackfillChunkSize: backfillChunkSize,
                         })
                       }
+                      testId={`chat-settings-drawer-custom-agent-backfill-toggle-${agent.id}`}
                     />
                     {backfillEnabled && (
                       <div className="flex flex-col gap-2 rounded-lg bg-[var(--background)]/45 px-2.5 py-2 ring-1 ring-[var(--border)] sm:flex-row sm:items-end">
@@ -4465,6 +4486,7 @@ export function ChatSettingsDrawer({
                               void updateCustomAgentBackfillSettings(agent.id, { lorebookBackfillChunkSize })
                             }
                             ariaLabel={localizeUi("ui.agents.agenteditor.backfillChunkSize")}
+                            testId={`chat-settings-drawer-custom-agent-backfill-chunk-size-${agent.id}-input`}
                             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs tabular-nums text-[var(--foreground)] outline-none transition-colors focus:border-[var(--ring)] focus:ring-1 focus:ring-[var(--ring)]"
                           />
                         </label>
@@ -4472,6 +4494,7 @@ export function ChatSettingsDrawer({
                           type="button"
                           onClick={() => void handleBackfillCustomAgent(agent.id)}
                           disabled={agentProcessing}
+                          data-testid={`chat-settings-drawer-custom-agent-backfill-next-chunk-${agent.id}-button`}
                           className={cn(
                             "inline-flex min-h-8 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-[0.6875rem] font-medium transition-colors",
                             agentProcessing
@@ -4495,6 +4518,7 @@ export function ChatSettingsDrawer({
                       aria-label={localizeUi("ui.chat.chatsettingsdrawer.imageConnection")}
                       value={agentImageConnectionId}
                       onChange={(event) => updateCustomAgentImageConnection(agent.id, event.target.value)}
+                      data-testid={`chat-settings-drawer-custom-agent-image-connection-${agent.id}-select`}
                       className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
                     >
                       <option value="">{localizeUi("ui.chat.chatsettingsdrawer.agentDefault")}</option>
@@ -4521,6 +4545,7 @@ export function ChatSettingsDrawer({
                       aria-label={localizeUi("ui.chat.chatsettingsdrawer.imageStyle")}
                       value={agentImageStyleProfileId}
                       onChange={(event) => updateCustomAgentImageStyle(agent.id, event.target.value)}
+                      data-testid={`chat-settings-drawer-custom-agent-image-style-${agent.id}-select`}
                       className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
                     >
                       <option value="">{localizeUi("ui.chat.chatsettingsdrawer.chatDefault")}</option>
@@ -4570,6 +4595,7 @@ export function ChatSettingsDrawer({
           }
           enabled={metadata.enableHapticFeedback}
           onToggle={() => updateMeta.mutate({ id: chat.id, enableHapticFeedback: !metadata.enableHapticFeedback })}
+          testId="chat-settings-drawer-haptic-feedback-toggle"
         />
         {metadata.enableHapticFeedback && (
           <>
@@ -4586,6 +4612,7 @@ export function ChatSettingsDrawer({
                     label: localizeUi(option.labelKey),
                   }))}
                   onChange={(hapticSensitivity) => updateMeta.mutate({ id: chat.id, hapticSensitivity })}
+                  testIdPrefix="chat-settings-drawer-haptic-sensitivity"
                 />
               </div>
               <AgentSettingsToggle
@@ -4598,6 +4625,7 @@ export function ChatSettingsDrawer({
                     hapticIncidentalContact: metadata.hapticIncidentalContact !== true,
                   })
                 }
+                testId="chat-settings-drawer-haptic-incidental-contact-toggle"
               />
             </div>
             <HapticConnectionPanel
@@ -4674,6 +4702,7 @@ export function ChatSettingsDrawer({
             type="button"
             onClick={requestClose}
             aria-label={localizeUi("ui.chat.chatsettingsdrawer.closeChatSettings")}
+            data-testid="chat-settings-drawer-close-button"
             className={NEUTRAL_PANEL_CLOSE_BUTTON}
           >
             <X size={NEUTRAL_PANEL_CLOSE_ICON_SIZE} />
@@ -4704,6 +4733,7 @@ export function ChatSettingsDrawer({
                 accept=".json,application/json"
                 className="hidden"
                 onChange={handleImportFile}
+                data-testid="chat-settings-drawer-preset-import-file-input"
               />
               {/* Dropdown / rename input + help */}
               <div className="flex items-center gap-2">
@@ -4718,6 +4748,7 @@ export function ChatSettingsDrawer({
                     }}
                     autoFocus
                     maxLength={120}
+                    data-testid="chat-settings-drawer-preset-rename-input"
                     className="flex-1 min-w-0 rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs outline-none ring-1 ring-[var(--primary)]/40"
                   />
                 ) : (
@@ -4726,6 +4757,7 @@ export function ChatSettingsDrawer({
                     onChange={(e) => handleSelectPreset(e.target.value)}
                     aria-label={localizeUi("chat.settingsProfile.label")}
                     title={localizeUi("chat.settingsProfile.action.apply")}
+                    data-testid="chat-settings-drawer-preset-select"
                     className="mari-preset-native-select flex-1 min-w-0 rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
                   >
                     {presetList.length === 0 && (
@@ -4748,6 +4780,7 @@ export function ChatSettingsDrawer({
                 <button
                   onClick={handleToggleDefaultPreset}
                   disabled={!selectedChatPreset || selectedChatPreset.isActive || setActiveChatPreset.isPending}
+                  data-testid="chat-settings-drawer-preset-mark-default-button"
                   title={
                     !selectedChatPreset
                       ? localizeUi("chat.settingsProfile.default.selectFirst")
@@ -4788,6 +4821,7 @@ export function ChatSettingsDrawer({
                 <button
                   onClick={handleSaveIntoPreset}
                   disabled={!selectedChatPreset || selectedChatPreset.isDefault}
+                  data-testid="chat-settings-drawer-preset-save-into-button"
                   title={
                     selectedChatPreset?.isDefault
                       ? localizeUi("chat.settingsProfile.default.cannotSave")
@@ -4800,6 +4834,7 @@ export function ChatSettingsDrawer({
                 <button
                   onClick={handleStartRenamePreset}
                   disabled={!selectedChatPreset || selectedChatPreset.isDefault}
+                  data-testid="chat-settings-drawer-preset-rename-button"
                   title={
                     selectedChatPreset?.isDefault
                       ? localizeUi("chat.settingsProfile.default.cannotRename")
@@ -4813,6 +4848,7 @@ export function ChatSettingsDrawer({
                   onClick={handleSaveAsPreset}
                   disabled={!selectedChatPreset}
                   title={localizeUi("chat.settingsProfile.action.saveAs")}
+                  data-testid="chat-settings-drawer-preset-save-as-button"
                   className="flex-1 flex items-center justify-center rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <FilePlus2 size="0.875rem" />
@@ -4821,6 +4857,7 @@ export function ChatSettingsDrawer({
                 <button
                   onClick={handleImportClick}
                   title={localizeUi("chat.settingsProfile.action.import")}
+                  data-testid="chat-settings-drawer-preset-import-button"
                   className="flex-1 flex items-center justify-center rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                 >
                   <Download size="0.875rem" />
@@ -4829,6 +4866,7 @@ export function ChatSettingsDrawer({
                   onClick={handleExportPreset}
                   disabled={!selectedChatPreset}
                   title={localizeUi("chat.settingsProfile.action.export")}
+                  data-testid="chat-settings-drawer-preset-export-button"
                   className="flex-1 flex items-center justify-center rounded-md p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Upload size="0.875rem" />
@@ -4836,6 +4874,7 @@ export function ChatSettingsDrawer({
                 <button
                   onClick={handleDeletePreset}
                   disabled={!selectedChatPreset || selectedChatPreset.isDefault}
+                  data-testid="chat-settings-drawer-preset-delete-button"
                   title={
                     selectedChatPreset?.isDefault
                       ? localizeUi("chat.settingsProfile.default.cannotDelete")
@@ -5016,6 +5055,7 @@ export function ChatSettingsDrawer({
                         <button
                           type="button"
                           onClick={() => toggleInlineResourceEditor("persona", chat.personaId!)}
+                          data-testid="chat-settings-drawer-party-persona-edit-button"
                           className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                           title={t("chat.settings.actions.editPersonaCard")}
                           aria-label={t("chat.settings.actions.editPersonaCard")}
@@ -5027,6 +5067,7 @@ export function ChatSettingsDrawer({
                           onClick={() => updateChat.mutate({ id: chat.id, personaId: null })}
                           className={CHAT_RESOURCE_REMOVE_BUTTON_CLASS}
                           data-chat-settings-remove-resource="persona"
+                          data-testid="chat-settings-drawer-party-persona-remove-button"
                           title={localizeUi("ui.chat.chatsettingsdrawer.removePersona")}
                         >
                           <X size="0.75rem" />
@@ -5051,6 +5092,7 @@ export function ChatSettingsDrawer({
                       setShowPersonaPicker(true);
                       setPersonaSearch("");
                     }}
+                    data-testid="chat-settings-drawer-party-persona-picker-button"
                     className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                   >
                     <Plus size="0.75rem" />{" "}
@@ -5071,6 +5113,7 @@ export function ChatSettingsDrawer({
                         updateChat.mutate({ id: chat.id, personaId: null });
                         setShowPersonaPicker(false);
                       }}
+                      data-testid="chat-settings-drawer-party-persona-none-button"
                       className={cn(
                         "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                         !chat.personaId && "bg-[var(--primary)]/10",
@@ -5095,6 +5138,7 @@ export function ChatSettingsDrawer({
                             updateChat.mutate({ id: chat.id, personaId: p.id });
                             setShowPersonaPicker(false);
                           }}
+                          data-testid={`chat-settings-drawer-party-persona-option-${p.id}-button`}
                           className={cn(
                             "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                             chat.personaId === p.id && "bg-[var(--primary)]/10",
@@ -5152,6 +5196,7 @@ export function ChatSettingsDrawer({
                                 onClose();
                                 useUIStore.getState().openCharacterDetail(c.id, { initialTab: "card" });
                               }}
+                              data-testid={`chat-settings-drawer-party-character-open-${c.id}-button`}
                               className="flex min-w-0 flex-1 items-center gap-2.5 text-left transition-colors hover:opacity-80"
                               title={localizeUi("ui.chat.chatsettingsdrawer.openCharacterCard")}
                             >
@@ -5182,6 +5227,7 @@ export function ChatSettingsDrawer({
                             <button
                               type="button"
                               onClick={() => toggleInlineResourceEditor("character", c.id)}
+                              data-testid={`chat-settings-drawer-party-character-edit-${c.id}-button`}
                               className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                               title={t("chat.settings.actions.editCharacterCard")}
                               aria-label={t("chat.settings.actions.editCharacterCard")}
@@ -5192,6 +5238,7 @@ export function ChatSettingsDrawer({
                               onClick={() => toggleCharacter(c.id)}
                               className={CHAT_RESOURCE_REMOVE_BUTTON_CLASS}
                               data-chat-settings-remove-resource="character"
+                              data-testid={`chat-settings-drawer-party-character-remove-${c.id}-button`}
                               title={localizeUi("ui.chat.chatsettingsdrawer.removeFromParty")}
                             >
                               <Trash2 size="0.6875rem" />
@@ -5211,6 +5258,7 @@ export function ChatSettingsDrawer({
                     setShowCharPicker(true);
                     setCharSearch("");
                   }}
+                  data-testid="chat-settings-drawer-add-character-to-party-button"
                   className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                 >
                   <Plus size="0.75rem" /> {localizeUi("ui.chat.chatsettingsdrawer.addCharacterToParty")}
@@ -5235,6 +5283,7 @@ export function ChatSettingsDrawer({
                             toggleCharacter(c.id);
                             setShowCharPicker(false);
                           }}
+                          data-testid={`chat-settings-drawer-char-picker-option-${c.id}-button`}
                           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
                         >
                           <div className="min-w-0 flex-1">
@@ -5291,6 +5340,7 @@ export function ChatSettingsDrawer({
                       <button
                         type="button"
                         onClick={() => toggleInlineResourceEditor("persona", chat.personaId!)}
+                        data-testid="chat-settings-drawer-persona-edit-button"
                         className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                         title={t("chat.settings.actions.editPersonaCard")}
                         aria-label={t("chat.settings.actions.editPersonaCard")}
@@ -5302,6 +5352,7 @@ export function ChatSettingsDrawer({
                         onClick={() => updateChat.mutate({ id: chat.id, personaId: null })}
                         className={CHAT_RESOURCE_REMOVE_BUTTON_CLASS}
                         data-chat-settings-remove-resource="persona"
+                        data-testid="chat-settings-drawer-persona-remove-button"
                         title={localizeUi("ui.chat.chatsettingsdrawer.removePersona")}
                       >
                         <X size="0.75rem" />
@@ -5327,6 +5378,7 @@ export function ChatSettingsDrawer({
                     setShowPersonaPicker(true);
                     setPersonaSearch("");
                   }}
+                  data-testid="chat-settings-drawer-persona-picker-button"
                   className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                 >
                   <Plus size="0.75rem" />{" "}
@@ -5348,6 +5400,7 @@ export function ChatSettingsDrawer({
                       updateChat.mutate({ id: chat.id, personaId: null });
                       setShowPersonaPicker(false);
                     }}
+                    data-testid="chat-settings-drawer-persona-none-button"
                     className={cn(
                       "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                       !chat.personaId && "bg-[var(--primary)]/10",
@@ -5372,6 +5425,7 @@ export function ChatSettingsDrawer({
                           updateChat.mutate({ id: chat.id, personaId: p.id });
                           setShowPersonaPicker(false);
                         }}
+                        data-testid={`chat-settings-drawer-persona-option-${p.id}-button`}
                         className={cn(
                           "flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                           chat.personaId === p.id && "bg-[var(--primary)]/10",
@@ -5479,6 +5533,7 @@ export function ChatSettingsDrawer({
                               onClose();
                               useUIStore.getState().openCharacterDetail(c.id, { initialTab: "card" });
                             }}
+                            data-testid={`chat-settings-drawer-character-open-${c.id}-button`}
                             className="flex items-center gap-2.5 min-w-0 flex-1 text-left transition-colors hover:opacity-80"
                             title={localizeUi("ui.chat.chatsettingsdrawer.openCharacterCard")}
                           >
@@ -5509,6 +5564,7 @@ export function ChatSettingsDrawer({
                           {supportsCharacterActivityToggle && (
                             <button
                               onClick={() => toggleCharacterActivity(c.id)}
+                              data-testid={`chat-settings-drawer-character-activity-toggle-${c.id}-button`}
                               className={cn(
                                 "flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]",
                                 !inactiveCharacterIds.includes(c.id) && "text-[var(--primary)]",
@@ -5529,6 +5585,7 @@ export function ChatSettingsDrawer({
                           <button
                             type="button"
                             onClick={() => toggleInlineResourceEditor("character", c.id)}
+                            data-testid={`chat-settings-drawer-character-edit-${c.id}-button`}
                             className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                             title={t("chat.settings.actions.editCharacterCard")}
                             aria-label={t("chat.settings.actions.editCharacterCard")}
@@ -5539,6 +5596,7 @@ export function ChatSettingsDrawer({
                             onClick={() => toggleCharacter(c.id)}
                             className={CHAT_RESOURCE_REMOVE_BUTTON_CLASS}
                             data-chat-settings-remove-resource="character"
+                            data-testid={`chat-settings-drawer-character-remove-${c.id}-button`}
                             title={localizeUi("ui.chat.chatsettingsdrawer.removeFromChat")}
                           >
                             <Trash2 size="0.6875rem" />
@@ -5561,6 +5619,7 @@ export function ChatSettingsDrawer({
                     setShowCharPicker(true);
                     setCharSearch("");
                   }}
+                  data-testid="chat-settings-drawer-add-character-button"
                   className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                 >
                   <Plus size="0.75rem" /> {localizeUi("ui.chat.chatsettingsdrawer.addCharacter")}
@@ -5585,6 +5644,7 @@ export function ChatSettingsDrawer({
                             toggleCharacter(c.id);
                             setShowCharPicker(false);
                           }}
+                          data-testid={`chat-settings-drawer-character-option-${c.id}-button`}
                           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
                         >
                           {c.avatarPath ? (
@@ -5631,6 +5691,7 @@ export function ChatSettingsDrawer({
                 (!showGroupPicker ? (
                   <button
                     onClick={() => setShowGroupPicker(true)}
+                    data-testid="chat-settings-drawer-add-from-folder-button"
                     className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                   >
                     <Users size="0.75rem" /> {localizeUi("ui.noodle.noodlehome.addFromFolder")}
@@ -5659,6 +5720,7 @@ export function ChatSettingsDrawer({
                             }
                             setShowGroupPicker(false);
                           }}
+                          data-testid={`chat-settings-drawer-character-group-option-${group.id}-button`}
                           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
                         >
                           {group.avatarPath ? (
@@ -5704,6 +5766,7 @@ export function ChatSettingsDrawer({
                 <div className="flex rounded-lg ring-1 ring-[var(--border)]">
                   <button
                     onClick={() => updateMeta.mutate({ id: chat.id, cardCssMode: "disabled" })}
+                    data-testid="chat-settings-drawer-card-css-mode-disabled-button"
                     className={cn(
                       "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors rounded-l-lg",
                       cardCssMode === "disabled"
@@ -5715,6 +5778,7 @@ export function ChatSettingsDrawer({
                   </button>
                   <button
                     onClick={() => updateMeta.mutate({ id: chat.id, cardCssMode: "exclusive" })}
+                    data-testid="chat-settings-drawer-card-css-mode-exclusive-button"
                     className={cn(
                       "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors",
                       cardCssMode === "exclusive"
@@ -5726,6 +5790,7 @@ export function ChatSettingsDrawer({
                   </button>
                   <button
                     onClick={() => updateMeta.mutate({ id: chat.id, cardCssMode: "chat" })}
+                    data-testid="chat-settings-drawer-card-css-mode-chat-button"
                     className={cn(
                       "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors rounded-r-lg",
                       cardCssMode === "chat"
@@ -5763,6 +5828,7 @@ export function ChatSettingsDrawer({
                 <div className="flex rounded-lg ring-1 ring-[var(--border)]">
                   <button
                     onClick={() => updateMeta.mutate({ id: chat.id, scopedRegexMode: "disabled" })}
+                    data-testid="chat-settings-drawer-scoped-regex-mode-disabled-button"
                     className={cn(
                       "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors rounded-l-lg",
                       scopedRegexMode === "disabled"
@@ -5774,6 +5840,7 @@ export function ChatSettingsDrawer({
                   </button>
                   <button
                     onClick={() => updateMeta.mutate({ id: chat.id, scopedRegexMode: "exclusive" })}
+                    data-testid="chat-settings-drawer-scoped-regex-mode-exclusive-button"
                     className={cn(
                       "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors",
                       scopedRegexMode === "exclusive"
@@ -5785,6 +5852,7 @@ export function ChatSettingsDrawer({
                   </button>
                   <button
                     onClick={() => updateMeta.mutate({ id: chat.id, scopedRegexMode: "chat" })}
+                    data-testid="chat-settings-drawer-scoped-regex-mode-chat-button"
                     className={cn(
                       "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors rounded-r-lg",
                       scopedRegexMode === "chat"
@@ -5821,6 +5889,7 @@ export function ChatSettingsDrawer({
                             key={script.id}
                             type="button"
                             onClick={() => updateRegexScript.mutate({ id: script.id, enabled: !enabled })}
+                            data-testid={`chat-settings-drawer-scoped-regex-script-toggle-${script.id}-button`}
                             title={
                               enabled
                                 ? localizeUi("ui.chat.chatsettingsdrawer.enabledClickToDisable")
@@ -5873,6 +5942,7 @@ export function ChatSettingsDrawer({
                 <div className="flex rounded-lg ring-1 ring-[var(--border)]">
                   <button
                     onClick={() => updateMeta.mutate({ id: chat.id, groupChatMode: "merged" })}
+                    data-testid="chat-settings-drawer-group-chat-mode-merged-button"
                     className={cn(
                       "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors rounded-l-lg",
                       (metadata.groupChatMode ?? "merged") === "merged"
@@ -5903,6 +5973,7 @@ export function ChatSettingsDrawer({
                         });
                       }
                     }}
+                    data-testid="chat-settings-drawer-group-chat-mode-individual-button"
                     className={cn(
                       "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors rounded-r-lg",
                       metadata.groupChatMode === "individual"
@@ -5925,6 +5996,7 @@ export function ChatSettingsDrawer({
                     )}
                     checked={Boolean(metadata.groupSpeakerColors)}
                     onChange={(checked) => updateMeta.mutate({ id: chat.id, groupSpeakerColors: checked })}
+                    testId="chat-settings-drawer-group-speaker-colors-switch"
                     labelPosition="start"
                     className={cn(
                       "justify-between rounded-md px-3 py-2.5 text-left",
@@ -5946,6 +6018,7 @@ export function ChatSettingsDrawer({
                   <div className="flex rounded-lg ring-1 ring-[var(--border)]">
                     <button
                       onClick={() => updateMeta.mutate({ id: chat.id, groupResponseOrder: "sequential" })}
+                      data-testid="chat-settings-drawer-group-response-order-sequential-button"
                       className={cn(
                         "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors rounded-l-lg",
                         (metadata.groupResponseOrder ?? "sequential") === "sequential"
@@ -5957,6 +6030,7 @@ export function ChatSettingsDrawer({
                     </button>
                     <button
                       onClick={() => updateMeta.mutate({ id: chat.id, groupResponseOrder: "smart" })}
+                      data-testid="chat-settings-drawer-group-response-order-smart-button"
                       className={cn(
                         "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors",
                         metadata.groupResponseOrder === "smart"
@@ -5968,6 +6042,7 @@ export function ChatSettingsDrawer({
                     </button>
                     <button
                       onClick={() => updateMeta.mutate({ id: chat.id, groupResponseOrder: "manual" })}
+                      data-testid="chat-settings-drawer-group-response-order-manual-button"
                       className={cn(
                         "flex-1 px-3 py-2 text-[0.6875rem] font-medium transition-colors rounded-r-lg",
                         metadata.groupResponseOrder === "manual"
@@ -6007,6 +6082,7 @@ export function ChatSettingsDrawer({
                         groupTurnPromptEnabled: checked,
                       })
                     }
+                    testId="chat-settings-drawer-group-turn-prompt-switch"
                     labelPosition="start"
                     className={cn(
                       "justify-between rounded-md px-3 py-2.5 text-left",
@@ -6026,6 +6102,7 @@ export function ChatSettingsDrawer({
                       }
                       checked={metadata.groupSpeakerNamesInHistory === true}
                       onChange={(checked) => updateMeta.mutate({ id: chat.id, groupSpeakerNamesInHistory: checked })}
+                      testId="chat-settings-drawer-group-speaker-names-in-history-switch"
                       labelPosition="start"
                       className={cn(
                         "justify-between rounded-md px-3 py-2.5 text-left",
@@ -6063,6 +6140,7 @@ export function ChatSettingsDrawer({
                       "ui.chat.chatsettingsdrawer.replaceIndividualCharacterScenariosWithASharedScenarioFor",
                     )}
                     rows={4}
+                    testId="chat-settings-drawer-group-scenario-textarea"
                     className="mari-chrome-field min-h-[6rem] !rounded-md px-3 py-2 pr-8 text-xs leading-relaxed"
                   />
                 </div>
@@ -6089,6 +6167,7 @@ export function ChatSettingsDrawer({
                     )}
                     checked={Boolean(metadata.autonomousMessages)}
                     onChange={(autonomousMessages) => updateMeta.mutate({ id: chat.id, autonomousMessages })}
+                    testId="chat-settings-drawer-autonomous-messages-switch"
                     labelPosition="start"
                     className={cn(
                       "justify-between rounded-md px-3 py-2.5 text-left",
@@ -6115,6 +6194,7 @@ export function ChatSettingsDrawer({
                                 e.target.value === "numeric" ? (autonomousDailyCapOverride ?? 8) : null,
                             })
                           }
+                          data-testid="chat-settings-drawer-autonomous-daily-cap-mode-select"
                           className="mari-chrome-field w-full !rounded-md px-3 py-2 text-xs"
                         >
                           <option value="default">
@@ -6137,6 +6217,7 @@ export function ChatSettingsDrawer({
                                 })
                               }
                               ariaLabel="Numeric chat check-in ceiling"
+                              testId="chat-settings-drawer-autonomous-daily-cap-input"
                               className="mari-chrome-field w-24 !rounded-md px-2 py-1.5 text-right text-xs"
                             />
                           </label>
@@ -6156,6 +6237,7 @@ export function ChatSettingsDrawer({
                     description={localizeUi("ui.chat.chatsettingsdrawer.charactersChatWithEachOtherInGroupChats")}
                     checked={Boolean(metadata.characterExchanges)}
                     onChange={(characterExchanges) => updateMeta.mutate({ id: chat.id, characterExchanges })}
+                    testId="chat-settings-drawer-character-exchanges-switch"
                     labelPosition="start"
                     className={cn(
                       "justify-between rounded-md px-3 py-2.5 text-left",
@@ -6185,6 +6267,7 @@ export function ChatSettingsDrawer({
                     }
                     updateMeta.mutate({ id: chat.id, conversationSchedulesEnabled: nextEnabled });
                   }}
+                  testId="chat-settings-drawer-conversation-schedules-switch"
                   labelPosition="start"
                   className={cn(
                     "justify-between rounded-md px-3 py-2.5 text-left",
@@ -6221,6 +6304,7 @@ export function ChatSettingsDrawer({
                         await generateConversationSchedules(true);
                       }}
                       disabled={isRegeneratingSchedules || chatCharIds.length === 0}
+                      data-testid="chat-settings-drawer-regenerate-schedules-button"
                       className={cn(
                         "flex items-center gap-1 rounded-md px-2 py-1 text-[0.625rem] font-medium transition-colors",
                         isRegeneratingSchedules || chatCharIds.length === 0
@@ -6318,6 +6402,7 @@ export function ChatSettingsDrawer({
                         )}
                         checked={conversationCommandsEnabled}
                         onChange={(enabled) => updateMeta.mutate({ id: chat.id, characterCommands: enabled })}
+                        testId="chat-settings-drawer-conversation-commands-switch"
                         labelPosition="start"
                         className={cn(
                           "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -6347,6 +6432,7 @@ export function ChatSettingsDrawer({
                                     },
                                   })
                                 }
+                                testId={`chat-settings-drawer-conversation-command-toggle-${command.id}-switch`}
                                 labelPosition="start"
                                 className={cn(
                                   "h-full min-h-[4.125rem] items-center justify-between rounded-lg px-3 py-2.5 text-left",
@@ -6388,6 +6474,7 @@ export function ChatSettingsDrawer({
                           )}
                           enabled={selfieFeatureEnabled}
                           onToggle={toggleConversationSelfies}
+                          testId="chat-settings-drawer-generated-selfies-toggle"
                         />
 
                         {selfieSettingsOpen ? (
@@ -6401,6 +6488,7 @@ export function ChatSettingsDrawer({
                                 onChange={(e) =>
                                   updateMeta.mutate({ id: chat.id, imageGenConnectionId: e.target.value || null })
                                 }
+                                data-testid="chat-settings-drawer-selfie-connection-select"
                                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
                               >
                                 <option value="">{localizeUi("ui.chat.chatsettingsdrawer.noneSelfiesDisabled")}</option>
@@ -6426,6 +6514,7 @@ export function ChatSettingsDrawer({
                                   selfieUseAvatarReferences: !selfieUseAvatarReferences,
                                 })
                               }
+                              testId="chat-settings-drawer-selfie-send-avatar-references-toggle"
                             />
                             <AgentSettingsToggle
                               label={localizeUi("ui.chat.agentaddsetupfields.attachCardAppearance")}
@@ -6439,6 +6528,7 @@ export function ChatSettingsDrawer({
                                   selfieIncludeCharacterAppearance: !selfieIncludeCharacterAppearance,
                                 })
                               }
+                              testId="chat-settings-drawer-selfie-attach-card-appearance-toggle"
                             />
                             <p className="text-[0.55rem] text-[var(--muted-foreground)]">
                               {localizeUi(
@@ -6470,6 +6560,7 @@ export function ChatSettingsDrawer({
                                         key={val}
                                         type="button"
                                         onClick={() => updateMeta.mutate({ id: chat.id, selfieResolution: val })}
+                                        data-testid={`chat-settings-drawer-selfie-resolution-${opt.w}x${opt.h}-button`}
                                         className={cn(
                                           "rounded-md px-2 py-1 text-[0.625rem] font-medium transition-colors",
                                           active
@@ -6538,6 +6629,7 @@ export function ChatSettingsDrawer({
                               });
                             });
                           }}
+                          testId="chat-settings-drawer-long-term-memory-switch"
                           labelPosition="start"
                           className={cn(
                             "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -6588,6 +6680,7 @@ export function ChatSettingsDrawer({
                         value={scheduleGenerationPreferences}
                         onChange={(e) => setScheduleGenerationPreferences(e.target.value)}
                         placeholder={localizeUi("ui.chat.chatsettingsdrawer.eGMakeEveryoneGoToSleepBeforeMidnight")}
+                        data-testid="chat-settings-drawer-schedule-generation-preferences-textarea"
                         className="min-h-[5rem] resize-y rounded-lg border border-[var(--border)] bg-[var(--secondary)] p-2.5 text-[0.6875rem] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50 placeholder:text-[var(--muted-foreground)]/40"
                       />
                       <p className="text-[0.59375rem] text-[var(--muted-foreground)]/70">
@@ -6638,6 +6731,7 @@ export function ChatSettingsDrawer({
                   description={localizeUi("ui.chat.chatsettingsdrawer.charactersKnowWhatHappensInTheirOtherChats")}
                   checked={metadata.crossChatAwareness !== false}
                   onChange={(crossChatAwareness) => updateMeta.mutate({ id: chat.id, crossChatAwareness })}
+                  testId="chat-settings-drawer-cross-chat-awareness-switch"
                   labelPosition="start"
                   className={cn(
                     "justify-between rounded-md px-3 py-2.5 text-left",
@@ -6677,6 +6771,7 @@ export function ChatSettingsDrawer({
                         </div>
                         <button
                           onClick={() => disconnectChat.mutate(chat.id)}
+                          data-testid="chat-settings-drawer-disconnect-connected-chat-button"
                           className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                           title={localizeUi("ui.agents.agenteditor.disconnect")}
                         >
@@ -6691,6 +6786,7 @@ export function ChatSettingsDrawer({
                       setShowConnectionPicker(true);
                       setConnectionSearch("");
                     }}
+                    data-testid="chat-settings-drawer-link-to-roleplay-or-game-button"
                     className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                   >
                     <Plus size="0.75rem" /> {localizeUi("ui.chat.chatsettingsdrawer.linkToRoleplayOrGame")}
@@ -6717,6 +6813,7 @@ export function ChatSettingsDrawer({
                             connectChat.mutate({ chatId: chat.id, targetChatId: c.id });
                             setShowConnectionPicker(false);
                           }}
+                          data-testid={`chat-settings-drawer-connected-chat-option-${c.id}-button`}
                           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-[var(--accent)]"
                         >
                           <ChatModeIcon
@@ -6766,6 +6863,7 @@ export function ChatSettingsDrawer({
                         </div>
                         <button
                           onClick={() => disconnectChat.mutate(chat.id)}
+                          data-testid="chat-settings-drawer-disconnect-ooc-chat-button"
                           className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                           title={localizeUi("ui.agents.agenteditor.disconnect")}
                         >
@@ -6787,6 +6885,7 @@ export function ChatSettingsDrawer({
                   description={localizeUi("ui.chat.chatsettingsdrawer.addsAShortHiddenCommandReminderSoCharactersCan")}
                   checked={metadata.roleplayDmCommandsEnabled === true}
                   onChange={(checked) => updateMeta.mutate({ id: chat.id, roleplayDmCommandsEnabled: checked })}
+                  testId="chat-settings-drawer-allow-character-dms-switch"
                   labelPosition="start"
                   className={cn(
                     "justify-between rounded-md px-3 py-2.5 text-left",
@@ -6832,6 +6931,7 @@ export function ChatSettingsDrawer({
                       </div>
                       <button
                         onClick={() => disconnectChat.mutate(chat.id)}
+                        data-testid="chat-settings-drawer-disconnect-game-ooc-chat-button"
                         className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                         title={localizeUi("ui.agents.agenteditor.disconnect")}
                       >
@@ -6872,6 +6972,7 @@ export function ChatSettingsDrawer({
                       setShowConnectionPicker(true);
                       setConnectionSearch("");
                     }}
+                    data-testid="chat-settings-drawer-link-to-conversation-button"
                     className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                   >
                     <Plus size="0.75rem" /> {localizeUi("ui.chat.chatsettingsdrawer.linkToConversation")}
@@ -6898,6 +6999,7 @@ export function ChatSettingsDrawer({
                             connectChat.mutate({ chatId: chat.id, targetChatId: c.id });
                             setShowConnectionPicker(false);
                           }}
+                          data-testid={`chat-settings-drawer-conversation-link-option-${c.id}-button`}
                           className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-[var(--accent)]"
                         >
                           <ChatModeIcon
@@ -6987,6 +7089,7 @@ export function ChatSettingsDrawer({
                   <button
                     type="button"
                     onClick={openDownloadAgents}
+                    data-testid="chat-settings-drawer-download-agents-button"
                     className="mari-chrome-control mari-chrome-control--primary mx-auto mt-3 px-4 py-2 text-xs"
                   >
                     <Sparkles size="0.8125rem" />
@@ -7033,6 +7136,7 @@ export function ChatSettingsDrawer({
                     }
                     checked={metadata.enableAgents === true}
                     onChange={(enabled) => updateMeta.mutate({ id: chat.id, enableAgents: enabled })}
+                    testId="chat-settings-drawer-enable-agents-switch"
                     labelPosition="start"
                     className={cn(
                       "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -7055,6 +7159,7 @@ export function ChatSettingsDrawer({
                     }
                     enabled={agentWriteApprovalRequired}
                     surface="secondary"
+                    testId="chat-settings-drawer-review-agent-outputs-toggle"
                     onToggle={() =>
                       updateMeta.mutate({
                         id: chat.id,
@@ -7074,6 +7179,7 @@ export function ChatSettingsDrawer({
                         }
                         enabled={metadata.manualTrackers === true}
                         surface="secondary"
+                        testId="chat-settings-drawer-manual-trackers-toggle"
                         onToggle={() => updateMeta.mutate({ id: chat.id, manualTrackers: !metadata.manualTrackers })}
                       />
                       <AgentSettingsToggle
@@ -7081,6 +7187,7 @@ export function ChatSettingsDrawer({
                         description={localizeUi("ui.chat.chatsettingsdrawer.attachLorebooksToTrackersDescription")}
                         enabled={metadata.attachLorebooksToTrackers === true}
                         surface="secondary"
+                        testId="chat-settings-drawer-attach-lorebooks-to-trackers-toggle"
                         onToggle={() =>
                           updateMeta.mutate({
                             id: chat.id,
@@ -7127,6 +7234,7 @@ export function ChatSettingsDrawer({
                               checked={manuallyTriggered}
                               onChange={() => toggleManualTrackerAgent(agent.id)}
                               disabled={globallyManual}
+                              testId={`chat-settings-drawer-manual-tracker-toggle-${agent.id}-switch`}
                               labelPosition="start"
                               className={cn(
                                 "justify-between rounded-md px-2 py-1.5 text-left",
@@ -7146,6 +7254,7 @@ export function ChatSettingsDrawer({
                       type="button"
                       onClick={() => void handleStopActiveGeneration()}
                       disabled={stoppingGeneration}
+                      data-testid="chat-settings-drawer-stop-active-generation-button"
                       className="flex min-h-10 w-full items-center justify-between gap-3 rounded-lg bg-[var(--secondary)] px-3 py-2.5 text-left transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <div className="min-w-0 flex-1">
@@ -7167,6 +7276,7 @@ export function ChatSettingsDrawer({
                   )}
                   <button
                     onClick={() => setShowAgentSuiteModal(true)}
+                    data-testid="chat-settings-drawer-agent-suite-button"
                     className="flex w-full items-center justify-between gap-3 rounded-lg bg-[var(--secondary)] px-3 py-2.5 text-left transition-all hover:bg-[var(--accent)]"
                   >
                     <div className="min-w-0 flex-1">
@@ -7193,6 +7303,7 @@ export function ChatSettingsDrawer({
                             key={link.id}
                             type="button"
                             onClick={() => scrollToAgentMenu(link.targetId)}
+                            data-testid={`chat-settings-drawer-agent-menu-link-${link.id}-button`}
                             className="inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-md bg-[var(--secondary)] px-2 py-1 text-[0.625rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)]/60"
                             title={localizeUi("ui.chat.chatsettingsdrawer.jumpToValue1", { value1: link.label })}
                           >
@@ -7215,6 +7326,7 @@ export function ChatSettingsDrawer({
                         onChange={(e) =>
                           updateMeta.mutate({ id: chat.id, gameSceneConnectionId: e.target.value || null })
                         }
+                        data-testid="chat-settings-drawer-game-scene-connection-select"
                         className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1.5 text-xs text-[var(--foreground)]"
                       >
                         {import.meta.env.VITE_MARINARA_LITE !== "true" && (
@@ -7241,6 +7353,7 @@ export function ChatSettingsDrawer({
                         description={localizeUi("ui.chat.chatsettingsdrawer.gameModeRunsThisAfterASessionEndsWith")}
                         enabled={gameLorebookKeeperEnabled}
                         onToggle={toggleGameLorebookKeeper}
+                        testId="chat-settings-drawer-game-lorebook-keeper-toggle"
                       />
                       {gameLorebookKeeperLorebook && (
                         <p className="truncate rounded-lg bg-[var(--background)]/75 px-3 py-2 text-[0.625rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)]">
@@ -7266,6 +7379,7 @@ export function ChatSettingsDrawer({
                         })}
                         enabled={gameMusicDjEnabled}
                         onToggle={() => void toggleGameMusicDj()}
+                        testId="chat-settings-drawer-music-dj-toggle"
                       />
 
                       <AgentSettingsSegmentedControl<MusicProvider>
@@ -7276,6 +7390,7 @@ export function ChatSettingsDrawer({
                           label: getMusicProviderLabel(provider),
                         }))}
                         onChange={(provider) => void changeMusicDjProvider(provider)}
+                        testIdPrefix="chat-settings-drawer-music-dj-provider"
                       />
 
                       {gameMusicDjEnabled && musicPlayerSource === "spotify" && (
@@ -7297,6 +7412,7 @@ export function ChatSettingsDrawer({
                                   gameSpotifyArtist: next === "artist" ? gameSpotifyArtistDraft.trim() || null : null,
                                 });
                               }}
+                              data-testid="chat-settings-drawer-spotify-source-type-select"
                               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                             >
                               {SPOTIFY_SOURCE_OPTIONS.map((option) => (
@@ -7329,6 +7445,7 @@ export function ChatSettingsDrawer({
                                       gameSpotifyPlaylistName: playlist?.name ?? null,
                                     });
                                   }}
+                                  data-testid="chat-settings-drawer-spotify-playlist-select"
                                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                                 >
                                   <option value="">{localizeUi("ui.chat.musicdjsetupfields.choosePlaylist")}</option>
@@ -7363,6 +7480,7 @@ export function ChatSettingsDrawer({
                                       ? localizeUi("ui.chat.musicdjsetupfields.loadingPlaylists")
                                       : localizeUi("ui.chat.musicdjsetupfields.pastePlaylistId")
                                   }
+                                  data-testid="chat-settings-drawer-spotify-playlist-id-input"
                                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50"
                                 />
                               )}
@@ -7389,6 +7507,7 @@ export function ChatSettingsDrawer({
                                   })
                                 }
                                 placeholder={localizeUi("ui.chat.musicdjsetupfields.hoyoMix")}
+                                data-testid="chat-settings-drawer-spotify-artist-input"
                                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50"
                               />
                             </label>
@@ -7423,6 +7542,7 @@ export function ChatSettingsDrawer({
                                   onClose();
                                   useUIStore.getState().openAgentDetail("lorebook-keeper");
                                 }}
+                                data-testid="chat-settings-drawer-lorebook-keeper-open-setup-button"
                                 className="!h-8 !min-h-8 w-full whitespace-nowrap !py-0 sm:w-auto"
                               >
                                 <Settings2 size="0.75rem" />
@@ -7431,6 +7551,7 @@ export function ChatSettingsDrawer({
                               <AgentSettingsActionButton
                                 onClick={handleLorebookKeeperBackfill}
                                 disabled={agentProcessing}
+                                data-testid="chat-settings-drawer-lorebook-keeper-backfill-button"
                                 className="!h-8 !min-h-8 w-full whitespace-nowrap !py-0 sm:w-auto"
                                 variant="primary"
                               >
@@ -7452,6 +7573,7 @@ export function ChatSettingsDrawer({
                                     lorebookKeeperTargetLorebookId: e.target.value || null,
                                   })
                                 }
+                                data-testid="chat-settings-drawer-lorebook-keeper-target-lorebook-select"
                                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                               >
                                 <option value="">
@@ -7484,6 +7606,7 @@ export function ChatSettingsDrawer({
                                       : 0,
                                   });
                                 }}
+                                data-testid="chat-settings-drawer-lorebook-keeper-read-behind-input"
                                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                               />
                             </label>
@@ -7516,6 +7639,7 @@ export function ChatSettingsDrawer({
                                 onClose();
                                 useUIStore.getState().openAgentDetail("card-evolution-auditor");
                               }}
+                              data-testid="chat-settings-drawer-card-evolution-auditor-open-setup-button"
                               variant="primary"
                             >
                               <Settings2 size="0.75rem" />
@@ -7547,6 +7671,7 @@ export function ChatSettingsDrawer({
                                 });
                               }
                             }}
+                            testId="chat-settings-drawer-prose-guardian-banned-words-textarea"
                           />
                           <AgentSettingsTextarea
                             label={localizeUi("ui.agents.agenteditor.removeFromWriting")}
@@ -7561,6 +7686,7 @@ export function ChatSettingsDrawer({
                                 });
                               }
                             }}
+                            testId="chat-settings-drawer-prose-guardian-avoid-textarea"
                           />
                           <AgentSettingsTextarea
                             label={localizeUi("ui.agents.agenteditor.preferInWriting")}
@@ -7577,6 +7703,7 @@ export function ChatSettingsDrawer({
                                 });
                               }
                             }}
+                            testId="chat-settings-drawer-prose-guardian-style-textarea"
                           />
                           <AgentSettingsToggle
                             label={localizeUi("ui.chat.agentaddsetupfields.holdMessageUntilRewrite")}
@@ -7593,6 +7720,7 @@ export function ChatSettingsDrawer({
                             onToggle={() =>
                               commitProseGuardianSettings({ proseGuardianHoldForRewrite: !proseGuardianHoldForRewrite })
                             }
+                            testId="chat-settings-drawer-prose-guardian-hold-for-rewrite-toggle"
                           />
                         </AgentSettingsCard>
                       )}
@@ -7623,6 +7751,7 @@ export function ChatSettingsDrawer({
                                     narrativeDirectorSecretPlotEnabled: !narrativeDirectorSecretPlotEnabled,
                                   })
                                 }
+                                testId="chat-settings-drawer-director-secret-plot-toggle"
                               />
                               {narrativeDirectorSecretPlotEnabled && (
                                 <>
@@ -7641,6 +7770,7 @@ export function ChatSettingsDrawer({
                                             narrativeDirectorSecretPlotRunInterval: value,
                                           })
                                         }
+                                        testId="chat-settings-drawer-director-secret-plot-run-interval-input"
                                         className="w-24 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs tabular-nums text-[var(--foreground)] outline-none transition-colors focus:border-[var(--ring)] focus:ring-1 focus:ring-[var(--ring)]"
                                       />
                                       <span className="text-[0.625rem] text-[var(--muted-foreground)]">
@@ -7684,6 +7814,7 @@ export function ChatSettingsDrawer({
                             onToggle={() =>
                               commitProseGuardianSettings({ proseGuardianHoldForRewrite: !proseGuardianHoldForRewrite })
                             }
+                            testId="chat-settings-drawer-continuity-hold-for-rewrite-toggle"
                           />
                         </AgentSettingsCard>
                       )}
@@ -7712,6 +7843,7 @@ export function ChatSettingsDrawer({
                             onToggle={() =>
                               commitProseGuardianSettings({ proseGuardianHoldForRewrite: !proseGuardianHoldForRewrite })
                             }
+                            testId="chat-settings-drawer-html-hold-for-rewrite-toggle"
                           />
                         </AgentSettingsCard>
                       )}
@@ -7862,6 +7994,7 @@ export function ChatSettingsDrawer({
                                 onClose();
                                 useUIStore.getState().openAgentDetail("echo-chamber");
                               }}
+                              data-testid="chat-settings-drawer-echo-chamber-open-setup-button"
                               className="shrink-0"
                             >
                               <Settings2 size="0.75rem" />
@@ -7900,6 +8033,7 @@ export function ChatSettingsDrawer({
                             )}
                             enabled={illustratorAutoBackgroundsEnabled}
                             onToggle={toggleIllustratorAutoBackgrounds}
+                            testId="chat-settings-drawer-illustrator-auto-backgrounds-toggle"
                           />
                           {renderIllustratorImageStyleSelect({
                             description:
@@ -7920,6 +8054,7 @@ export function ChatSettingsDrawer({
                             onToggle={toggleIllustratorCharacterAppearance}
                             overridden={typeof metadata.illustratorIncludeCharacterAppearance === "boolean"}
                             onReset={resetIllustratorCharacterAppearance}
+                            testId="chat-settings-drawer-illustrator-attach-card-appearance-toggle"
                           />
                           <AgentSettingsToggle
                             label={localizeUi("ui.chat.agentaddsetupfields.sendAvatarReferences")}
@@ -7930,6 +8065,7 @@ export function ChatSettingsDrawer({
                             onToggle={toggleIllustratorAvatarReferences}
                             overridden={typeof metadata.illustratorUseAvatarReferences === "boolean"}
                             onReset={resetIllustratorAvatarReferences}
+                            testId="chat-settings-drawer-illustrator-send-avatar-references-toggle"
                           />
                           <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-[var(--background)]/75 px-3 py-2 ring-1 ring-[var(--border)]">
                             <p className="min-w-0 flex-1 text-[0.625rem] leading-snug text-[var(--muted-foreground)]">
@@ -7942,6 +8078,7 @@ export function ChatSettingsDrawer({
                                 onClose();
                                 useUIStore.getState().openAgentDetail("illustrator");
                               }}
+                              data-testid="chat-settings-drawer-illustrator-open-setup-button"
                               className="shrink-0"
                             >
                               <Settings2 size="0.75rem" />
@@ -7965,6 +8102,7 @@ export function ChatSettingsDrawer({
                                   onChange={(e) =>
                                     updateMeta.mutate({ id: chat.id, sceneVideoConnectionId: e.target.value || null })
                                   }
+                                  data-testid="chat-settings-drawer-scene-video-connection-select"
                                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
                                 >
                                   <option value="">
@@ -8021,6 +8159,7 @@ export function ChatSettingsDrawer({
                               label: getMusicProviderLabel(provider),
                             }))}
                             onChange={(provider) => void changeMusicDjProvider(provider)}
+                            testIdPrefix="chat-settings-drawer-roleplay-music-dj-provider"
                           />
 
                           {musicPlayerSource === "spotify" && (
@@ -8042,6 +8181,7 @@ export function ChatSettingsDrawer({
                                       spotifyArtist: next === "artist" ? spotifyArtistDraft.trim() || null : null,
                                     });
                                   }}
+                                  data-testid="chat-settings-drawer-roleplay-spotify-source-type-select"
                                   className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                                 >
                                   {SPOTIFY_SOURCE_OPTIONS.map((option) => (
@@ -8074,6 +8214,7 @@ export function ChatSettingsDrawer({
                                           spotifyPlaylistName: playlist?.name ?? null,
                                         });
                                       }}
+                                      data-testid="chat-settings-drawer-roleplay-spotify-playlist-select"
                                       className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                                     >
                                       <option value="">
@@ -8110,6 +8251,7 @@ export function ChatSettingsDrawer({
                                           ? localizeUi("ui.chat.musicdjsetupfields.loadingPlaylists")
                                           : localizeUi("ui.chat.musicdjsetupfields.pastePlaylistId")
                                       }
+                                      data-testid="chat-settings-drawer-roleplay-spotify-playlist-id-input"
                                       className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50"
                                     />
                                   )}
@@ -8136,6 +8278,7 @@ export function ChatSettingsDrawer({
                                       })
                                     }
                                     placeholder={localizeUi("ui.chat.musicdjsetupfields.hoyoMix")}
+                                    data-testid="chat-settings-drawer-roleplay-spotify-artist-input"
                                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] placeholder:text-[var(--muted-foreground)]/50"
                                   />
                                 </label>
@@ -8197,6 +8340,7 @@ export function ChatSettingsDrawer({
                         onToggle={() =>
                           updateMeta.mutate({ id: chat.id, enableSpriteGeneration: !metadata.enableSpriteGeneration })
                         }
+                        testId="chat-settings-drawer-game-illustrator-toggle"
                       />
                       {metadata.enableSpriteGeneration && (
                         <div className="space-y-2">
@@ -8212,6 +8356,7 @@ export function ChatSettingsDrawer({
                                 gameImageAutoGenerationEnabled: !gameImageAutoGenerationEnabled,
                               })
                             }
+                            testId="chat-settings-drawer-game-image-auto-generation-toggle"
                           />
                           <AgentSettingsToggle
                             label={localizeUi("ui.chat.chatsettingsdrawer.dynamicLlmPromptGenerationForGmModeAssets")}
@@ -8225,6 +8370,7 @@ export function ChatSettingsDrawer({
                                 gameImageDynamicPromptEnabled: !gameImageDynamicPromptEnabled,
                               })
                             }
+                            testId="chat-settings-drawer-game-image-dynamic-prompt-toggle"
                           />
                           {renderIllustratorPromptConnectionSelect()}
                           <label className="flex flex-col gap-1">
@@ -8236,6 +8382,7 @@ export function ChatSettingsDrawer({
                               onChange={(e) =>
                                 updateMeta.mutate({ id: chat.id, gameImageConnectionId: e.target.value || null })
                               }
+                              data-testid="chat-settings-drawer-game-image-connection-select"
                               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
                             >
                               <option value="">{localizeUi("ui.chat.chatsettingsdrawer.selectImageConnection")}</option>
@@ -8266,6 +8413,7 @@ export function ChatSettingsDrawer({
                                 },
                               })
                             }
+                            testId="chat-settings-drawer-use-campaign-art-style-toggle"
                           />
                           {useCampaignArtStyle && (
                             <label className="flex flex-col gap-1">
@@ -8285,6 +8433,7 @@ export function ChatSettingsDrawer({
                                           },
                                         });
                                       }}
+                                      data-testid="chat-settings-drawer-restore-setup-art-style-button"
                                       className="rounded px-1.5 py-0.5 text-[0.5625rem] text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/10"
                                     >
                                       {localizeUi("ui.chat.chatsettingsdrawer.restoreSetupStyle")}
@@ -8303,6 +8452,7 @@ export function ChatSettingsDrawer({
                                 )}
                                 rows={3}
                                 maxLength={500}
+                                testId="chat-settings-drawer-campaign-art-style-textarea"
                                 className="mari-chrome-field min-h-[4.75rem] w-full !rounded-md px-2.5 py-2 pr-8 text-xs leading-relaxed"
                               />
                               <span className="text-[0.5625rem] leading-snug text-[var(--muted-foreground)]">
@@ -8326,6 +8476,7 @@ export function ChatSettingsDrawer({
                               )}
                               rows={3}
                               maxLength={1200}
+                              testId="chat-settings-drawer-scene-image-instructions-textarea"
                               className="mari-chrome-field min-h-[4.75rem] w-full !rounded-md px-2.5 py-2 pr-8 text-xs leading-relaxed"
                             />
                           </label>
@@ -8341,6 +8492,7 @@ export function ChatSettingsDrawer({
                                 gameImageIncludeCharacterAppearance: !gameImageIncludeCharacterAppearance,
                               })
                             }
+                            testId="chat-settings-drawer-game-image-attach-card-appearance-toggle"
                           />
                           <AgentSettingsToggle
                             label={localizeUi("ui.chat.agentaddsetupfields.sendAvatarReferences")}
@@ -8354,6 +8506,7 @@ export function ChatSettingsDrawer({
                                 gameImageUseAvatarReferences: !gameImageUseAvatarReferences,
                               })
                             }
+                            testId="chat-settings-drawer-game-image-send-avatar-references-toggle"
                           />
                         </div>
                       )}
@@ -8374,6 +8527,7 @@ export function ChatSettingsDrawer({
                                 gameSceneVideosEnabled: !gameSceneVideosEnabled,
                               })
                             }
+                            testId="chat-settings-drawer-game-scene-videos-toggle"
                           />
                         </div>
                       )}
@@ -8402,6 +8556,7 @@ export function ChatSettingsDrawer({
                               onChange={(e) =>
                                 updateMeta.mutate({ id: chat.id, gameVideoConnectionId: e.target.value || null })
                               }
+                              data-testid="chat-settings-drawer-game-video-connection-select"
                               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/50"
                             >
                               <option value="">{localizeUi("ui.chat.chatsettingsdrawer.selectVideoConnection")}</option>
@@ -8557,6 +8712,7 @@ export function ChatSettingsDrawer({
                                           });
                                         }
                                       }}
+                                      testId={`chat-settings-drawer-game-agent-toggle-${agent.id}-switch`}
                                       labelPosition="start"
                                       className={cn(
                                         "justify-between rounded-md px-3 py-2.5 text-left",
@@ -8621,6 +8777,7 @@ export function ChatSettingsDrawer({
                                             typeof metadata.illustratorIncludeCharacterAppearance === "boolean"
                                           }
                                           onReset={resetIllustratorCharacterAppearance}
+                                          testId="chat-settings-drawer-game-pool-illustrator-attach-card-appearance-toggle"
                                         />
                                         <AgentSettingsToggle
                                           label={localizeUi("ui.chat.agentaddsetupfields.sendAvatarReferences")}
@@ -8631,6 +8788,7 @@ export function ChatSettingsDrawer({
                                           onToggle={toggleIllustratorAvatarReferences}
                                           overridden={typeof metadata.illustratorUseAvatarReferences === "boolean"}
                                           onReset={resetIllustratorAvatarReferences}
+                                          testId="chat-settings-drawer-game-pool-illustrator-send-avatar-references-toggle"
                                         />
                                       </AgentSettingsCard>
                                     )}
@@ -8772,6 +8930,7 @@ export function ChatSettingsDrawer({
                                               onClick={() => {
                                                 void toggleAgent(agent.id);
                                               }}
+                                              data-testid={`chat-settings-drawer-remove-agent-${agent.id}-button`}
                                               className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                                               title={localizeUi("ui.chat.chatsettingsdrawer.removeFromChat")}
                                             >
@@ -8804,6 +8963,7 @@ export function ChatSettingsDrawer({
                                       <button
                                         key={agent.id}
                                         onClick={() => openAgentAddModal(agent)}
+                                        data-testid={`chat-settings-drawer-add-agent-${agent.id}-button`}
                                         className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)] bg-[var(--secondary)]"
                                       >
                                         <Plus size="0.75rem" className="shrink-0 text-[var(--muted-foreground)]" />
@@ -8857,6 +9017,7 @@ export function ChatSettingsDrawer({
                     type="button"
                     onClick={() => setGameWidgetDrafts(gameWidgetSource)}
                     disabled={!gameWidgetsChanged || updateGameWidgets.isPending}
+                    data-testid="chat-settings-drawer-game-widgets-reset-button"
                   >
                     {localizeUi("ui.characters.charactercliptrimmodal.reset")}
                   </AgentSettingsActionButton>
@@ -8865,6 +9026,7 @@ export function ChatSettingsDrawer({
                     variant="primary"
                     onClick={() => void saveGameWidgets()}
                     disabled={!gameWidgetsChanged || updateGameWidgets.isPending}
+                    data-testid="chat-settings-drawer-game-widgets-save-button"
                   >
                     {updateGameWidgets.isPending && <Loader2 size="0.75rem" className="animate-spin" />}
                     <span>
@@ -8911,6 +9073,7 @@ export function ChatSettingsDrawer({
               <div className="space-y-2.5">
                 <button
                   onClick={() => setShowSummariesModal(true)}
+                  data-testid="chat-settings-drawer-edit-summaries-button"
                   className="flex w-full items-center justify-between rounded-lg bg-[var(--secondary)] px-3 py-2.5 text-left transition-all hover:bg-[var(--accent)]"
                 >
                   <div className="flex-1 min-w-0">
@@ -8934,6 +9097,7 @@ export function ChatSettingsDrawer({
                     onChange={(semanticSummaryRetrievalEnabled) =>
                       updateMeta.mutate({ id: chat.id, semanticSummaryRetrievalEnabled })
                     }
+                    testId="chat-settings-drawer-semantic-summary-retrieval-switch"
                     labelPosition="start"
                     className={cn(
                       "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -8960,6 +9124,7 @@ export function ChatSettingsDrawer({
                       }
                       className="mari-chrome-field w-full !rounded-md px-3 py-2 text-xs"
                       aria-label={localizeUi("ui.chat.summarypopover.summaryConnection_febe5c4")}
+                      data-testid="chat-settings-drawer-summary-connection-select"
                     >
                       <option value="">{localizeUi("chat.summary.connection.agentDefaultFallback")}</option>
                       {conversationSummaryConnectionMissing && (
@@ -8999,6 +9164,7 @@ export function ChatSettingsDrawer({
                         })
                       }
                       ariaLabel={localizeUi("ui.chat.summarypopover.summaryMaximumOutputSize")}
+                      testId="chat-settings-drawer-summary-max-tokens-input"
                       className="mari-chrome-field w-full !rounded-md px-3 py-2 text-xs"
                     />
                   </div>
@@ -9015,6 +9181,7 @@ export function ChatSettingsDrawer({
                       setRolloverTouchedThisSession(true);
                       updateMeta.mutate({ id: chat.id, dayRolloverHour: Number(e.target.value) });
                     }}
+                    data-testid="chat-settings-drawer-day-rollover-hour-select"
                     className="mari-chrome-field w-full !rounded-md px-3 py-2 text-xs"
                   >
                     {Array.from({ length: 12 }, (_, h) => {
@@ -9060,6 +9227,7 @@ export function ChatSettingsDrawer({
                       })
                     }
                     ariaLabel="Recent message tail"
+                    testId="chat-settings-drawer-summary-tail-messages-input"
                     className="mari-chrome-field w-full !rounded-md px-3 py-2 text-xs"
                   />
                   <p className="text-[0.625rem] text-[var(--muted-foreground)]">
@@ -9262,6 +9430,7 @@ export function ChatSettingsDrawer({
                           );
                         }}
                         disabled={addingAgentToChat}
+                        data-testid="chat-settings-drawer-agent-add-context-size-input"
                         className="w-28 rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm tabular-nums ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
                       />
                       <span className="text-[0.6875rem] text-[var(--muted-foreground)]">
@@ -9297,6 +9466,7 @@ export function ChatSettingsDrawer({
                           );
                         }}
                         disabled={addingAgentToChat}
+                        data-testid="chat-settings-drawer-agent-add-max-tokens-input"
                         className="w-32 rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm tabular-nums ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
                       />
                       <span className="text-[0.6875rem] text-[var(--muted-foreground)]">
@@ -9338,6 +9508,7 @@ export function ChatSettingsDrawer({
                         );
                       }}
                       disabled={addingAgentToChat}
+                      data-testid="chat-settings-drawer-agent-add-run-interval-input"
                       className="w-28 rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm tabular-nums ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
                     />
                   ) : (
@@ -9387,6 +9558,7 @@ export function ChatSettingsDrawer({
                           );
                         }}
                         disabled={addingAgentToChat}
+                        data-testid="chat-settings-drawer-agent-add-cadence-input"
                         className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 pr-8 text-sm tabular-nums ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
                       />
                       <div className="absolute right-1 top-1/2 flex -translate-y-1/2 flex-col overflow-hidden rounded-md">
@@ -9408,6 +9580,7 @@ export function ChatSettingsDrawer({
                                 : current,
                             );
                           }}
+                          data-testid="chat-settings-drawer-agent-add-cadence-increase-button"
                           className="flex h-4 w-5 items-center justify-center text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <ChevronUp size="0.6875rem" />
@@ -9430,6 +9603,7 @@ export function ChatSettingsDrawer({
                                 : current,
                             );
                           }}
+                          data-testid="chat-settings-drawer-agent-add-cadence-decrease-button"
                           className="flex h-4 w-5 items-center justify-center text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <ChevronDown size="0.6875rem" />
@@ -9465,6 +9639,7 @@ export function ChatSettingsDrawer({
                   setAgentSetupQueue([]);
                 }}
                 disabled={addingAgentToChat}
+                data-testid="chat-settings-drawer-agent-add-cancel-button"
                 className="rounded-lg px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {localizeUi("chat.delete.dialog.cancel")}
@@ -9472,6 +9647,7 @@ export function ChatSettingsDrawer({
               <button
                 onClick={confirmAddAgent}
                 disabled={addingAgentToChat}
+                data-testid="chat-settings-drawer-agent-add-confirm-button"
                 className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {addingAgentToChat
@@ -9529,6 +9705,7 @@ export function ChatSettingsDrawer({
                         setFirstMesConfirm((current) => (current ? { ...current, selectedIndex: index } : current))
                       }
                       aria-pressed={selected}
+                      data-testid={`chat-settings-drawer-greeting-option-${index}-button`}
                       className={cn(
                         "mari-chat-option-field w-full rounded-lg px-3 py-2.5 text-left transition-colors",
                         selected && "mari-chat-option-field--active",
@@ -9575,6 +9752,7 @@ export function ChatSettingsDrawer({
                 type="button"
                 onClick={() => setFirstMesConfirm(null)}
                 disabled={createMessage.isPending}
+                data-testid="chat-settings-drawer-greeting-skip-button"
                 className="mari-chrome-control mari-chrome-control--small text-xs"
               >
                 {localizeUi("onboarding.actions.skip")}
@@ -9583,6 +9761,7 @@ export function ChatSettingsDrawer({
                 type="button"
                 onClick={handleFirstMesConfirm}
                 disabled={createMessage.isPending}
+                data-testid="chat-settings-drawer-greeting-confirm-button"
                 className="mari-chrome-control mari-chrome-control--small mari-chrome-control--selected text-xs"
               >
                 {createMessage.isPending
@@ -9781,11 +9960,13 @@ function MemoryRecallMemoriesModal({
               accept=".json,.marinara"
               className="hidden"
               onChange={handleImportFile}
+              data-testid="chat-settings-drawer-memories-import-file-input"
             />
             <button
               type="button"
               onClick={() => void handleExport()}
               disabled={memories.length === 0 || exportMemories.isPending}
+              data-testid="chat-settings-drawer-memories-export-button"
               className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-40"
               title={localizeUi("ui.chat.memoryrecallmemoriesmodal.exportMemories")}
               aria-label={localizeUi("ui.chat.memoryrecallmemoriesmodal.exportMemories")}
@@ -9796,6 +9977,7 @@ function MemoryRecallMemoriesModal({
               type="button"
               onClick={() => importInputRef.current?.click()}
               disabled={importMemories.isPending}
+              data-testid="chat-settings-drawer-memories-import-button"
               className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-40"
               title={localizeUi("ui.chat.memoryrecallmemoriesmodal.importMemories")}
               aria-label={localizeUi("ui.chat.memoryrecallmemoriesmodal.importMemories")}
@@ -9806,6 +9988,7 @@ function MemoryRecallMemoriesModal({
               type="button"
               onClick={() => void handleRevectorize()}
               disabled={memoriesQuery.isFetching || refreshMemories.isPending || importMemories.isPending}
+              data-testid="chat-settings-drawer-memories-revectorize-button"
               className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent)] px-2 py-1.5 text-[0.625rem] font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]/80 disabled:opacity-50"
               title={localizeUi("ui.chat.memoryrecallmemoriesmodal.reVectorizeAllMemoriesDescription")}
               aria-label={localizeUi("ui.chat.memoryrecallmemoriesmodal.reVectorizeAllMemories")}
@@ -9820,6 +10003,7 @@ function MemoryRecallMemoriesModal({
               type="button"
               onClick={handleClear}
               disabled={memories.length === 0 || clearMemories.isPending}
+              data-testid="chat-settings-drawer-memories-clear-button"
               className="rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)] disabled:opacity-40"
               title={localizeUi("ui.chat.memoryrecallmemoriesmodal.clearAllMemories")}
             >
@@ -9875,6 +10059,7 @@ function MemoryRecallMemoriesModal({
                     type="button"
                     onClick={() => void handleDelete(memory)}
                     disabled={deleteMemory.isPending}
+                    data-testid={`chat-settings-drawer-memory-delete-${memory.id}-button`}
                     className="shrink-0 rounded-lg p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)] disabled:opacity-40"
                     title={localizeUi("ui.chat.memoryrecallmemoriesmodal.forgetThisMemory")}
                   >
@@ -9965,6 +10150,7 @@ function KnowledgeAgentSettingsCard({
         }
         enabled={settings.useChatActiveLorebooks !== false}
         onToggle={() => onChange({ useChatActiveLorebooks: settings.useChatActiveLorebooks === false })}
+        testId="chat-settings-drawer-knowledge-use-chat-lorebooks-toggle"
       />
 
       <div className="space-y-1.5">
@@ -10006,6 +10192,7 @@ function KnowledgeAgentSettingsCard({
                   key={lorebook.id}
                   type="button"
                   onClick={() => toggleLorebook(lorebook.id)}
+                  data-testid={`chat-settings-drawer-knowledge-lorebook-${lorebook.id}-button`}
                   className={cn(
                     "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-all",
                     selected
@@ -10065,6 +10252,7 @@ function KnowledgeAgentSettingsCard({
                     key={source.id}
                     type="button"
                     onClick={() => toggleSourceFile(source.id)}
+                    data-testid={`chat-settings-drawer-knowledge-source-file-${source.id}-button`}
                     className={cn(
                       "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs transition-all",
                       selected
@@ -10103,6 +10291,7 @@ function KnowledgeAgentSettingsCard({
             type="file"
             accept=".txt,.md,.csv,.json,.xml,.html,.htm,.log,.yaml,.yml,.tsv,.pdf"
             className="hidden"
+            data-testid="chat-settings-drawer-knowledge-upload-file-input"
             onChange={async (event) => {
               const file = event.target.files?.[0];
               if (!file) return;
@@ -10123,6 +10312,7 @@ function KnowledgeAgentSettingsCard({
             type="button"
             disabled={uploadSource.isPending}
             onClick={() => fileInputRef.current?.click()}
+            data-testid="chat-settings-drawer-knowledge-upload-file-button"
             className={cn(
               "flex w-full items-center justify-center gap-2 rounded-lg border border-dashed px-3 py-2 text-xs font-medium transition-all",
               uploadSource.isPending
@@ -10222,6 +10412,7 @@ function ConversationNotesSection({ chatId }: { chatId: string }) {
               type="button"
               onClick={handleClear}
               disabled={clearNotes.isPending}
+              data-testid="chat-settings-drawer-notes-clear-button"
               className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)] disabled:opacity-40"
               title={localizeUi("ui.chat.conversationnotessection.clearAllNotes")}
             >
@@ -10263,6 +10454,7 @@ function ConversationNotesSection({ chatId }: { chatId: string }) {
                   type="button"
                   onClick={() => void handleDelete(note)}
                   disabled={deleteNote.isPending}
+                  data-testid={`chat-settings-drawer-note-delete-${note.id}-button`}
                   className="shrink-0 rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)] disabled:opacity-40"
                   title={localizeUi("ui.chat.conversationnotessection.deleteThisNote")}
                 >

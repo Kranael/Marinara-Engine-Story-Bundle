@@ -54,6 +54,7 @@ export function ExportFormatDialog({
               <button
                 key={option.id}
                 type="button"
+                data-testid={`export-format-option-${option.id}`}
                 onClick={() => onSelect(option.id)}
                 className={cn(
                   "group flex min-h-[8.5rem] flex-col items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--secondary)]/55 p-4 text-left transition-all",
@@ -76,6 +77,7 @@ export function ExportFormatDialog({
         <div className="flex justify-end">
           <button
             type="button"
+            data-testid="export-format-cancel-button"
             onClick={onClose}
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           >

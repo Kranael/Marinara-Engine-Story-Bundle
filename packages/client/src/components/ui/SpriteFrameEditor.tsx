@@ -155,6 +155,7 @@ export function SpriteFrameEditor({ imageUrl, label, applying = false, onApply, 
             </span>
             <button
               type="button"
+              data-testid="sprite-frame-editor-close-button"
               onClick={onClose}
               className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               aria-label={localizeUi("ui.ui.spriteframeeditor.closeFrameEditor")}
@@ -170,6 +171,7 @@ export function SpriteFrameEditor({ imageUrl, label, applying = false, onApply, 
                 <span className="w-12 shrink-0 text-[var(--foreground)]">{controlLabel}</span>
                 <input
                   type="range"
+                  data-testid={`sprite-frame-editor-range-${key}`}
                   min={0}
                   max={MAX_SINGLE_EDGE_CROP}
                   step={0.5}
@@ -189,6 +191,7 @@ export function SpriteFrameEditor({ imageUrl, label, applying = false, onApply, 
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
+              data-testid="sprite-frame-editor-reset-button"
               onClick={() => setFrame(DEFAULT_FRAME_ADJUSTMENTS)}
               className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.6875rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:text-[var(--foreground)]"
             >
@@ -197,6 +200,7 @@ export function SpriteFrameEditor({ imageUrl, label, applying = false, onApply, 
             </button>
             <button
               type="button"
+              data-testid="sprite-frame-editor-apply-button"
               onClick={() => void handleApply()}
               disabled={applying}
               className="inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[0.6875rem] font-medium text-[var(--primary-foreground)] transition-colors hover:opacity-90 disabled:opacity-50"

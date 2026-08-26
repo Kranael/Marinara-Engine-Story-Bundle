@@ -147,6 +147,7 @@ export function PanelLockButton({ locked, onToggle, onReset, size = 10, classNam
         event.stopPropagation();
         onToggle();
       }}
+      data-testid="draggable-panel-toggle-button"
       onDoubleClick={(event) => {
         if (!onReset) return;
         event.stopPropagation();

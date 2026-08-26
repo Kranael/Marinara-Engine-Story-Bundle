@@ -94,6 +94,7 @@ export function LorebooksSection({
               event.currentTarget.blur();
             }
           }}
+          data-testid="lorebooks-token-budget-input"
           className="w-full rounded-lg bg-[var(--background)] px-3 py-2 text-xs ring-1 ring-transparent focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
         />
       </div>
@@ -145,6 +146,7 @@ export function LorebooksSection({
                   <button
                     type="button"
                     onClick={() => onEditLorebook(lorebook.id)}
+                    data-testid={`lorebooks-edit-${lorebook.id}`}
                     className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     title={t("chat.settings.actions.editLorebookEntries")}
                     aria-label={t("chat.settings.actions.editLorebookEntries")}
@@ -154,6 +156,7 @@ export function LorebooksSection({
                   {lorebook.isExcluded ? (
                     <button
                       onClick={() => onSetLorebookExcluded(lorebook.id, false)}
+                      data-testid={`lorebooks-enable-${lorebook.id}`}
                       className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
                       title={localizeUi("ui.chatSettings.lorebookssection.enableInThisChat")}
                     >
@@ -164,6 +167,7 @@ export function LorebooksSection({
                       {lorebook.isPinned && (
                         <button
                           onClick={() => onToggleLorebook(lorebook.id)}
+                          data-testid={`lorebooks-remove-${lorebook.id}`}
                           className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                           title={localizeUi("ui.chatSettings.functioncallingsection.removeFromChat")}
                         >
@@ -173,6 +177,7 @@ export function LorebooksSection({
                       {(!lorebook.isPinned || hasAutomaticReason) && (
                         <button
                           onClick={() => onSetLorebookExcluded(lorebook.id, true)}
+                          data-testid={`lorebooks-disable-${lorebook.id}`}
                           className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                           title={localizeUi("ui.chatSettings.lorebookssection.disableInThisChat")}
                         >
@@ -195,6 +200,7 @@ export function LorebooksSection({
             onShowLorebookPickerChange(true);
             onLorebookSearchChange("");
           }}
+          data-testid="lorebooks-add-lorebook-button"
           className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
         >
           <Plus size="0.75rem" /> {localizeUi("ui.chatSettings.lorebookssection.addLorebook")}
@@ -213,6 +219,7 @@ export function LorebooksSection({
                 onToggleLorebook(lorebook.id);
                 onShowLorebookPickerChange(false);
               }}
+              data-testid={`lorebooks-picker-${lorebook.id}`}
               className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
             >
               <BookOpen size="0.875rem" className="text-[var(--muted-foreground)]" />

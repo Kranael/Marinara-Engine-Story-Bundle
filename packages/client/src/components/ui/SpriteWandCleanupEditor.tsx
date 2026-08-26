@@ -88,6 +88,7 @@ interface RangeControlProps {
   inputClassName?: string;
   before?: ReactNode;
   after?: ReactNode;
+  testId?: string;
 }
 
 interface ToggleControlProps {
@@ -96,6 +97,7 @@ interface ToggleControlProps {
   disabled: boolean;
   onChange: (checked: boolean) => void;
   title?: string;
+  testId?: string;
 }
 
 interface BrushStrokeBuildInput {
@@ -303,6 +305,7 @@ function RangeControl({
   inputClassName = "min-w-0",
   before,
   after,
+  testId,
 }: RangeControlProps) {
   return (
     <label
@@ -313,6 +316,7 @@ function RangeControl({
       {before}
       <input
         type="range"
+        data-testid={testId}
         min={min}
         max={max}
         step={step}
@@ -327,7 +331,7 @@ function RangeControl({
   );
 }
 
-function ToggleControl({ label, checked, disabled, onChange, title }: ToggleControlProps) {
+function ToggleControl({ label, checked, disabled, onChange, title, testId }: ToggleControlProps) {
   return (
     <label
       className="flex min-w-fit items-center gap-2 whitespace-nowrap rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs font-medium text-[var(--foreground)]"
@@ -335,6 +339,7 @@ function ToggleControl({ label, checked, disabled, onChange, title }: ToggleCont
     >
       <input
         type="checkbox"
+        data-testid={testId}
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
         disabled={disabled}
@@ -903,6 +908,7 @@ export function SpriteWandCleanupEditor({
             <button
               key={optionTool}
               type="button"
+              data-testid={`sprite-wand-cleanup-tool-${optionTool}`}
               onClick={() => handleSelectTool(optionTool)}
               disabled={loading || applying}
               className={toolButtonClass(tool === optionTool)}
@@ -916,6 +922,7 @@ export function SpriteWandCleanupEditor({
           <div className="ml-auto flex flex-wrap items-center gap-1 rounded-lg bg-[var(--secondary)] px-1.5 py-1">
             <button
               type="button"
+              data-testid="sprite-wand-cleanup-tool-pan"
               onClick={() => handleSelectTool("pan")}
               disabled={loading || applying}
               className={navigationButtonClass(tool === "pan")}
@@ -928,6 +935,7 @@ export function SpriteWandCleanupEditor({
             <span aria-hidden="true" className="mx-0.5 h-4 w-px bg-[var(--border)]" />
             <button
               type="button"
+              data-testid="sprite-wand-cleanup-zoom-out"
               onClick={zoomOut}
               disabled={loading || applying}
               className={navigationButtonClass()}
@@ -938,6 +946,7 @@ export function SpriteWandCleanupEditor({
             </button>
             <button
               type="button"
+              data-testid="sprite-wand-cleanup-fit-to-view"
               onClick={fitCanvasToStage}
               disabled={loading || applying}
               className="h-7 rounded-md px-2 text-[0.6875rem] font-medium tabular-nums text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-45"
@@ -947,6 +956,7 @@ export function SpriteWandCleanupEditor({
             </button>
             <button
               type="button"
+              data-testid="sprite-wand-cleanup-zoom-in"
               onClick={zoomIn}
               disabled={loading || applying}
               className={navigationButtonClass()}
@@ -964,6 +974,7 @@ export function SpriteWandCleanupEditor({
               <>
                 <button
                   type="button"
+                  data-testid="sprite-wand-cleanup-reset-wand-defaults"
                   onClick={handleResetWandDefaults}
                   disabled={loading || applying}
                   className="inline-flex min-w-fit items-center gap-1.5 whitespace-nowrap rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:text-[var(--foreground)] disabled:opacity-45"
@@ -973,6 +984,7 @@ export function SpriteWandCleanupEditor({
                   {localizeUi("ui.panels.connectiondefaultssection.defaults")}
                 </button>
                 <RangeControl
+                  testId="sprite-wand-cleanup-wand-tolerance"
                   label={localizeUi("ui.ui.spritewandcleanupeditor.tolerance")}
                   min={4}
                   max={128}
@@ -982,6 +994,7 @@ export function SpriteWandCleanupEditor({
                   className="min-w-[12rem] flex-[1_1_12rem]"
                 />
                 <ToggleControl
+                  testId="sprite-wand-cleanup-wand-strong"
                   label={localizeUi("ui.ui.spritewandcleanupeditor.strong")}
                   checked={wandStrong}
                   onChange={setWandStrong}
@@ -989,6 +1002,7 @@ export function SpriteWandCleanupEditor({
                   title={localizeUi("ui.ui.spritewandcleanupeditor.reachFartherIntoMatchingDebris")}
                 />
                 <RangeControl
+                  testId="sprite-wand-cleanup-wand-softness"
                   label={localizeUi("ui.ui.spritewandcleanupeditor.softness")}
                   min={0}
                   max={100}
@@ -999,6 +1013,7 @@ export function SpriteWandCleanupEditor({
                   className="min-w-[14rem] flex-[1_1_14rem]"
                 />
                 <RangeControl
+                  testId="sprite-wand-cleanup-wand-feather"
                   label={localizeUi("ui.ui.spritewandcleanupeditor.feather")}
                   min={0}
                   max={100}
@@ -1014,6 +1029,7 @@ export function SpriteWandCleanupEditor({
             {activeBrushMode && (
               <>
                 <RangeControl
+                  testId="sprite-wand-cleanup-brush-size"
                   label={localizeUi("ui.ui.spritewandcleanupeditor.brush")}
                   min={2}
                   max={96}
@@ -1028,6 +1044,7 @@ export function SpriteWandCleanupEditor({
                   <div className="flex min-w-fit items-center gap-1 rounded-lg bg-[var(--secondary)] p-1 text-xs">
                     <button
                       type="button"
+                      data-testid="sprite-wand-cleanup-brush-mode-paint"
                       onClick={() => handleSelectBrushToolMode("paint")}
                       disabled={loading || applying}
                       className={[
@@ -1044,6 +1061,7 @@ export function SpriteWandCleanupEditor({
                     </button>
                     <button
                       type="button"
+                      data-testid="sprite-wand-cleanup-brush-mode-restore"
                       onClick={() => handleSelectBrushToolMode("restore")}
                       disabled={loading || applying}
                       className={[
@@ -1063,6 +1081,7 @@ export function SpriteWandCleanupEditor({
                 {tool === "clean" && (
                   <>
                     <RangeControl
+                      testId="sprite-wand-cleanup-clean-tolerance"
                       label={localizeUi("ui.ui.spritewandcleanupeditor.tolerance")}
                       min={4}
                       max={128}
@@ -1075,6 +1094,7 @@ export function SpriteWandCleanupEditor({
                       className="min-w-[12rem] flex-[1_1_12rem]"
                     />
                     <RangeControl
+                      testId="sprite-wand-cleanup-clean-edge-guard"
                       label={localizeUi("ui.ui.spritewandcleanupeditor.edgeGuard")}
                       min={0}
                       max={100}
@@ -1087,6 +1107,7 @@ export function SpriteWandCleanupEditor({
                       className="min-w-[16rem] flex-[1_1_16rem]"
                     />
                     <RangeControl
+                      testId="sprite-wand-cleanup-clean-feather"
                       label={localizeUi("ui.ui.spritewandcleanupeditor.feather")}
                       min={0}
                       max={100}
@@ -1108,6 +1129,7 @@ export function SpriteWandCleanupEditor({
                     </span>
                     <input
                       type="color"
+                      data-testid="sprite-wand-cleanup-brush-color"
                       value={brushColor}
                       onChange={(event) => {
                         setBrushColor(event.target.value);
@@ -1122,6 +1144,7 @@ export function SpriteWandCleanupEditor({
                     </span>
                     <button
                       type="button"
+                      data-testid="sprite-wand-cleanup-pick-brush-color"
                       onClick={handleToggleBrushColorPicker}
                       disabled={loading || applying}
                       className={[
@@ -1141,6 +1164,7 @@ export function SpriteWandCleanupEditor({
                 {usesOpacityHardnessControls(tool) && (
                   <>
                     <RangeControl
+                      testId="sprite-wand-cleanup-brush-opacity"
                       label={localizeUi("ui.ui.spritewandcleanupeditor.opacity")}
                       min={0}
                       max={100}
@@ -1151,6 +1175,7 @@ export function SpriteWandCleanupEditor({
                       className="min-w-48 flex-1"
                     />
                     <RangeControl
+                      testId="sprite-wand-cleanup-brush-hardness"
                       label={localizeUi("ui.ui.spritewandcleanupeditor.hardness")}
                       min={0}
                       max={100}
@@ -1164,6 +1189,7 @@ export function SpriteWandCleanupEditor({
                 )}
                 {tool === "blur" && (
                   <RangeControl
+                    testId="sprite-wand-cleanup-blur-strength"
                     label={localizeUi("ui.ui.spritewandcleanupeditor.strength")}
                     min={0}
                     max={100}
@@ -1183,6 +1209,7 @@ export function SpriteWandCleanupEditor({
               <button
                 key={option.key}
                 type="button"
+                data-testid={`sprite-wand-cleanup-preview-bg-${option.key}`}
                 onClick={() => setPreviewBackground(option.key)}
                 className={[
                   "rounded-md px-2 py-1 text-[0.6875rem] font-medium transition-colors",
@@ -1252,6 +1279,7 @@ export function SpriteWandCleanupEditor({
           </div>
           <button
             type="button"
+            data-testid="sprite-wand-cleanup-undo"
             onClick={handleUndo}
             disabled={loading || applying || history.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:text-[var(--foreground)] disabled:opacity-45"
@@ -1261,6 +1289,7 @@ export function SpriteWandCleanupEditor({
           </button>
           <button
             type="button"
+            data-testid="sprite-wand-cleanup-reset"
             onClick={handleReset}
             disabled={loading || applying || !hasChanges}
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:text-[var(--foreground)] disabled:opacity-45"
@@ -1270,6 +1299,7 @@ export function SpriteWandCleanupEditor({
           </button>
           <button
             type="button"
+            data-testid="sprite-wand-cleanup-cancel"
             onClick={onClose}
             disabled={applying}
             className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-50"
@@ -1278,6 +1308,7 @@ export function SpriteWandCleanupEditor({
           </button>
           <button
             type="button"
+            data-testid="sprite-wand-cleanup-apply"
             onClick={() => void handleApply()}
             disabled={loading || applying || !hasChanges}
             className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-colors hover:opacity-90 disabled:opacity-50"

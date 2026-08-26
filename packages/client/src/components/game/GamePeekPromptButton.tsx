@@ -13,6 +13,7 @@ export default function GamePeekPromptButton({ messageId, className, onPeekPromp
     <button
       type="button"
       data-component="GameNarration.PeekPrompt"
+      data-testid={`game-peek-prompt-button-${messageId}`}
       onPointerDown={(event) => event.stopPropagation()}
       onClick={(event) => {
         event.preventDefault();

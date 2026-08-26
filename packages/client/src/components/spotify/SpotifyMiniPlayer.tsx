@@ -628,6 +628,7 @@ export function SpotifyMiniPlayer({
             onClick={dismissDjMariToast}
             className="rounded-full p-1 text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground"
             aria-label={localizeUi("ui.spotify.spotifyminiplayer.dismissDjMariPlaylistToast")}
+            data-testid="spotify-dj-mari-toast-dismiss-button"
           >
             <X size="0.75rem" />
           </button>
@@ -924,6 +925,7 @@ export function SpotifyMiniPlayer({
             toast.info(SPOTIFY_VOLUME_UNSUPPORTED_MESSAGE);
           }}
           title={SPOTIFY_VOLUME_UNSUPPORTED_MESSAGE}
+          data-testid="spotify-volume-unsupported-button"
         >
           <Volume2 size="0.75rem" className="shrink-0" />
           <span className="min-w-0 truncate text-[0.58rem] font-medium leading-tight">
@@ -954,6 +956,7 @@ export function SpotifyMiniPlayer({
               ? localizeUi("ui.spotify.spotifyminiplayer.restoreVolume")
               : localizeUi("ui.game.gamevolumemixer.mute")
           }
+          data-testid="spotify-mute-toggle-button"
         >
           <VolumeIcon size="0.75rem" />
         </button>
@@ -970,6 +973,7 @@ export function SpotifyMiniPlayer({
           className="mari-spotify-volume-slider w-full"
           style={spotifyVolumeStyle}
           title={localizeUi("game.toolbar.volume")}
+          data-testid="spotify-volume-slider"
         />
       </div>
     );
@@ -1022,6 +1026,7 @@ export function SpotifyMiniPlayer({
             )}
             aria-pressed={shuffleEnabled}
             title={shuffleTitle}
+            data-testid="spotify-shuffle-button"
           >
             <Shuffle size="0.8125rem" />
           </button>
@@ -1034,6 +1039,7 @@ export function SpotifyMiniPlayer({
               MUSIC_PLAYER_ICON_HOVER_CLASS,
             )}
             title={localizeUi("ui.spotify.spotifyminiplayer.previous")}
+            data-testid="spotify-previous-button"
           >
             <SkipBack size="0.8125rem" />
           </button>
@@ -1050,6 +1056,7 @@ export function SpotifyMiniPlayer({
                 ? localizeUi("ui.spotify.spotifyminiplayer.pause")
                 : localizeUi("ui.spotify.spotifyminiplayer.play")
             }
+            data-testid="spotify-play-pause-button"
           >
             {playPauseBusy ? (
               <Loader2 size="0.8125rem" className="animate-spin" />
@@ -1068,6 +1075,7 @@ export function SpotifyMiniPlayer({
               MUSIC_PLAYER_ICON_HOVER_CLASS,
             )}
             title={localizeUi("onboarding.actions.next")}
+            data-testid="spotify-next-button"
           >
             <SkipForward size="0.8125rem" />
           </button>
@@ -1082,6 +1090,7 @@ export function SpotifyMiniPlayer({
             )}
             aria-pressed={repeatState !== "off"}
             title={repeatTitle}
+            data-testid="spotify-repeat-button"
           >
             <RepeatIcon size="0.8125rem" />
           </button>
@@ -1096,6 +1105,7 @@ export function SpotifyMiniPlayer({
             )}
             title={localizeUi("ui.spotify.spotifyminiplayer.djMariComposesAPlaylistForYou")}
             aria-label={localizeUi("ui.spotify.spotifyminiplayer.djMariComposesAPlaylistForYou")}
+            data-testid="spotify-dj-mari-playlist-button"
           >
             {createDjMariPlaylist.isPending ? (
               <Loader2 size="0.8125rem" className="animate-spin" />
@@ -1118,6 +1128,7 @@ export function SpotifyMiniPlayer({
                   ? localizeUi("ui.spotify.spotifyminiplayer.useMarinaraPlayer")
                   : localizeUi("ui.spotify.spotifyminiplayer.enableMarinaraPlayer")
               }
+              data-testid="spotify-marinara-player-button"
             >
               {browserPlaybackLoading ? (
                 <Loader2 size="0.8125rem" className="animate-spin" />
@@ -1135,6 +1146,7 @@ export function SpotifyMiniPlayer({
               MUSIC_PLAYER_ICON_HOVER_CLASS,
             )}
             title={localizeUi("ui.spotify.spotifyminiplayer.musicDjSetup")}
+            data-testid="spotify-open-settings-button"
           >
             <Settings size="0.8125rem" />
           </button>
@@ -1218,6 +1230,7 @@ export function SpotifyMiniPlayer({
                 }}
                 className={cn("rounded-full p-1", MUSIC_PLAYER_ICON_CLASS, MUSIC_PLAYER_ICON_HOVER_CLASS)}
                 title={localizeUi("ui.spotify.spotifyminiplayer.closePlayer")}
+                data-testid="spotify-mobile-widget-collapse-button"
               >
                 <X size="0.875rem" />
               </button>

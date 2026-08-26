@@ -11,6 +11,8 @@ export interface ContextMenuItem {
   onSelect: () => void;
   disabled?: boolean;
   destructive?: boolean;
+  /** Stable test identifier for the menu item button. */
+  testId?: string;
 }
 
 interface ContextMenuProps {
@@ -79,6 +81,7 @@ export function ContextMenu({ x, y, items, onClose, destructiveTone = "destructi
           type="button"
           role="menuitem"
           disabled={item.disabled}
+          data-testid={item.testId}
           onClick={() => {
             if (item.disabled) return;
             item.onSelect();

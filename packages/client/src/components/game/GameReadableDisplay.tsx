@@ -164,6 +164,7 @@ export function GameReadableDisplay({ type, content, onClose }: GameReadableDisp
         {/* Close button */}
         <button
           onClick={onClose}
+          data-testid="game-readable-display-close-button"
           className={cn("absolute right-3 top-3 z-10 rounded-lg p-1.5 transition-colors", style.closeBtn)}
         >
           <X size={16} />

@@ -57,6 +57,7 @@ function TemplateCollectionEditor({
   required = false,
   renderTemplateMeta,
   onChange,
+  testId,
 }: {
   title: string;
   description: string;
@@ -66,6 +67,7 @@ function TemplateCollectionEditor({
   required?: boolean;
   renderTemplateMeta?: (template: AgentPromptTemplateOption) => ReactNode;
   onChange: (templates: AgentPromptTemplateOption[]) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const defaultsById = new Map(defaults.map((template) => [template.id, template]));
@@ -91,6 +93,7 @@ function TemplateCollectionEditor({
         </div>
         <button
           type="button"
+          data-testid={testId ? `${testId}-add` : undefined}
           disabled={required && !requiredPromptSeed}
           onClick={() => {
             const id = uniqueTemplateId(prefix, templates);
@@ -123,6 +126,7 @@ function TemplateCollectionEditor({
                 {index + 1}
               </span>
               <input
+                data-testid={testId ? `${testId}-name-${template.id}` : undefined}
                 value={template.name}
                 onChange={(event) => update(template.id, { name: event.target.value })}
                 className="min-w-0 flex-1 rounded-lg bg-[var(--secondary)] px-2.5 py-1.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
@@ -131,6 +135,7 @@ function TemplateCollectionEditor({
               {defaultTemplate ? (
                 <button
                   type="button"
+                  data-testid={testId ? `${testId}-restore-${template.id}` : undefined}
                   disabled={matchesDefault}
                   onClick={() => update(template.id, { promptTemplate: defaultTemplate.promptTemplate })}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--accent)] disabled:opacity-35"
@@ -141,6 +146,7 @@ function TemplateCollectionEditor({
               ) : null}
               <button
                 type="button"
+                data-testid={testId ? `${testId}-remove-${template.id}` : undefined}
                 disabled={required && templates.length <= 1}
                 onClick={() => onChange(templates.filter((entry) => entry.id !== template.id))}
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-[var(--destructive)] hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-35"
@@ -151,12 +157,14 @@ function TemplateCollectionEditor({
             </div>
             {renderTemplateMeta?.(template)}
             <input
+              data-testid={testId ? `${testId}-description-${template.id}` : undefined}
               value={template.description ?? ""}
               onChange={(event) => update(template.id, { description: event.target.value })}
               className="min-w-0 max-w-full w-full rounded-lg bg-[var(--secondary)] px-2.5 py-1.5 text-xs ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
               placeholder={localizeUi("ui.agents.agenteditor.shortDescriptionShownInChatSettings")}
             />
             <MacroTextarea
+              testId={testId ? `${testId}-prompt-${template.id}` : undefined}
               value={template.promptTemplate}
               onChange={(value) => update(template.id, { promptTemplate: value })}
               onBlur={() => restoreRequiredPrompt(template)}
@@ -181,11 +189,13 @@ function ToggleRow({
   description,
   checked,
   onChange,
+  testId,
 }: {
   label: string;
   description: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  testId?: string;
 }) {
   return (
     <label className="flex min-w-0 max-w-full cursor-pointer items-start justify-between gap-4 overflow-hidden rounded-xl bg-[var(--secondary)]/55 px-3 py-2.5 ring-1 ring-[var(--border)]">
@@ -197,6 +207,7 @@ function ToggleRow({
       </span>
       <input
         type="checkbox"
+        data-testid={testId}
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
         className="mt-1 h-4 w-4 shrink-0 accent-[var(--primary)]"
@@ -268,6 +279,7 @@ function StagePromptLibrary({
     >
       <button
         type="button"
+        data-testid={`storyboard-stage-prompt-library-${stage}`}
         aria-expanded={expanded}
         onClick={() => setExpanded((current) => !current)}
         className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--ring)]"
@@ -325,11 +337,13 @@ function SelectedTemplateControl({
   value,
   templates,
   onChange,
+  testId,
 }: {
   label: string;
   value: string | null;
   templates: AgentPromptTemplateOption[];
   onChange: (id: string | null) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const selected = templates.find((template) => template.id === value) ?? templates[0];
@@ -337,6 +351,7 @@ function SelectedTemplateControl({
     <label className="block min-w-0 space-y-1.5">
       <span className="text-[0.6875rem] font-medium text-[var(--foreground)]">{label}</span>
       <select
+        data-testid={testId}
         value={value ?? ""}
         onChange={(event) => onChange(event.target.value || null)}
         className="w-full rounded-xl bg-[var(--background)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
@@ -438,6 +453,7 @@ export function StoryboardAgentSettingsPanel({
     <StagePromptLibrary stage={1} description={localizeUi("ui.agents.storyboard.roleplayStageLibraryDescription")}>
       <div className="grid gap-3 xl:grid-cols-2">
         <TemplateCollectionEditor
+          testId="storyboard-roleplay-episode"
           title={localizeUi("ui.agents.storyboard.roleplayEpisodePrompts")}
           description={localizeUi("ui.agents.storyboard.roleplayEpisodePromptsDescription")}
           templates={settings.roleplayEpisodeTemplates}
@@ -452,6 +468,7 @@ export function StoryboardAgentSettingsPanel({
           }
         />
         <TemplateCollectionEditor
+          testId="storyboard-roleplay-style"
           title={localizeUi("ui.agents.storyboard.roleplayStylePrompts")}
           description={localizeUi("ui.agents.storyboard.roleplayStylePromptsDescription")}
           templates={settings.roleplayStyleTemplates}
@@ -466,6 +483,7 @@ export function StoryboardAgentSettingsPanel({
           }
         />
         <TemplateCollectionEditor
+          testId="storyboard-roleplay-animation"
           title={localizeUi("ui.agents.storyboard.roleplayAnimationPrompts")}
           description={localizeUi("ui.agents.storyboard.roleplayAnimationPromptsDescription")}
           templates={settings.roleplayAnimationTemplates}
@@ -480,6 +498,7 @@ export function StoryboardAgentSettingsPanel({
           }
         />
         <TemplateCollectionEditor
+          testId="storyboard-roleplay-output"
           title={localizeUi("ui.agents.storyboard.roleplayOutputPrompts")}
           description={localizeUi("ui.agents.storyboard.roleplayOutputPromptsDescription")}
           templates={settings.roleplayOutputTemplates}
@@ -511,6 +530,7 @@ export function StoryboardAgentSettingsPanel({
           {plannerPrompt.trim() ? (
             <button
               type="button"
+              data-testid="storyboard-fallback-planner-reset"
               onClick={() => {
                 onPlannerPromptChange("");
                 onDirty();
@@ -522,6 +542,7 @@ export function StoryboardAgentSettingsPanel({
           ) : (
             <button
               type="button"
+              data-testid="storyboard-fallback-planner-copy-default"
               onClick={() => {
                 onPlannerPromptChange(defaultPlannerPrompt);
                 onDirty();
@@ -534,6 +555,7 @@ export function StoryboardAgentSettingsPanel({
         </div>
         {plannerPrompt.trim() ? (
           <MacroTextarea
+            testId="storyboard-fallback-planner-prompt"
             value={plannerPrompt}
             onChange={(prompt) => {
               onPlannerPromptChange(prompt);
@@ -552,6 +574,7 @@ export function StoryboardAgentSettingsPanel({
         )}
       </div>
       <TemplateCollectionEditor
+        testId="storyboard-game-planner"
         title={localizeUi("ui.agents.storyboard.gamePromptLibrary")}
         description={localizeUi("ui.agents.storyboard.gamePromptLibraryDescription")}
         templates={plannerTemplates}
@@ -561,6 +584,7 @@ export function StoryboardAgentSettingsPanel({
           <label className="flex items-center gap-2 text-[0.6875rem] text-[var(--muted-foreground)]">
             <span>{localizeUi("ui.agents.storyboard.plannerType")}</span>
             <select
+              data-testid={`storyboard-game-planner-type-${template.id}`}
               value={settings.animationPlannerTemplateIds.includes(template.id) ? "animation" : "illustration"}
               onChange={(event) =>
                 setPlannerType(template.id, event.target.value === "animation" ? "animation" : "illustration")
@@ -586,6 +610,7 @@ export function StoryboardAgentSettingsPanel({
       >
         {settings.usePromptTemplate ? (
           <SelectedTemplateControl
+            testId="storyboard-default-image-prompt"
             label={localizeUi("ui.agents.storyboard.defaultImagePrompt")}
             value={settings.illustrationTemplateId}
             templates={settings.illustrationTemplates}
@@ -598,6 +623,7 @@ export function StoryboardAgentSettingsPanel({
         )}
         <StagePromptLibrary stage={2} description={localizeUi("ui.agents.storyboard.stage2LibraryDescription")}>
           <TemplateCollectionEditor
+            testId="storyboard-image"
             title={localizeUi("ui.agents.storyboard.imagePrompts")}
             description={localizeUi("ui.agents.storyboard.imagePromptsDescription")}
             templates={settings.illustrationTemplates}
@@ -622,6 +648,7 @@ export function StoryboardAgentSettingsPanel({
             description={localizeUi("ui.agents.storyboard.promptStage3Description")}
           >
             <ToggleRow
+              testId="storyboard-image-aware-shot-planning"
               label={localizeUi("ui.agents.storyboard.enableImageAwareShotPlanning")}
               description={localizeUi("ui.agents.storyboard.enableImageAwareShotPlanningDescription")}
               checked={settings.imageAwareShotPlanningEnabled}
@@ -629,6 +656,7 @@ export function StoryboardAgentSettingsPanel({
             />
             {settings.imageAwareShotPlanningEnabled ? (
               <SelectedTemplateControl
+                testId="storyboard-default-shot-planner-prompt"
                 label={localizeUi("ui.agents.storyboard.defaultShotPlannerPrompt")}
                 value={settings.animationRefinementTemplateId}
                 templates={settings.animationRefinementTemplates}
@@ -641,6 +669,7 @@ export function StoryboardAgentSettingsPanel({
             )}
             <StagePromptLibrary stage={3} description={localizeUi("ui.agents.storyboard.stage3LibraryDescription")}>
               <TemplateCollectionEditor
+                testId="storyboard-shot-planner"
                 title={localizeUi("ui.agents.storyboard.shotPlannerPrompts")}
                 description={localizeUi("ui.agents.storyboard.shotPlannerPromptsDescription")}
                 templates={settings.animationRefinementTemplates}
@@ -666,6 +695,7 @@ export function StoryboardAgentSettingsPanel({
             description={localizeUi("ui.agents.storyboard.promptStage4Description")}
           >
             <SelectedTemplateControl
+              testId="storyboard-default-video-prompt"
               label={localizeUi("ui.agents.storyboard.defaultVideoPrompt")}
               value={settings.videoTemplateId}
               templates={settings.videoTemplates}
@@ -673,6 +703,7 @@ export function StoryboardAgentSettingsPanel({
             />
             <StagePromptLibrary stage={4} description={localizeUi("ui.agents.storyboard.stage4LibraryDescription")}>
               <TemplateCollectionEditor
+                testId="storyboard-video"
                 title={localizeUi("ui.agents.storyboard.videoPrompts")}
                 description={localizeUi("ui.agents.storyboard.videoPromptsDescription")}
                 templates={settings.videoTemplates}
@@ -712,6 +743,7 @@ export function StoryboardAgentSettingsPanel({
               {localizeUi("ui.agents.storyboard.imageConnection")}
             </span>
             <select
+              data-testid="storyboard-image-connection"
               value={settings.imageConnectionId ?? ""}
               onChange={(event) => update({ imageConnectionId: event.target.value || null })}
               className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
@@ -731,6 +763,7 @@ export function StoryboardAgentSettingsPanel({
                 {localizeUi("ui.agents.storyboard.videoConnection")}
               </span>
               <select
+                data-testid="storyboard-video-connection"
                 value={settings.videoConnectionId ?? ""}
                 onChange={(event) => update({ videoConnectionId: event.target.value || null })}
                 className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
@@ -750,6 +783,7 @@ export function StoryboardAgentSettingsPanel({
           <label className="space-y-1.5">
             <span className="text-[0.6875rem] font-medium">{localizeUi("ui.agents.storyboard.autoGenerate")}</span>
             <select
+              data-testid="storyboard-auto-generate"
               value={settings.autoGenerateMode}
               onChange={(event) =>
                 update({ autoGenerateMode: event.target.value as StoryboardAgentSettings["autoGenerateMode"] })
@@ -765,6 +799,7 @@ export function StoryboardAgentSettingsPanel({
             <span className="text-[0.6875rem] font-medium">{localizeUi("ui.agents.storyboard.keyframes")}</span>
             <input
               type="number"
+              data-testid="storyboard-keyframes"
               min={GAME_STORYBOARD_KEYFRAME_COUNT_MIN}
               max={GAME_STORYBOARD_KEYFRAME_COUNT_MAX}
               value={settings.keyframeCount}
@@ -787,6 +822,7 @@ export function StoryboardAgentSettingsPanel({
               <span className="text-[0.6875rem] font-medium">{localizeUi("ui.agents.storyboard.duration")}</span>
               <input
                 type="number"
+                data-testid="storyboard-duration"
                 min={GAME_STORYBOARD_ANIMATION_DURATION_SECONDS_MIN}
                 max={GAME_STORYBOARD_ANIMATION_DURATION_SECONDS_MAX}
                 value={settings.animationDurationSeconds}
@@ -809,24 +845,28 @@ export function StoryboardAgentSettingsPanel({
 
         <div className="grid gap-2 md:grid-cols-2">
           <ToggleRow
+            testId="storyboard-include-character-appearance"
             label={localizeUi("ui.chat.agentaddsetupfields.attachCardAppearance")}
             description={localizeUi("ui.agents.agenteditor.addsOnlyMatchedVisibleNamesAsLinesLikeName")}
             checked={settings.includeCharacterAppearance}
             onChange={(checked) => update({ includeCharacterAppearance: checked })}
           />
           <ToggleRow
+            testId="storyboard-use-avatar-references"
             label={localizeUi("ui.chat.agentaddsetupfields.sendAvatarReferences")}
             description={localizeUi("ui.agents.agenteditor.sendsReferencesOnlyForCharactersOrPersonaNamesMatched")}
             checked={settings.useAvatarReferences}
             onChange={(checked) => update({ useAvatarReferences: checked })}
           />
           <ToggleRow
+            testId="storyboard-use-template"
             label={localizeUi("ui.agents.storyboard.useTemplate")}
             description={localizeUi("ui.agents.storyboard.useTemplateDescription")}
             checked={settings.usePromptTemplate}
             onChange={(checked) => update({ usePromptTemplate: checked })}
           />
           <ToggleRow
+            testId="storyboard-use-novelai-characters"
             label={localizeUi("ui.agents.storyboard.useNovelAiCharacters")}
             description={localizeUi("ui.agents.storyboard.useNovelAiCharactersDescription")}
             checked={settings.useNovelAiCharacterPrompts}
@@ -849,6 +889,7 @@ export function StoryboardAgentSettingsPanel({
                 id={`storyboard-workflow-tab-${workflow}`}
                 type="button"
                 role="tab"
+                data-testid={`storyboard-workflow-tab-${workflow}`}
                 aria-selected={selected}
                 aria-controls="storyboard-active-flow"
                 onClick={() => setActiveWorkflow(workflow)}
@@ -907,6 +948,7 @@ export function StoryboardAgentSettingsPanel({
                 </span>
                 <input
                   type="number"
+                  data-testid="storyboard-run-interval"
                   min={1}
                   max={100}
                   value={settings.runInterval}
@@ -926,12 +968,14 @@ export function StoryboardAgentSettingsPanel({
               >
                 <div className="grid gap-3 md:grid-cols-2">
                   <SelectedTemplateControl
+                    testId="storyboard-roleplay-episode-contract"
                     label={localizeUi("ui.agents.storyboard.roleplayEpisodeContract")}
                     value={settings.roleplayEpisodeTemplateId}
                     templates={settings.roleplayEpisodeTemplates}
                     onChange={(roleplayEpisodeTemplateId) => update({ roleplayEpisodeTemplateId })}
                   />
                   <SelectedTemplateControl
+                    testId="storyboard-roleplay-visual-style"
                     label={localizeUi("ui.agents.storyboard.roleplayVisualStyle")}
                     value={settings.roleplayStyleTemplateId}
                     templates={settings.roleplayStyleTemplates}
@@ -939,6 +983,7 @@ export function StoryboardAgentSettingsPanel({
                   />
                   {showAnimationStages ? (
                     <SelectedTemplateControl
+                      testId="storyboard-roleplay-animation-addon"
                       label={localizeUi("ui.agents.storyboard.roleplayAnimationAddon")}
                       value={settings.roleplayAnimationTemplateId}
                       templates={settings.roleplayAnimationTemplates}
@@ -946,6 +991,7 @@ export function StoryboardAgentSettingsPanel({
                     />
                   ) : null}
                   <SelectedTemplateControl
+                    testId="storyboard-roleplay-output-contract"
                     label={localizeUi("ui.agents.storyboard.roleplayOutputContract")}
                     value={settings.roleplayOutputTemplateId}
                     templates={settings.roleplayOutputTemplates}
@@ -967,6 +1013,7 @@ export function StoryboardAgentSettingsPanel({
                 <div className="grid gap-3 md:grid-cols-2">
                   {settings.autoGenerateMode !== "animation" ? (
                     <SelectedTemplateControl
+                      testId="storyboard-still-planner"
                       label={localizeUi("ui.agents.storyboard.stillPlanner")}
                       value={settings.illustrationPlannerTemplateId}
                       templates={stillPlanners}
@@ -975,6 +1022,7 @@ export function StoryboardAgentSettingsPanel({
                   ) : null}
                   {showAnimationStages ? (
                     <SelectedTemplateControl
+                      testId="storyboard-animation-planner"
                       label={localizeUi("ui.agents.storyboard.animationPlanner")}
                       value={settings.animationPlannerTemplateId}
                       templates={animationPlanners}
@@ -989,6 +1037,7 @@ export function StoryboardAgentSettingsPanel({
               <label className="block max-w-sm space-y-1.5 rounded-xl bg-[var(--background)]/70 p-3 ring-1 ring-[var(--border)]">
                 <span className="text-[0.6875rem] font-medium">{localizeUi("ui.agents.storyboard.viewer")}</span>
                 <select
+                  data-testid="storyboard-viewer-display"
                   value={settings.viewerDisplayMode}
                   onChange={(event) =>
                     update({ viewerDisplayMode: event.target.value === "background" ? "background" : "floating" })

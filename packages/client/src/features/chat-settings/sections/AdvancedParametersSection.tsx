@@ -165,6 +165,7 @@ export function AdvancedParametersSection({
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
+        data-testid="advanced-parameters-header"
         onClick={toggleExpanded}
         onKeyDown={handleHeaderKeyDown}
         className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-[var(--accent)]/50"
@@ -198,6 +199,7 @@ export function AdvancedParametersSection({
             showOpenRouterServiceTier={conn?.provider === "openrouter"}
             enabledParametersFallback={STRICT_CONNECTION_PARAMETER_SEND_DEFAULTS}
             onChange={setParameters}
+            testIdPrefix="advanced-parameters"
           />
           <div className="space-y-2 pt-3">
             <SettingsSwitch
@@ -205,6 +207,7 @@ export function AdvancedParametersSection({
               description={localizeUi("ui.chatSettings.advancedparameterssection.onlySendTheLastNMessagesToTheModel")}
               checked={Boolean(contextMessageLimit)}
               onChange={(checked) => onContextMessageLimitChange(checked ? 50 : null)}
+              testId="advanced-parameters-limit-context-switch"
               labelPosition="start"
               className={cn(
                 "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -223,6 +226,7 @@ export function AdvancedParametersSection({
                   value={contextMessageLimit}
                   onCommit={(value) => onContextMessageLimitChange(Math.max(1, Math.min(9999, value)))}
                   selectOnFocus
+                  testId="advanced-parameters-context-limit-input"
                   className="w-20 rounded-lg bg-[var(--secondary)] px-3 py-1.5 text-xs outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
                 />
                 <span className="text-[0.625rem] text-[var(--muted-foreground)]">
@@ -237,6 +241,7 @@ export function AdvancedParametersSection({
               )}
               checked={excludeReasoningEnabled}
               onChange={onExcludePastReasoningChange}
+              testId="advanced-parameters-exclude-reasoning-switch"
               labelPosition="start"
               className={cn(
                 "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -265,6 +270,7 @@ export function AdvancedParametersSection({
                 })
               }
               disabled={!hasCaptioningConnection}
+              testId="advanced-parameters-image-captioning-switch"
               labelPosition="start"
               className={cn(
                 "justify-between rounded-lg px-3 py-2.5 text-left",
@@ -286,6 +292,7 @@ export function AdvancedParametersSection({
                       imageCaptioningConnectionId: event.target.value || null,
                     })
                   }
+                  data-testid="advanced-parameters-captioning-connection-select"
                   className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
                 >
                   {chatConnectionCanCaption ? (
@@ -322,6 +329,7 @@ export function AdvancedParametersSection({
                 });
               }}
               className="w-full"
+              data-testid="advanced-parameters-save-defaults-button"
             >
               <Save size="0.625rem" className="inline mr-1 -mt-px" />
               {saveDefaults.isPending
@@ -329,7 +337,7 @@ export function AdvancedParametersSection({
                 : localizeUi("ui.chatSettings.advancedparameterssection.saveAsConnectionDefault")}
             </AgentSettingsActionButton>
           )}
-          <AgentSettingsActionButton type="button" onClick={() => onChatParametersChange({})} className="w-full">
+          <AgentSettingsActionButton type="button" onClick={() => onChatParametersChange({})} className="w-full" data-testid="advanced-parameters-reset-button">
             {localizeUi("ui.chatSettings.advancedparameterssection.resetToDefaults")}
           </AgentSettingsActionButton>
         </div>

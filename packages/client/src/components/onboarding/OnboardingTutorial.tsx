@@ -508,10 +508,10 @@ function TourCardContent({
 
       {/* Buttons */}
       <div className="flex items-center justify-between">
-        <button onClick={onSkip} className={TUTORIAL_SECONDARY_BUTTON_CLASS}>
+        <button onClick={onSkip} className={TUTORIAL_SECONDARY_BUTTON_CLASS} data-testid="onboarding-tutorial-skip-button">
           {localize(step === 0 ? "Skip Tutorial" : "Skip")}
         </button>
-        <button onClick={onNext} className={TUTORIAL_PRIMARY_BUTTON_CLASS}>
+        <button onClick={onNext} className={TUTORIAL_PRIMARY_BUTTON_CLASS} data-testid="onboarding-tutorial-next-button">
           {localize(isLast ? "Get Started" : "Next")}
           {!isLast && <ChevronRight size="0.75rem" />}
         </button>
@@ -702,6 +702,7 @@ function OnboardingTutorialInner() {
         onClick={() => useUIStore.getState().openModal("docs-viewer")}
         className={TUTORIAL_DOCUMENTATION_BUTTON_CLASS}
         title={localizeUi("home.actions.documentationHelp")}
+        data-testid="onboarding-tutorial-documentation-button"
       >
         <BookOpen size="1rem" />
         {localizeUi("home.actions.documentation")}
@@ -717,6 +718,7 @@ function OnboardingTutorialInner() {
         value={effectiveDocsLanguagePick}
         onChange={(event) => setDocsLanguagePick(event.target.value)}
         className="w-full rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] bg-[var(--marinara-chat-chrome-highlight-bg)] px-3 py-2 text-xs text-[var(--marinara-chat-chrome-panel-text)] outline-none focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+        data-testid="onboarding-tutorial-docs-language-select"
       >
         {(docsLanguageOptions.length > 0 ? docsLanguageOptions : [{ code: "en", label: "English" }]).map((option) => (
           <option key={option.code} value={option.code}>

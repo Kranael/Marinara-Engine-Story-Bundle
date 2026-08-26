@@ -95,6 +95,7 @@ export function GameQteOverlay({ actions, timerSeconds, onSelect, onTimeout, onD
           <button
             type="button"
             onClick={handleDismiss}
+            data-testid="game-qte-overlay-close-button"
             className="absolute right-3 top-3 rounded-lg p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white"
             title={localizeUi("ui.game.gameqteoverlay.closeQuickTimeEvent")}
             aria-label={localizeUi("ui.game.gameqteoverlay.closeQuickTimeEvent")}
@@ -134,6 +135,7 @@ export function GameQteOverlay({ actions, timerSeconds, onSelect, onTimeout, onD
               key={i}
               onClick={() => handleSelect(action.label, i)}
               disabled={selected !== null}
+              data-testid={`game-qte-action-${i}-button`}
               className={cn(
                 "relative overflow-hidden rounded-xl border-2 px-6 py-3 text-sm font-bold uppercase tracking-wide transition-all duration-150",
                 selected === i

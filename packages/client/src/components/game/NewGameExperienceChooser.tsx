@@ -160,6 +160,7 @@ export function NewGameExperienceChooser({
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
+          data-testid="new-game-experience-chooser-toggle-button"
           aria-expanded={open}
           disabled={launching}
           className={SECONDARY_BUTTON}
@@ -182,6 +183,7 @@ export function NewGameExperienceChooser({
                   role="switch"
                   aria-checked={isActive}
                   disabled={launching}
+                  data-testid={`new-game-experience-chooser-experience-${exp.id}`}
                   onClick={() => setActiveId(isActive ? null : exp.id)}
                   className="flex min-h-11 w-full items-center justify-between gap-3 rounded-md px-1 py-1 text-left transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40 disabled:cursor-wait disabled:opacity-50 disabled:hover:bg-transparent"
                 >
@@ -216,6 +218,7 @@ export function NewGameExperienceChooser({
                 type="button"
                 onClick={() => openAgentCatalog()}
                 disabled={launching}
+                data-testid="new-game-experience-chooser-download-agents-button"
                 className={SECONDARY_BUTTON}
               >
                 <Gamepad2 size={13} />
@@ -261,6 +264,7 @@ export function NewGameExperienceChooser({
               type="button"
               onClick={onCancelSetup}
               disabled={launching}
+              data-testid="new-game-experience-chooser-close-button"
               className={cn(NEUTRAL_PANEL_CLOSE_BUTTON, "disabled:cursor-wait disabled:opacity-40")}
               aria-label={localizeUi("ui.game.gamesetupwizard.closeSetup")}
             >

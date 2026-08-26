@@ -129,6 +129,7 @@ export function GameJsonRepairModal({ request, onClose, onApplied }: GameJsonRep
               setDraft(event.target.value);
               setServerError(null);
             }}
+            data-testid="game-json-repair-textarea"
             onScroll={(event) => {
               if (lineNumbersRef.current) {
                 lineNumbersRef.current.scrollTop = event.currentTarget.scrollTop;
@@ -144,6 +145,7 @@ export function GameJsonRepairModal({ request, onClose, onApplied }: GameJsonRep
             type="button"
             onClick={onClose}
             disabled={isApplying}
+            data-testid="game-json-repair-cancel-button"
             className="rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {localizeUi("chat.delete.dialog.cancel")}
@@ -152,6 +154,7 @@ export function GameJsonRepairModal({ request, onClose, onApplied }: GameJsonRep
             type="button"
             onClick={handleFormat}
             disabled={!validation.valid || isApplying}
+            data-testid="game-json-repair-format-button"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Wand2 size="0.95rem" />
@@ -161,6 +164,7 @@ export function GameJsonRepairModal({ request, onClose, onApplied }: GameJsonRep
             type="button"
             onClick={handleApply}
             disabled={!validation.valid || isApplying}
+            data-testid="game-json-repair-apply-button"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isApplying ? <Loader2 size="0.95rem" className="animate-spin" /> : <CheckCircle2 size="0.95rem" />}

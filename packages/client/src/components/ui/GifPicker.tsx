@@ -226,6 +226,7 @@ export function GifPicker({ open, onClose, onSelect, anchorRef, containerRef, em
           <Search size="0.875rem" className="shrink-0 text-foreground/45" />
           <input
             type="text"
+            data-testid="gif-picker-search-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={localizeUi("ui.ui.gifpicker.searchForGifs")}
@@ -248,6 +249,7 @@ export function GifPicker({ open, onClose, onSelect, anchorRef, containerRef, em
               <button
                 key={item.value}
                 type="button"
+                data-testid={`gif-picker-recent-${item.value}`}
                 onClick={() => handleRecentSelect(item.value)}
                 className="mb-1.5 block w-full overflow-hidden rounded-lg transition-transform hover:scale-[1.02] active:scale-100 break-inside-avoid"
                 title={item.label ?? localizeUi("ui.noodle.media.tabs.gifs")}
@@ -293,6 +295,7 @@ export function GifPicker({ open, onClose, onSelect, anchorRef, containerRef, em
                 href="https://developers.giphy.com/dashboard/"
                 target="_blank"
                 rel="noreferrer"
+                data-testid="gif-picker-open-dashboard-link"
                 className="inline-flex items-center gap-1.5 rounded-md border border-foreground/15 px-2.5 py-1.5 text-[0.6875rem] font-semibold text-foreground/75 transition-colors hover:bg-foreground/10 hover:text-foreground"
               >
                 {localizeUi("ui.ui.gifpicker.openGiphyDashboard")}
@@ -320,6 +323,7 @@ export function GifPicker({ open, onClose, onSelect, anchorRef, containerRef, em
               <button
                 key={gif.id}
                 type="button"
+                data-testid={`gif-picker-gif-${gif.id}`}
                 onClick={() => handleSelect(gif)}
                 className="mb-1.5 block w-full overflow-hidden rounded-lg transition-transform hover:scale-[1.02] active:scale-100 break-inside-avoid"
                 title={gif.title}

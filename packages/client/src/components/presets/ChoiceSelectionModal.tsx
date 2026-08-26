@@ -266,6 +266,7 @@ export function ChoiceSelectionModal({
                       }}
                       size={Math.min(8, Math.max(4, presentedOptions.length))}
                       className="mari-preset-native-select min-h-28 w-full rounded-lg bg-[var(--background)] px-2 py-2 text-xs text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                      data-testid={`preset-choice-listbox-multi-${v.variableName}`}
                     >
                       {presentedOptions.map((opt) => (
                         <option key={opt.id} value={opt.value}>
@@ -280,6 +281,7 @@ export function ChoiceSelectionModal({
                       }
                       onChange={(e) => setOverrides((prev) => ({ ...prev, [v.variableName]: e.target.value }))}
                       className="mari-preset-native-select w-full rounded-lg bg-[var(--background)] px-3 py-2 text-xs text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                      data-testid={`preset-choice-listbox-single-${v.variableName}`}
                     >
                       {presentedOptions.map((opt) => (
                         <option key={opt.id} value={opt.value}>
@@ -298,6 +300,7 @@ export function ChoiceSelectionModal({
                         <button
                           key={opt.id}
                           onClick={() => toggleMulti(v.variableName, opt.value)}
+                          data-testid={`preset-choice-multi-option-${opt.id}`}
                           className={cn(
                             "flex w-full items-start gap-2.5 rounded-lg p-2.5 text-left transition-all",
                             isSelected
@@ -339,6 +342,7 @@ export function ChoiceSelectionModal({
                               [v.variableName]: checked ? opt.value : "",
                             }))
                           }
+                          testId={`preset-choice-boolean-toggle-${v.variableName}`}
                           label={
                             <span className="min-w-0 flex-1">
                               <span className={cn("text-xs font-medium", isOn && "text-[var(--primary)]")}>
@@ -371,6 +375,7 @@ export function ChoiceSelectionModal({
                         <button
                           key={opt.id}
                           onClick={() => setOverrides((prev) => ({ ...prev, [v.variableName]: opt.value }))}
+                          data-testid={`preset-choice-single-option-${opt.id}`}
                           className={cn(
                             "flex w-full items-start gap-2.5 rounded-lg p-2.5 text-left transition-all",
                             isSelected
@@ -410,6 +415,7 @@ export function ChoiceSelectionModal({
                 checked={saveAsDefault}
                 onChange={setSaveAsDefault}
                 className="p-0 hover:bg-transparent"
+                testId="preset-choice-save-as-default-switch"
               />
               <Save size="0.75rem" />
               {localizeUi("ui.presets.choiceselectionmodal.saveAsDefault")}

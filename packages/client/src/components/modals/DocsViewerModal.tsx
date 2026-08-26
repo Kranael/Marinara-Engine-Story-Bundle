@@ -679,6 +679,7 @@ export function DocsViewerModal({
               placeholder={localizeUi("ui.modals.docsviewermodal.searchAllGuides")}
               aria-label={localizeUi("ui.modals.docsviewermodal.searchDocumentation")}
               className="min-w-0 flex-1 bg-transparent text-xs text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/65 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-cancel-button]:appearance-none"
+              data-testid="docs-viewer-search-input"
             />
             {searchQuery ? (
               <button
@@ -686,6 +687,7 @@ export function DocsViewerModal({
                 onClick={() => setSearchQuery("")}
                 className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                 aria-label={localizeUi("ui.modals.docsviewermodal.clearDocumentationSearch")}
+                data-testid="docs-viewer-clear-search-button"
               >
                 <X size="0.6875rem" />
               </button>
@@ -715,6 +717,7 @@ export function DocsViewerModal({
                       key={result.path}
                       type="button"
                       onClick={() => selectDoc(result.path, highlightTerm)}
+                      data-testid={`docs-viewer-search-result-${result.path}`}
                       className={cn(
                         "flex w-full flex-col gap-1 rounded-lg border px-2.5 py-2 text-start transition-colors",
                         selected === result.path
@@ -770,6 +773,7 @@ export function DocsViewerModal({
                         key={entry.path}
                         type="button"
                         onClick={() => selectDoc(entry.path)}
+                        data-testid={`docs-viewer-doc-list-item-${entry.path}`}
                         title={
                           entry.updatedAt
                             ? localizeUi("ui.modals.docsviewermodal.lastUpdatedValue1", {
@@ -840,6 +844,7 @@ export function DocsViewerModal({
                   }}
                   className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] sm:hidden"
                   aria-label={localizeUi("ui.modals.docsviewermodal.backToGuideList")}
+                  data-testid="docs-viewer-back-to-list-button"
                 >
                   <ArrowLeft size="0.875rem" />
                 </button>

@@ -1259,6 +1259,7 @@ export function AppShell() {
             setSidebarOpen(false);
             closeRightPanel();
           }}
+          data-testid="app-shell-mobile-nav-backdrop"
         />
       )}
 
@@ -1302,6 +1303,7 @@ export function AppShell() {
           tabIndex={0}
           onMouseDown={startSidebarResize}
           onKeyDown={adjustSidebarWidth}
+          data-testid="app-shell-sidebar-resize-handle"
           className="absolute inset-y-0 z-40 hidden w-1 cursor-col-resize bg-transparent transition-colors hover:bg-[var(--primary)]/30 focus-visible:bg-[var(--primary)]/40 focus-visible:outline-none md:block"
           style={{ left: sidebarOpen ? liveSidebarWidth : 0 }}
         />
@@ -1400,6 +1402,7 @@ export function AppShell() {
         <div
           className={cn("fixed inset-x-0 bottom-0 z-[45] bg-black/50 backdrop-blur-sm", MOBILE_SHELL_PANEL_TOP_CLASS)}
           onClick={() => setTrackerPanelOpen(false, activeChatId)}
+          data-testid="app-shell-tracker-panel-backdrop"
         />
       )}
 

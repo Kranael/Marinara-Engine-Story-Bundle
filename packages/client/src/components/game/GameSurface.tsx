@@ -11009,6 +11009,7 @@ function GameSurfaceComponent({
                   value={chat.connectionId ?? ""}
                   onChange={(e) => handleStartScreenConnectionChange(e.target.value)}
                   disabled={isStreaming || startGame.isPending || updateChat.isPending}
+                  data-testid="game-surface-gm-connection-select"
                   className="w-full rounded-lg bg-zinc-950/80 px-3 py-2 text-xs text-[var(--foreground)] outline-none ring-1 ring-zinc-700/80 transition-all focus:ring-zinc-400/40 disabled:opacity-60 dark:bg-white/10"
                 >
                   <option value="">{localizeUi("ui.game.gamesurfacecomponent.none")}</option>
@@ -11040,6 +11041,7 @@ function GameSurfaceComponent({
                         // Retry any autoplay-blocked audio now that we have a user gesture
                         audioManager.retryPending();
                       }}
+                      data-testid="game-surface-intro-continue-button"
                       className="group flex items-center gap-2 rounded-lg bg-zinc-900 px-6 py-3 text-sm font-semibold text-zinc-100 ring-1 ring-zinc-700/80 transition-all hover:scale-105 hover:bg-zinc-800 hover:shadow-lg hover:shadow-black/25"
                     >
                       {localizeUi("ui.noodle.wizardfooter.continue")}
@@ -11068,11 +11070,11 @@ function GameSurfaceComponent({
                       {/* Retry only when scene analysis actually failed */}
                       {hasEverHadPlayableContent && !isStreaming && sceneAnalysisFailed && (
                         <div className="flex items-center gap-2">
-                          <button onClick={() => retrySceneAnalysis()} className={SURFACE_BTN}>
+                          <button onClick={() => retrySceneAnalysis()} data-testid="game-surface-retry-scene-analysis-button" className={SURFACE_BTN}>
                             <RefreshCw size={14} />
                             {localizeUi("ui.game.gamesurfacecomponent.retrySceneAnalysis")}
                           </button>
-                          <button onClick={() => skipSceneAnalysis()} className={SURFACE_BTN}>
+                          <button onClick={() => skipSceneAnalysis()} data-testid="game-surface-skip-scene-analysis-button" className={SURFACE_BTN}>
                             {localizeUi("onboarding.actions.skip")}
                           </button>
                         </div>
@@ -11083,7 +11085,7 @@ function GameSurfaceComponent({
                         !sceneProcessed &&
                         sceneStuckVisible &&
                         !sceneAnalysisFailed && (
-                          <button onClick={() => skipSceneAnalysis()} className={cn("mt-1", SURFACE_BTN)}>
+                          <button onClick={() => skipSceneAnalysis()} data-testid="game-surface-skip-stuck-button" className={cn("mt-1", SURFACE_BTN)}>
                             {localizeUi("onboarding.actions.skip")}
                           </button>
                         )}
@@ -11091,7 +11093,7 @@ function GameSurfaceComponent({
                   )}
                   {/* Show retry when generation stopped but no content arrived. */}
                   {!isStreaming && !hasEverHadPlayableContent && !startGame.isPending && (
-                    <button onClick={generateInitialGameTurn} className={SURFACE_BTN}>
+                    <button onClick={generateInitialGameTurn} data-testid="game-surface-retry-initial-turn-button" className={SURFACE_BTN}>
                       <RefreshCw size={14} />
                       {localizeUi("ui.game.gamesurfacecomponent.retry")}
                     </button>
@@ -11104,6 +11106,7 @@ function GameSurfaceComponent({
                     handleStartGameRequest();
                   }}
                   disabled={startGame.isPending || startGameRequested}
+                  data-testid="game-surface-start-game-button"
                   className="group flex items-center gap-2 rounded-lg bg-zinc-900 px-6 py-3 text-sm font-semibold text-zinc-100 ring-1 ring-zinc-700/80 transition-all hover:scale-105 hover:bg-zinc-800 hover:shadow-lg hover:shadow-black/25 disabled:opacity-50 disabled:hover:scale-100"
                 >
                   <Play size={18} className="transition-transform group-hover:scale-110" />
@@ -11177,6 +11180,7 @@ function GameSurfaceComponent({
               type="button"
               onClick={() => setSessionPanelOpen(false)}
               className={NEUTRAL_PANEL_CLOSE_BUTTON}
+              data-testid="game-surface-session-close-button"
               aria-label={localizeUi("ui.game.gamesurfacecomponent.closeSession")}
             >
               <X size={NEUTRAL_PANEL_CLOSE_ICON_SIZE} />
@@ -11190,6 +11194,7 @@ function GameSurfaceComponent({
               key={tab}
               type="button"
               onClick={() => setSessionPanelTab(tab)}
+              data-testid={`game-surface-session-tab-${tab}-button`}
               className={cn(
                 "flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-[0.6875rem] font-medium transition-colors",
                 sessionPanelTab === tab
@@ -11400,6 +11405,7 @@ function GameSurfaceComponent({
             type="button"
             onClick={handleManualSceneBackground}
             disabled={manualBackgroundGenerating || !gameBackgroundGenerationEnabled}
+            data-testid="game-surface-generate-background-button"
             className="marinara-chat-popover__item flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[var(--marinara-chat-chrome-panel-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-highlight-text)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
             title={
               gameStoryboardBackgroundVisualEnabled
@@ -11422,6 +11428,7 @@ function GameSurfaceComponent({
                 typeof chatMeta.gameLastIllustrationTag !== "string" ||
                 chatMeta.gameLastIllustrationTag.trim().length === 0
               }
+              data-testid="game-surface-generate-scene-video-button"
               className="marinara-chat-popover__item flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[var(--marinara-chat-chrome-panel-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-highlight-text)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
               title={localizeUi("ui.game.gamesurfacecomponent.generateASceneVideoFromTheLatestIllustration")}
             >
@@ -11441,6 +11448,7 @@ function GameSurfaceComponent({
                 !storyboardImageGenerationEnabled ||
                 !latestAssistantMsg?.id
               }
+              data-testid="game-surface-storyboard-turn-button"
               className="marinara-chat-popover__item flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[var(--marinara-chat-chrome-panel-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-highlight-text)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent"
               title={localizeUi("ui.game.gamesurfacecomponent.createStoryboardKeyframesFromTheCurrentGmNarration")}
             >
@@ -11472,6 +11480,7 @@ function GameSurfaceComponent({
                     <button
                       type="button"
                       onClick={handleReopenStoryboardViewer}
+                      data-testid="game-surface-show-storyboard-viewer-button"
                       className="marinara-chat-popover__item flex items-center gap-1.5 rounded-md border border-[var(--marinara-chat-chrome-panel-divider)] px-2 py-1 text-[0.6875rem] font-medium text-[var(--marinara-chat-chrome-panel-text)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] hover:text-[var(--marinara-chat-chrome-highlight-text)]"
                       title={
                         gameStoryboardViewerDisplayMode === "background"
@@ -11619,6 +11628,7 @@ function GameSurfaceComponent({
                         if (nextOpen) dismissOtherFloatingWindows();
                         setRetryMenuOpen(nextOpen);
                       }}
+                      data-testid="game-surface-retry-menu-button"
                       className={GAME_TOP_ICON_BUTTON}
                       title={t("game.toolbar.retry")}
                       aria-label={t("game.toolbar.retry")}
@@ -11639,6 +11649,7 @@ function GameSurfaceComponent({
                             type="button"
                             onClick={() => setRetryMenuOpen(false)}
                             className={NEUTRAL_PANEL_CLOSE_BUTTON}
+                            data-testid="game-surface-retry-menu-close-button"
                             aria-label={t("game.toolbar.closeRetry")}
                           >
                             <X size={NEUTRAL_PANEL_CLOSE_ICON_SIZE} />
@@ -11649,12 +11660,13 @@ function GameSurfaceComponent({
                             void handleRetryTurn();
                           }}
                           disabled={!canRetryTurn}
+                          data-testid="game-surface-retry-turn-button"
                           className={GAME_ACTION_MENU_ITEM}
                         >
                           <RotateCcw size={13} />
                           <span>{t("game.toolbar.retryTurn")}</span>
                         </button>
-                        <button onClick={handleRetryScene} disabled={!canRetryScene} className={GAME_ACTION_MENU_ITEM}>
+                        <button onClick={handleRetryScene} disabled={!canRetryScene} data-testid="game-surface-retry-scene-button" className={GAME_ACTION_MENU_ITEM}>
                           <RefreshCw size={13} className={sceneAnalysis.isPending ? "animate-spin" : ""} />
                           <span>{t("game.toolbar.retrySceneAnalysis")}</span>
                         </button>
@@ -11662,6 +11674,7 @@ function GameSurfaceComponent({
                           <button
                             onClick={handleRetrySpotifyMusic}
                             disabled={!canRetrySpotifyMusic}
+                            data-testid="game-surface-retry-spotify-music-button"
                             className={GAME_ACTION_MENU_ITEM}
                           >
                             {spotifyRetryPending ? (
@@ -11676,6 +11689,7 @@ function GameSurfaceComponent({
                           <button
                             onClick={handleRetryYoutubeMusic}
                             disabled={!canRetryYoutubeMusic}
+                            data-testid="game-surface-retry-youtube-music-button"
                             className={GAME_ACTION_MENU_ITEM}
                           >
                             {youtubeRetryPending ? (
@@ -11692,6 +11706,7 @@ function GameSurfaceComponent({
                             retryAssetGeneration({ showSuccessToast: true });
                           }}
                           disabled={!canRetryAssets}
+                          data-testid="game-surface-retry-assets-button"
                           className={GAME_ACTION_MENU_ITEM}
                         >
                           <Image size={13} />
@@ -11704,6 +11719,7 @@ function GameSurfaceComponent({
                     <button
                       data-chat-help="session"
                       onClick={(event) => handleOpenSessionPanel("history", event)}
+                      data-testid="game-surface-session-panel-button"
                       className={getChatToolbarButtonClass({
                         open: sessionPanelOpen,
                       })}
@@ -11730,6 +11746,7 @@ function GameSurfaceComponent({
                         setMobileRetryMenuOpen(false);
                         setMobileRetryMenuAnchor(null);
                       }}
+                      data-testid="game-surface-volume-button"
                       className={GAME_TOP_ICON_BUTTON}
                       title={t("game.toolbar.volume")}
                       aria-label={t("game.toolbar.volume")}
@@ -11762,6 +11779,7 @@ function GameSurfaceComponent({
                     <button
                       data-chat-help="assets"
                       onClick={(event) => handleOpenGameAssetsPanel(event)}
+                      data-testid="game-surface-assets-panel-button"
                       className={getChatToolbarButtonClass({
                         open: gameAssetsPanelOpen,
                       })}
@@ -11782,6 +11800,7 @@ function GameSurfaceComponent({
                     data-chat-help="gallery"
                     data-chat-toolbar-panel-action="gallery"
                     onClick={handleOpenGalleryPanel}
+                    data-testid="game-surface-gallery-button"
                     className={GAME_TOP_ICON_BUTTON}
                     title={t("chat.toolbar.gallery")}
                     aria-label={t("chat.toolbar.gallery")}
@@ -11792,6 +11811,7 @@ function GameSurfaceComponent({
                     <button
                       data-chat-help="connected-chat"
                       onClick={handleSwitchConnectedChat}
+                      data-testid="game-surface-switch-connected-chat-button"
                       className={GAME_TOP_ICON_BUTTON}
                       title={
                         connectedChatName
@@ -11811,6 +11831,7 @@ function GameSurfaceComponent({
                     data-chat-help="settings"
                     data-chat-toolbar-panel-action="settings"
                     onClick={handleOpenSettingsPanel}
+                    data-testid="game-surface-settings-button"
                     className={GAME_TOP_ICON_BUTTON}
                     title={t("chat.toolbar.settings")}
                     aria-label={t("chat.toolbar.settings")}
@@ -11840,6 +11861,7 @@ function GameSurfaceComponent({
                         });
                         setMobileRetryMenuOpen(false);
                       }}
+                      data-testid="game-surface-mobile-actions-button"
                       className={GAME_MOBILE_ROOT_BUTTON}
                       title={t("game.toolbar.actions")}
                       aria-label={t("game.toolbar.actions")}
@@ -11874,6 +11896,7 @@ function GameSurfaceComponent({
                               setVolumePopoverOpen(false);
                               setMobileVolumePopoverAnchor(null);
                             }}
+                            data-testid="game-surface-mobile-retry-menu-button"
                             className={GAME_MOBILE_ICON_BUTTON}
                             title={t("game.toolbar.retry")}
                             aria-label={t("game.toolbar.retry")}
@@ -11899,6 +11922,7 @@ function GameSurfaceComponent({
                                     type="button"
                                     onClick={() => setMobileRetryMenuOpen(false)}
                                     className={NEUTRAL_PANEL_CLOSE_BUTTON}
+                                    data-testid="game-surface-mobile-retry-menu-close-button"
                                     aria-label={t("game.toolbar.closeRetry")}
                                   >
                                     <X size={NEUTRAL_PANEL_CLOSE_ICON_SIZE} />
@@ -11911,6 +11935,7 @@ function GameSurfaceComponent({
                                     void handleRetryTurn();
                                   }}
                                   disabled={!canRetryTurn}
+                                  data-testid="game-surface-mobile-retry-turn-button"
                                   className={GAME_ACTION_MENU_ITEM}
                                 >
                                   <RotateCcw size={13} />
@@ -11923,6 +11948,7 @@ function GameSurfaceComponent({
                                     setMobileActionsOpen(false);
                                   }}
                                   disabled={!canRetryScene}
+                                  data-testid="game-surface-mobile-retry-scene-button"
                                   className={GAME_ACTION_MENU_ITEM}
                                 >
                                   <RefreshCw size={13} className={sceneAnalysis.isPending ? "animate-spin" : ""} />
@@ -11932,6 +11958,7 @@ function GameSurfaceComponent({
                                   <button
                                     onClick={handleRetrySpotifyMusic}
                                     disabled={!canRetrySpotifyMusic}
+                                    data-testid="game-surface-mobile-retry-spotify-music-button"
                                     className={GAME_ACTION_MENU_ITEM}
                                   >
                                     {spotifyRetryPending ? (
@@ -11946,6 +11973,7 @@ function GameSurfaceComponent({
                                   <button
                                     onClick={handleRetryYoutubeMusic}
                                     disabled={!canRetryYoutubeMusic}
+                                    data-testid="game-surface-mobile-retry-youtube-music-button"
                                     className={GAME_ACTION_MENU_ITEM}
                                   >
                                     {youtubeRetryPending ? (
@@ -11963,6 +11991,7 @@ function GameSurfaceComponent({
                                     retryAssetGeneration({ showSuccessToast: true });
                                   }}
                                   disabled={!canRetryAssets}
+                                  data-testid="game-surface-mobile-retry-assets-button"
                                   className={GAME_ACTION_MENU_ITEM}
                                 >
                                   <Image size={13} />
@@ -11979,6 +12008,7 @@ function GameSurfaceComponent({
                               setMobileRetryMenuOpen(false);
                               setMobileRetryMenuAnchor(null);
                             }}
+                            data-testid="game-surface-mobile-session-panel-button"
                             className={getChatToolbarButtonClass({
                               compact: true,
                               open: sessionPanelOpen,
@@ -12005,6 +12035,7 @@ function GameSurfaceComponent({
                               setGameAssetsPanelOpen(false);
                               setMobileGameAssetsPanelAnchor(null);
                             }}
+                            data-testid="game-surface-mobile-volume-button"
                             className={GAME_MOBILE_ICON_BUTTON}
                             title={t("game.toolbar.volume")}
                             aria-label={t("game.toolbar.volume")}
@@ -12049,6 +12080,7 @@ function GameSurfaceComponent({
                               setMobileRetryMenuOpen(false);
                               setMobileRetryMenuAnchor(null);
                             }}
+                            data-testid="game-surface-mobile-assets-panel-button"
                             className={getChatToolbarButtonClass({
                               compact: true,
                               open: gameAssetsPanelOpen,
@@ -12078,6 +12110,7 @@ function GameSurfaceComponent({
                           onClick={(event) => {
                             handleOpenGalleryPanel(event);
                           }}
+                          data-testid="game-surface-mobile-gallery-button"
                           className={GAME_MOBILE_ICON_BUTTON}
                           title={t("chat.toolbar.gallery")}
                           aria-label={t("chat.toolbar.gallery")}
@@ -12091,6 +12124,7 @@ function GameSurfaceComponent({
                               setMobileActionsOpen(false);
                               handleSwitchConnectedChat();
                             }}
+                            data-testid="game-surface-mobile-switch-connected-chat-button"
                             className={GAME_MOBILE_ICON_BUTTON}
                             title={
                               connectedChatName
@@ -12112,6 +12146,7 @@ function GameSurfaceComponent({
                           onClick={(event) => {
                             handleOpenSettingsPanel(event);
                           }}
+                          data-testid="game-surface-mobile-settings-button"
                           className={GAME_MOBILE_ICON_BUTTON}
                           title={t("chat.toolbar.settings")}
                           aria-label={t("chat.toolbar.settings")}
@@ -12258,6 +12293,7 @@ function GameSurfaceComponent({
                             void refreshSidecarStatus();
                             openSidecarModal(true);
                           }}
+                          data-testid="game-surface-open-sidecar-button"
                           className="rounded-lg bg-white/10 px-3 py-1.5 text-[0.6875rem] font-medium text-white/80 transition-colors hover:bg-white/20 hover:text-white"
                         >
                           {localizeUi("ui.game.gamesurfacecomponent.openLocalAiModel")}
@@ -12277,6 +12313,7 @@ function GameSurfaceComponent({
                       </span>
                       <button
                         onClick={() => retryAssetGeneration()}
+                        data-testid="game-surface-retry-asset-generation-button"
                         className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-xs text-white/80 transition-colors hover:bg-white/20 hover:text-white"
                       >
                         <RefreshCw size={12} />
@@ -12288,6 +12325,7 @@ function GameSurfaceComponent({
                           setPendingAssetGeneration(null);
                           setAssetGenerationBlocksScene(false);
                         }}
+                        data-testid="game-surface-dismiss-asset-failure-button"
                         className="text-white/40 transition-colors hover:text-white/70"
                       >
                         <X size={14} />
@@ -12306,6 +12344,7 @@ function GameSurfaceComponent({
                       </span>
                       <button
                         onClick={() => retrySceneAnalysis()}
+                        data-testid="game-surface-retry-scene-analysis-banner-button"
                         className="flex items-center gap-1.5 rounded-lg bg-white/10 px-3 py-1.5 text-xs text-white/80 transition-colors hover:bg-white/20 hover:text-white"
                       >
                         <RefreshCw size={12} />
@@ -12313,6 +12352,7 @@ function GameSurfaceComponent({
                       </button>
                       <button
                         onClick={() => setSceneAnalysisFailed(false)}
+                        data-testid="game-surface-dismiss-scene-failure-button"
                         className="text-white/40 transition-colors hover:text-white/70"
                       >
                         <X size={14} />
@@ -12458,6 +12498,7 @@ function GameSurfaceComponent({
                         <button
                           type="button"
                           onClick={() => setCombatLogsOpen(true)}
+                          data-testid="game-surface-combat-logs-button"
                           className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-black/65 px-3 py-1.5 text-xs font-semibold text-white/80 shadow-lg backdrop-blur-md transition-colors hover:bg-black/80 hover:text-white"
                           title={localizeUi("ui.game.gamesurfacecomponent.openCombatLogs")}
                         >
@@ -12468,6 +12509,7 @@ function GameSurfaceComponent({
                           type="button"
                           onClick={handleReturnToPreCombatTurn}
                           disabled={!latestAssistantMsg?.id}
+                          data-testid="game-surface-return-to-pre-combat-button"
                           className="flex items-center gap-1.5 rounded-lg border border-amber-300/25 bg-amber-500/20 px-3 py-1.5 text-xs font-semibold text-amber-100 shadow-lg backdrop-blur-md transition-colors hover:bg-amber-500/30 disabled:opacity-50"
                           title={localizeUi("ui.game.gamesurfacecomponent.exitCombatAndRemoveTheTurnThatStartedIt")}
                         >
@@ -12750,6 +12792,7 @@ function GameSurfaceComponent({
                         <button
                           type="button"
                           onClick={() => setCombatLogsOpen(false)}
+                          data-testid="game-surface-combat-logs-close-button"
                           className="rounded-lg p-1 text-[var(--muted-foreground)] transition-colors hover:bg-zinc-800/80 hover:text-[var(--foreground)]"
                           title={localizeUi("ui.game.gamesurfacecomponent.closeLogs")}
                         >
@@ -12783,6 +12826,7 @@ function GameSurfaceComponent({
                                       Math.min(combatLogEntries.length, current + combatLogPageSize),
                                     );
                                   }}
+                                  data-testid="game-surface-combat-logs-show-more-button"
                                   className="rounded-md border border-white/10 bg-black/55 px-3 py-1.5 text-xs font-medium text-white/70 shadow-lg transition-colors hover:bg-white/10 hover:text-white"
                                 >
                                   {localizeUi("ui.game.gamesurfacecomponent.showMoreOlderLogs")}
@@ -12822,6 +12866,7 @@ function GameSurfaceComponent({
                 type="file"
                 accept="image/*"
                 className="hidden"
+                data-testid="game-surface-npc-portrait-upload-input"
                 onChange={(e) => {
                   const targetName = pendingNpcPortraitUploadName;
                   const file = e.target.files?.[0];
@@ -12982,12 +13027,14 @@ function GameSurfaceComponent({
           <div className="flex flex-wrap items-center justify-end gap-2">
             <button
               onClick={closeInterruptModal}
+              data-testid="game-surface-interrupt-cancel-button"
               className="rounded-lg bg-zinc-950/80 px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-zinc-700/80 transition-colors hover:bg-zinc-800/80 hover:text-[var(--foreground)]"
             >
               {localizeUi("ui.game.gamesurfacecomponent.no")}
             </button>
             <button
               onClick={() => confirmInterrupt("force")}
+              data-testid="game-surface-interrupt-force-button"
               className="rounded-lg px-3 py-1.5 text-xs font-semibold ring-1 transition-colors"
               style={{
                 color: "#20C20E",
@@ -13001,6 +13048,7 @@ function GameSurfaceComponent({
             </button>
             <button
               onClick={() => confirmInterrupt("risky")}
+              data-testid="game-surface-interrupt-risky-button"
               className="rounded-lg bg-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-200 ring-1 ring-red-500/40 transition-colors hover:bg-red-500/30"
               title={localizeUi("ui.game.gamesurfacecomponent.attemptAnInFictionInterruptionOutcomesCanFail")}
             >
@@ -13048,6 +13096,7 @@ function GameSurfaceComponent({
                 onChange={(event) => setNextSessionRequest(event.target.value)}
                 rows={4}
                 maxLength={5000}
+                data-testid="game-surface-next-session-request-textarea"
                 placeholder={localizeUi("ui.game.gamesurfacecomponent.leaveEmptyToLetTheGmSteerNaturally")}
                 className="resize-none rounded-lg border border-zinc-700/80 bg-zinc-950/80 px-3 py-2 text-sm leading-relaxed text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)]/70 focus:border-zinc-400/60"
               />
@@ -13058,6 +13107,7 @@ function GameSurfaceComponent({
             <button
               onClick={handleCloseEndSessionDialog}
               disabled={concludeSession.isPending}
+              data-testid="game-surface-end-session-cancel-button"
               className="rounded-lg bg-zinc-950/80 px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-zinc-700/80 transition-colors hover:bg-zinc-800/80 hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {localizeUi("chat.delete.dialog.cancel")}
@@ -13065,6 +13115,7 @@ function GameSurfaceComponent({
             <button
               onClick={handleConfirmEndSession}
               disabled={concludeSession.isPending}
+              data-testid="game-surface-end-session-confirm-button"
               className="rounded-lg bg-[var(--destructive)]/15 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] ring-1 ring-[var(--destructive)]/25 transition-colors hover:bg-[var(--destructive)]/25 disabled:opacity-50"
             >
               {concludeSession.isPending

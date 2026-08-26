@@ -30,6 +30,8 @@ interface ColorPickerProps {
   headerAction?: ReactNode;
   /** Prevent editing while still showing the current preview. */
   disabled?: boolean;
+  /** Stable identifier prefix for automated tests; applied to the trigger, clear, and inner controls. */
+  testId?: string;
 }
 
 /** Preset palette colors */
@@ -336,6 +338,7 @@ export function ColorPicker({
   clearValue = "",
   headerAction,
   disabled = false,
+  testId,
 }: ColorPickerProps) {
   const { t: localizeUi } = useUiTranslation();
   const isGradient = isEditableLinearGradient(value);
@@ -512,6 +515,7 @@ export function ColorPicker({
               onClick={clearColor}
               disabled={disabled}
               className="flex items-center gap-1 rounded-lg px-1.5 py-0.5 text-[0.625rem] text-[var(--muted-foreground)] transition-all hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
+              data-testid={testId ? `${testId}-clear-button` : undefined}
             >
               <X size="0.625rem" />
               {clearLabel}
@@ -528,6 +532,7 @@ export function ColorPicker({
           if (!disabled) setExpanded(!expanded);
         }}
         disabled={disabled}
+        data-testid={testId ? `${testId}-trigger` : undefined}
         className={cn(
           "flex w-full items-center rounded-xl border border-[var(--border)] bg-[var(--secondary)] transition-all hover:border-[var(--primary)]/30",
           compact ? "gap-2 rounded-lg p-1.5" : "gap-3 p-2.5",
@@ -566,6 +571,7 @@ export function ColorPicker({
                   setMode("solid");
                   if (gradientStops[0]) handleSolidChange(parseGradientColorStop(gradientStops[0]).color);
                 }}
+                data-testid={testId ? `${testId}-mode-solid` : undefined}
                 className={cn(
                   "flex-1 rounded-md px-3 py-1.5 text-[0.6875rem] font-medium transition-all",
                   mode === "solid"
@@ -582,6 +588,7 @@ export function ColorPicker({
                   setMode("gradient");
                   commitChange(buildGradient(gradientAngle, gradientStops));
                 }}
+                data-testid={testId ? `${testId}-mode-gradient` : undefined}
                 className={cn(
                   "flex-1 rounded-md px-3 py-1.5 text-[0.6875rem] font-medium transition-all",
                   mode === "gradient"
@@ -619,6 +626,7 @@ export function ColorPicker({
                     onChange={(e) => handleSolidChange(e.target.value)}
                     placeholder={localizeUi("ui.ui.colorpicker.hexOrColorName")}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-1.5 font-mono text-xs outline-none transition-colors focus:border-[var(--primary)]/50"
+                    data-testid={testId ? `${testId}-hex-input` : undefined}
                   />
                 </label>
               </div>
@@ -634,6 +642,7 @@ export function ColorPicker({
                       key={color}
                       type="button"
                       onClick={() => handleSolidChange(color)}
+                      data-testid={testId ? `${testId}-preset-${color}` : undefined}
                       className={cn(
                         "h-6 w-6 rounded-md ring-1 ring-[var(--border)] transition-all hover:scale-110 hover:ring-2 hover:ring-[var(--primary)]/50",
                         value === color && "ring-2 ring-[var(--primary)] scale-110",
@@ -666,6 +675,7 @@ export function ColorPicker({
                     type="button"
                     onClick={addStop}
                     className="flex items-center gap-0.5 rounded-md bg-[var(--secondary)] px-2 py-0.5 text-[0.625rem] text-[var(--muted-foreground)] transition-all hover:text-[var(--foreground)]"
+                    data-testid={testId ? `${testId}-add-stop-button` : undefined}
                   >
                     <Plus size="0.625rem" /> {localizeUi("ui.characters.metadatatab.add")}
                   </button>
@@ -684,18 +694,21 @@ export function ColorPicker({
                         )}
                         style={{ backgroundColor: parsedStop.hex ?? "transparent" }}
                         aria-label={localizeUi("ui.ui.colorpicker.editColorStop", { index: i + 1 })}
+                        data-testid={testId ? `${testId}-stop-swatch-${i}` : undefined}
                       />
                       <input
                         value={stop}
                         aria-label={localizeUi("ui.ui.colorpicker.editColorStop", { index: i + 1 })}
                         onChange={(e) => handleGradientStopTextChange(i, e.target.value)}
                         className="flex-1 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2 py-1 font-mono text-[0.6875rem] outline-none focus:border-[var(--primary)]/40"
+                        data-testid={testId ? `${testId}-stop-input-${i}` : undefined}
                       />
                       {gradientStops.length > 2 && (
                         <button
                           type="button"
                           onClick={() => removeStop(i)}
                           className="rounded-md p-1 text-[var(--muted-foreground)] hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
+                          data-testid={testId ? `${testId}-remove-stop-${i}` : undefined}
                         >
                           <Trash2 size="0.6875rem" />
                         </button>
@@ -734,6 +747,7 @@ export function ColorPicker({
                   onKeyUp={flushPendingChange}
                   onBlur={flushPendingChange}
                   className="h-1.5 w-full cursor-pointer accent-[var(--primary)]"
+                  data-testid={testId ? `${testId}-angle-slider` : undefined}
                 />
               </div>
 
@@ -743,7 +757,7 @@ export function ColorPicker({
                   {localizeUi("navigation.topbar.presets")}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  {GRADIENT_PRESETS.map((g) => (
+                  {GRADIENT_PRESETS.map((g, gi) => (
                     <button
                       key={g}
                       type="button"
@@ -753,6 +767,7 @@ export function ColorPicker({
                         if (angleMatch) setGradientAngle(parseInt(angleMatch[1]));
                         commitChange(g);
                       }}
+                      data-testid={testId ? `${testId}-gradient-preset-${gi}` : undefined}
                       className={cn(
                         "h-6 w-6 rounded-md ring-1 ring-[var(--border)] transition-all hover:scale-110 hover:ring-2 hover:ring-[var(--primary)]/50",
                         value === g && "ring-2 ring-[var(--primary)] scale-110",

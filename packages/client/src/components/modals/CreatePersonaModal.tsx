@@ -71,6 +71,7 @@ export function CreatePersonaModal({ open, onClose }: Props) {
               if (e.key === "Enter") handleCreate();
             }}
             className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-sm outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]"
+            data-testid="create-persona-modal-name-input"
           />
         </label>
 
@@ -81,6 +82,7 @@ export function CreatePersonaModal({ open, onClose }: Props) {
               reset();
             }}
             className="rounded-lg px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
+            data-testid="create-persona-modal-cancel-button"
           >
             {localizeUi("chat.delete.dialog.cancel")}
           </button>
@@ -88,6 +90,7 @@ export function CreatePersonaModal({ open, onClose }: Props) {
             onClick={handleCreate}
             disabled={!name.trim() || createPersona.isPending}
             className="flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50"
+            data-testid="create-persona-modal-create-button"
           >
             {createPersona.isPending ? <Loader2 size="0.75rem" className="animate-spin" /> : <User size="0.75rem" />}
             {localizeUi("ui.modals.createcharactermodal.create")}

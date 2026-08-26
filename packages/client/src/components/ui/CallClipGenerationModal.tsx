@@ -105,6 +105,7 @@ export function CallClipGenerationModal({
         <label className="grid gap-1.5 text-xs font-semibold text-[var(--foreground)]">
           {localizeUi("ui.ui.callclipgenerationmodal.videoGenerationConnection")}
           <select
+            data-testid="call-clip-generation-connection-select"
             value={effectiveConnectionId ?? ""}
             onChange={(event) => setConnectionId(event.target.value || null)}
             className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm font-medium text-[var(--foreground)] outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
@@ -134,6 +135,7 @@ export function CallClipGenerationModal({
           </span>
           <input
             type="checkbox"
+            data-testid="call-clip-generation-use-avatar-reference-checkbox"
             checked={includeAvatarReference}
             onChange={(event) => setIncludeAvatarReference(event.target.checked)}
             className="h-4 w-4 accent-[var(--primary)]"
@@ -166,6 +168,7 @@ export function CallClipGenerationModal({
                 >
                   <input
                     type="checkbox"
+                    data-testid={`call-clip-generation-kind-${kind}`}
                     checked={selected}
                     disabled={disableClearingLastKind}
                     onChange={() => toggleKind(kind)}
@@ -190,6 +193,7 @@ export function CallClipGenerationModal({
             </span>
             <input
               type="checkbox"
+              data-testid="call-clip-generation-custom-clip-checkbox"
               checked={customClipEnabled}
               onChange={(event) => setCustomClipEnabled(event.target.checked)}
               className="mt-0.5 h-4 w-4 accent-[var(--primary)]"
@@ -202,6 +206,7 @@ export function CallClipGenerationModal({
                 {localizeUi("ui.ui.callclipgenerationmodal.clipName")}
                 <input
                   type="text"
+                  data-testid="call-clip-generation-custom-clip-name-input"
                   value={customClipLabel}
                   onChange={(event) => setCustomClipLabel(event.target.value)}
                   placeholder={localizeUi("ui.ui.callclipgenerationmodal.kissing")}
@@ -212,6 +217,7 @@ export function CallClipGenerationModal({
               <label className="grid gap-1 text-xs font-semibold text-[var(--foreground)]">
                 {localizeUi("ui.ui.callclipgenerationmodal.action")}
                 <textarea
+                  data-testid="call-clip-generation-custom-clip-prompt-textarea"
                   value={customClipPrompt}
                   onChange={(event) => setCustomClipPrompt(event.target.value)}
                   placeholder={localizeUi("ui.ui.callclipgenerationmodal.blowAKissTowardTheScreenThenReturnTo")}
@@ -232,6 +238,7 @@ export function CallClipGenerationModal({
         <div className="flex items-center justify-end gap-2">
           <button
             type="button"
+            data-testid="call-clip-generation-cancel-button"
             onClick={onClose}
             disabled={generating}
             className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-50"
@@ -240,6 +247,7 @@ export function CallClipGenerationModal({
           </button>
           <button
             type="button"
+            data-testid="call-clip-generation-generate-button"
             onClick={() =>
               void onGenerate({
                 clipKinds: selectedKinds,

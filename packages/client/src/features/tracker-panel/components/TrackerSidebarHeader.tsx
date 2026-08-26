@@ -84,6 +84,7 @@ export function TrackerSidebarHeader({
     <button
       type="button"
       onClick={onClose}
+      data-testid="tracker-sidebar-close-button"
       title={localizeUi("ui.trackerPanel.trackersidebarheader.closeTrackers")}
       aria-label={localizeUi("ui.trackerPanel.trackersidebarheader.closeTrackerPanel")}
       className="mari-accent-animated flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-[var(--marinara-app-accent-solid)] transition-colors hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--marinara-app-accent-solid)] active:scale-90"
@@ -157,6 +158,7 @@ export function TrackerSidebarHeader({
         if (settingsOpen) closeSettings();
         else setSettingsOpen(true);
       }}
+      data-testid="tracker-sidebar-settings-button"
       title={
         settingsOpen
           ? localizeUi("ui.trackerPanel.trackersidebarheader.closeTrackerSettings")
@@ -192,6 +194,7 @@ export function TrackerSidebarHeader({
             {...getToolbarItemProps("detach")}
             type="button"
             onClick={onToggleDetached}
+            data-testid="tracker-sidebar-detach-button"
             title={localizeUi(
               detached
                 ? "ui.trackerPanel.trackersidebarheader.dockTrackerPanel"
@@ -217,6 +220,7 @@ export function TrackerSidebarHeader({
           {...getToolbarItemProps("side")}
           type="button"
           onClick={() => onSetSide(trackerPanelSide === "left" ? "right" : "left")}
+          data-testid="tracker-sidebar-side-button"
           title={localizeUi("ui.trackerPanel.trackersidebarheader.panelAnchoredValue1ClickToAnchorValue2", {
             value1: trackerPanelSide,
             value2:
@@ -239,6 +243,7 @@ export function TrackerSidebarHeader({
           {...getToolbarItemProps("size")}
           type="button"
           onClick={() => onSetSizeProfile(nextSizeProfile)}
+          data-testid="tracker-sidebar-size-button"
           title={sizeTitle}
           aria-label={sizeTitle}
           className="flex h-6 w-6 items-center justify-center rounded-sm text-[var(--muted-foreground)]/62 ring-1 ring-transparent transition-all hover:bg-[var(--accent)] hover:text-[var(--foreground)] hover:ring-[var(--border)] active:scale-90"
@@ -249,6 +254,7 @@ export function TrackerSidebarHeader({
           {...getToolbarItemProps("statDisplay")}
           type="button"
           onClick={() => onSetStatDisplayMode(gaugesSelected ? "bars" : "gauges")}
+          data-testid="tracker-sidebar-stat-display-button"
           title={statDisplayTitle}
           aria-label={statDisplayTitle}
           className="relative grid h-6 w-[2.875rem] grid-cols-2 items-center overflow-hidden rounded-full border border-[var(--border)] bg-[var(--background)]/30 p-0.5 text-[var(--muted-foreground)] transition-colors hover:border-[var(--foreground)]/20 hover:bg-[var(--accent)]/60 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)]"
@@ -275,6 +281,7 @@ export function TrackerSidebarHeader({
           {...getToolbarItemProps("hide")}
           type="button"
           onClick={() => onSetEditMode(hideMode ? null : "hide")}
+          data-testid="tracker-sidebar-hide-mode-button"
           title={
             hideMode
               ? localizeUi("ui.trackerPanel.trackersidebarheader.exitHideMode")
@@ -299,6 +306,7 @@ export function TrackerSidebarHeader({
           {...getToolbarItemProps("lock")}
           type="button"
           onClick={() => onSetEditMode(lockMode ? null : "lock")}
+          data-testid="tracker-sidebar-lock-mode-button"
           title={
             lockMode
               ? localizeUi("ui.trackerPanel.trackersidebarheader.exitLockMode")
@@ -323,6 +331,7 @@ export function TrackerSidebarHeader({
           {...getToolbarItemProps("add")}
           type="button"
           onClick={() => onSetEditMode(addMode ? null : "add")}
+          data-testid="tracker-sidebar-add-mode-button"
           title={
             addMode
               ? localizeUi("ui.trackerPanel.trackersidebarheader.exitAddMode")
@@ -347,6 +356,7 @@ export function TrackerSidebarHeader({
           {...getToolbarItemProps("delete")}
           type="button"
           onClick={() => onSetEditMode(deleteMode ? null : "delete")}
+          data-testid="tracker-sidebar-delete-mode-button"
           title={
             deleteMode
               ? localizeUi("ui.trackerPanel.trackersidebarheader.exitDeleteMode")

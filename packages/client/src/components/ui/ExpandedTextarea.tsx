@@ -98,6 +98,7 @@ export function ExpandedTextarea({
                 {value.length} {localizeUi("ui.noodle.noodlehome.characters")}
               </span>
               <button
+                data-testid="expanded-textarea-close-button"
                 onClick={onClose}
                 aria-label={closeLabel}
                 title={closeLabel}
@@ -118,6 +119,7 @@ export function ExpandedTextarea({
           <div className={cn("flex-1 overflow-hidden p-4 md:p-6", isChatSurface && NEUTRAL_PANEL_SCROLL_AREA)}>
             <textarea
               ref={textareaRef}
+              data-testid="expanded-textarea-textarea"
               value={value}
               onChange={(e) => onChange(e.target.value)}
               readOnly={readOnly}

@@ -13,6 +13,7 @@ export function PanelLoadMoreBar({ children, disabled = false, onLoadMore }: Pan
         type="button"
         onClick={onLoadMore}
         disabled={disabled}
+        data-testid="panel-load-more-button"
         className="mari-chrome-control mari-chrome-control--primary w-full justify-center text-xs"
       >
         {children}

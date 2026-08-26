@@ -107,6 +107,7 @@ export function InlineLorebookEntriesEditor({
         <button
           type="button"
           onClick={onClose}
+          data-testid="inline-lorebook-entries-editor-close-button"
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--marinara-chat-chrome-panel-muted)] transition-colors hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
           title={t("chat.settings.inlineEditor.close")}
           aria-label={t("chat.settings.inlineEditor.close")}
@@ -129,6 +130,7 @@ export function InlineLorebookEntriesEditor({
             }}
             placeholder={t("chat.settings.inlineLorebook.search")}
             aria-label={t("chat.settings.inlineLorebook.search")}
+            data-testid="inline-lorebook-entries-editor-search-input"
             className="h-8 w-full rounded-lg border border-[var(--marinara-chat-chrome-input-border)] bg-[var(--marinara-chat-chrome-input-bg)] pl-7 pr-2.5 text-xs outline-none placeholder:text-[var(--marinara-chat-chrome-panel-muted)]/60 focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
           />
         </label>
@@ -136,6 +138,7 @@ export function InlineLorebookEntriesEditor({
           type="button"
           onClick={() => void handleCreateEntry()}
           disabled={createEntry.isPending}
+          data-testid="inline-lorebook-entries-editor-add-entry-button"
           className="flex h-8 shrink-0 items-center gap-1 rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-2 text-[0.6875rem] font-medium text-[var(--marinara-chat-chrome-button-text)] transition-colors hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <FilePlus2 size="0.75rem" />
@@ -191,6 +194,7 @@ export function InlineLorebookEntriesEditor({
             <button
               type="button"
               onClick={() => setVisibleEntryCount((current) => current + VISIBLE_ENTRY_STEP)}
+              data-testid="inline-lorebook-entries-editor-show-more-button"
               className="w-full rounded-lg border border-dashed border-[var(--marinara-chat-chrome-button-border)] px-3 py-2 text-[0.6875rem] font-medium text-[var(--marinara-chat-chrome-panel-muted)] transition-colors hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
             >
               {t("chat.settings.inlineLorebook.showMore", {

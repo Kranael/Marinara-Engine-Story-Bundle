@@ -128,6 +128,7 @@ function CapabilityLoadingState({
             <button
               type="button"
               onClick={onClose}
+              data-testid={`capability-loading-close-button-${packageId}`}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/60"
             >
               <X size="0.75rem" /> {t("capabilities.actions.close")}
@@ -157,6 +158,7 @@ function CapabilityLoadingState({
             <button
               type="button"
               onClick={onClose}
+              data-testid={`capability-loading-back-button-${packageId}`}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/60"
             >
               <X size="0.75rem" /> {t("capabilities.actions.backToAgents")}
@@ -223,6 +225,7 @@ function CapabilityFailureState({
         title={title}
         data-capability-client-state="error"
         data-capability-package-id={packageId}
+        data-testid={`capability-toolbar-retry-button-${packageId}`}
       >
         <AlertTriangle size="0.875rem" />
       </button>
@@ -251,6 +254,7 @@ function CapabilityFailureState({
           <button
             type="button"
             onClick={onRetry}
+            data-testid={`capability-failure-retry-button-${packageId}`}
             className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/60"
           >
             <RefreshCw size="0.75rem" /> {t("capabilities.actions.tryAgain")}
@@ -259,6 +263,7 @@ function CapabilityFailureState({
             <button
               type="button"
               onClick={onClose}
+              data-testid={`capability-failure-close-button-${packageId}`}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/60"
             >
               <X size="0.75rem" /> {t("capabilities.actions.close")}
@@ -322,6 +327,7 @@ function CapabilityRefreshState({
         title={title}
         data-capability-client-state="refresh-required"
         data-capability-package-id={packageId}
+        data-testid={`capability-toolbar-refresh-button-${packageId}`}
       >
         <RefreshCw size="0.875rem" />
       </button>
@@ -350,6 +356,7 @@ function CapabilityRefreshState({
           <button
             type="button"
             onClick={refresh}
+            data-testid={`capability-refresh-now-button-${packageId}`}
             className="inline-flex min-h-11 items-center gap-1.5 rounded-md bg-[var(--primary)] px-3 text-xs font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/60"
           >
             <RefreshCw size="0.75rem" /> {t("capabilities.actions.refreshNow")}
@@ -358,6 +365,7 @@ function CapabilityRefreshState({
             <button
               type="button"
               onClick={onClose}
+              data-testid={`capability-refresh-close-button-${packageId}`}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/60"
             >
               <X size="0.75rem" /> {t("capabilities.actions.close")}

@@ -563,6 +563,7 @@ export function CharacterLibraryView() {
               className={newCardButtonClass}
               title={localizeUi("ui.characters.characterlibraryview.newValue1", { value1: copy.singular })}
               aria-label={localizeUi("ui.characters.characterlibraryview.newValue1", { value1: copy.singular })}
+              data-testid="resource-library-new-card-button"
             >
               <Plus size="0.75rem" />
             </button>
@@ -571,6 +572,7 @@ export function CharacterLibraryView() {
               className={libraryToolbarButtonClass}
               title={localizeUi("ui.characters.characterlibraryview.importValue1", { value1: copy.singular })}
               aria-label={localizeUi("ui.characters.characterlibraryview.importValue1", { value1: copy.singular })}
+              data-testid="resource-library-import-button"
             >
               <Download size="0.75rem" />
             </button>
@@ -597,6 +599,7 @@ export function CharacterLibraryView() {
               <select
                 value={sort}
                 onChange={(event) => handleSortChange(event.target.value)}
+                data-testid="resource-library-sort-select"
                 className={cn(
                   libraryToolbarFieldClass,
                   "mari-chrome-sort-field mari-accent-animated appearance-none pl-2.5 pr-7",
@@ -664,6 +667,7 @@ export function CharacterLibraryView() {
                     <button
                       type="button"
                       data-card-library-card={card.id}
+                      data-testid={`resource-library-card-${card.id}`}
                       onClick={() => setSelectedId(card.id)}
                       className={cn(
                         "group flex h-full items-stretch overflow-hidden rounded-[1.25rem] border bg-[var(--card)]/70 text-left shadow-[0_20px_50px_-32px_rgba(15,23,42,0.75)] transition-all hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:shadow-[0_24px_60px_-32px_color-mix(in_srgb,var(--marinara-chat-chrome-accent)_35%,transparent)] sm:flex-col sm:rounded-[1.75rem] sm:hover:-translate-y-0.5",
@@ -776,6 +780,7 @@ export function CharacterLibraryView() {
                 type="button"
                 onClick={fetchNextPage}
                 disabled={isFetchingNextPage}
+                data-testid="resource-library-load-more-button"
                 className="mari-chrome-control mari-chrome-control--primary px-5 py-2 text-sm"
               >
                 {isFetchingNextPage

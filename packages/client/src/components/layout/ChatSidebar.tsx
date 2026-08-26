@@ -965,6 +965,7 @@ export function ChatSidebar() {
         tabIndex={0}
         key={chat.groupId ?? chat.id}
         data-chat-id={chat.id}
+        data-testid={`chat-sidebar-row-${chat.id}`}
         draggable
         onDragStart={(event) => {
           const chatIds = getDragChatIds(chat.id);
@@ -1030,6 +1031,7 @@ export function ChatSidebar() {
           type="button"
           aria-label={localizeUi("ui.layout.chatsidebar.dragChat")}
           title={localizeUi("ui.layout.chatsidebar.dragChat")}
+          data-testid={`chat-sidebar-row-drag-handle-${chat.id}`}
           className="mari-chrome-accent-text-muted mari-accent-animated flex h-8 w-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-md opacity-100 transition-all hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] active:cursor-grabbing active:scale-95 md:h-7 md:w-5 md:opacity-0 md:group-hover:opacity-100"
           onClick={(event) => event.stopPropagation()}
           onPointerDown={(event) => {
@@ -1239,6 +1241,7 @@ export function ChatSidebar() {
         {!multiSelectMode && (
           <button
             aria-label={localizeUi("chat.branches.deleteLabel", { name: displayName })}
+            data-testid={`chat-sidebar-row-delete-button-${chat.id}`}
             onClick={async (e) => {
               e.stopPropagation();
               if (branchCount > 1 && chat.groupId) {
@@ -1291,6 +1294,7 @@ export function ChatSidebar() {
             className="mari-chrome-control mari-chrome-control--small mari-accent-animated p-1.5 active:scale-90 md:hidden"
             title={localize("Close")}
             aria-label={localize("Close chats")}
+            data-testid="chat-sidebar-close-button"
           >
             <X size="0.875rem" />
           </button>
@@ -1318,6 +1322,7 @@ export function ChatSidebar() {
                 aria-pressed={isActive}
                 data-chat-mode-tab={tab}
                 data-tour={`chat-mode-${tab}`}
+                data-testid={`chat-sidebar-mode-tab-${tab}`}
                 className={cn(
                   "mari-chrome-segmented__button gap-1 overflow-visible px-1.5 py-2 text-[0.625rem] leading-normal",
                   isActive && "mari-chrome-segmented__button--selected",
@@ -1345,6 +1350,7 @@ export function ChatSidebar() {
           accept=".jsonl"
           className="hidden"
           onChange={handleImportChatFile}
+          data-testid="chat-sidebar-import-file-input"
         />
         <button
           onClick={handleNewChatFromTab}
@@ -1355,6 +1361,7 @@ export function ChatSidebar() {
           )}
           title={t(`navigation.chatSidebar.new.${activeTab}`)}
           aria-label={t(`navigation.chatSidebar.new.${activeTab}`)}
+          data-testid="chat-sidebar-new-chat-button"
         >
           <Plus size="0.8125rem" className="mari-chrome-accent-icon mari-accent-animated" />
         </button>
@@ -1364,6 +1371,7 @@ export function ChatSidebar() {
           className="mari-chrome-control mari-chrome-control--primary flex-1 text-xs"
           title={localize(isImportingChat ? "Importing chat" : "Import SillyTavern or Marinara chat JSONL")}
           aria-label={localize(isImportingChat ? "Importing chat" : "Import SillyTavern or Marinara chat JSONL")}
+          data-testid="chat-sidebar-import-chat-button"
         >
           <Download size="0.8125rem" />
         </button>
@@ -1376,6 +1384,7 @@ export function ChatSidebar() {
           )}
           title={localize(multiSelectMode ? "Cancel selection" : "Select chats")}
           aria-label={localize(multiSelectMode ? "Cancel selection" : "Select chats")}
+          data-testid="chat-sidebar-multiselect-toggle-button"
         >
           <Check size="0.8125rem" />
         </button>
@@ -1395,6 +1404,7 @@ export function ChatSidebar() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="mari-chrome-field h-10 w-full py-0 pl-8 pr-3 text-xs md:h-9"
+              data-testid="chat-sidebar-search-input"
             />
           </div>
           <div className="relative">
@@ -1403,6 +1413,7 @@ export function ChatSidebar() {
               onChange={(e) => setSort(e.target.value as ChatSortOption)}
               className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
               title={localize("Sort chats")}
+              data-testid="chat-sidebar-sort-select"
             >
               <option value="recent">{localizeUi("ui.layout.chatsidebar.recent")}</option>
               <option value="newest">{localize("Newest")}</option>
@@ -1428,6 +1439,7 @@ export function ChatSidebar() {
                   : "mari-chrome-text-muted hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
               )}
               title={localize(tagsExpanded ? "Collapse tags" : "Expand tags")}
+              data-testid="chat-sidebar-tags-toggle-button"
             >
               <Tag size="0.6875rem" className="shrink-0" />
               <span className="max-w-full truncate">
@@ -1445,6 +1457,7 @@ export function ChatSidebar() {
               <button
                 onClick={() => setActiveTag(null)}
                 className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--danger"
+                data-testid="chat-sidebar-clear-tag-button"
               >
                 {localize("Clear")}
               </button>
@@ -1460,6 +1473,7 @@ export function ChatSidebar() {
                     : "mari-chrome-muted-badge hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
                 )}
                 title={tag}
+                data-testid={`chat-sidebar-tag-filter-button-${tag}`}
               >
                 {tag}
               </button>
@@ -1468,6 +1482,7 @@ export function ChatSidebar() {
               <button
                 onClick={() => setTagsExpanded(true)}
                 className="mari-chrome-control mari-chrome-control--compact"
+                data-testid="chat-sidebar-tags-show-more-button"
               >
                 +{allTags.length - 4} {localizeUi("ui.layout.chatsidebar.more")}
               </button>
@@ -1538,6 +1553,7 @@ export function ChatSidebar() {
               onClick={() => void refetchChats()}
               disabled={isFetching}
               className="mari-chrome-control mari-chrome-control--compact mt-1 disabled:cursor-not-allowed disabled:opacity-60"
+              data-testid="chat-sidebar-retry-load-button"
             >
               {localize(isFetching ? "Checking..." : "Try Again")}
             </button>
@@ -1561,6 +1577,7 @@ export function ChatSidebar() {
                 "mari-chrome-control mari-chrome-control--compact mari-chat-mode-action mt-1",
                 activeModeConfig.logoModeClass,
               )}
+              data-testid="chat-sidebar-empty-new-chat-button"
             >
               <span className="mari-chrome-accent-icon mari-accent-animated">+</span>
               {t(`navigation.chatSidebar.new.${activeTab}`)}
@@ -1574,6 +1591,7 @@ export function ChatSidebar() {
               <button
                 onClick={handleCreateFolder}
                 className="mari-chrome-control mari-chrome-control--small flex-1 justify-center text-[0.6875rem]"
+                data-testid="chat-sidebar-create-folder-button"
               >
                 <FolderPlus size="0.75rem" />
                 {localize("New Folder")}
@@ -1629,6 +1647,7 @@ export function ChatSidebar() {
               type="button"
               onClick={() => setVisibleChatLimit((limit) => limit + CHAT_LIST_PAGE_SIZE)}
               className="mari-chrome-control mari-chrome-control--primary justify-center text-xs"
+              data-testid="chat-sidebar-load-more-button"
             >
               {t("navigation.chatSidebar.loadMore", { count: visibleDisplayChats.length })}
             </button>
@@ -1685,6 +1704,7 @@ export function ChatSidebar() {
                   setDeleteTarget(null);
                 }}
                 className="mari-chrome-control mari-chrome-control--primary w-full text-xs"
+                data-testid="chat-sidebar-delete-branch-only-button"
               >
                 <Trash2 size="0.8125rem" />
                 {localizeUi("ui.layout.chatsidebar.deleteThisBranchOnly")}
@@ -1698,6 +1718,7 @@ export function ChatSidebar() {
                   setDeleteTarget(null);
                 }}
                 className="mari-chrome-control mari-chrome-control--primary w-full text-xs"
+                data-testid="chat-sidebar-delete-all-branches-button"
               >
                 <Trash2 size="0.8125rem" />
                 {localizeUi("ui.characters.spritestab.deleteAll")} {deleteTarget.branchCount}{" "}
@@ -1758,6 +1779,7 @@ function FolderRow({
       value={folder.id}
       layout="position"
       data-chat-folder-id={folder.id}
+      data-testid={`chat-sidebar-folder-row-${folder.id}`}
       dragListener={false}
       dragControls={dragControls}
       as="div"
@@ -1810,6 +1832,7 @@ function FolderRow({
           role="button"
           tabIndex={0}
           aria-expanded={isExpanded}
+          data-testid={`chat-sidebar-folder-toggle-${folder.id}`}
           aria-label={localizeUi("ui.layout.folderrow.value1FolderValue2DoubleTapOrPressF2To", {
             value1: isExpanded
               ? localizeUi("ui.panels.ttsconfigcard.collapse")
@@ -1866,6 +1889,7 @@ function FolderRow({
                 setRenaming(false);
               }}
               className="flex-1 bg-transparent text-xs font-medium text-[var(--foreground)] outline-none min-w-0"
+              data-testid={`chat-sidebar-folder-rename-input-${folder.id}`}
             />
           ) : (
             <span className="mari-chrome-text flex-1 min-w-0 cursor-pointer truncate text-xs font-medium">
@@ -1882,6 +1906,7 @@ function FolderRow({
             onDelete(folder, chatCount);
           }}
           className="shrink-0 rounded-md p-1 text-[var(--muted-foreground)] opacity-0 transition-all hover:bg-[var(--accent)] hover:text-[var(--foreground)] group-hover:opacity-100 max-md:opacity-100"
+          data-testid={`chat-sidebar-folder-delete-button-${folder.id}`}
         >
           <Trash2 size="0.75rem" />
         </button>
@@ -1997,6 +2022,7 @@ function UserStatusFooter() {
                 "mari-chrome-control w-full justify-start px-2.5 py-2 text-left",
                 userStatus === opt.value && "mari-chrome-control--selected",
               )}
+              data-testid={`chat-sidebar-user-status-option-${opt.value}`}
             >
               <span className={`h-2 w-2 rounded-full ${opt.color}`} />
               <div className="min-w-0 flex-1">
@@ -2019,6 +2045,7 @@ function UserStatusFooter() {
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => applyRecentActivity(activity)}
               className="mari-chrome-control mari-chrome-control--small w-full min-w-0 justify-start text-left text-xs"
+              data-testid={`chat-sidebar-recent-activity-button-${activity}`}
             >
               <span className="truncate">{activity}</span>
             </button>
@@ -2032,6 +2059,7 @@ function UserStatusFooter() {
           className="mari-chrome-control mari-chrome-control--small min-w-0 shrink-0 px-2 py-1.5 max-md:h-9 max-md:min-h-9"
           title={localizeUi("ui.layout.userstatusfooter.changeActivityStatus")}
           aria-label={localizeUi("ui.layout.userstatusfooter.changeActivityStatus")}
+          data-testid="chat-sidebar-user-status-toggle-button"
         >
           <span className={`h-2 w-2 shrink-0 rounded-full ${current.color}`} />
           <span className="mari-chrome-text max-w-20 truncate text-xs">{current.label}</span>
@@ -2056,6 +2084,7 @@ function UserStatusFooter() {
           placeholder={localizeUi("ui.layout.userstatusfooter.whatAreYouDoing")}
           aria-label={localizeUi("ui.layout.userstatusfooter.customActivity")}
           className="mari-chrome-field mari-chrome-field--compact min-w-0 flex-1 px-2 py-1.5 text-xs max-md:h-9 max-md:min-h-9"
+          data-testid="chat-sidebar-user-activity-input"
         />
       </div>
     </div>

@@ -59,6 +59,7 @@ export function ContinuityIssueChecklist({ content, compact = false }: Continuit
           <button
             key={`${index}-${line}`}
             type="button"
+            data-testid={`continuity-issue-${index}`}
             onClick={() => toggleIssue(index)}
             aria-pressed={checked}
             className={cn(
@@ -87,6 +88,7 @@ export function ContinuityIssueChecklist({ content, compact = false }: Continuit
           {acceptedOnly && (
             <button
               type="button"
+              data-testid="continuity-issue-reset"
               onClick={resetReview}
               className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[0.5625rem] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
             >
@@ -96,6 +98,7 @@ export function ContinuityIssueChecklist({ content, compact = false }: Continuit
           )}
           <button
             type="button"
+            data-testid="continuity-issue-accept"
             disabled={selectedCount === 0 || acceptedOnly}
             onClick={() => setAcceptedOnly(true)}
             className="rounded-md bg-[var(--primary)] px-2 py-1 text-[0.5625rem] font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-45"

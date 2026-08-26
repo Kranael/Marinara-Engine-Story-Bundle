@@ -183,6 +183,7 @@ function CustomFieldList({
                     <button
                       type="button"
                       onClick={() => removeField(index)}
+                      data-testid={`custom-tracker-remove-field-${field.name}`}
                       className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--background)]/85 text-[var(--destructive)] shadow-sm ring-1 ring-[var(--border)]/70 backdrop-blur-sm transition-all hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-[var(--border)] active:scale-90"
                       title={localizeUi("ui.trackerPanel.customfieldlist.removeField")}
                       aria-label={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", {
@@ -235,6 +236,7 @@ export function CustomTrackerPanel({
               <AddRowButton
                 title={localizeUi("ui.trackerPanel.customtrackerpanel.addCustomStat")}
                 onClick={() => onUpdateFields([...fields, { name: "New Field", value: "" }])}
+                testId="custom-tracker-add-field-button"
                 className="rounded-sm"
               />
             ) : undefined

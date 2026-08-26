@@ -334,6 +334,7 @@ function DayTimeIndicator({
           max={9999}
           value={draft}
           onChange={(event) => setDraft(event.target.value.replace(/[^\d]/g, "").slice(0, 4))}
+          data-testid="game-map-day-input"
           onKeyDown={(event) => {
             event.stopPropagation();
             if (event.key === "Escape") {
@@ -358,6 +359,7 @@ function DayTimeIndicator({
             const next = event.target.value as EditableTimePhase;
             if (next) onTimeChange?.(next);
           }}
+          data-testid="game-map-time-select"
           onClick={(event) => event.stopPropagation()}
           onPointerDown={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
@@ -387,6 +389,7 @@ function DayTimeIndicator({
         event.stopPropagation();
         setEditing(true);
       }}
+      data-testid="game-map-daytime-indicator-button"
       onPointerDown={(event) => event.stopPropagation()}
       className={cn(
         rootClassName,
@@ -469,6 +472,7 @@ function MapZoomControls({ zoom, onZoomOut, onZoomIn }: MapZoomControlsProps) {
           onZoomOut();
         }}
         disabled={atMin}
+        data-testid="game-map-zoom-out-button"
         className={cn("flex h-full w-5 items-center justify-center", GAME_MAP_ACTION_ITEM_CLASS)}
         title={localizeUi("ui.game.mapzoomcontrols.zoomOut")}
         aria-label={localizeUi("ui.game.mapzoomcontrols.zoomOutMap")}
@@ -483,6 +487,7 @@ function MapZoomControls({ zoom, onZoomOut, onZoomIn }: MapZoomControlsProps) {
           onZoomIn();
         }}
         disabled={atMax}
+        data-testid="game-map-zoom-in-button"
         className={cn("flex h-full w-5 items-center justify-center", GAME_MAP_ACTION_ITEM_CLASS)}
         title={localizeUi("ui.game.mapzoomcontrols.zoomIn")}
         aria-label={localizeUi("ui.game.mapzoomcontrols.zoomInMap")}
@@ -539,6 +544,7 @@ function GameMapViewTabs({ value, onChange }: GameMapViewTabsProps) {
         type="button"
         onClick={() => onChange("world")}
         aria-pressed={value === "world"}
+        data-testid="game-map-view-world-tab-button"
         className={cn(
           "flex min-h-11 items-center justify-center gap-1.5 rounded-md px-2 text-[0.6875rem] font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
           value === "world"
@@ -552,6 +558,7 @@ function GameMapViewTabs({ value, onChange }: GameMapViewTabsProps) {
         type="button"
         onClick={() => onChange("local")}
         aria-pressed={value === "local"}
+        data-testid="game-map-view-local-tab-button"
         className={cn(
           "flex min-h-11 items-center justify-center gap-1.5 rounded-md px-2 text-[0.6875rem] font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]",
           value === "local"
@@ -583,6 +590,7 @@ function MapGenerateButton({ onGenerateMap, disabled, onAfterGenerate }: MapGene
         onAfterGenerate?.();
       }}
       disabled={disabled}
+      data-testid="game-map-generate-button"
       className={getChatToolbarButtonClass({
         compact: true,
         sizeClassName: "h-6 w-6",
@@ -664,6 +672,7 @@ export function GameMapPanel({
             type="button"
             onClick={onGenerateMap}
             disabled={disabled}
+            data-testid="game-map-generate-empty-button"
             className="flex items-center gap-1 rounded-md border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-2 py-1 text-[0.625rem] font-medium text-[var(--marinara-chat-chrome-button-text-hover)] transition-colors hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Wand2 size={10} />
@@ -708,6 +717,7 @@ export function GameMapPanel({
             setCollapsed(!collapsed);
           }
         }}
+        data-testid="game-map-collapse-toggle-button"
         className="relative flex cursor-pointer items-center gap-1.5 text-xs text-[var(--marinara-chat-chrome-panel-muted)] transition-colors hover:text-[var(--marinara-chat-chrome-panel-title)]"
       >
         {hasLeadingStatus && (
@@ -747,6 +757,7 @@ export function GameMapPanel({
               event.stopPropagation();
               openFullMapEditor();
             }}
+            data-testid="game-map-open-editor-button"
             className={getChatToolbarButtonClass({ compact: true, sizeClassName: "h-6 w-6 shrink-0" })}
             aria-label={localizeUi("ui.game.gamemappanel.openFullMapEditor")}
             title={localizeUi("ui.game.gamemappanel.openFullMapEditor")}
@@ -765,6 +776,7 @@ export function GameMapPanel({
           <select
             value={selectedMapId ?? ""}
             onChange={(event) => onViewedMapChange?.(event.target.value)}
+            data-testid="game-map-select"
             className={cn(GAME_MAP_FIELD_CLASS, "min-w-0 flex-1 px-1.5 py-1 text-[0.625rem]")}
             title={localizeUi("ui.game.gamemappanel.viewMap")}
           >
@@ -807,6 +819,7 @@ export function GameMapPanel({
                 type="button"
                 onClick={onGenerateMap}
                 disabled={generateMapDisabled || disabled}
+                data-testid="game-map-generate-local-empty-button"
                 className="flex items-center gap-1 rounded-md border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-2 py-1 text-[0.625rem] font-medium text-[var(--marinara-chat-chrome-button-text-hover)] transition-colors hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Wand2 size={10} />
@@ -985,6 +998,7 @@ export function MobileMapButton({
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}
+          data-testid="game-map-mobile-toggle-button"
           className={getChatToolbarButtonClass({
             open,
             className: "shadow-lg shadow-black/25",
@@ -1073,6 +1087,7 @@ export function MobileMapButton({
                       onViewedMapChange?.(event.target.value);
                       setSelectedNode(null);
                     }}
+                    data-testid="game-map-mobile-select"
                     className={cn(GAME_MAP_FIELD_CLASS, "mt-1 w-full px-1.5 py-1 text-[0.625rem]")}
                     title={localizeUi("ui.game.gamemappanel.viewMap")}
                   >
@@ -1092,6 +1107,7 @@ export function MobileMapButton({
                 <button
                   type="button"
                   onClick={openFullMapEditor}
+                  data-testid="game-map-mobile-open-editor-button"
                   className={getChatToolbarButtonClass({ compact: true, sizeClassName: "h-7 w-7 shrink-0" })}
                   aria-label={localizeUi("ui.game.gamemappanel.openFullMapEditor")}
                   title={localizeUi("ui.game.gamemappanel.openFullMapEditor")}
@@ -1105,6 +1121,7 @@ export function MobileMapButton({
                   setOpen(false);
                   setSelectedNode(null);
                 }}
+                data-testid="game-map-mobile-close-button"
                 className={getChatToolbarButtonClass({ compact: true, sizeClassName: "h-7 w-7 shrink-0" })}
                 aria-label={localizeUi("ui.game.mobilemapbutton.closeMap")}
                 title={localizeUi("ui.game.mobilemapbutton.closeMap")}
@@ -1154,6 +1171,7 @@ export function MobileMapButton({
                         setOpen(false);
                       }}
                       disabled={disabled}
+                      data-testid="game-map-mobile-generate-button"
                       className="flex items-center gap-1 rounded-md border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-3 py-1.5 text-xs font-medium text-[var(--marinara-chat-chrome-button-text-hover)] transition-colors hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <Wand2 size={12} />
@@ -1226,6 +1244,7 @@ export function MobileMapButton({
                   <button
                     type="button"
                     onClick={handleTravel}
+                    data-testid="game-map-mobile-set-destination-button"
                     className="shrink-0 rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-3 py-1.5 text-[0.6875rem] font-semibold text-[var(--marinara-chat-chrome-button-text-hover)] transition-colors hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] active:opacity-80"
                   >
                     {localizeUi("ui.game.mobilemapbutton.setDestination")}

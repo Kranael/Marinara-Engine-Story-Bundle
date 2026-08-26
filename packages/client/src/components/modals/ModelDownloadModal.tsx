@@ -608,6 +608,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
             <button
               onClick={() => setShowRuntimeSettings((current) => !current)}
               className="flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] px-3 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--secondary)]"
+              data-testid="model-download-toggle-runtime-settings-button"
             >
               <Settings2 size="0.875rem" />
               {localizeUi("ui.modals.modeldownloadmodal.runtimeSettings")}
@@ -621,6 +622,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                 <button
                   onClick={() => void installRuntime()}
                   className="mari-chrome-accent-surface mari-accent-animated flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors"
+                  data-testid="model-download-install-runtime-button"
                 >
                   <Download size="0.875rem" />
                   {activeBackend === "mlx"
@@ -633,6 +635,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                     <button
                       onClick={() => void restartRuntime()}
                       className="mari-chrome-accent-surface mari-accent-animated flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors"
+                      data-testid="model-download-restart-runtime-button"
                     >
                       <Loader2 size="0.875rem" />
                       {status === "server_error"
@@ -646,6 +649,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                     <button
                       onClick={() => void reinstallRuntime()}
                       className="flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--secondary)]"
+                      data-testid="model-download-reinstall-runtime-button"
                     >
                       <Download size="0.875rem" />
                       {localizeUi("ui.modals.modeldownloadmodal.reinstallRuntime")}
@@ -660,6 +664,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                 }}
                 disabled={!hasModel || !runtime.installed || testMessagePending}
                 className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-300 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                data-testid="model-download-send-test-message-button"
               >
                 {testMessagePending ? (
                   <Loader2 size="0.875rem" className="animate-spin" />
@@ -691,6 +696,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                             handleRuntimePreferenceChange(event.target.value as SidecarRuntimePreference)
                           }
                           className="w-full appearance-none rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 pr-10 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                          data-testid="model-download-runtime-preference-select"
                         >
                           {runtimePreferenceOptions.map((option) => (
                             <option key={option} value={option}>
@@ -732,6 +738,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                             handleGpuLayersModeChange(event.target.value as "auto" | "cpu" | "custom")
                           }
                           className="w-full appearance-none rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 pr-10 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                          data-testid="model-download-gpu-layers-mode-select"
                         >
                           <option value="auto">{localizeUi("ui.modals.modeldownloadmodal.autoOffload")}</option>
                           <option value="cpu">{localizeUi("ui.modals.modeldownloadmodal.cpuOnly")}</option>
@@ -755,10 +762,12 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                             placeholder="1-1024"
                             inputMode="numeric"
                             className="w-24 shrink-0 rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 text-center text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                            data-testid="model-download-gpu-layers-input"
                           />
                           <button
                             onClick={handleApplyCustomGpuLayers}
                             className="flex shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)]/70 px-4 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--card)]"
+                            data-testid="model-download-apply-gpu-layers-button"
                           >
                             {localizeUi("ui.modals.modeldownloadmodal.apply")}
                           </button>
@@ -793,6 +802,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       type="button"
                       onClick={handleNativeToolCallsToggle}
                       className="flex shrink-0 items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)]/70 px-3 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--card)]"
+                      data-testid="model-download-native-tool-calls-toggle"
                     >
                       <span
                         className={`relative h-4 w-7 rounded-full transition-colors ${
@@ -835,6 +845,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                             handleEmbeddingPoolingChange(event.target.value as SidecarEmbeddingPooling)
                           }
                           className="w-full appearance-none rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 pr-10 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                          data-testid="model-download-embedding-pooling-select"
                         >
                           {SIDECAR_EMBEDDING_POOLING_TYPES.map((pooling) => (
                             <option key={pooling} value={pooling}>
@@ -865,11 +876,13 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                           inputMode="numeric"
                           placeholder="512"
                           className="min-w-0 flex-1 rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                          data-testid="model-download-embedding-batch-size-input"
                         />
                         <button
                           onClick={handleApplyEmbeddingBatchSize}
                           disabled={!embeddingBatchSizeValid || !embeddingBatchSizeDirty}
                           className="flex shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)]/70 px-4 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--card)] disabled:cursor-not-allowed disabled:opacity-50"
+                          data-testid="model-download-apply-embedding-batch-size-button"
                         >
                           {localizeUi("ui.modals.modeldownloadmodal.apply")}
                         </button>
@@ -899,6 +912,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       inputMode="numeric"
                       placeholder="8192"
                       className="rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                      data-testid="model-download-context-size-input"
                     />
                   </label>
 
@@ -912,6 +926,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       inputMode="numeric"
                       placeholder="4096"
                       className="rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                      data-testid="model-download-max-tokens-input"
                     />
                   </label>
 
@@ -925,6 +940,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       inputMode="decimal"
                       placeholder="0.3"
                       className="rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                      data-testid="model-download-temperature-input"
                     />
                   </label>
 
@@ -938,6 +954,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       inputMode="decimal"
                       placeholder="0.95"
                       className="rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                      data-testid="model-download-top-p-input"
                     />
                   </label>
 
@@ -951,6 +968,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       inputMode="numeric"
                       placeholder="64"
                       className="rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                      data-testid="model-download-top-k-input"
                     />
                   </label>
 
@@ -966,6 +984,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       max={16}
                       placeholder="2"
                       className="rounded-xl border border-[var(--border)] bg-[var(--card)]/80 px-3 py-2 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
+                      data-testid="model-download-max-parallel-jobs-input"
                     />
                   </label>
                 </div>
@@ -977,6 +996,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                     onClick={handleApplyGenerationSettings}
                     disabled={!generationSettingsValid || !generationSettingsDirty}
                     className="flex shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)]/70 px-4 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--card)] disabled:cursor-not-allowed disabled:opacity-50"
+                    data-testid="model-download-apply-generation-settings-button"
                   >
                     {localizeUi("ui.modals.modeldownloadmodal.applySettings")}
                   </button>
@@ -1030,6 +1050,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                     <button
                       onClick={() => void restartRuntime()}
                       className="flex items-center justify-center gap-2 rounded-xl bg-amber-500/15 px-4 py-2.5 text-sm font-medium text-amber-200 transition-colors hover:bg-amber-500/25"
+                      data-testid="model-download-startup-error-retry-button"
                     >
                       <Loader2 size="0.875rem" />
                       {localizeUi("ui.modals.modeldownloadmodal.retryStartup")}
@@ -1038,6 +1059,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       <button
                         onClick={() => void reinstallRuntime()}
                         className="flex items-center justify-center gap-2 rounded-xl border border-amber-500/20 px-4 py-2.5 text-sm text-amber-100 transition-colors hover:bg-amber-500/10"
+                        data-testid="model-download-startup-error-reinstall-button"
                       >
                         <Download size="0.875rem" />
                         {localizeUi("ui.modals.modeldownloadmodal.reinstallRuntime")}
@@ -1046,6 +1068,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                     <button
                       onClick={() => void updateConfig({ useForTrackers: false, useForGameScene: false })}
                       className="flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)]"
+                      data-testid="model-download-continue-without-local-ai-button"
                     >
                       {localizeUi("ui.modals.modeldownloadmodal.continueWithoutLocalAi")}
                     </button>
@@ -1251,6 +1274,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                     checked={selectedQuant === model.quantization}
                     onChange={() => setSelectedQuant(model.quantization)}
                     className="sr-only"
+                    data-testid={`model-download-curated-quant-${model.backend}-${model.quantization}`}
                   />
                   <div
                     className={`h-4 w-4 shrink-0 rounded-full border-2 transition-colors ${
@@ -1289,6 +1313,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                 onClick={handleCuratedDownload}
                 disabled={!selectedPreset}
                 className="mari-chrome-accent-surface mari-accent-animated mt-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50"
+                data-testid="model-download-curated-download-button"
               >
                 <Zap size="0.875rem" />
                 {hasModel
@@ -1321,11 +1346,13 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                     }}
                     placeholder={localizeUi("ui.modals.modeldownloadmodal.ownerRepo")}
                     className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)]"
+                    data-testid="model-download-repo-input"
                   />
                   <button
                     onClick={() => void handleListModels()}
                     disabled={!repoInput.trim() || customModelsLoading}
                     className="flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--secondary)] disabled:opacity-50"
+                    data-testid="model-download-list-models-button"
                   >
                     {customModelsLoading ? (
                       <Loader2 size="0.875rem" className="animate-spin" />
@@ -1361,6 +1388,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       value={selectedCustomPath}
                       onChange={(event) => setSelectedCustomPath(event.target.value)}
                       className="rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--marinara-chat-chrome-input-border-focus)]"
+                      data-testid="model-download-custom-model-select"
                     >
                       {customModels.map((entry) => (
                         <option key={entry.path} value={entry.path}>
@@ -1382,6 +1410,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                       onClick={handleCustomDownload}
                       disabled={!selectedCustomPath}
                       className="flex items-center justify-center gap-2 rounded-xl bg-sky-500/15 px-4 py-2.5 text-sm font-medium text-sky-300 transition-colors hover:bg-sky-500/25 disabled:opacity-50"
+                      data-testid="model-download-custom-gguf-download-button"
                     >
                       <Download size="0.875rem" />
                       {hasModel
@@ -1396,6 +1425,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                     onClick={handleCustomDownload}
                     disabled={!repoInput.trim() || customModelsLoading || !isCustomRepoValidated}
                     className="flex items-center justify-center gap-2 rounded-xl bg-sky-500/15 px-4 py-2.5 text-sm font-medium text-sky-300 transition-colors hover:bg-sky-500/25 disabled:opacity-50"
+                    data-testid="model-download-mlx-validated-repo-download-button"
                   >
                     <Download size="0.875rem" />
                     {hasModel
@@ -1419,6 +1449,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
             <button
               onClick={handleCancelSetup}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)]"
+              data-testid="model-download-cancel-setup-button"
             >
               <X size="0.875rem" />
               {localizeUi("ui.modals.modeldownloadmodal.cancelSetup")}
@@ -1428,6 +1459,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
               <button
                 onClick={handleSkip}
                 className="flex-1 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)]"
+                data-testid="model-download-skip-button"
               >
                 {hasModel
                   ? localizeUi("capabilities.actions.close")
@@ -1437,6 +1469,7 @@ export function ModelDownloadModal({ open, onClose }: Props) {
                 onClick={handleDone}
                 disabled={!canFinish}
                 className="mari-chrome-accent-surface mari-accent-animated flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                data-testid="model-download-done-button"
               >
                 {localizeUi("lorebook.editor.batch.done")}
               </button>

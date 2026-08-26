@@ -39,12 +39,14 @@ export function ChatNameSection({
               onChange={(e) => onNameValueChange(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && onSaveName()}
               autoFocus
+              data-testid="chat-name-input"
               className="mari-chrome-field min-w-0 flex-1 !rounded-md px-3 py-2 text-xs"
             />
             <button
               type="button"
               aria-label={localizeUi("ui.chatSettings.chatnamesection.saveChatName")}
               onClick={onSaveName}
+              data-testid="chat-name-save-button"
               className="mari-agent-settings-action mari-agent-settings-action--primary shrink-0 !rounded-md px-3 py-2 text-xs"
             >
               <Check size="0.75rem" />
@@ -54,6 +56,7 @@ export function ChatNameSection({
           <button
             type="button"
             onClick={onBeginEdit}
+            data-testid="chat-name-edit-button"
             className="mari-chrome-field w-full !rounded-md px-3 py-2 text-left text-xs transition-colors hover:bg-[var(--marinara-chat-chrome-button-bg-hover)]"
           >
             {chatName}
@@ -69,6 +72,7 @@ export function ChatNameSection({
           className="group flex w-full min-w-0 items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--secondary)]/50 px-3 py-2 text-left transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           title={localizeUi("ui.chatSettings.chatnamesection.copyChatId")}
           aria-label={localizeUi("ui.chatSettings.chatnamesection.copyChatId")}
+          data-testid="chat-name-copy-id-button"
         >
           <span className="shrink-0 text-[0.625rem] font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
             {localizeUi("ui.chatSettings.chatnamesection.chatId")}

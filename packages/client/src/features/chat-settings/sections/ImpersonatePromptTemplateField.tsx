@@ -181,6 +181,7 @@ export function ImpersonatePromptTemplateField() {
           onChange={(event) => {
             void handleSelectPromptTemplate(event.target.value || null);
           }}
+          data-testid="impersonate-prompt-template-select"
           className="min-w-0 max-w-[55%] rounded-lg bg-[var(--secondary)] px-2 py-1 text-[0.6875rem] font-medium text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] focus:ring-2 focus:ring-[var(--ring)]"
           aria-label={localizeUi("ui.chatSettings.impersonatesection.activePromptTemplate")}
         >
@@ -205,6 +206,7 @@ export function ImpersonatePromptTemplateField() {
           value={displayedPromptTemplate}
           onChange={setPromptTemplate}
           readOnly={usingBuiltInDefault || saveAsPending}
+          testId="impersonate-prompt-template"
           placeholder={localizeUi("ui.chatSettings.impersonatesection.emptyUseChatBuiltInDefault")}
           rows={4}
           title={localizeUi("ui.chatSettings.impersonatesection.promptTemplate")}
@@ -215,13 +217,13 @@ export function ImpersonatePromptTemplateField() {
       </div>
       <div className="flex flex-wrap items-center justify-end gap-1">
         {usingBuiltInDefault && (
-          <AgentSettingsActionButton onClick={handleStartStandalonePrompt} disabled={saveAsPending}>
+          <AgentSettingsActionButton onClick={handleStartStandalonePrompt} disabled={saveAsPending} data-testid="impersonate-prompt-copy-default-button">
             <Copy size="0.625rem" />
             {localizeUi("ui.chatSettings.impersonatesection.copyBuiltInDefaultToEdit")}
           </AgentSettingsActionButton>
         )}
         {displayedPromptTemplate.trim() && (
-          <AgentSettingsActionButton onClick={handleStartSaveAs} disabled={promptTemplateCatalogBusy}>
+          <AgentSettingsActionButton onClick={handleStartSaveAs} disabled={promptTemplateCatalogBusy} data-testid="impersonate-prompt-save-as-button">
             <Copy size="0.625rem" />
             {localizeUi("ui.chatSettings.impersonatesection.saveAs")}
           </AgentSettingsActionButton>
@@ -233,6 +235,7 @@ export function ImpersonatePromptTemplateField() {
             }}
             disabled={!hasPromptTemplate || !promptIsDirty || promptTemplateCatalogBusy}
             variant="primary"
+            data-testid="impersonate-prompt-save-button"
           >
             <Save size="0.625rem" />
             {localizeUi("ui.chatSettings.impersonatesection.save")}
@@ -245,6 +248,7 @@ export function ImpersonatePromptTemplateField() {
             iconOnly
             title={localizeUi("ui.chatSettings.impersonatesection.resetUnsavedChanges")}
             aria-label={localizeUi("ui.chatSettings.impersonatesection.resetUnsavedChanges")}
+            data-testid="impersonate-prompt-reset-button"
           >
             <RotateCcw size="0.6875rem" />
           </AgentSettingsActionButton>
@@ -259,6 +263,7 @@ export function ImpersonatePromptTemplateField() {
             variant="danger"
             title={localizeUi("ui.chatSettings.impersonatesection.deleteTemplate")}
             aria-label={localizeUi("ui.chatSettings.impersonatesection.deleteTemplate")}
+            data-testid="impersonate-prompt-delete-button"
           >
             <Trash2 size="0.6875rem" />
           </AgentSettingsActionButton>
@@ -277,6 +282,7 @@ export function ImpersonatePromptTemplateField() {
             }}
             maxLength={IMPERSONATE_PROMPT_TEMPLATE_MAX_NAME_LENGTH}
             placeholder={localizeUi("ui.chatSettings.impersonatesection.templateName")}
+            data-testid="impersonate-prompt-template-name-input"
             className="min-w-40 flex-1 rounded-md bg-[var(--card)] px-2 py-1 text-xs text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] focus:ring-2 focus:ring-[var(--ring)]"
           />
           <AgentSettingsActionButton
@@ -286,6 +292,7 @@ export function ImpersonatePromptTemplateField() {
             disabled={saveAsPending}
             iconOnly
             aria-label={localizeUi("ui.chatSettings.impersonatesection.cancel")}
+            data-testid="impersonate-prompt-cancel-save-as-button"
           >
             <X size="0.75rem" />
           </AgentSettingsActionButton>
@@ -295,6 +302,7 @@ export function ImpersonatePromptTemplateField() {
             }}
             disabled={!templateNameDraft.trim() || !displayedPromptTemplate.trim() || promptTemplateCatalogBusy}
             variant="primary"
+            data-testid="impersonate-prompt-confirm-save-as-button"
           >
             <Save size="0.6875rem" />
             {localizeUi("ui.chatSettings.impersonatesection.saveAs")}
@@ -304,7 +312,7 @@ export function ImpersonatePromptTemplateField() {
       {promptTemplatesQuery.isError && (
         <div className="flex items-center justify-between gap-2 rounded-lg bg-[var(--destructive)]/10 px-2.5 py-2 text-[0.6875rem] text-[var(--destructive)]">
           <span>{localizeUi("ui.chatSettings.impersonatesection.loadFailed")}</span>
-          <AgentSettingsActionButton onClick={() => void promptTemplatesQuery.refetch()} className="shrink-0">
+          <AgentSettingsActionButton onClick={() => void promptTemplatesQuery.refetch()} className="shrink-0" data-testid="impersonate-prompt-retry-button">
             {localizeUi("ui.chatSettings.impersonatesection.retry")}
           </AgentSettingsActionButton>
         </div>

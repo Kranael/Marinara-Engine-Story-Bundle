@@ -783,6 +783,7 @@ export function CharactersPanel() {
       <div className="flex gap-2">
         <button
           onClick={() => openModal("create-character")}
+          data-testid="characters-panel-create-character-button"
           className="mari-panel-gradient-button mari-panel-gradient--characters flex-1 text-xs"
           title={localizeUi("ui.lorebooks.lorebookassignmentsection.new")}
         >
@@ -790,6 +791,7 @@ export function CharactersPanel() {
         </button>
         <button
           onClick={() => openModal("import-character")}
+          data-testid="characters-panel-import-character-button"
           className="mari-chrome-control mari-chrome-control--primary flex-1 text-xs"
           title={localizeUi("ui.chat.chatbranchselector.import")}
         >
@@ -803,6 +805,7 @@ export function CharactersPanel() {
               setSelectionMode(true);
             }
           }}
+          data-testid="characters-panel-select-button"
           className={cn(
             "mari-chrome-control mari-chrome-control--primary flex-1 text-xs",
             selectionMode && "mari-chrome-control--selected",
@@ -829,6 +832,7 @@ export function CharactersPanel() {
           <select
             value={sort}
             onChange={(e) => setCharacterLibrarySort(e.target.value as CharacterLibrarySort)}
+            data-testid="characters-panel-sort-select"
             className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
             title={localizeUi("ui.panels.agentspanel.sortOrder")}
           >
@@ -849,6 +853,7 @@ export function CharactersPanel() {
         <div className="flex items-center gap-1">
           <button
             onClick={handleCreateFolder}
+            data-testid="characters-panel-create-folder-button"
             className="mari-chrome-control mari-chrome-control--small flex-1 justify-start text-[0.6875rem]"
           >
             <FolderPlus size="0.75rem" />
@@ -868,6 +873,7 @@ export function CharactersPanel() {
           <button
             key={opt}
             onClick={() => setFavFilter(opt)}
+            data-testid={`characters-panel-fav-filter-${opt}`}
             className={cn(
               "mari-chrome-control mari-chrome-control--compact",
               favFilter === opt && "mari-chrome-control--selected",
@@ -883,6 +889,7 @@ export function CharactersPanel() {
         {allTags.length > 0 && (
           <button
             onClick={() => setTagsExpanded(!tagsExpanded)}
+            data-testid="characters-panel-tags-toggle-button"
             className={cn(
               "mari-chrome-control mari-chrome-control--compact",
               (includedTags.size > 0 || excludedTags.size > 0) && "mari-chrome-control--selected",
@@ -900,6 +907,7 @@ export function CharactersPanel() {
           {(includedTags.size > 0 || excludedTags.size > 0) && (
             <button
               onClick={clearTagFilters}
+              data-testid="characters-panel-clear-tag-filters-button"
               className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--danger"
             >
               <X size="0.5rem" /> {localizeUi("lorebook.editor.batch.clear")}
@@ -913,6 +921,7 @@ export function CharactersPanel() {
                 key={tag}
                 role="button"
                 tabIndex={0}
+                data-testid={`characters-panel-tag-toggle-${tag}`}
                 onClick={() => toggleIncludedTag(tag)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -932,6 +941,7 @@ export function CharactersPanel() {
                     e.stopPropagation();
                     handleDeleteTag(tag);
                   }}
+                  data-testid={`characters-panel-delete-tag-button-${tag}`}
                   className="rounded-full p-0.5 transition-colors hover:bg-[var(--destructive)]/20 hover:text-[var(--destructive)]"
                   title={localizeUi("ui.panels.characterspanel.deleteTagValue1", { value1: tag })}
                 >
@@ -1016,6 +1026,7 @@ export function CharactersPanel() {
                     <input
                       autoFocus
                       value={editGroupName}
+                      data-testid={`characters-panel-folder-name-input-${group.id}`}
                       onChange={(e) => setEditGroupName(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") e.currentTarget.blur();
@@ -1059,6 +1070,7 @@ export function CharactersPanel() {
                       e.stopPropagation();
                       void handleDeleteGroup(group);
                     }}
+                    data-testid={`characters-panel-delete-folder-button-${group.id}`}
                     className="mari-chrome-control mari-chrome-control--small p-1"
                     title={localizeUi("ui.panels.backgroundpicker.deleteFolder")}
                   >
@@ -1153,6 +1165,7 @@ export function CharactersPanel() {
                               ? localizeUi("ui.panels.characterspanel.deselectCharacter")
                               : localizeUi("ui.panels.ttsconfigcard.selectCharacter")
                           }
+                          data-testid={`character-folder-select-checkbox-${memberId}`}
                           className={cn(
                             "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
                             isBulkSelected
@@ -1268,6 +1281,7 @@ export function CharactersPanel() {
                                   e.stopPropagation();
                                   toggleIncludedTag(tag);
                                 }}
+                                data-testid={`character-folder-tag-${tag}`}
                                 className="mari-chrome-muted-badge cursor-pointer px-1.5 py-px text-[0.5rem] transition-all hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
                               >
                                 {tag}
@@ -1496,6 +1510,7 @@ export function CharactersPanel() {
                       ? localizeUi("ui.panels.characterspanel.deselectCharacter")
                       : localizeUi("ui.panels.ttsconfigcard.selectCharacter")
                   }
+                  data-testid={`character-select-checkbox-${char.id}`}
                   className={cn(
                     "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
                     isBulkSelected
@@ -1605,6 +1620,7 @@ export function CharactersPanel() {
                           e.stopPropagation();
                           toggleIncludedTag(tag);
                         }}
+                        data-testid={`character-tag-${tag}`}
                         className="mari-chrome-muted-badge cursor-pointer px-1.5 py-px text-[0.5rem] transition-all hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
                       >
                         {tag}
@@ -1724,6 +1740,7 @@ export function CharactersPanel() {
               type="button"
               onClick={() => void handleMoveSelected()}
               disabled={selectedCharacterIds.size === 0 || parsedGroups.length === 0 || movingSelected}
+              data-testid="characters-panel-move-selected-button"
               className="mari-chrome-control flex-1 px-3 py-2 text-xs"
               title={localizeUi("lorebook.editor.batch.move")}
             >

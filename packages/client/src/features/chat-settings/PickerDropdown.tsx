@@ -43,12 +43,14 @@ export function PickerDropdown({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={placeholder}
           autoFocus
+          data-testid="picker-dropdown-search-input"
           className="flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
         />
         <button
           type="button"
           aria-label={localizeUi("ui.chatSettings.pickerdropdown.closePicker")}
           onClick={onClose}
+          data-testid="picker-dropdown-close-button"
           className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
         >
           <X size="0.75rem" />

@@ -68,6 +68,7 @@ export function MusicSourceButton({ source, className }: { source: MusicPlayerSo
       )}
       title={localizeUi("ui.music.musicsourcebutton.switchToValue1Player", { value1: labels[nextSource] })}
       aria-label={localizeUi("ui.music.musicsourcebutton.switchToValue1Player", { value1: labels[nextSource] })}
+      data-testid="music-source-toggle-button"
     >
       <MusicSourceGlyph source={source} />
     </button>

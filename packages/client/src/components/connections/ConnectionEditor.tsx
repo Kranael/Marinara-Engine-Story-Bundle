@@ -1365,7 +1365,7 @@ export function ConnectionEditor() {
     <div className="mari-editor-shell mari-editor-legacy-bridge flex flex-1 flex-col overflow-hidden">
       {/* ── Header ── */}
       <div className="mari-editor-header">
-        <button onClick={handleClose} className="mari-editor-action inline-flex shrink-0">
+        <button onClick={handleClose} className="mari-editor-action inline-flex shrink-0" data-testid="connection-editor-back-button">
           <ArrowLeft size="1.125rem" />
         </button>
         <div className="mari-editor-icon-tile">
@@ -1379,6 +1379,7 @@ export function ConnectionEditor() {
           }}
           className="mari-editor-title-input min-w-0 flex-1 placeholder:text-[var(--marinara-editor-muted)]"
           placeholder={localizeUi("ui.connections.connectioneditor.connectionName")}
+          data-testid="connection-editor-header-name-input"
         />
         <div className="mari-editor-actions flex shrink-0">
           {saveError && (
@@ -1402,6 +1403,7 @@ export function ConnectionEditor() {
             onClick={handleSave}
             disabled={updateConnection.isPending || saveConnectionDefaults.isPending || !!swarmUiWorkflowError}
             className="mari-editor-action mari-editor-action--primary inline-flex disabled:opacity-50"
+            data-testid="connection-editor-save-button"
           >
             <Save size="0.8125rem" /> <span className="max-md:hidden">{localizeUi("ui.noodle.noodlehome.save")}</span>
           </button>
@@ -1410,6 +1412,7 @@ export function ConnectionEditor() {
             className="mari-editor-action inline-flex"
             title={localizeUi("ui.connections.connectioneditor.exportConnection")}
             aria-label={localizeUi("ui.connections.connectioneditor.exportConnection")}
+            data-testid="connection-editor-export-button"
           >
             <Upload size="0.9375rem" />
           </button>
@@ -1418,6 +1421,7 @@ export function ConnectionEditor() {
             className="mari-editor-action inline-flex"
             title={localizeUi("ui.connections.connectioneditor.deleteConnection")}
             aria-label={localizeUi("ui.connections.connectioneditor.deleteConnection")}
+            data-testid="connection-editor-delete-button"
           >
             <Trash2 size="0.9375rem" />
           </button>
@@ -1432,12 +1436,14 @@ export function ConnectionEditor() {
             <button
               onClick={() => setShowUnsavedWarning(false)}
               className="mari-editor-action mari-editor-action--compact inline-flex rounded-lg px-3 py-1"
+              data-testid="connection-editor-unsaved-keep-editing-button"
             >
               {localizeUi("ui.connections.connectioneditor.keepEditing")}
             </button>
             <button
               onClick={() => closeConnectionDetail()}
               className="mari-editor-action mari-editor-action--accent mari-editor-action--compact inline-flex rounded-lg px-3 py-1"
+              data-testid="connection-editor-unsaved-discard-button"
             >
               {localizeUi("ui.connections.connectioneditor.discard")}
             </button>
@@ -1451,6 +1457,7 @@ export function ConnectionEditor() {
                 }
               }}
               className="mari-editor-action mari-editor-action--primary mari-editor-action--compact inline-flex rounded-lg px-3 py-1"
+              data-testid="connection-editor-unsaved-save-close-button"
             >
               {localizeUi("ui.connections.connectioneditor.saveClose")}
             </button>
@@ -1463,7 +1470,7 @@ export function ConnectionEditor() {
         <div className="flex items-center gap-2 bg-red-500/10 px-4 py-2 text-xs text-red-400">
           <AlertCircle size="0.8125rem" />
           <span className="flex-1">{saveError}</span>
-          <button onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20">
+          <button onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20" data-testid="connection-editor-dismiss-save-error-button">
             <X size="0.75rem" />
           </button>
         </div>
@@ -1486,6 +1493,7 @@ export function ConnectionEditor() {
               }}
               className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
               placeholder={localizeUi("ui.connections.connectioneditor.eGClaudeSonnetRp")}
+              data-testid="connection-editor-name-input"
             />
           </FieldGroup>
 
@@ -1500,6 +1508,7 @@ export function ConnectionEditor() {
                 <button
                   key={key}
                   type="button"
+                  data-testid={`connection-editor-provider-${key}`}
                   onClick={() => {
                     if (key === localProvider) return;
                     const defaultModel = MODEL_LISTS[key]?.[0];
@@ -1677,6 +1686,7 @@ export function ConnectionEditor() {
                 }}
                 className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                 placeholder={localizeUi("ui.connections.connectioneditor.eGAnthropicGoogleAmazonBedrock")}
+                data-testid="connection-editor-openrouter-provider-input"
               />
               <p className="mt-1 text-[0.625rem] text-[var(--muted-foreground)]">
                 {localizeUi("ui.connections.connectioneditor.forcesOpenrouterToRouteThroughASpecificProviderThe")}{" "}
@@ -1710,6 +1720,7 @@ export function ConnectionEditor() {
                   type="password"
                   className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                   placeholder={localizeUi("ui.connections.connectioneditor.leaveEmptyToKeepExistingKey")}
+                  data-testid="connection-editor-api-key-input"
                 />
                 <p className="mt-1 text-[0.625rem] text-[var(--muted-foreground)]">
                   {localizeUi("ui.connections.connectioneditor.yourKeyIsEncryptedAtRestLeaveBlankWhen")}
@@ -1749,6 +1760,7 @@ export function ConnectionEditor() {
                     baseUrlValidation.error ? "ring-[var(--destructive)]" : "ring-[var(--border)]",
                   )}
                   placeholder={providerDef?.defaultBaseUrl || "https://api.example.com/v1"}
+                  data-testid="connection-editor-base-url-input"
                 />
                 {providerDef?.defaultBaseUrl && !localBaseUrl && (
                   <p className="mt-1 text-[0.625rem] text-[var(--muted-foreground)]">
@@ -1831,6 +1843,7 @@ export function ConnectionEditor() {
                   return (
                     <button
                       key={src.id}
+                      data-testid={`connection-editor-image-service-${src.id}`}
                       onClick={() => {
                         const previousSource = IMAGE_GENERATION_SOURCES.find(
                           (candidate) => candidate.id === selectedImageService,
@@ -1909,6 +1922,7 @@ export function ConnectionEditor() {
                   return (
                     <button
                       key={src.id}
+                      data-testid={`connection-editor-video-service-${src.id}`}
                       onClick={() => {
                         const previousSource = VIDEO_GENERATION_SOURCES.find(
                           (candidate) => candidate.id === selectedVideoProvider,
@@ -1973,6 +1987,7 @@ export function ConnectionEditor() {
                   return (
                     <button
                       key={src.id}
+                      data-testid={`connection-editor-audio-source-${src.id}`}
                       onClick={() => {
                         if (localAudioSource === src.id) return;
                         const previousSource = AUDIO_SOURCE_OPTIONS.find(
@@ -2029,6 +2044,7 @@ export function ConnectionEditor() {
                     AUDIO_SOURCE_OPTIONS.find((candidate) => candidate.id === localAudioSource)?.defaultVoice ||
                     localizeUi("ui.connections.connectioneditor.eGAVoiceIdFromYourProvider")
                   }
+                  data-testid="connection-editor-audio-voice-input"
                 />
                 <p className="text-[0.625rem] leading-relaxed text-[var(--muted-foreground)]">
                   {localizeUi("ui.connections.connectioneditor.voiceIdOrNameUsedWhenNothingMoreSpecific")}
@@ -2046,6 +2062,7 @@ export function ConnectionEditor() {
                       setLocalAudioSoundEffects(checked);
                       markDirty();
                     }}
+                    testId="connection-editor-audio-sound-effects-switch"
                   />
                   <SettingsSwitch
                     label={localizeUi("ui.connections.connectioneditor.gameMusic")}
@@ -2057,6 +2074,7 @@ export function ConnectionEditor() {
                       setLocalAudioMusic(checked);
                       markDirty();
                     }}
+                    testId="connection-editor-audio-music-switch"
                   />
                 </div>
               ) : (
@@ -2079,6 +2097,7 @@ export function ConnectionEditor() {
             <div ref={modelDropdownRef} className={cn("relative min-w-0", showModelDropdown && "z-50")}>
               <div
                 onClick={() => setShowModelDropdown(!showModelDropdown)}
+                data-testid="connection-editor-model-dropdown-trigger"
                 className={cn(
                   "relative flex min-w-0 cursor-pointer items-center gap-2 rounded-xl bg-[var(--secondary)] px-3 py-2.5 ring-1 ring-[var(--border)] transition-all hover:ring-[var(--ring)]",
                   showModelDropdown && "z-50 ring-sky-400/50",
@@ -2094,6 +2113,7 @@ export function ConnectionEditor() {
                     placeholder={localizeUi("ui.connections.connectioneditor.searchModels")}
                     autoFocus
                     onClick={(e) => e.stopPropagation()}
+                    data-testid="connection-editor-model-search-input"
                   />
                 ) : (
                   <span
@@ -2130,6 +2150,7 @@ export function ConnectionEditor() {
                         }}
                         disabled={fetchModels.isPending}
                         className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-sky-400/10 px-3 py-2 text-xs font-medium text-sky-400 transition-all hover:bg-sky-400/20 active:scale-[0.98] disabled:opacity-50"
+                        data-testid="connection-editor-fetch-models-button"
                       >
                         {fetchModels.isPending ? (
                           <Loader2 size="0.75rem" className="animate-spin" />
@@ -2162,6 +2183,7 @@ export function ConnectionEditor() {
                         onChange={(e) => handleManualModelChange(e.target.value)}
                         className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-sky-400/50"
                         placeholder={localizeUi("ui.connections.connectioneditor.modelNameOrPath")}
+                        data-testid="connection-editor-custom-model-input"
                       />
                       {/* Show fetched models for custom provider */}
                       {remoteModels.length > 0 && (
@@ -2176,6 +2198,7 @@ export function ConnectionEditor() {
                               <button
                                 key={m.id}
                                 onClick={() => selectModel({ ...m, isRemote: true })}
+                                data-testid={`connection-editor-custom-model-option-${m.id}`}
                                 className={cn(
                                   "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-[var(--accent)]",
                                   localModel === m.id && "bg-sky-400/5",
@@ -2201,6 +2224,7 @@ export function ConnectionEditor() {
                           setModelSearch("");
                         }}
                         className="mt-2 w-full rounded-lg bg-sky-400/10 px-3 py-1.5 text-xs font-medium text-sky-400 hover:bg-sky-400/20"
+                        data-testid="connection-editor-model-dropdown-done-button"
                       >
                         {localizeUi("lorebook.editor.batch.done")}
                       </button>
@@ -2213,6 +2237,7 @@ export function ConnectionEditor() {
                         onChange={(e) => handleManualModelChange(e.target.value)}
                         className="mt-2 w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-sky-400/50"
                         placeholder={localizeUi("ui.connections.connectioneditor.customModelId")}
+                        data-testid="connection-editor-no-results-model-input"
                       />
                     </div>
                   ) : (
@@ -2220,6 +2245,7 @@ export function ConnectionEditor() {
                       <button
                         key={m.id}
                         onClick={() => selectModel(m)}
+                        data-testid={`connection-editor-model-option-${m.id}`}
                         className={cn(
                           "flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[var(--accent)]",
                           localModel === m.id && "bg-sky-400/5",
@@ -2268,6 +2294,7 @@ export function ConnectionEditor() {
                       ? localizeUi("ui.connections.connectioneditor.optionalTypeAGrokCliModelIdOrLeave")
                       : localizeUi("ui.connections.connectioneditor.orTypeModelIdDirectly")
                   }
+                  data-testid="connection-editor-manual-model-input"
                 />
               </div>
             )}
@@ -2303,6 +2330,7 @@ export function ConnectionEditor() {
                 }}
                 placeholder={localizeUi("ui.connections.connectioneditor.abc123def456")}
                 className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm outline-none ring-1 ring-[var(--border)] transition-shadow placeholder:text-[var(--muted-foreground)]/50 focus:ring-sky-400/50"
+                data-testid="connection-editor-runpod-endpoint-id-input"
               />
             </FieldGroup>
           )}
@@ -2345,6 +2373,7 @@ export function ConnectionEditor() {
                     ? "ring-red-400/60 focus:ring-red-400"
                     : "ring-[var(--border)] focus:ring-sky-400/50",
                 )}
+                data-testid="connection-editor-comfyui-workflow-textarea"
               />
               {swarmUiWorkflowError && (
                 <p className="mt-1 flex items-start gap-1 text-[0.625rem] text-red-400">
@@ -2359,6 +2388,7 @@ export function ConnectionEditor() {
                     <button
                       onClick={handleJumpToJsonError}
                       className="underline decoration-dotted cursor-pointer text-left hover:text-red-300"
+                      data-testid="connection-editor-jump-to-json-error-button"
                     >
                       {comfyWorkflowValidation.label}
                     </button>
@@ -2432,6 +2462,7 @@ export function ConnectionEditor() {
                 }}
                 placeholder={localizeUi("ui.connections.connectioneditor.imagePromptingInstructionsPlaceholder")}
                 className="w-full min-h-[96px] resize-y rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm outline-none ring-1 ring-[var(--border)] transition-shadow placeholder:text-[var(--muted-foreground)]/50 focus:ring-sky-400/50"
+                data-testid="connection-editor-image-prompt-instructions-textarea"
               />
             </FieldGroup>
           )}
@@ -2449,6 +2480,7 @@ export function ConnectionEditor() {
                   markDirty();
                 }}
                 className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm outline-none ring-1 ring-[var(--border)] transition-shadow focus:ring-sky-400/50"
+                data-testid="connection-editor-gpt-image-quality-select"
               >
                 <option value="auto">{localizeUi("ui.connections.connectioneditor.imageQualityAuto")}</option>
                 <option value="low">{localizeUi("ui.connections.connectioneditor.imageQualityLow")}</option>
@@ -2586,6 +2618,7 @@ export function ConnectionEditor() {
                     markDirty();
                   }}
                   className="w-24 rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                  testId="connection-editor-max-parallel-jobs-input"
                 />
                 <span className="text-xs text-[var(--muted-foreground)]">
                   {localMaxParallelJobs === 1
@@ -2620,6 +2653,7 @@ export function ConnectionEditor() {
                     markDirty();
                   }}
                   className="w-24 rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                  testId="connection-editor-max-requests-per-minute-input"
                 />
                 <span className="text-xs text-[var(--muted-foreground)]">
                   {localMaxRequestsPerMinute === null
@@ -2645,6 +2679,7 @@ export function ConnectionEditor() {
                   setLocalTreatAsLocalEndpoint(checked);
                   markDirty();
                 }}
+                testId="connection-editor-treat-as-local-switch"
               />
               <p className="mt-1 text-[0.625rem] text-[var(--muted-foreground)]">
                 {localizeUi("ui.connections.connectioneditor.enableThisIfProfessorMariStopsAfterToolUse")}
@@ -2668,6 +2703,7 @@ export function ConnectionEditor() {
                   markDirty();
                 }}
                 className="mari-preset-native-select w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                data-testid="connection-editor-prompt-preset-select"
               >
                 <option value="">{localizeUi("ui.connections.connectioneditor.useChatSPromptPreset")}</option>
                 {(allPresets ?? []).map((preset) => (
@@ -2698,6 +2734,7 @@ export function ConnectionEditor() {
                   setLocalDefaultParametersEnabled(checked);
                   markDirty();
                 }}
+                testId="connection-editor-custom-defaults-switch"
               />
 
               {localDefaultParametersEnabled ? (
@@ -2725,6 +2762,7 @@ export function ConnectionEditor() {
                         setLocalImageCaptioningEnabled(checked);
                         markDirty();
                       }}
+                      testId="connection-editor-image-captioning-switch"
                     />
                     {localImageCaptioningEnabled && (
                       <label className="block space-y-1.5">
@@ -2738,6 +2776,7 @@ export function ConnectionEditor() {
                             markDirty();
                           }}
                           className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                          data-testid="connection-editor-image-captioning-connection-select"
                         >
                           <option value="">{localizeUi("ui.connections.connectioneditor.useThisConnection")}</option>
                           {((allConnections ?? []) as Record<string, unknown>[])
@@ -2799,6 +2838,7 @@ export function ConnectionEditor() {
                   if (!checked) setLocalAnthropicExtendedCacheTtl(false);
                   markDirty();
                 }}
+                testId="connection-editor-enable-prompt-caching-switch"
               />
               <p className="text-[0.625rem] text-[var(--muted-foreground)] px-2">
                 {localProvider === "anthropic"
@@ -2816,6 +2856,7 @@ export function ConnectionEditor() {
                       setLocalAnthropicExtendedCacheTtl(checked);
                       markDirty();
                     }}
+                    testId="connection-editor-extended-cache-ttl-switch"
                   />
                   <p className="px-2 text-[0.625rem] text-[var(--muted-foreground)]">
                     {localizeUi("ui.connections.connectioneditor.keepsAnthropicCacheEntriesAliveForOneHourInstead")}
@@ -2839,6 +2880,7 @@ export function ConnectionEditor() {
                       }}
                       className="h-8 w-16 rounded-lg bg-[var(--background)] px-2 text-right text-sm outline-none ring-1 ring-[var(--border)] transition-shadow focus:ring-[var(--primary)]/40"
                       selectOnFocus
+                      testId="connection-editor-caching-depth-input"
                     />
                   </label>
                 </div>
@@ -2875,6 +2917,7 @@ export function ConnectionEditor() {
                     "ui.connections.connectioneditor.usesTemporaryPublicLinksWhenSeedanceNeedsFirstLast",
                   )}
                   className="p-1"
+                  testId="connection-editor-seedance-temp-upload-switch"
                 />
                 {localVideoDefaults.seedance.temporaryPublicReferenceUploadEnabled && (
                   <label className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-[var(--card)]/70 px-2 py-1.5 ring-1 ring-[var(--border)]">
@@ -2898,6 +2941,7 @@ export function ConnectionEditor() {
                         markDirty();
                       }}
                       className="h-8 rounded-md bg-[var(--background)] px-2 text-xs ring-1 ring-[var(--border)] focus:outline-none focus:ring-sky-400/50"
+                      data-testid="connection-editor-seedance-upload-expiry-select"
                     >
                       {VIDEO_REFERENCE_UPLOAD_EXPIRY_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -2966,6 +3010,7 @@ export function ConnectionEditor() {
                 labelPosition="start"
                 className="items-start justify-between rounded-xl bg-[var(--secondary)] px-3 py-2.5 ring-1 ring-[var(--border)]"
                 labelClassName="min-w-0 flex-1 text-[0.6875rem] leading-relaxed"
+                testId="connection-editor-claude-fast-mode-switch"
               />
             </FieldGroup>
           )}
@@ -2989,6 +3034,7 @@ export function ConnectionEditor() {
                     }}
                     className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm font-mono ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                     placeholder={localizeUi("ui.connections.connectioneditor.eGTextEmbedding3Small")}
+                    data-testid="connection-editor-embedding-model-input"
                   />
                   <p className="mt-1 text-[0.625rem] text-[var(--muted-foreground)]">
                     {localizeUi(
@@ -3012,6 +3058,7 @@ export function ConnectionEditor() {
                         embeddingBaseUrlValidation.error ? "ring-[var(--destructive)]" : "ring-[var(--border)]",
                       )}
                       placeholder={localizeUi("ui.connections.connectioneditor.eGHttpLocalhost5002V1")}
+                      data-testid="connection-editor-embedding-base-url-input"
                     />
                     {embeddingBaseUrlValidation.error && (
                       <p className="mt-1 text-[0.625rem] text-[var(--destructive)]">
@@ -3048,6 +3095,7 @@ export function ConnectionEditor() {
                     setLocalEmbeddingConnectionId(e.target.value);
                     markDirty();
                   }}
+                  data-testid="connection-editor-embedding-connection-select"
                   className="w-full rounded-xl bg-[var(--secondary)] px-3 py-2.5 text-sm ring-1 ring-[var(--border)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
                 >
                   <option value="">{localizeUi("ui.connections.connectioneditor.sameAsThisConnection")}</option>
@@ -3090,6 +3138,7 @@ export function ConnectionEditor() {
                 onClick={handleTestConnection}
                 disabled={testConnection.isPending}
                 className="flex items-center gap-1.5 rounded-xl bg-sky-400/10 px-4 py-2.5 text-xs font-medium text-sky-400 ring-1 ring-sky-400/20 transition-all hover:bg-sky-400/20 active:scale-[0.98] disabled:opacity-50"
+                data-testid="connection-editor-test-connection-button"
               >
                 {testConnection.isPending ? (
                   <Loader2 size="0.8125rem" className="animate-spin" />
@@ -3103,6 +3152,7 @@ export function ConnectionEditor() {
                   onClick={handleTestMessage}
                   disabled={testMessage.isPending || !canSendTestMessage}
                   className="flex items-center gap-1.5 rounded-xl bg-emerald-400/10 px-4 py-2.5 text-xs font-medium text-emerald-400 ring-1 ring-emerald-400/20 transition-all hover:bg-emerald-400/20 active:scale-[0.98] disabled:opacity-50"
+                  data-testid="connection-editor-test-message-button"
                 >
                   {testMessage.isPending ? (
                     <Loader2 size="0.8125rem" className="animate-spin" />
@@ -3117,6 +3167,7 @@ export function ConnectionEditor() {
                   onClick={handleTestImage}
                   disabled={testImageGeneration.isPending}
                   className="mari-chrome-accent-surface mari-accent-animated flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium transition-all active:scale-[0.98] disabled:opacity-50"
+                  data-testid="connection-editor-test-image-button"
                   title={
                     dirty ? localizeUi("ui.connections.connectioneditor.saveFirstToTestImageGeneration") : undefined
                   }
@@ -3134,6 +3185,7 @@ export function ConnectionEditor() {
                   onClick={handleTestVideo}
                   disabled={testVideoGeneration.isPending}
                   className="mari-chrome-accent-surface mari-accent-animated flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium transition-all active:scale-[0.98] disabled:opacity-50"
+                  data-testid="connection-editor-test-video-button"
                   title={
                     dirty ? localizeUi("ui.connections.connectioneditor.saveFirstToTestVideoGeneration") : undefined
                   }
@@ -3151,6 +3203,7 @@ export function ConnectionEditor() {
                   onClick={handleDiagnoseClaudeSubscription}
                   disabled={diagnoseClaudeSubscription.isPending || !localModel}
                   className="flex items-center gap-1.5 rounded-xl bg-amber-400/10 px-4 py-2.5 text-xs font-medium text-amber-400 ring-1 ring-amber-400/20 transition-all hover:bg-amber-400/20 active:scale-[0.98] disabled:opacity-50"
+                  data-testid="connection-editor-diagnose-claude-subscription-button"
                   title={localizeUi(
                     "ui.connections.connectioneditor.verifyWhichModelTheSdkActuallyBillsAgainstCatches",
                   )}
@@ -3617,6 +3670,7 @@ function ImageGenerationDefaultsPanel({
                 type="button"
                 onClick={onReset}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--card)] px-2.5 py-1.5 text-[0.625rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                data-testid="image-defaults-reset-button"
               >
                 <RotateCcw size="0.6875rem" />
                 {localizeUi("ui.connections.imagegenerationdefaultspanel.reset")}
@@ -3630,6 +3684,7 @@ function ImageGenerationDefaultsPanel({
                 min={-1}
                 max={4_294_967_295}
                 onCommit={updateSeed}
+                testId="image-defaults-seed-input"
               />
               <label className="flex flex-col gap-1 rounded-lg bg-[var(--card)] px-3 py-2 ring-1 ring-[var(--border)]">
                 <div className="flex items-center justify-between gap-2">
@@ -3641,6 +3696,7 @@ function ImageGenerationDefaultsPanel({
                       type="button"
                       onClick={() => updateStyleProfile(suggestedStyleProfile.id)}
                       className="rounded-md bg-[var(--secondary)] px-1.5 py-0.5 text-[0.55rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                      data-testid="image-defaults-use-suggested-style-profile-button"
                     >
                       {localizeUi("ui.connections.imagegenerationdefaultspanel.use")} {suggestedStyleProfile.name}
                     </button>
@@ -3650,6 +3706,7 @@ function ImageGenerationDefaultsPanel({
                   value={value.styleProfileId ?? ""}
                   onChange={(event) => updateStyleProfile(event.target.value)}
                   className="rounded-md border border-[var(--border)] bg-[var(--secondary)] px-2 py-1.5 text-xs text-[var(--foreground)]"
+                  data-testid="image-defaults-style-profile-select"
                 >
                   <option value="">{localizeUi("ui.connections.imagegenerationdefaultspanel.useGlobalDefault")}</option>
                   {styleProfiles.profiles.map((profile) => (
@@ -3673,6 +3730,7 @@ function ImageGenerationDefaultsPanel({
                     min={1}
                     max={150}
                     onCommit={(steps) => updateAutomatic1111({ steps })}
+                    testId="image-defaults-automatic1111-steps-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.cfgScale")}
@@ -3681,6 +3739,7 @@ function ImageGenerationDefaultsPanel({
                     max={30}
                     integer={false}
                     onCommit={(cfgScale) => updateAutomatic1111({ cfgScale })}
+                    testId="image-defaults-automatic1111-cfg-scale-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.clipSkip")}
@@ -3688,6 +3747,7 @@ function ImageGenerationDefaultsPanel({
                     min={0}
                     max={12}
                     onCommit={(clipSkip) => updateAutomatic1111({ clipSkip: clipSkip > 0 ? clipSkip : null })}
+                    testId="image-defaults-automatic1111-clip-skip-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.img2imgDenoise")}
@@ -3696,6 +3756,7 @@ function ImageGenerationDefaultsPanel({
                     max={1}
                     integer={false}
                     onCommit={(denoisingStrength) => updateAutomatic1111({ denoisingStrength })}
+                    testId="image-defaults-automatic1111-denoise-input"
                   />
                 </>
               ) : service === "comfyui" ? (
@@ -3706,6 +3767,7 @@ function ImageGenerationDefaultsPanel({
                     min={1}
                     max={150}
                     onCommit={(steps) => updateComfyUi({ steps })}
+                    testId="image-defaults-comfyui-steps-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.cfgScale")}
@@ -3714,6 +3776,7 @@ function ImageGenerationDefaultsPanel({
                     max={30}
                     integer={false}
                     onCommit={(cfgScale) => updateComfyUi({ cfgScale })}
+                    testId="image-defaults-comfyui-cfg-scale-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.denoise")}
@@ -3722,6 +3785,7 @@ function ImageGenerationDefaultsPanel({
                     max={1}
                     integer={false}
                     onCommit={(denoisingStrength) => updateComfyUi({ denoisingStrength })}
+                    testId="image-defaults-comfyui-denoise-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.clipSkip")}
@@ -3729,6 +3793,7 @@ function ImageGenerationDefaultsPanel({
                     min={0}
                     max={12}
                     onCommit={(clipSkip) => updateComfyUi({ clipSkip: clipSkip > 0 ? clipSkip : null })}
+                    testId="image-defaults-comfyui-clip-skip-input"
                   />
                 </>
               ) : (
@@ -3739,6 +3804,7 @@ function ImageGenerationDefaultsPanel({
                     min={1}
                     max={150}
                     onCommit={(steps) => updateNovelAi({ steps })}
+                    testId="image-defaults-novelai-steps-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.promptGuidance")}
@@ -3747,6 +3813,7 @@ function ImageGenerationDefaultsPanel({
                     max={30}
                     integer={false}
                     onCommit={(promptGuidance) => updateNovelAi({ promptGuidance })}
+                    testId="image-defaults-novelai-prompt-guidance-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.guidanceRescale")}
@@ -3755,6 +3822,7 @@ function ImageGenerationDefaultsPanel({
                     max={1}
                     integer={false}
                     onCommit={(promptGuidanceRescale) => updateNovelAi({ promptGuidanceRescale })}
+                    testId="image-defaults-novelai-guidance-rescale-input"
                   />
                   <NumberSetting
                     label={localizeUi("ui.connections.imagegenerationdefaultspanel.ucPreset")}
@@ -3762,6 +3830,7 @@ function ImageGenerationDefaultsPanel({
                     min={0}
                     max={4}
                     onCommit={(undesiredContentPreset) => updateNovelAi({ undesiredContentPreset })}
+                    testId="image-defaults-novelai-uc-preset-input"
                   />
                 </>
               )}
@@ -3774,12 +3843,14 @@ function ImageGenerationDefaultsPanel({
                   value={automatic1111.promptPrefix}
                   onChange={(promptPrefix) => updateAutomatic1111({ promptPrefix })}
                   placeholder={localizeUi("ui.connections.imagegenerationdefaultspanel.eGMasterpieceHighQuality")}
+                  testId="image-defaults-automatic1111-prompt-prefix-textarea"
                 />
                 <TextSetting
                   label={localizeUi("ui.connections.imagegenerationdefaultspanel.negativePrefix")}
                   value={automatic1111.negativePromptPrefix}
                   onChange={(negativePromptPrefix) => updateAutomatic1111({ negativePromptPrefix })}
                   placeholder={localizeUi("ui.connections.imagegenerationdefaultspanel.eGLowQualityBlurry")}
+                  testId="image-defaults-automatic1111-negative-prefix-textarea"
                 />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <ChoiceSetting
@@ -3801,6 +3872,7 @@ function ImageGenerationDefaultsPanel({
                   onChange={(checked) => updateAutomatic1111({ restoreFaces: checked })}
                   className="bg-[var(--card)] px-3 py-2 ring-1 ring-[var(--border)]"
                   labelClassName="text-[var(--foreground)]"
+                  testId="image-defaults-automatic1111-restore-faces-checkbox"
                 />
               </>
             ) : service === "comfyui" ? (
@@ -3842,6 +3914,7 @@ function ImageGenerationDefaultsPanel({
                   onChange={(checked) => updateComfyUi({ uploadPlaceholderOnMissingReference: checked })}
                   className="bg-[var(--card)] px-3 py-2 ring-1 ring-[var(--border)]"
                   labelClassName="text-[var(--foreground)]"
+                  testId="image-defaults-comfyui-upload-placeholder-checkbox"
                 />
                 <ComfyUiLoraSettings
                   idPrefix="image-comfyui"
@@ -3892,6 +3965,7 @@ function ImageGenerationDefaultsPanel({
                   onChange={(checked) => updateNovelAi({ dynamicResolutionBySubjectCount: checked })}
                   className="bg-[var(--card)] px-3 py-2 ring-1 ring-[var(--border)]"
                   labelClassName="text-[var(--foreground)]"
+                  testId="image-defaults-novelai-dynamic-resolution-checkbox"
                 />
                 <div className="space-y-2 rounded-lg bg-[var(--card)] px-3 py-2 ring-1 ring-[var(--border)]">
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -3910,6 +3984,7 @@ function ImageGenerationDefaultsPanel({
                         type="button"
                         onClick={() => novelAiStylePlateInputRef.current?.click()}
                         className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[var(--secondary)] px-2.5 py-1.5 text-[0.625rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)]"
+                        data-testid="image-defaults-novelai-style-plate-upload-button"
                       >
                         <Upload size="0.6875rem" />
                         {novelai.styleReferenceImage
@@ -3929,6 +4004,7 @@ function ImageGenerationDefaultsPanel({
                           type="button"
                           onClick={() => updateNovelAi({ styleReferenceImage: null })}
                           className="rounded-lg bg-[var(--secondary)] px-2.5 py-1.5 text-[0.625rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                          data-testid="image-defaults-novelai-style-plate-remove-button"
                         >
                           {localizeUi("settings.notifications.customSound.actions.remove")}
                         </button>
@@ -3950,6 +4026,7 @@ function ImageGenerationDefaultsPanel({
                       max={1}
                       integer={false}
                       onCommit={(styleReferenceStrength) => updateNovelAi({ styleReferenceStrength })}
+                      testId="image-defaults-novelai-style-strength-input"
                     />
                     <NumberSetting
                       label={localizeUi("ui.connections.imagegenerationdefaultspanel.styleFidelity")}
@@ -3980,11 +4057,13 @@ function TextSetting({
   value,
   onChange,
   placeholder,
+  testId,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  testId?: string;
 }) {
   return (
     <label className="block">
@@ -3995,6 +4074,7 @@ function TextSetting({
         rows={2}
         placeholder={placeholder}
         className="mt-1 w-full resize-y rounded-lg bg-[var(--card)] px-3 py-2 text-xs ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)]/60 focus:outline-none focus:ring-sky-400/50"
+        data-testid={testId}
       />
     </label>
   );
@@ -4149,6 +4229,7 @@ function VideoGenerationDefaultsPanel({
           type="button"
           onClick={() => onExpandedChange(!expanded)}
           className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[var(--accent)]"
+          data-testid="video-defaults-expand-toggle-button"
         >
           <div className="min-w-0">
             <div className="text-xs font-medium text-[var(--foreground)]">
@@ -4171,6 +4252,7 @@ function VideoGenerationDefaultsPanel({
                 type="button"
                 onClick={onReset}
                 className="flex items-center gap-1.5 rounded-lg bg-[var(--card)] px-2.5 py-1.5 text-[0.625rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:text-[var(--foreground)]"
+                data-testid="video-defaults-reset-button"
               >
                 <RotateCcw size="0.6875rem" />
                 {localizeUi("ui.connections.imagegenerationdefaultspanel.reset")}
@@ -4214,6 +4296,7 @@ function VideoGenerationDefaultsPanel({
                         updateComfyUi({ durationSeconds });
                       } else updateOpenRouter({ durationSeconds });
                     }}
+                    testId="video-defaults-duration-seconds-input"
                   />
                   {service === "comfyui" && (
                     <NumberSetting
@@ -4222,6 +4305,7 @@ function VideoGenerationDefaultsPanel({
                       min={1}
                       max={120}
                       onCommit={(fps) => updateComfyUi({ fps })}
+                      testId="video-defaults-comfyui-fps-input"
                     />
                   )}
                   <label className="block">
@@ -4252,6 +4336,7 @@ function VideoGenerationDefaultsPanel({
                         else updateOpenRouter({ aspectRatio });
                       }}
                       className="mt-1 w-full rounded-lg bg-[var(--card)] px-3 py-2 text-xs ring-1 ring-[var(--border)] focus:outline-none focus:ring-sky-400/50"
+                      data-testid="video-defaults-aspect-ratio-select"
                     >
                       <option value="16:9">16:9</option>
                       <option value="9:16">9:16</option>
@@ -4285,6 +4370,7 @@ function VideoGenerationDefaultsPanel({
                         else updateOpenRouter({ resolution });
                       }}
                       className="mt-1 w-full rounded-lg bg-[var(--card)] px-3 py-2 text-xs ring-1 ring-[var(--border)] focus:outline-none focus:ring-sky-400/50"
+                      data-testid="video-defaults-resolution-select"
                     >
                       {VIDEO_RESOLUTION_OPTIONS.filter(
                         (option) =>
@@ -4336,6 +4422,7 @@ function VideoGenerationDefaultsPanel({
                   min={1}
                   max={60}
                   onCommit={(durationSeconds) => updateGeminiOmni({ durationSeconds })}
+                  testId="video-defaults-gemini-omni-duration-input"
                 />
                 <label className="block">
                   <span className="text-[0.625rem] font-medium text-[var(--muted-foreground)]">
@@ -4347,6 +4434,7 @@ function VideoGenerationDefaultsPanel({
                       updateGeminiOmni({ aspectRatio: event.target.value === "9:16" ? "9:16" : "16:9" })
                     }
                     className="mt-1 w-full rounded-lg bg-[var(--card)] px-3 py-2 text-xs ring-1 ring-[var(--border)] focus:outline-none focus:ring-sky-400/50"
+                    data-testid="video-defaults-gemini-omni-aspect-ratio-select"
                   >
                     <option value="16:9">16:9</option>
                     <option value="9:16">9:16</option>
@@ -4411,6 +4499,7 @@ function ComfyUiLoraSettings({
               onChange={(event) => updateSlot(index, { model: event.target.value })}
               placeholder={localizeUi("ui.connections.comfyuilorasettings.selectOrEnterLora")}
               className="mt-1 w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs ring-1 ring-[var(--border)] focus:outline-none focus:ring-sky-400/50"
+              data-testid={`${idPrefix}-lora-model-input-${index}`}
             />
           </label>
           <NumberSetting
@@ -4420,6 +4509,7 @@ function ComfyUiLoraSettings({
             max={COMFYUI_LORA_STRENGTH_MAX}
             integer={false}
             onCommit={(strength) => updateSlot(index, { strength })}
+            testId={`${idPrefix}-lora-strength-input-${index}`}
           />
         </div>
       ))}
@@ -4452,6 +4542,7 @@ function ChoiceSetting({
         onChange={(event) => onChange(event.target.value)}
         className="mt-1 w-full rounded-lg bg-[var(--card)] px-3 py-2 text-xs ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)]/60 focus:outline-none focus:ring-sky-400/50"
         placeholder={localizeUi("ui.connections.choicesetting.backendDefault")}
+        data-testid={listId}
       />
       <datalist id={listId}>
         {options.map((option) => (
@@ -4471,6 +4562,7 @@ function NumberSetting({
   max,
   integer = true,
   onCommit,
+  testId,
 }: {
   label: string;
   value: number;
@@ -4478,6 +4570,7 @@ function NumberSetting({
   max: number;
   integer?: boolean;
   onCommit: (value: number) => void;
+  testId?: string;
 }) {
   const [draft, setDraft] = useState(String(value));
 
@@ -4513,6 +4606,7 @@ function NumberSetting({
           }
         }}
         className="mt-1 w-full rounded-lg bg-[var(--card)] px-3 py-2 text-xs ring-1 ring-[var(--border)] focus:outline-none focus:ring-sky-400/50"
+        data-testid={testId}
       />
     </label>
   );

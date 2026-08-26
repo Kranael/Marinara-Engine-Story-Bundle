@@ -135,10 +135,11 @@ function CardNameForm({
         }}
         aria-label={ariaLabel}
         placeholder={placeholder}
+        data-testid="background-rename-input"
         className={CARD_TEXT_FIELD_CLASS}
         autoFocus
       />
-      <button type="submit" disabled={pending} className={INLINE_ACCENT_BUTTON_CLASS}>
+      <button type="submit" disabled={pending} data-testid="background-rename-save-button" className={INLINE_ACCENT_BUTTON_CLASS}>
         {saveLabel}
       </button>
     </form>
@@ -190,6 +191,7 @@ function CardTagInput({
         placeholder={placeholder}
         className="w-full min-w-0 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-[0.6875rem] text-[var(--foreground)] outline-none focus:border-[var(--primary)]"
         data-background-tag-input
+        data-testid="background-tag-input"
         autoFocus
         list={datalistId}
       />
@@ -198,7 +200,7 @@ function CardTagInput({
           <option key={tag} value={tag} />
         ))}
       </datalist>
-      <button type="button" onClick={submit} disabled={!value.trim() || pending} className={INLINE_ACCENT_BUTTON_CLASS}>
+      <button type="button" onClick={submit} disabled={!value.trim() || pending} data-testid="background-tag-add-button" className={INLINE_ACCENT_BUTTON_CLASS}>
         {addLabel}
       </button>
     </div>
@@ -711,6 +713,7 @@ export function BackgroundPicker({
           <button
             type="button"
             onClick={() => selectBackground(background, isSelected)}
+            data-testid={`background-select-${background.id}`}
             className="relative block aspect-[16/10] w-full overflow-hidden bg-[var(--background)] text-left"
             aria-label={
               isSelected
@@ -756,6 +759,7 @@ export function BackgroundPicker({
           <button
             type="button"
             data-background-favorite-toggle
+            data-testid={`background-favorite-toggle-${background.id}`}
             onClick={() => {
               cancelPendingClose();
               toggleFavorite.mutate({ backgroundId: background.id, favorite: !background.favorite });
@@ -815,6 +819,7 @@ export function BackgroundPicker({
             <button
               type="button"
               data-background-move
+              data-testid={`background-move-${background.id}`}
               onClick={() => void handleMoveBackground(background)}
               className={cn(CARD_ACTION_CLASS, isFloatingActions && FLOATING_CARD_ACTION_CLASS)}
               title={localizeUi("ui.panels.backgroundpicker.moveToFolder")}
@@ -830,6 +835,7 @@ export function BackgroundPicker({
                     cancelPendingClose();
                     setRenamingFile(background.id);
                   }}
+                  data-testid={`background-rename-${background.id}`}
                   className={cn(CARD_ACTION_CLASS, isFloatingActions && FLOATING_CARD_ACTION_CLASS)}
                   title={localizeUi("ui.panels.backgroundpicker.renameBackground")}
                   aria-label={localizeUi("ui.panels.backgroundpicker.renameValue1", { value1: title })}
@@ -839,6 +845,7 @@ export function BackgroundPicker({
                 <button
                   type="button"
                   data-background-edit-tags
+                  data-testid={`background-edit-tags-${background.id}`}
                   onClick={() => {
                     cancelPendingClose();
                     setEditingTags(isEditingTags ? null : background.id);
@@ -859,6 +866,7 @@ export function BackgroundPicker({
             <button
               type="button"
               data-background-default-toggle
+              data-testid={`background-default-toggle-${background.id}`}
               onClick={() => {
                 cancelPendingClose();
                 onDefaultChange(isDefaultRoleplay ? DEFAULT_ROLEPLAY_BACKGROUND_URL : background.url);
@@ -892,6 +900,7 @@ export function BackgroundPicker({
                   cancelPendingClose();
                   void handleDeleteBackground(background);
                 }}
+                data-testid={`background-delete-${background.id}`}
                 className={cn(CARD_ACTION_CLASS, "text-[var(--destructive)] hover:bg-[var(--destructive)]/12")}
                 title={localizeUi("ui.panels.backgroundpicker.deleteBackground")}
                 aria-label={localizeUi("ui.panels.botbrowserpanel.deleteValue1", { value1: title })}
@@ -934,6 +943,7 @@ export function BackgroundPicker({
                       type="button"
                       onClick={() => void removeTag(background.filename, background.tags, tag)}
                       disabled={updateTags.isPending}
+                      data-testid={`background-remove-tag-${background.id}`}
                       className="-my-1 flex h-6 w-6 items-center justify-center rounded-full hover:text-[var(--destructive)] md:my-0 md:h-4 md:w-4"
                       aria-label={localizeUi("ui.panels.backgroundpicker.removeTagValue1", { value1: tag })}
                     >
@@ -969,6 +979,7 @@ export function BackgroundPicker({
         <button
           type="button"
           onClick={() => setOpen(true)}
+          data-testid="background-preview-button"
           className="group flex min-w-0 items-center gap-2.5 rounded-lg p-1.5 text-left ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--secondary)]/55 hover:ring-[var(--primary)]/45"
         >
           <span className="relative aspect-video w-20 shrink-0 overflow-hidden rounded-md bg-[var(--secondary)] ring-1 ring-[var(--border)]">
@@ -1000,6 +1011,7 @@ export function BackgroundPicker({
         <button
           type="button"
           onClick={() => setOpen(true)}
+          data-testid="background-browse-library-button"
           className="mari-chrome-control mari-chrome-control--compact min-h-9 w-full"
         >
           <Image size="0.75rem" />
@@ -1009,6 +1021,7 @@ export function BackgroundPicker({
           <button
             type="button"
             onClick={() => onSelect(null)}
+            data-testid="background-clear-selection-button"
             className="mari-chrome-control mari-chrome-control--compact min-h-9 w-full !text-[var(--muted-foreground)] hover:!text-[var(--destructive)]"
             title={localizeUi("ui.panels.backgroundpicker.clearSelection")}
           >
@@ -1037,12 +1050,14 @@ export function BackgroundPicker({
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder={localizeUi("ui.panels.backgroundpicker.searchBackgrounds")}
+                data-testid="background-search-input"
                 className="mari-chrome-field h-10 w-full py-0 pl-8 pr-8 text-xs md:h-9"
               />
               {searchQuery.trim() && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
+                  data-testid="background-search-clear-button"
                   className="absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                   title={localizeUi("ui.noodle.noodlehome.clearSearch")}
                   aria-label={localizeUi("ui.panels.backgroundpicker.clearBackgroundSearch")}
@@ -1055,6 +1070,7 @@ export function BackgroundPicker({
               <select
                 value={sort}
                 onChange={(event) => setSort(event.target.value as BackgroundLibrarySort)}
+                data-testid="background-sort-select"
                 className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
                 title={localizeUi("ui.panels.backgroundpicker.sortBackgrounds")}
                 aria-label={localizeUi("ui.panels.backgroundpicker.sortBackgrounds")}
@@ -1097,6 +1113,7 @@ export function BackgroundPicker({
                   key={value}
                   type="button"
                   onClick={() => setSourceFilter(value)}
+                  data-testid={`background-source-filter-${value}`}
                   className={cn(
                     "flex min-h-8 items-center justify-center gap-1 rounded-md px-2 text-[0.625rem] font-medium transition-colors",
                     sourceFilter === value
@@ -1142,6 +1159,7 @@ export function BackgroundPicker({
                 type="button"
                 onClick={() => setFolderFilter(value)}
                 data-background-folder-filter-id={value}
+                data-testid={`background-folder-filter-${value}`}
                 {...(value === "unfiled" ? { "data-background-folder-root": "" } : {})}
                 // Only Unfiled is a drop target; All and Favorites are not folders.
                 onDragOver={value === "unfiled" ? allowFolderDrop : undefined}
@@ -1166,6 +1184,7 @@ export function BackgroundPicker({
                 onClick={() => setFolderFilter(folder.id)}
                 data-background-folder-filter-id={folder.id}
                 data-background-folder-id={folder.id}
+                data-testid={`background-folder-filter-${folder.id}`}
                 onDragOver={allowFolderDrop}
                 onDrop={(event) => handleFolderDrop(event, folder.id)}
                 className={cn(
@@ -1185,6 +1204,7 @@ export function BackgroundPicker({
               type="button"
               onClick={() => void handleCreateFolder()}
               disabled={createFolder.isPending}
+              data-testid="background-create-folder-button"
               className="mari-chrome-control mari-chrome-control--compact"
               title={localizeUi("ui.panels.backgroundpicker.newFolder")}
               aria-label={localizeUi("ui.panels.backgroundpicker.newFolder")}
@@ -1201,6 +1221,7 @@ export function BackgroundPicker({
                 <button
                   type="button"
                   onClick={() => void handleRenameActiveFolder(activeFolder)}
+                  data-testid="background-rename-folder-button"
                   className="mari-chrome-control mari-chrome-control--compact"
                   title={localizeUi("ui.panels.backgroundpicker.renameFolder")}
                   aria-label={localizeUi("ui.panels.backgroundpicker.renameFolderValue1", {
@@ -1217,6 +1238,7 @@ export function BackgroundPicker({
                       backgrounds.filter((background) => background.folderId === activeFolder.id).length,
                     )
                   }
+                  data-testid="background-delete-folder-button"
                   className="mari-chrome-control mari-chrome-control--compact !text-[var(--destructive)]"
                   title={localizeUi("ui.panels.backgroundpicker.deleteFolder")}
                   aria-label={localizeUi("ui.panels.backgroundpicker.deleteFolderValue1", {
@@ -1233,6 +1255,7 @@ export function BackgroundPicker({
             <button
               type="button"
               onClick={() => setIncludedTagValues([])}
+              data-testid="background-tag-filter-all"
               className={cn(
                 "mari-chrome-control mari-chrome-control--compact",
                 includedTags.size === 0 && "mari-chrome-control--selected",
@@ -1245,6 +1268,7 @@ export function BackgroundPicker({
               <button
                 type="button"
                 onClick={() => setTagsExpanded((expanded) => !expanded)}
+                data-testid="background-tags-expand-button"
                 className={cn(
                   "mari-chrome-control mari-chrome-control--compact",
                   includedTags.size > 0 && "mari-chrome-control--selected",
@@ -1265,6 +1289,7 @@ export function BackgroundPicker({
                   key={tag}
                   type="button"
                   onClick={() => toggleIncludedTag(tag)}
+                  data-testid={`background-tag-filter-${tag}`}
                   className={cn(
                     "mari-chrome-control mari-chrome-control--compact",
                     includedTags.has(tag) && "mari-chrome-control--selected",
@@ -1285,6 +1310,7 @@ export function BackgroundPicker({
             <button
               type="button"
               onClick={() => onDefaultChange(DEFAULT_ROLEPLAY_BACKGROUND_URL)}
+              data-testid="background-reset-default-button"
               className={cn(
                 "inline-flex min-h-7 items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]",
                 defaultRoleplayBackground === DEFAULT_ROLEPLAY_BACKGROUND_URL && "invisible pointer-events-none",

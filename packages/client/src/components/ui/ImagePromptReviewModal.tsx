@@ -133,6 +133,7 @@ export function ImagePromptReviewModal({
                   </span>
                 </div>
                 <textarea
+                  data-testid={`image-prompt-review-prompt-${item.id}`}
                   value={value}
                   onChange={(event) => setDrafts((current) => ({ ...current, [item.id]: event.target.value }))}
                   maxLength={item.maxLength}
@@ -146,6 +147,7 @@ export function ImagePromptReviewModal({
                       {localizeUi("ui.agents.agenteditor.negativePrompt")}
                     </span>
                     <textarea
+                      data-testid={`image-prompt-review-negative-${item.id}`}
                       value={negativeValue}
                       onChange={(event) =>
                         setNegativeDrafts((current) => ({ ...current, [item.id]: event.target.value }))
@@ -176,6 +178,7 @@ export function ImagePromptReviewModal({
           )}
           <div className="flex items-center justify-end gap-2">
             <button
+              data-testid="image-prompt-review-cancel-button"
               onClick={onCancel}
               disabled={isSubmitting}
               className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
@@ -184,6 +187,7 @@ export function ImagePromptReviewModal({
               {localizeUi("chat.delete.dialog.cancel")}
             </button>
             <button
+              data-testid="image-prompt-review-confirm-button"
               onClick={handleConfirm}
               disabled={isSubmitting || hasEmptyPrompt}
               className={cn(

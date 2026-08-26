@@ -517,6 +517,7 @@ function SetupWizardShell({
                       for (let index = step; index > i; index -= 1) onBack?.();
                     }
                   }}
+                  data-testid={`chat-setup-wizard-step-${item.key}-button`}
                   className={cn(
                     "h-1.5 rounded-full transition-all duration-300 disabled:cursor-default",
                     i === step
@@ -643,6 +644,7 @@ function PersonaPicker({
         type="button"
         onClick={() => onChange(null)}
         aria-pressed={!selectedId}
+        data-testid="chat-setup-wizard-persona-none-button"
         className={cn(
           "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
           !selectedId && "bg-[var(--primary)]/10 ring-1 ring-inset ring-[var(--primary)]/25",
@@ -667,6 +669,7 @@ function PersonaPicker({
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder={localizeUi("ui.chat.chatsettingsdrawer.searchPersonas")}
+            data-testid="chat-setup-wizard-persona-search-input"
             className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
           />
         </div>
@@ -682,6 +685,7 @@ function PersonaPicker({
               type="button"
               onClick={() => onChange(persona.id)}
               aria-pressed={isSelected}
+              data-testid={`chat-setup-wizard-persona-${persona.id}-option-button`}
               className={cn(
                 "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-[var(--accent)]",
                 isSelected && "bg-[var(--primary)]/10 ring-1 ring-inset ring-[var(--primary)]/25",
@@ -730,6 +734,7 @@ function SetupGenerationParametersPanel({
       <button
         type="button"
         onClick={() => onEnabledChange(!enabled)}
+        data-testid="chat-setup-wizard-custom-parameters-toggle-button"
         className="flex min-w-0 w-full items-center justify-between gap-3 text-left"
       >
         <div className="min-w-0 flex-1">
@@ -755,6 +760,7 @@ function SetupGenerationParametersPanel({
             value={value}
             showOpenRouterServiceTier={showOpenRouterServiceTier}
             onChange={onChange}
+            testIdPrefix="chat-setup-wizard-custom-parameters"
           />
         </div>
       )}
@@ -1247,6 +1253,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
             }
           }}
           placeholder={localizeUi("ui.chat.conversationquicksetup.conversationName")}
+          data-testid="chat-setup-wizard-conversation-name-input"
           className={WIZARD_INPUT_CLASS}
         />
       </div>
@@ -1269,6 +1276,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
               openRightPanel("connections");
               onFinish();
             }}
+            data-testid="chat-setup-wizard-setup-connection-button"
             className={WIZARD_SECONDARY_BUTTON_CLASS}
           >
             <Plug size="0.75rem" />
@@ -1308,6 +1316,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
         <button
           type="button"
           onClick={() => setCustomConversationPromptEnabled((enabled) => !enabled)}
+          data-testid="chat-setup-wizard-custom-prompt-toggle-button"
           className="flex w-full items-center justify-between gap-2 text-left"
         >
           <div className="flex min-w-0 items-center gap-2">
@@ -1359,6 +1368,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
               onChange={(event) => setConversationSystemPromptDraft(event.target.value)}
               rows={10}
               maxLength={16000}
+              data-testid="chat-setup-wizard-custom-prompt-textarea"
               className="max-h-72 min-h-48 w-full resize-y rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs leading-relaxed text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] transition-all placeholder:text-[var(--muted-foreground)]/50 focus:ring-[var(--primary)]/40"
             />
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1368,6 +1378,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
               <button
                 type="button"
                 onClick={() => setConversationSystemPromptDraft(baseConversationPrompt)}
+                data-testid="chat-setup-wizard-custom-prompt-reset-button"
                 className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               >
                 <RotateCcw size={11} />
@@ -1411,6 +1422,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
                 <button
                   key={cid}
                   onClick={() => toggleCharacter(cid)}
+                  data-testid={`chat-setup-wizard-selected-character-${cid}-button`}
                   className="group flex items-center gap-1.5 rounded-lg bg-[var(--primary)]/10 py-1 pl-1 pr-2.5 text-xs ring-1 ring-[var(--primary)]/25 transition-all hover:bg-[var(--destructive)]/15 hover:ring-[var(--destructive)]/30"
                   title={
                     title
@@ -1445,6 +1457,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={localizeUi("ui.chat.conversationquicksetup.searchCharacters")}
+              data-testid="chat-setup-wizard-character-search-input"
               className="min-w-0 flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
             />
           </div>
@@ -1456,6 +1469,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
                 onChange={(event) => setSelectedFolderId(event.target.value)}
                 className="min-w-0 flex-1 bg-transparent text-xs text-[var(--foreground)] outline-none"
                 aria-label={localizeUi("ui.chat.conversationquicksetup.addCharactersFromFolder")}
+                data-testid="chat-setup-wizard-character-folder-select"
               >
                 <option value="">{localizeUi("ui.noodle.noodlehome.addFromFolder")}</option>
                 {characterFolders.map((folder) => {
@@ -1475,6 +1489,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
                 type="button"
                 onClick={() => addCharactersFromFolder(selectedFolderId)}
                 disabled={!selectedFolderId}
+                data-testid="chat-setup-wizard-add-characters-from-folder-button"
                 className="rounded-lg bg-[var(--primary)]/15 px-2.5 py-1 text-[0.625rem] font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/25 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {localizeUi("ui.characters.metadatatab.add")}
@@ -1486,6 +1501,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
               <button
                 type="button"
                 onClick={addRandomCharacter}
+                data-testid="chat-setup-wizard-add-random-character-button"
                 className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]/25">
@@ -1507,6 +1523,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
                 <button
                   key={character.id}
                   onClick={() => toggleCharacter(character.id)}
+                  data-testid={`chat-setup-wizard-available-character-${character.id}-button`}
                   className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
                 >
                   {character.avatarPath ? (
@@ -1558,6 +1575,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
     <div className="space-y-2">
       <button
         onClick={() => setAutonomousEnabled((value) => !value)}
+        data-testid="chat-setup-wizard-autonomous-toggle-button"
         className={cn(
           "mari-chat-option-field flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-all",
           autonomousEnabled && "mari-chat-option-field--active",
@@ -1593,6 +1611,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
       {autonomousEnabled && (
         <button
           onClick={() => setGenerateSchedule((value) => !value)}
+          data-testid="chat-setup-wizard-generate-schedule-toggle-button"
           className={cn(
             "mari-chat-option-field flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-all",
             generateSchedule && "mari-chat-option-field--active",
@@ -1637,6 +1656,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
       {hasConversationCommands && (
         <button
           onClick={() => setCommandsEnabled((value) => !value)}
+          data-testid="chat-setup-wizard-commands-toggle-button"
           className={cn(
             "mari-chat-option-field flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left transition-all",
             commandsEnabled && "mari-chat-option-field--active",
@@ -1685,6 +1705,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
                   }))
                 }
                 aria-pressed={enabled}
+                data-testid={`chat-setup-wizard-command-${command.id}-toggle-button`}
                 className={cn(
                   "mari-chat-option-field flex min-h-[4rem] items-start justify-between gap-2 rounded-lg px-3 py-2 text-left transition-all",
                   enabled && "mari-chat-option-field--active",
@@ -1726,6 +1747,7 @@ function ConversationQuickSetup({ chat, onFinish }: ChatSetupWizardProps) {
           <button
             type="button"
             onClick={openDownloadAgents}
+            data-testid="chat-setup-wizard-download-agents-button"
             className={cn(WIZARD_PRIMARY_BUTTON_CLASS, "mx-auto mt-3 gap-2")}
           >
             <Sparkles size="0.8125rem" />
@@ -2429,6 +2451,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               }
             }}
             placeholder={localizeUi("ui.chat.roleplaysetupwizard.roleplayName")}
+            data-testid="chat-setup-wizard-roleplay-name-input"
             className={WIZARD_INPUT_CLASS}
           />
         </div>
@@ -2455,6 +2478,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               openRightPanel("connections");
               onFinish();
             }}
+            data-testid="chat-setup-wizard-roleplay-setup-connection-button"
             className={WIZARD_SECONDARY_BUTTON_CLASS}
           >
             <Plug size="0.8125rem" />
@@ -2548,6 +2572,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                   </div>
                   <button
                     onClick={() => toggleCharacter(cid)}
+                    data-testid={`chat-setup-wizard-roleplay-remove-character-${cid}-button`}
                     className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
                     title={localizeUi("settings.notifications.customSound.actions.remove")}
                   >
@@ -2567,6 +2592,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               value={charSearch}
               onChange={(e) => setCharSearch(e.target.value)}
               placeholder={localizeUi("ui.chat.chatsettingsdrawer.searchCharacters")}
+              data-testid="chat-setup-wizard-roleplay-character-search-input"
               className="flex-1 bg-transparent text-xs outline-none placeholder:text-[var(--muted-foreground)]"
             />
           </div>
@@ -2578,6 +2604,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                 onChange={(event) => setSelectedRoleplayFolderId(event.target.value)}
                 className="min-w-0 flex-1 bg-transparent text-xs text-[var(--foreground)] outline-none"
                 aria-label={localizeUi("ui.chat.conversationquicksetup.addCharactersFromFolder")}
+                data-testid="chat-setup-wizard-roleplay-character-folder-select"
               >
                 <option value="">{localizeUi("ui.noodle.noodlehome.addFromFolder")}</option>
                 {characterFolders.map((folder) => {
@@ -2600,6 +2627,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                   setSelectedRoleplayFolderId("");
                 }}
                 disabled={!selectedRoleplayFolderId}
+                data-testid="chat-setup-wizard-roleplay-add-characters-from-folder-button"
                 className="rounded-lg bg-[var(--primary)]/15 px-2.5 py-1 text-[0.625rem] font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/25 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {localizeUi("ui.characters.metadatatab.add")}
@@ -2611,6 +2639,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               <button
                 type="button"
                 onClick={addRandomCharacter}
+                data-testid="chat-setup-wizard-roleplay-add-random-character-button"
                 className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
               >
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--primary)]/10 text-[var(--primary)] ring-1 ring-[var(--primary)]/25">
@@ -2632,6 +2661,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
                 <button
                   key={c.id}
                   onClick={() => toggleCharacter(c.id)}
+                  data-testid={`chat-setup-wizard-roleplay-available-character-${c.id}-button`}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-all hover:bg-[var(--accent)]"
                 >
                   {c.avatarPath ? (
@@ -2662,6 +2692,7 @@ function RoleplaySetupWizard({ chat, onFinish }: ChatSetupWizardProps) {
               <button
                 type="button"
                 onClick={() => setCharacterPickerLimit((limit) => limit + CHARACTER_PICKER_PAGE_SIZE)}
+                data-testid="chat-setup-wizard-roleplay-load-more-characters-button"
                 className="w-full border-t border-[var(--border)] px-3 py-2 text-xs font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/10"
               >
                 {localizeUi("ui.noodle.noodlehome.loadMore")}

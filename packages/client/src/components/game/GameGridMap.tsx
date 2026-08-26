@@ -139,6 +139,7 @@ export function GameGridMap({
                       key={`${cell.x},${cell.y}`}
                       onClick={() => isMovable && onCellClick(cell.x, cell.y)}
                       disabled={!isMovable}
+                      data-testid={`game-grid-map-cell-${cell.x}-${cell.y}`}
                       title={
                         cell.discovered
                           ? localizeUi("ui.game.gamegridmap.value1Value2Value3", {

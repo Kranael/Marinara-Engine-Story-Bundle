@@ -152,6 +152,7 @@ export function ContextInjectionPanel({
       <div className="flex w-full items-center gap-1.5 px-2 py-1.5 text-[0.625rem]">
         <button
           type="button"
+          data-testid="context-injection-toggle"
           onClick={() => setOpen((o) => !o)}
           className="group flex min-h-6 min-w-0 flex-1 items-center gap-1.5 rounded-md px-1.5 py-0.5 text-left transition-colors hover:bg-[var(--accent)]/45 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] max-md:min-h-7"
           aria-expanded={open}
@@ -222,6 +223,7 @@ export function ContextInjectionPanel({
                   <div className="flex items-center gap-1.5 px-2 py-1.5">
                     <button
                       type="button"
+                      data-testid={`context-injection-expand-${inj.agentType}`}
                       onClick={() => setExpandedInjections((m) => ({ ...m, [inj.agentType]: !m[inj.agentType] }))}
                       className="flex min-h-7 min-w-0 flex-1 items-center gap-1.5 rounded-md text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)]"
                       title={
@@ -252,6 +254,7 @@ export function ContextInjectionPanel({
                       {canReroll && (
                         <button
                           type="button"
+                          data-testid={`context-injection-reroll-${inj.agentType}`}
                           disabled={isGenerationBusy || !!rerollingType || updateExtra.isPending}
                           onClick={() => handleReroll(inj.agentType)}
                           className="inline-flex h-6 w-6 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]/55 hover:text-[var(--accent-foreground)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:opacity-40 max-md:h-7 max-md:w-7"
@@ -267,6 +270,7 @@ export function ContextInjectionPanel({
                       )}
                       <button
                         type="button"
+                        data-testid={`context-injection-save-${inj.agentType}`}
                         disabled={updateExtra.isPending || isAgentProcessing}
                         onClick={() => handleSaveOne(inj.agentType)}
                         className="inline-flex h-6 w-6 items-center justify-center rounded-md text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/15 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] disabled:opacity-40 max-md:h-7 max-md:w-7"
@@ -300,6 +304,7 @@ export function ContextInjectionPanel({
                   {expanded && (
                     <div className="border-t border-[var(--border)] px-1.5 pb-1.5">
                       <textarea
+                        data-testid={`context-injection-textarea-${inj.agentType}`}
                         value={drafts[inj.agentType] ?? ""}
                         onChange={(e) =>
                           setDrafts((d) => ({

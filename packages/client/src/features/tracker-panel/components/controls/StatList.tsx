@@ -221,6 +221,7 @@ function StatBar({
           <button
             type="button"
             onClick={onRemove}
+            data-testid={`stat-list-remove-${stat.name}`}
             className="flex h-4 w-4 items-center justify-center rounded text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
             title={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", {
               value1: visibleText(stat.name, "stat"),

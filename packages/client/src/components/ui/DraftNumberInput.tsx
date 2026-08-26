@@ -14,6 +14,8 @@ interface DraftNumberInputProps {
   placeholder?: string;
   title?: string;
   id?: string;
+  /** Stable identifier for automated tests; rendered as data-testid on the input. */
+  testId?: string;
 }
 
 export function DraftNumberInput({
@@ -30,6 +32,7 @@ export function DraftNumberInput({
   placeholder,
   title,
   id,
+  testId,
 }: DraftNumberInputProps) {
   const [draft, setDraft] = useState(String(value));
 
@@ -80,6 +83,7 @@ export function DraftNumberInput({
       placeholder={placeholder}
       title={title}
       disabled={disabled}
+      data-testid={testId ?? id}
       onFocus={(e) => {
         if (selectOnFocus) e.target.select();
       }}

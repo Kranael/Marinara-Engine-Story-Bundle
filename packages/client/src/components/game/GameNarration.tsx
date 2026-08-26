@@ -3565,6 +3565,7 @@ export function GameNarration({
       type="button"
       onClick={combatGenerationFailed && onRetryCombatGeneration ? onRetryCombatGeneration : onRequestCombatStart}
       disabled={combatStarting}
+      data-testid="game-narration-combat-button"
       className={cn(
         NARRATION_META_BTN,
         "relative",
@@ -3609,6 +3610,7 @@ export function GameNarration({
           <button
             type="button"
             onClick={onRetryCombatGeneration}
+            data-testid="game-narration-combat-retry-button"
             className="shrink-0 rounded-md bg-white/10 px-2 py-1 font-semibold text-white/85 transition-colors hover:bg-white/15 hover:text-white"
           >
             {localizeUi("ui.game.gamesurfacecomponent.retry")}
@@ -3788,6 +3790,7 @@ export function GameNarration({
       ref={collapseToggleRef}
       onClick={handleToggleNarrationCollapsed}
       className={NARRATION_META_BTN}
+      data-testid="game-narration-collapse-toggle-button"
       aria-expanded={!effectiveCollapsed}
       title={
         collapsePreferred
@@ -3809,6 +3812,7 @@ export function GameNarration({
         {showInterruptControls && !interruptCommitted && (
           <button
             onClick={handleInterrupt}
+            data-testid="game-narration-interrupt-button"
             className="flex h-full w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 text-[var(--foreground)]/75 transition-colors hover:bg-[var(--muted)]/40 hover:text-[var(--foreground)] dark:border-white/10 dark:bg-white/5 dark:text-white/75 dark:hover:bg-white/10 dark:hover:text-white"
             title={localizeUi("ui.game.gamenarration.pauseTheGmSoYouCanWriteBackNothing")}
             aria-label={localizeUi("ui.game.gamenarration.interrupt")}
@@ -3819,6 +3823,7 @@ export function GameNarration({
         {showInterruptControls && interruptCommitted && (
           <button
             onClick={handleResume}
+            data-testid="game-narration-resume-button"
             className="flex items-center gap-1 self-stretch rounded-lg border border-amber-400/40 bg-amber-400/15 px-2 text-xs font-semibold text-amber-100 transition-colors hover:bg-amber-400/25 hover:text-amber-50 sm:px-2.5 dark:border-amber-400/40 dark:bg-amber-400/15 dark:text-amber-100 dark:hover:bg-amber-400/25"
             title={localizeUi("ui.game.gamenarration.resumeNarrationYourInterruptHasNotBeenCommitted")}
             aria-label={localizeUi("ui.game.gamenarration.resume")}
@@ -3832,6 +3837,7 @@ export function GameNarration({
             {!reviewingPast && (
               <button
                 onClick={() => setAutoPlay((v) => !v)}
+                data-testid="game-narration-autoplay-toggle-button"
                 className={cn(
                   "flex items-center justify-center self-stretch rounded-lg border px-2 text-xs transition-colors",
                   autoPlay
@@ -3850,6 +3856,7 @@ export function GameNarration({
             {reviewingPast && onJumpToLatest && (
               <button
                 onClick={onJumpToLatest}
+                data-testid="game-narration-jump-to-latest-button"
                 className="flex items-center gap-1 self-stretch rounded-lg border border-amber-400/40 bg-amber-400/15 px-2 text-xs font-semibold text-amber-100 transition-colors hover:bg-amber-400/25 hover:text-amber-50 sm:px-2.5 dark:border-amber-400/40 dark:bg-amber-400/15 dark:text-amber-100 dark:hover:bg-amber-400/25"
                 title={localizeUi("ui.game.gamenarration.jumpBackToThePresent")}
                 aria-label={localizeUi("ui.game.gamenarration.returnToPresent")}
@@ -3860,6 +3867,7 @@ export function GameNarration({
             )}
             <button
               onClick={nextSegment}
+              data-testid="game-narration-next-segment-button"
               className="flex items-center justify-center self-stretch rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 px-3 text-xs font-semibold text-[var(--foreground)]/75 transition-colors hover:bg-[var(--muted)]/40 dark:border-white/10 dark:bg-white/5 dark:text-white/75 dark:hover:bg-white/10"
             >
               {!doneTyping ? localizeUi("ui.game.gamenarration.reveal") : localizeUi("onboarding.actions.next")}
@@ -3877,6 +3885,7 @@ export function GameNarration({
       ref={collapsedHandleRef}
       type="button"
       onClick={handleToggleNarrationCollapsed}
+      data-testid="game-narration-collapsed-handle-button"
       data-game-skip-bg-nav="true"
       data-component="GameNarration.CollapsedHandle"
       aria-expanded={false}
@@ -3924,6 +3933,7 @@ export function GameNarration({
     <button
       type="button"
       onClick={handleBranchActiveBeat}
+      data-testid="game-narration-branch-beat-button"
       className={cn(ACTIVE_SEGMENT_ACTION_BTN, "text-[var(--primary)]/80 hover:text-[var(--primary)]")}
       title={localizeUi("ui.game.gamenarration.branchBeforeThisDecision")}
       aria-label={localizeUi("ui.game.gamenarration.branchBeforeThisDecision")}
@@ -3938,6 +3948,7 @@ export function GameNarration({
         onClick={() => {
           void handleCopyMessage(activeCopyKey, activeCopyText);
         }}
+        data-testid="game-narration-copy-segment-button"
         className={ACTIVE_SEGMENT_ACTION_BTN}
         title={localizeUi("lorebook.editor.batch.copy")}
         aria-label={localizeUi("lorebook.editor.batch.copy")}
@@ -3950,6 +3961,7 @@ export function GameNarration({
       <button
         type="button"
         onClick={() => setEditingContent(active?.content ?? "")}
+        data-testid="game-narration-edit-segment-button"
         className={cn(ACTIVE_SEGMENT_ACTION_BTN, "hidden md:inline-flex")}
         title={localizeUi("ui.noodle.noodlepostcard.edit")}
       >
@@ -3961,6 +3973,7 @@ export function GameNarration({
       <button
         type="button"
         onClick={handleSaveActiveSegmentEdit}
+        data-testid="game-narration-save-segment-button"
         className="inline-flex items-center justify-center rounded bg-emerald-500/20 p-1 text-emerald-300 transition-colors hover:bg-emerald-500/30"
         title={localizeUi("ui.noodle.noodlehome.save")}
       >
@@ -4058,6 +4071,7 @@ export function GameNarration({
         type="button"
         onPointerDown={stopLogActionPointerDown}
         onClick={(event) => handleLogCopyButtonClick(event, copyKey, copyText)}
+        data-testid={`game-narration-stacked-copy-${seg.id}`}
         className={stackedActionButtonClass}
         title={localizeUi("lorebook.editor.batch.copy")}
       >
@@ -4073,6 +4087,7 @@ export function GameNarration({
           event.stopPropagation();
           onBranchMessage?.(sourceMessageId);
         }}
+        data-testid={`game-narration-stacked-branch-${seg.id}`}
         className={stackedActionButtonClass}
         title={localizeUi("ui.game.gamenarration.branchFromHere")}
         aria-label={localizeUi("ui.game.gamenarration.branchFromHere")}
@@ -4092,6 +4107,7 @@ export function GameNarration({
             void translate(sourceMessageId, getGameTranslationSource(sourceMessage), sourceMessage.chatId);
           }}
           disabled={isTranslating}
+          data-testid={`game-narration-stacked-translate-${seg.id}`}
           className={stackedActionButtonClass}
           title={
             translatedText
@@ -4122,6 +4138,7 @@ export function GameNarration({
             onDeleteSegment?.(sourceMessageId, sourceSegmentIndex);
           }
         }}
+        data-testid={`game-narration-stacked-delete-${seg.id}`}
         className={cn(stackedActionButtonClass, LOG_DELETE_ACTION_BTN)}
         title={
           canDeleteThisSegment
@@ -4157,6 +4174,7 @@ export function GameNarration({
                 readableType: seg.readableType,
               });
             }}
+            data-testid={`game-narration-stacked-edit-${seg.id}`}
             className={stackedActionButtonClass}
             title={localizeUi("ui.noodle.noodlepostcard.edit")}
           >
@@ -4178,6 +4196,7 @@ export function GameNarration({
                 fallbackSpeaker: seg.speaker,
               });
             }}
+            data-testid={`game-narration-stacked-save-${seg.id}`}
             className="rounded bg-emerald-500/20 p-1 text-emerald-300 transition-colors hover:bg-emerald-500/30"
             title={localizeUi("ui.noodle.noodlehome.save")}
           >
@@ -4205,6 +4224,7 @@ export function GameNarration({
       isEditingThis && seg.type === "dialogue" && canEditSegment ? (
         <input
           key={`${sourceMessageId}:${sourceSegmentIndex}:speaker`}
+          data-testid={`game-narration-stacked-speaker-input-${seg.id}`}
           className="mb-1 w-full rounded border border-[var(--border)] bg-[var(--background)]/55 px-2 py-1 text-[0.7rem] font-semibold text-[var(--foreground)] outline-none focus:border-[var(--primary)]/45 dark:border-white/10 dark:bg-black/40 dark:text-white/90 dark:focus:border-white/30"
           defaultValue={editingLogSeg?.speaker ?? ""}
           placeholder={localizeUi("ui.game.gamenarration.speakerName")}
@@ -4220,6 +4240,7 @@ export function GameNarration({
       <textarea
         key={`${sourceMessageId}:${sourceSegmentIndex}:content`}
         ref={logEditTextareaRef}
+        data-testid={`game-narration-stacked-edit-textarea-${seg.id}`}
         className="mt-1 w-full rounded border border-[var(--border)] bg-[var(--background)]/55 px-2 py-1 text-xs text-[var(--foreground)] outline-none focus:border-[var(--primary)]/45 dark:border-white/10 dark:bg-black/40 dark:text-white/90 dark:focus:border-white/30"
         style={narrationFontStyle}
         defaultValue={editingLogSeg.content}
@@ -4279,6 +4300,7 @@ export function GameNarration({
             type="button"
             onClick={(event) => handleGameVoiceButtonClick(event, voiceKey)}
             disabled={voiceEntry.status === "loading"}
+            data-testid={`game-narration-stacked-voice-play-${seg.id}`}
             className={cn(
               "inline-flex h-5 w-5 items-center justify-center rounded-full text-[var(--foreground)]/45 transition-colors hover:bg-[var(--muted)]/40 hover:text-sky-200 disabled:cursor-wait disabled:opacity-60 dark:text-white/45 dark:hover:bg-white/10",
               voiceActive && "bg-sky-400/15 text-sky-200 dark:text-sky-200",
@@ -4310,6 +4332,7 @@ export function GameNarration({
               <button
                 type="button"
                 onClick={(event) => handleRestartGameVoiceButtonClick(event, voiceKey)}
+                data-testid={`game-narration-stacked-voice-restart-${seg.id}`}
                 className="inline-flex h-5 w-5 items-center justify-center rounded-full text-sky-200 transition-colors hover:bg-[var(--muted)]/40 dark:hover:bg-white/10"
                 title={localizeUi("ui.game.gamenarration.restartVoiceOver")}
               >
@@ -4318,6 +4341,7 @@ export function GameNarration({
               <button
                 type="button"
                 onClick={handleStopGameVoiceButtonClick}
+                data-testid={`game-narration-stacked-voice-stop-${seg.id}`}
                 className="inline-flex h-5 w-5 items-center justify-center rounded-full text-sky-200 transition-colors hover:bg-[var(--muted)]/40 dark:hover:bg-white/10"
                 title={localizeUi("ui.game.gamenarration.stopVoiceOver")}
               >
@@ -4353,6 +4377,7 @@ export function GameNarration({
               <button
                 type="button"
                 onClick={(event) => handleNpcPortraitAvatarClick(event, seg.speaker)}
+                data-testid={`game-narration-stacked-portrait-upload-${seg.id}`}
                 className="rounded-lg transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25 dark:focus:ring-white/20"
                 title={localizeUi("ui.game.npcsview.uploadOrReplaceNpcPortrait")}
               >
@@ -4382,6 +4407,7 @@ export function GameNarration({
                     triggerNpcPortraitGenerate(seg.speaker);
                   }}
                   disabled={logPortraitGenerating}
+                  data-testid={`game-narration-stacked-portrait-generate-${seg.id}`}
                   className={cn(
                     "absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-black/75 text-[var(--primary)] opacity-0 ring-1 ring-white/15 transition-opacity disabled:cursor-wait md:group-hover/log-avatar:opacity-100",
                     (logPortraitGenerating || isMobilePortraitActionsVisible(seg.speaker)) && "max-md:opacity-100",
@@ -4626,6 +4652,7 @@ export function GameNarration({
                         type="button"
                         onClick={(event) => handleGameVoiceButtonClick(event, sideVoiceKey)}
                         disabled={voiceEntry.status === "loading"}
+                        data-testid={`game-narration-side-voice-play-${i}`}
                         className={cn(
                           "inline-flex h-5 w-5 items-center justify-center rounded-full text-white/55 transition-colors hover:bg-white/10 hover:text-sky-200 disabled:cursor-wait disabled:opacity-60",
                           voiceActive && "bg-sky-400/15 text-sky-200",
@@ -4739,13 +4766,13 @@ export function GameNarration({
                 </span>
                 <div className="flex gap-2">
                   {onRetryScene && (
-                    <button onClick={onRetryScene} className={NARRATION_ACTION_BTN}>
+                    <button onClick={onRetryScene} data-testid="game-narration-retry-scene-button" className={NARRATION_ACTION_BTN}>
                       <RefreshCw size={12} />
                       {localizeUi("ui.game.gamesurfacecomponent.retry")}
                     </button>
                   )}
                   {onSkipScene && (
-                    <button onClick={onSkipScene} className={NARRATION_ACTION_BTN}>
+                    <button onClick={onSkipScene} data-testid="game-narration-skip-scene-button" className={NARRATION_ACTION_BTN}>
                       {localizeUi("onboarding.actions.skip")}
                     </button>
                   )}
@@ -4759,6 +4786,7 @@ export function GameNarration({
                 <span className="text-sm text-red-300/80">{localizeUi("ui.game.gamenarration.generationFailed")}</span>
                 <button
                   onClick={onRetryGeneration}
+                  data-testid="game-narration-retry-generation-button"
                   className="flex items-center gap-1.5 rounded-lg bg-[var(--muted)]/30 px-3 py-1.5 text-xs text-[var(--foreground)]/70 transition-colors hover:bg-[var(--muted)]/50 hover:text-[var(--foreground)] dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20 dark:hover:text-white"
                 >
                   <RefreshCw size={12} />
@@ -4790,6 +4818,7 @@ export function GameNarration({
                             <button
                               type="button"
                               onClick={(event) => handleNpcPortraitAvatarClick(event, active.speaker)}
+                              data-testid="game-narration-active-portrait-upload-button"
                               className="rounded-xl transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/30"
                               title={localizeUi("ui.game.npcsview.uploadOrReplaceNpcPortrait")}
                             >
@@ -4824,6 +4853,7 @@ export function GameNarration({
                                   triggerNpcPortraitGenerate(active.speaker);
                                 }}
                                 disabled={activePortraitGenerating}
+                                data-testid="game-narration-active-portrait-generate-button"
                                 className={cn(
                                   "absolute right-0.5 top-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[var(--primary)] opacity-0 shadow-lg ring-1 ring-white/15 transition-opacity hover:bg-black/85 disabled:cursor-wait md:group-hover/avatar:opacity-100",
                                   (activePortraitGenerating || isMobilePortraitActionsVisible(active.speaker)) &&
@@ -4920,6 +4950,7 @@ export function GameNarration({
                                 ref={editTextareaRef}
                                 value={editingContent}
                                 onChange={(e) => setEditingContent(e.target.value)}
+                                data-testid="game-narration-edit-segment-textarea"
                                 className="w-full resize-none bg-transparent text-sm leading-relaxed text-[var(--foreground)] outline-none"
                                 style={narrationFontStyle}
                                 rows={3}
@@ -4979,6 +5010,7 @@ export function GameNarration({
                       <button
                         onClick={() => setLogsOpen(true)}
                         disabled={logEntries.length === 0}
+                        data-testid="game-narration-logs-open-button"
                         className={cn(NARRATION_META_BTN, "disabled:opacity-40")}
                       >
                         <ScrollText size={12} />
@@ -4986,7 +5018,7 @@ export function GameNarration({
                       </button>
                     )}
                     {onOpenInventory && (
-                      <button onClick={onOpenInventory} className={cn("relative", NARRATION_META_BTN)}>
+                      <button onClick={onOpenInventory} data-testid="game-narration-open-inventory-button" className={cn("relative", NARRATION_META_BTN)}>
                         <Package size={12} />
                         <span className="hidden sm:inline">{localizeUi("ui.game.gamecharactersheet.inventory")}</span>
                         {(inventoryCount ?? 0) > 0 && <span className={NARRATION_COUNT_BADGE}>{inventoryCount}</span>}
@@ -5023,6 +5055,7 @@ export function GameNarration({
                       ref={editTextareaRef}
                       value={editingContent}
                       onChange={(e) => setEditingContent(e.target.value)}
+                      data-testid="game-narration-edit-segment-textarea"
                       className="w-full resize-none bg-transparent text-sm leading-relaxed text-[var(--foreground)] outline-none"
                       style={narrationFontStyle}
                       rows={3}
@@ -5055,6 +5088,7 @@ export function GameNarration({
                       <button
                         onClick={() => setLogsOpen(true)}
                         disabled={logEntries.length === 0}
+                        data-testid="game-narration-logs-open-button"
                         className={cn(NARRATION_META_BTN, "disabled:opacity-40")}
                       >
                         <ScrollText size={12} />
@@ -5062,7 +5096,7 @@ export function GameNarration({
                       </button>
                     )}
                     {onOpenInventory && (
-                      <button onClick={onOpenInventory} className={cn("relative", NARRATION_META_BTN)}>
+                      <button onClick={onOpenInventory} data-testid="game-narration-open-inventory-button" className={cn("relative", NARRATION_META_BTN)}>
                         <Package size={12} />
                         <span className="hidden sm:inline">{localizeUi("ui.game.gamecharactersheet.inventory")}</span>
                         {(inventoryCount ?? 0) > 0 && <span className={NARRATION_COUNT_BADGE}>{inventoryCount}</span>}
@@ -5112,6 +5146,7 @@ export function GameNarration({
                       onClick={() => {
                         void handleCopyMessage(activeCopyKey, activeCopyText);
                       }}
+                      data-testid="game-narration-readable-copy-button"
                       className="absolute right-1.5 top-1.5 rounded p-1 text-amber-200/45 transition-colors hover:bg-amber-100/10 hover:text-amber-100/70"
                       title={localizeUi("lorebook.editor.batch.copy")}
                       aria-label={localizeUi("lorebook.editor.batch.copy")}
@@ -5131,6 +5166,7 @@ export function GameNarration({
                       <button
                         onClick={() => setLogsOpen(true)}
                         disabled={logEntries.length === 0}
+                        data-testid="game-narration-logs-open-button"
                         className={cn(NARRATION_META_BTN, "disabled:opacity-40")}
                       >
                         <ScrollText size={12} />
@@ -5161,6 +5197,7 @@ export function GameNarration({
                   <div className="mb-2">
                     <button
                       onClick={() => setLogsOpen(true)}
+                      data-testid="game-narration-logs-open-button"
                       className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/75 transition-colors hover:bg-white/10"
                     >
                       <ScrollText size={12} />
@@ -5217,6 +5254,7 @@ export function GameNarration({
                     <button
                       type="button"
                       onClick={loadOlderLogs}
+                      data-testid="game-narration-logs-load-older-button"
                       className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-[0.65rem] font-medium text-white/65 transition-colors hover:bg-white/10 hover:text-white"
                       title={localizeUi("ui.game.gamenarration.loadOlderLogs")}
                     >
@@ -5226,6 +5264,7 @@ export function GameNarration({
                     <button
                       type="button"
                       onClick={showAllLogs}
+                      data-testid="game-narration-logs-show-all-button"
                       className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-[0.65rem] font-medium text-white/65 transition-colors hover:bg-white/10 hover:text-white"
                       title={localizeUi("ui.game.gamenarration.loadTheEntireSessionLog")}
                     >
@@ -5239,6 +5278,7 @@ export function GameNarration({
                     setEditingLogSeg(null);
                     logScrolledRef.current = false;
                   }}
+                  data-testid="game-narration-logs-close-button"
                   className="rounded-lg p-1 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   <X size={16} />
@@ -5275,6 +5315,7 @@ export function GameNarration({
                       logScrolledRef.current = true;
                       loadOlderLogs();
                     }}
+                    data-testid="game-narration-logs-show-more-button"
                     className="rounded-md border border-white/10 bg-black/55 px-3 py-1.5 text-xs font-medium text-white/70 shadow-lg transition-colors hover:bg-white/10 hover:text-white"
                   >
                     {localizeUi("ui.game.gamesurfacecomponent.showMoreOlderLogs")}
@@ -5405,6 +5446,7 @@ export function GameNarration({
                           type="button"
                           onPointerDown={stopLogActionPointerDown}
                           onClick={(event) => handleLogCopyButtonClick(event, copyKey, copyText)}
+                          data-testid={`game-narration-log-copy-${seg.id}`}
                           className={LOG_SEGMENT_ACTION_BTN}
                           title={localizeUi("lorebook.editor.batch.copy")}
                         >
@@ -5421,6 +5463,7 @@ export function GameNarration({
                             onBranchMessage?.(sourceMessageId);
                             setLogsOpen(false);
                           }}
+                          data-testid={`game-narration-log-branch-${seg.id}`}
                           className={LOG_SEGMENT_ACTION_BTN}
                           title={localizeUi("ui.game.gamenarration.branchFromHere")}
                           aria-label={localizeUi("ui.game.gamenarration.branchFromHere")}
@@ -5446,6 +5489,7 @@ export function GameNarration({
                               );
                             }}
                             disabled={isTranslating}
+                            data-testid={`game-narration-log-translate-${seg.id}`}
                             className={LOG_SEGMENT_ACTION_BTN}
                             title={
                               translatedText
@@ -5476,6 +5520,7 @@ export function GameNarration({
                               onDeleteSegment?.(sourceMessageId, sourceSegmentIndex);
                             }
                           }}
+                          data-testid={`game-narration-log-delete-${seg.id}`}
                           className={cn(LOG_SEGMENT_ACTION_BTN, LOG_DELETE_ACTION_BTN)}
                           title={
                             canDeleteThisSegment
@@ -5520,6 +5565,7 @@ export function GameNarration({
                               type="button"
                               onClick={(event) => handleGameVoiceButtonClick(event, voiceKey)}
                               disabled={voiceEntry.status === "loading"}
+                              data-testid={`game-narration-log-voice-play-${seg.id}`}
                               className={cn(
                                 "inline-flex h-5 w-5 items-center justify-center rounded-full text-white/45 transition-colors hover:bg-white/10 hover:text-sky-200 disabled:cursor-wait disabled:opacity-60",
                                 voiceActive && "bg-sky-400/15 text-sky-200",
@@ -5551,6 +5597,7 @@ export function GameNarration({
                                 <button
                                   type="button"
                                   onClick={(event) => handleRestartGameVoiceButtonClick(event, voiceKey)}
+                                  data-testid={`game-narration-log-voice-restart-${seg.id}`}
                                   className="inline-flex h-5 w-5 items-center justify-center rounded-full text-sky-200 transition-colors hover:bg-white/10"
                                   title={localizeUi("ui.game.gamenarration.restartVoiceOver")}
                                 >
@@ -5559,6 +5606,7 @@ export function GameNarration({
                                 <button
                                   type="button"
                                   onClick={handleStopGameVoiceButtonClick}
+                                  data-testid={`game-narration-log-voice-stop-${seg.id}`}
                                   className="inline-flex h-5 w-5 items-center justify-center rounded-full text-sky-200 transition-colors hover:bg-white/10"
                                   title={localizeUi("ui.game.gamenarration.stopVoiceOver")}
                                 >
@@ -5598,6 +5646,7 @@ export function GameNarration({
                                 });
                                 restoreLogScrollTop(scrollTop);
                               }}
+                              data-testid={`game-narration-log-edit-${seg.id}`}
                               className={LOG_SEGMENT_ACTION_BTN}
                               title={localizeUi("ui.noodle.noodlepostcard.edit")}
                             >
@@ -5621,6 +5670,7 @@ export function GameNarration({
                                 });
                                 restoreLogScrollTop(scrollTop);
                               }}
+                              data-testid={`game-narration-log-save-${seg.id}`}
                               className="rounded bg-emerald-500/20 p-1 text-emerald-300 transition-colors hover:bg-emerald-500/30"
                               title={localizeUi("ui.noodle.noodlehome.save")}
                             >
@@ -5655,6 +5705,7 @@ export function GameNarration({
                         isEditingThis && seg.type === "dialogue" && canEditSegment ? (
                           <input
                             key={`${sourceMessageId}:${sourceSegmentIndex}:speaker`}
+                            data-testid={`game-narration-log-speaker-input-${seg.id}`}
                             className="mb-1 w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-[0.7rem] font-semibold text-white/90 outline-none focus:border-white/30"
                             defaultValue={editingLogSeg?.speaker ?? ""}
                             placeholder={localizeUi("ui.game.gamenarration.speakerName")}
@@ -5671,6 +5722,7 @@ export function GameNarration({
                         <textarea
                           key={`${sourceMessageId}:${sourceSegmentIndex}:content`}
                           ref={logEditTextareaRef}
+                          data-testid={`game-narration-log-edit-textarea-${seg.id}`}
                           className="mt-1 w-full rounded border border-white/10 bg-black/40 px-2 py-1 text-xs text-white/90 outline-none focus:border-white/30"
                           style={narrationFontStyle}
                           defaultValue={editingLogSeg.content}
@@ -5708,6 +5760,7 @@ export function GameNarration({
                             key={seg.id}
                             {...(jumpRowProps ?? {})}
                             data-log-anchor-key={logAnchorKey}
+                            data-testid={`game-narration-log-row-${seg.id}`}
                             className={cn(
                               "group/logseg relative flex gap-2 rounded-lg border px-3 py-2",
                               seg.partyType === "thought"
@@ -5728,6 +5781,7 @@ export function GameNarration({
                                 <button
                                   type="button"
                                   onClick={(event) => handleNpcPortraitAvatarClick(event, seg.speaker)}
+                                  data-testid={`game-narration-log-portrait-upload-${seg.id}`}
                                   className="rounded-lg transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/20"
                                   title={localizeUi("ui.game.npcsview.uploadOrReplaceNpcPortrait")}
                                 >
@@ -5757,6 +5811,7 @@ export function GameNarration({
                                       triggerNpcPortraitGenerate(seg.speaker);
                                     }}
                                     disabled={logPortraitGenerating}
+                                    data-testid={`game-narration-log-portrait-generate-${seg.id}`}
                                     className={cn(
                                       "absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-black/75 text-[var(--primary)] opacity-0 ring-1 ring-white/15 transition-opacity disabled:cursor-wait md:group-hover/log-avatar:opacity-100",
                                       (logPortraitGenerating || isMobilePortraitActionsVisible(seg.speaker)) &&
@@ -5841,6 +5896,7 @@ export function GameNarration({
                             key={seg.id}
                             {...(jumpRowProps ?? {})}
                             data-log-anchor-key={logAnchorKey}
+                            data-testid={`game-narration-log-row-${seg.id}`}
                             className={cn(
                               "group/logseg relative rounded-lg border border-cyan-400/15 bg-cyan-950/15 px-3 py-2",
                               isActiveSeg && "ring-1 ring-[var(--primary)]/40",
@@ -5873,6 +5929,7 @@ export function GameNarration({
                             key={seg.id}
                             {...(jumpRowProps ?? {})}
                             data-log-anchor-key={logAnchorKey}
+                            data-testid={`game-narration-log-row-${seg.id}`}
                             className={cn(
                               "group/logseg relative rounded-lg border border-amber-400/15 bg-amber-950/15 px-3 py-2",
                               isActiveSeg && "ring-1 ring-[var(--primary)]/40",
@@ -5917,6 +5974,7 @@ export function GameNarration({
                           key={seg.id}
                           {...(jumpRowProps ?? {})}
                           data-log-anchor-key={logAnchorKey}
+                          data-testid={`game-narration-log-row-${seg.id}`}
                           className={cn(
                             "group/logseg relative rounded-lg border border-white/5 bg-black/20 px-3 py-2",
                             isActiveSeg && "ring-1 ring-[var(--primary)]/40",

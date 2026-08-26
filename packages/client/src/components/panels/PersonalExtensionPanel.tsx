@@ -109,6 +109,7 @@ export function PersonalExtensionPanel() {
                     maxLength={PERSONAL_EXTENSION_UI_LIMITS.textLength}
                     placeholder={element.placeholder}
                     aria-label={element.label ? undefined : (element.placeholder ?? element.id)}
+                    data-testid={`personal-extension-input-${element.id}`}
                     value={values[element.id] ?? ""}
                     onChange={(event) =>
                       setValues((current) => ({ ...current, [element.id]: event.currentTarget.value }))
@@ -121,6 +122,7 @@ export function PersonalExtensionPanel() {
                     maxLength={PERSONAL_EXTENSION_UI_LIMITS.textLength}
                     placeholder={element.placeholder}
                     aria-label={element.label ? undefined : (element.placeholder ?? element.id)}
+                    data-testid={`personal-extension-input-${element.id}`}
                     value={values[element.id] ?? ""}
                     onChange={(event) =>
                       setValues((current) => ({ ...current, [element.id]: event.currentTarget.value }))
@@ -137,6 +139,7 @@ export function PersonalExtensionPanel() {
                 {element.label && <span>{element.label}</span>}
                 <select
                   aria-label={element.label ? undefined : element.id}
+                  data-testid={`personal-extension-select-${element.id}`}
                   value={values[element.id] ?? element.options[0]?.value ?? ""}
                   onChange={(event) =>
                     setValues((current) => ({ ...current, [element.id]: event.currentTarget.value }))
@@ -165,6 +168,7 @@ export function PersonalExtensionPanel() {
                   onChange={(event) =>
                     setValues((current) => ({ ...current, [element.id]: String(event.currentTarget.checked) }))
                   }
+                  data-testid={`personal-extension-toggle-${element.id}`}
                   className="h-5 w-5 shrink-0 accent-[var(--primary)]"
                 />
               </label>
@@ -182,6 +186,7 @@ export function PersonalExtensionPanel() {
                   min={element.min}
                   max={element.max}
                   step={element.step}
+                  data-testid={`personal-extension-slider-${element.id}`}
                   value={values[element.id] ?? element.min}
                   onChange={(event) =>
                     setValues((current) => ({ ...current, [element.id]: event.currentTarget.value }))
@@ -200,6 +205,7 @@ export function PersonalExtensionPanel() {
                 <span>{element.label}</span>
                 <input
                   type="color"
+                  data-testid={`personal-extension-color-${element.id}`}
                   value={values[element.id] ?? "#808080"}
                   onChange={(event) =>
                     setValues((current) => ({ ...current, [element.id]: event.currentTarget.value }))
@@ -215,6 +221,7 @@ export function PersonalExtensionPanel() {
                 key={key}
                 type="button"
                 onClick={() => dispatchPersonalExtensionContributionEvent(contribution.key, element.id, values)}
+                data-testid={`personal-extension-button-${element.id}`}
                 className="min-h-10 self-start rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] active:scale-[0.98]"
               >
                 {element.label}

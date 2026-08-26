@@ -72,6 +72,7 @@ export function CompactCharacterField({
         <button
           type="button"
           onClick={onToggleHidden}
+          data-testid="compact-character-field-toggle-hidden"
           title={
             hidden
               ? localizeUi("ui.trackerPanel.compactcharacterfield.showValue1", {

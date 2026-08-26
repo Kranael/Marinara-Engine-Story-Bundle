@@ -39,12 +39,14 @@ export function SceneInstructionsSection({
           onBlur={commitIfChanged}
           placeholder={localizeUi("ui.chatSettings.sceneinstructionssection.sceneSystemPrompt")}
           rows={6}
+          data-testid="scene-instructions-textarea"
           className="w-full resize-y rounded-lg bg-[var(--secondary)] px-3 py-2 pr-8 text-xs leading-relaxed outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]/40"
         />
         <button
           type="button"
           aria-label={localizeUi("ui.chatSettings.sceneinstructionssection.expandSceneInstructionsEditor")}
           onClick={() => onExpandedChange(true)}
+          data-testid="scene-instructions-expand-button"
           className="absolute right-1.5 top-1.5 rounded p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           title={localizeUi("ui.chatSettings.sceneinstructionssection.expandEditor")}
         >

@@ -172,6 +172,7 @@ export function CustomGenerationParametersSettings() {
                 <button
                   type="button"
                   onClick={() => openForEdit(definition)}
+                  data-testid={`custom-generation-parameter-edit-${definition.id}`}
                   className="mari-chrome-control mari-chrome-control--compact h-7 w-7 p-0"
                   aria-label={t("settings.customGenerationParameters.editAction", { name: definition.name })}
                   title={t("settings.customGenerationParameters.editAction", { name: definition.name })}
@@ -182,6 +183,7 @@ export function CustomGenerationParametersSettings() {
                   type="button"
                   onClick={() => void deleteDefinition(definition)}
                   disabled={saveDefinitions.isPending}
+                  data-testid={`custom-generation-parameter-delete-${definition.id}`}
                   className="mari-chrome-control mari-chrome-control--compact h-7 w-7 p-0"
                   aria-label={t("settings.customGenerationParameters.deleteActionNamed", { name: definition.name })}
                   title={t("settings.customGenerationParameters.deleteActionNamed", { name: definition.name })}
@@ -208,6 +210,7 @@ export function CustomGenerationParametersSettings() {
               <input
                 value={draft.name}
                 onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
+                data-testid="custom-generation-parameter-name-input"
                 className="w-full rounded-lg bg-[var(--secondary)] px-2.5 py-2 text-xs outline-none ring-1 ring-[var(--border)] focus:ring-[var(--ring)]"
               />
             </label>
@@ -220,6 +223,7 @@ export function CustomGenerationParametersSettings() {
                 onChange={(event) => setDraft((current) => ({ ...current, requestKey: event.target.value }))}
                 placeholder={t("settings.customGenerationParameters.valuePlaceholder")}
                 spellCheck={false}
+                data-testid="custom-generation-parameter-request-key-input"
                 className="w-full rounded-lg bg-[var(--secondary)] px-2.5 py-2 font-mono text-xs outline-none ring-1 ring-[var(--border)] placeholder:text-[var(--muted-foreground)]/60 focus:ring-[var(--ring)]"
               />
             </label>
@@ -231,6 +235,7 @@ export function CustomGenerationParametersSettings() {
                 value={draft.min}
                 onChange={(event) => setDraft((current) => ({ ...current, min: event.target.value }))}
                 inputMode="decimal"
+                data-testid="custom-generation-parameter-min-input"
                 className="w-full rounded-lg bg-[var(--secondary)] px-2.5 py-2 text-xs outline-none ring-1 ring-[var(--border)] focus:ring-[var(--ring)]"
               />
             </label>
@@ -242,6 +247,7 @@ export function CustomGenerationParametersSettings() {
                 value={draft.max}
                 onChange={(event) => setDraft((current) => ({ ...current, max: event.target.value }))}
                 inputMode="decimal"
+                data-testid="custom-generation-parameter-max-input"
                 className="w-full rounded-lg bg-[var(--secondary)] px-2.5 py-2 text-xs outline-none ring-1 ring-[var(--border)] focus:ring-[var(--ring)]"
               />
             </label>
@@ -254,6 +260,7 @@ export function CustomGenerationParametersSettings() {
               value={draft.tooltip}
               onChange={(event) => setDraft((current) => ({ ...current, tooltip: event.target.value }))}
               rows={3}
+              data-testid="custom-generation-parameter-tooltip-input"
               className="w-full resize-y rounded-lg bg-[var(--secondary)] px-2.5 py-2 text-xs outline-none ring-1 ring-[var(--border)] focus:ring-[var(--ring)]"
             />
           </label>
@@ -262,6 +269,7 @@ export function CustomGenerationParametersSettings() {
             <button
               type="button"
               onClick={resetForm}
+              data-testid="custom-generation-parameter-cancel-button"
               className="mari-chrome-control mari-chrome-control--compact justify-center px-3"
             >
               <X size="0.75rem" />
@@ -271,6 +279,7 @@ export function CustomGenerationParametersSettings() {
               type="button"
               onClick={() => void saveDraft()}
               disabled={saveDefinitions.isPending}
+              data-testid="custom-generation-parameter-save-button"
               className={cn(
                 "mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected justify-center px-3",
                 saveDefinitions.isPending && "opacity-60",
@@ -288,6 +297,7 @@ export function CustomGenerationParametersSettings() {
             setDraft(EMPTY_DRAFT);
             setFormOpen(true);
           }}
+          data-testid="custom-generation-parameter-add-button"
           className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected w-full justify-center px-3"
         >
           <Plus size="0.75rem" />

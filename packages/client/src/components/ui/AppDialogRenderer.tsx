@@ -79,6 +79,7 @@ export function AppDialogRenderer() {
             )}
             <input
               ref={promptInputRef}
+              data-testid="app-dialog-prompt-input"
               value={promptValue}
               onChange={(event) => setPromptValue(event.target.value)}
               placeholder={dialog.placeholder}
@@ -87,6 +88,7 @@ export function AppDialogRenderer() {
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
+                data-testid="app-dialog-cancel-button"
                 onClick={dismissActiveDialog}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               >
@@ -94,6 +96,7 @@ export function AppDialogRenderer() {
               </button>
               <button
                 type="submit"
+                data-testid="app-dialog-confirm-button"
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${confirmToneClass}`}
               >
                 {dialog.confirmLabel ?? "Confirm"}
@@ -107,6 +110,7 @@ export function AppDialogRenderer() {
             <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
+                data-testid="app-dialog-cancel-button"
                 onClick={dismissActiveDialog}
                 className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
               >
@@ -114,6 +118,7 @@ export function AppDialogRenderer() {
               </button>
               <button
                 type="button"
+                data-testid="app-dialog-confirm-button"
                 onClick={() => resolveActiveDialog(true)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${confirmToneClass}`}
               >
@@ -127,6 +132,7 @@ export function AppDialogRenderer() {
           <div className="flex items-center justify-end">
             <button
               type="button"
+              data-testid="app-dialog-ok-button"
               onClick={() => resolveActiveDialog(undefined)}
               className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${confirmToneClass}`}
             >
@@ -142,6 +148,7 @@ export function AppDialogRenderer() {
                 <button
                   key={choice.key}
                   type="button"
+                  data-testid={`app-dialog-choice-${choice.key}`}
                   onClick={() => resolveActiveDialog(choice.key)}
                   className={`w-full rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                     choice.tone === "destructive" || choice.tone === "accent"
@@ -157,6 +164,7 @@ export function AppDialogRenderer() {
             </div>
             <button
               type="button"
+              data-testid="app-dialog-cancel-button"
               onClick={dismissActiveDialog}
               className="w-full rounded-lg px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             >

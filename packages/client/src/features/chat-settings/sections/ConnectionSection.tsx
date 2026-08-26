@@ -40,6 +40,7 @@ export function ConnectionSection({ connectionId, connections, isGame, onConnect
             <select
               value={connectionId ?? ""}
               onChange={(e) => onConnectionChange(e.target.value || null)}
+              data-testid="connection-select-game"
               className="w-full rounded-lg bg-foreground/5 px-3 py-2 text-xs outline-none ring-1 ring-foreground/10 transition-shadow focus:ring-foreground/20"
             >
               <option value="">{localizeUi("ui.game.gamesurfacecomponent.none")}</option>
@@ -60,6 +61,7 @@ export function ConnectionSection({ connectionId, connections, isGame, onConnect
           <select
             value={connectionId ?? ""}
             onChange={(e) => onConnectionChange(e.target.value || null)}
+            data-testid="connection-select"
             className="w-full rounded-lg bg-foreground/5 px-3 py-2 text-xs outline-none ring-1 ring-foreground/10 transition-shadow focus:ring-foreground/20"
           >
             <option value="">{localizeUi("ui.game.gamesurfacecomponent.none")}</option>

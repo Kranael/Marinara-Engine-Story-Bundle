@@ -274,6 +274,7 @@ export function TopBar() {
       aria-pressed={sidebarOpen}
       data-tour="sidebar-toggle"
       data-topbar-hover-key="chats"
+      data-testid="topbar-chats-button"
       className={cn(
         TOPBAR_BUTTON_CLASS,
         sidebarOpen
@@ -309,6 +310,7 @@ export function TopBar() {
       onClick={handleHomeClick}
       aria-pressed={isHomeActive}
       data-topbar-hover-key="home"
+      data-testid="topbar-home-button"
       className={cn(
         TOPBAR_BUTTON_CLASS,
         isHomeActive
@@ -368,6 +370,7 @@ export function TopBar() {
           aria-pressed={isCharactersPanelActive}
           data-tour="panel-characters"
           data-topbar-hover-key="characters"
+          data-testid="topbar-panel-characters-button"
           className={cn(
             TOPBAR_PANEL_BUTTON_CLASS,
             isCharactersPanelActive
@@ -400,6 +403,7 @@ export function TopBar() {
               aria-pressed={isActive}
               data-tour={`panel-${panel}`}
               data-topbar-hover-key={panel}
+              data-testid={`topbar-panel-${panel}-button`}
               className={cn(
                 TOPBAR_PANEL_BUTTON_CLASS,
                 "mari-topbar-panel-icon",
@@ -428,6 +432,7 @@ export function TopBar() {
           data-tour="panel-settings"
           data-topbar-hover-key="settings"
           aria-pressed={rightPanelOpen && rightPanel === "settings"}
+          data-testid="topbar-panel-settings-button"
           className={cn(
             TOPBAR_PANEL_BUTTON_CLASS,
             rightPanelOpen && rightPanel === "settings"

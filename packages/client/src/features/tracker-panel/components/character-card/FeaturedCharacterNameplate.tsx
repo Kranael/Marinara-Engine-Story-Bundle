@@ -64,6 +64,7 @@ export function FeaturedCharacterNameplate({
         event.stopPropagation();
         onToggleThoughts();
       }}
+      data-testid="featured-character-nameplate-toggle-thoughts"
       title={thoughtButtonLabel}
       aria-label={thoughtButtonLabel}
       aria-expanded={thoughtsOpen}
@@ -81,6 +82,7 @@ export function FeaturedCharacterNameplate({
       <button
         type="button"
         onClick={onToggleFeatured}
+        data-testid="featured-character-nameplate-toggle-featured"
         title={localizeUi("ui.trackerPanel.featuredcharacternameplate.useCompactCharacterCard")}
         aria-label={localizeUi("ui.trackerPanel.featuredcharacternameplate.useCompactCharacterCard")}
         aria-pressed

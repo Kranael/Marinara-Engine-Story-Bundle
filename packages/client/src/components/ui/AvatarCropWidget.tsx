@@ -224,6 +224,7 @@ export function AvatarCropWidget({ src, alt, crop, onChange, onRemove, removing 
         <div className="flex items-center gap-1.5">
           <button
             type="button"
+            data-testid="avatar-crop-full-image-button"
             onClick={() => setShowFullView(true)}
             className="mari-editor-action mari-editor-action--compact inline-flex gap-1 rounded-lg px-2 py-1 text-[0.625rem]"
             title={localizeUi("ui.ui.avatarcropwidget.openFullImage")}
@@ -232,6 +233,7 @@ export function AvatarCropWidget({ src, alt, crop, onChange, onRemove, removing 
           </button>
           <button
             type="button"
+            data-testid="avatar-crop-reset-button"
             onClick={reset}
             className="mari-editor-action mari-editor-action--compact inline-flex gap-1 rounded-lg px-2 py-1 text-[0.625rem]"
             title={localizeUi("ui.ui.avatarcropwidget.resetToCenteredMaxSquareCrop")}
@@ -241,6 +243,7 @@ export function AvatarCropWidget({ src, alt, crop, onChange, onRemove, removing 
           {onRemove && (
             <button
               type="button"
+              data-testid="avatar-crop-remove-button"
               onClick={onRemove}
               disabled={removing}
               className="mari-editor-action mari-editor-action--compact mari-editor-action--danger inline-flex gap-1 rounded-lg px-2 py-1 text-[0.625rem]"

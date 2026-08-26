@@ -171,11 +171,13 @@ function ChannelToggle({
   disabled,
   label,
   onChange,
+  testId,
 }: {
   checked: boolean;
   disabled?: boolean;
   label: string;
   onChange: (checked: boolean) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   return (
@@ -194,6 +196,7 @@ function ChannelToggle({
     >
       <input
         type="checkbox"
+        data-testid={testId}
         checked={checked}
         disabled={disabled}
         onChange={(event) => onChange(event.target.checked)}
@@ -267,6 +270,7 @@ export function TrackerCardColorControls({
     <div className={cn("rounded-xl border border-[var(--border)] bg-[var(--card)] p-2.5", disabled && "opacity-75")}>
       <button
         type="button"
+        data-testid="tracker-card-color-collapse-toggle"
         onClick={() => setCollapsed((open) => !open)}
         aria-expanded={!collapsed}
         title={
@@ -321,6 +325,7 @@ export function TrackerCardColorControls({
                     <button
                       key={option.mode}
                       type="button"
+                      data-testid={`tracker-card-color-mode-${option.mode}`}
                       onClick={() => updateMode(option.mode)}
                       disabled={disabled}
                       className={cn(
@@ -351,6 +356,7 @@ export function TrackerCardColorControls({
                     <button
                       key={option.value}
                       type="button"
+                      data-testid={`tracker-card-color-stage-${option.value}`}
                       title={option.title}
                       onClick={() => updatePortraitStageBackground(option.value)}
                       disabled={disabled}
@@ -386,6 +392,7 @@ export function TrackerCardColorControls({
                     <button
                       key={preset.label}
                       type="button"
+                      data-testid={`tracker-card-color-finish-preset-${preset.label}`}
                       title={preset.title}
                       onClick={() => updateFinishPreset(preset.finish)}
                       disabled={disabled}
@@ -417,6 +424,7 @@ export function TrackerCardColorControls({
                     </span>
                     <input
                       type="range"
+                      data-testid={`tracker-card-color-finish-range-${option.key}`}
                       aria-label={localizeUi("ui.ui.customemojitagbutton.value1Value2", {
                         value1: option.label,
                         value2: option.title,
@@ -469,6 +477,7 @@ export function TrackerCardColorControls({
                           {option.label}
                         </span>
                         <ChannelToggle
+                          testId={`tracker-card-color-channel-toggle-${option.key}`}
                           checked={channelEnabled}
                           disabled={disabled}
                           label={option.label}
@@ -477,6 +486,7 @@ export function TrackerCardColorControls({
                       </span>
                       <input
                         type="range"
+                        data-testid={`tracker-card-color-paint-range-${option.key}`}
                         aria-label={localizeUi("ui.ui.customemojitagbutton.value1Value2", {
                           value1: option.label,
                           value2: option.title,
@@ -525,6 +535,7 @@ export function TrackerCardColorControls({
                       )}
                     >
                       <ColorPicker
+                        testId={`tracker-card-color-picker-${option.key}`}
                         value={config[option.colorKey] ?? ""}
                         onChange={(color) => updateCustomColor(option.colorKey, color)}
                         gradient
@@ -534,6 +545,7 @@ export function TrackerCardColorControls({
                         helpText={option.title}
                         headerAction={
                           <ChannelToggle
+                            testId={`tracker-card-color-channel-toggle-${option.key}`}
                             checked={channelEnabled}
                             disabled={disabled}
                             label={option.label}
@@ -552,6 +564,7 @@ export function TrackerCardColorControls({
                         </span>
                         <input
                           type="range"
+                          data-testid={`tracker-card-color-custom-paint-range-${option.key}`}
                           aria-label={localizeUi("ui.ui.customemojitagbutton.value1Value2", {
                             value1: option.label,
                             value2: option.title,

@@ -116,6 +116,7 @@ export function ImportConnectionModal({ open, onClose }: Props) {
           }}
           onDragLeave={() => setDragOver(false)}
           onClick={() => fileRef.current?.click()}
+          data-testid="import-connection-modal-dropzone"
           className={`flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-all ${
             dragOver
               ? "border-[var(--primary)] bg-[var(--primary)]/10"
@@ -142,6 +143,7 @@ export function ImportConnectionModal({ open, onClose }: Props) {
           accept=".json,application/json"
           multiple
           className="hidden"
+          data-testid="import-connection-modal-file-input"
           onChange={(event) => {
             void handleFiles(Array.from(event.target.files ?? []));
             event.target.value = "";

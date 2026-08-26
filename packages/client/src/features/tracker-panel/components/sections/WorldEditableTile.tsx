@@ -20,6 +20,7 @@ export function WorldRenderedEdit({
   lockMode = false,
   onToggleLock,
   children,
+  testId,
 }: {
   label: string;
   value: string | null | undefined;
@@ -32,6 +33,7 @@ export function WorldRenderedEdit({
   lockMode?: boolean;
   onToggleLock?: () => void;
   children: ReactNode;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const currentValue = value === null || value === undefined ? "" : String(value);
@@ -75,6 +77,7 @@ export function WorldRenderedEdit({
         ref={inputRef}
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
+        data-testid={testId}
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
             event.preventDefault();
@@ -108,6 +111,7 @@ export function WorldRenderedEdit({
         }
         setEditing(true);
       }}
+      data-testid={testId}
       title={
         lockToggleActive
           ? locked

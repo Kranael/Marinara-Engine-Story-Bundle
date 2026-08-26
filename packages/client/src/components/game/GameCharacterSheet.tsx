@@ -479,6 +479,7 @@ export function GameCharacterSheet({
                 <button
                   onClick={handleCancelEdit}
                   disabled={isSaving || isRegenerating}
+                  data-testid="game-character-sheet-cancel-edit-button"
                   className="inline-flex h-8 items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-2.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)] disabled:opacity-60 sm:h-auto sm:px-3 sm:py-1.5"
                 >
                   {localizeUi("chat.delete.dialog.cancel")}
@@ -487,6 +488,7 @@ export function GameCharacterSheet({
                   <button
                     onClick={() => void handleRegenerate()}
                     disabled={isRegenerating || isSaving}
+                    data-testid="game-character-sheet-regenerate-button"
                     className="inline-flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)] disabled:cursor-wait disabled:opacity-60 sm:h-auto sm:min-w-0 sm:px-3 sm:py-1.5"
                     title={localizeUi("game.characterSheet.regenerate.help")}
                     aria-label={localizeUi("game.characterSheet.regenerate.label")}
@@ -502,6 +504,7 @@ export function GameCharacterSheet({
                 <button
                   onClick={() => void handleSave()}
                   disabled={isSaving || isRegenerating}
+                  data-testid="game-character-sheet-save-button"
                   className="inline-flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-lg bg-[var(--marinara-chat-chrome-highlight-bg)] px-2 text-xs font-semibold text-[var(--foreground)] ring-1 ring-[var(--marinara-chat-chrome-panel-border)] transition-colors hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] disabled:opacity-60 sm:h-auto sm:min-w-0 sm:px-3 sm:py-1.5"
                   title={
                     isSaving
@@ -527,6 +530,7 @@ export function GameCharacterSheet({
                 <button
                   onClick={() => setIsEditing(true)}
                   disabled={isRegenerating}
+                  data-testid="game-character-sheet-edit-button"
                   className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] bg-[var(--marinara-chat-chrome-button-bg)] p-0 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)] disabled:opacity-60 sm:h-auto sm:w-auto sm:min-w-0 sm:gap-1.5 sm:px-3 sm:py-1.5"
                   title={localizeUi("ui.game.gamecharactersheet.editSheet")}
                   aria-label={localizeUi("ui.game.gamecharactersheet.editSheet_8c3fdc2")}
@@ -541,6 +545,7 @@ export function GameCharacterSheet({
 
         <button
           onClick={onClose}
+          data-testid="game-character-sheet-close-button"
           className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-lg p-0 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)] sm:h-auto sm:w-auto sm:p-1.5"
           aria-label={localizeUi("ui.game.gamecharactersheet.closeCharacterSheet")}
           title={localizeUi("ui.game.gamecharactersheet.closeCharacterSheet")}
@@ -554,6 +559,7 @@ export function GameCharacterSheet({
               type="button"
               onClick={() => avatarInputRef.current?.click()}
               disabled={!onAvatarSelect || isAvatarUploading}
+              data-testid="game-character-sheet-avatar-button"
               className="group/avatar relative block h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 border-[var(--marinara-chat-chrome-panel-border)] shadow-xl transition-colors hover:border-[var(--marinara-chat-chrome-input-border-focus)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)] disabled:cursor-default sm:h-20 sm:w-20"
               aria-label={localizeUi("ui.game.gamecharactersheet.changePortrait", { name: card.title })}
               title={localizeUi("ui.game.gamecharactersheet.changePortrait", { name: card.title })}
@@ -581,6 +587,7 @@ export function GameCharacterSheet({
               type="file"
               accept="image/png,image/jpeg,image/webp,image/gif"
               onChange={(event) => void handleAvatarChange(event)}
+              data-testid="game-character-sheet-avatar-file-input"
               className="sr-only"
               tabIndex={-1}
             />
@@ -644,6 +651,7 @@ export function GameCharacterSheet({
                       type="text"
                       value={draft.class}
                       onChange={(e) => setDraft((prev) => ({ ...prev, class: e.target.value }))}
+                      data-testid="game-character-sheet-class-input"
                       placeholder={localizeUi("ui.game.gamecharactersheet.classOrRole")}
                       className={TEXT_INPUT_CLASS}
                     />
@@ -655,6 +663,7 @@ export function GameCharacterSheet({
                     <textarea
                       value={draft.shortDescription}
                       onChange={(e) => setDraft((prev) => ({ ...prev, shortDescription: e.target.value }))}
+                      data-testid="game-character-sheet-short-description-textarea"
                       placeholder={localizeUi("ui.game.gamecharactersheet.briefCharacterSummary")}
                       rows={3}
                       className={cn(TEXT_INPUT_CLASS, "resize-y")}
@@ -675,6 +684,7 @@ export function GameCharacterSheet({
                       type="checkbox"
                       checked={draft.rpgStatsEnabled}
                       onChange={(e) => setDraft((prev) => ({ ...prev, rpgStatsEnabled: e.target.checked }))}
+                      data-testid="game-character-sheet-rpg-stats-checkbox"
                       className="h-4 w-4 rounded accent-[var(--foreground)]"
                     />
                     {localizeUi("ui.presets.sectionstab.enable")}
@@ -687,6 +697,7 @@ export function GameCharacterSheet({
                         <span className={FIELD_LABEL_CLASS}>{localizeUi("ui.characters.statstab.pools")}</span>
                         <button
                           onClick={addPool}
+                          data-testid="game-character-sheet-add-pool-button"
                           className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--marinara-chat-chrome-panel-border)] px-3 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)]"
                         >
                           <Plus size={13} />
@@ -702,6 +713,7 @@ export function GameCharacterSheet({
                             type="color"
                             value={pool.color}
                             onChange={(e) => updatePool(index, { color: e.target.value })}
+                            data-testid={`game-character-sheet-pool-color-${index}`}
                             className="h-9 w-8 rounded border border-[var(--marinara-chat-chrome-panel-border)] bg-transparent p-0.5 max-sm:w-full"
                             aria-label={localizeUi("ui.game.gamecharactersheet.value1Color", {
                               value1: pool.name || localizeUi("ui.game.gamecharactersheet.pool"),
@@ -711,6 +723,7 @@ export function GameCharacterSheet({
                             type="text"
                             value={pool.name}
                             onChange={(e) => updatePool(index, { name: e.target.value })}
+                            data-testid={`game-character-sheet-pool-name-${index}`}
                             placeholder={localizeUi("ui.game.gamecharactersheet.hp")}
                             className={TEXT_INPUT_CLASS}
                           />
@@ -720,6 +733,7 @@ export function GameCharacterSheet({
                             min={0}
                             selectOnFocus
                             ariaLabel={`${pool.name || "Pool"} value`}
+                            testId={`game-character-sheet-pool-value-${index}`}
                             className={NUMBER_INPUT_CLASS}
                           />
                           <DraftNumberInput
@@ -728,10 +742,12 @@ export function GameCharacterSheet({
                             onCommit={(value) => updatePool(index, { max: Math.max(1, value) })}
                             selectOnFocus
                             ariaLabel={`${pool.name || "Pool"} max`}
+                            testId={`game-character-sheet-pool-max-${index}`}
                             className={NUMBER_INPUT_CLASS}
                           />
                           <button
                             onClick={() => removePool(index)}
+                            data-testid={`game-character-sheet-remove-pool-${index}`}
                             className="inline-flex items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] px-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-red-400 max-sm:h-9"
                             title={localizeUi("ui.game.gamecharactersheet.removePool")}
                           >
@@ -747,6 +763,7 @@ export function GameCharacterSheet({
                             type="text"
                             value={attr.name}
                             onChange={(e) => updateAttribute(index, "name", e.target.value)}
+                            data-testid={`game-character-sheet-attribute-name-${index}`}
                             placeholder={localizeUi("ui.game.gamecharactersheet.str")}
                             className={TEXT_INPUT_CLASS}
                           />
@@ -754,10 +771,12 @@ export function GameCharacterSheet({
                             value={attr.value}
                             onCommit={(value) => updateAttribute(index, "value", value)}
                             selectOnFocus
+                            testId={`game-character-sheet-attribute-value-${index}`}
                             className={NUMBER_INPUT_CLASS}
                           />
                           <button
                             onClick={() => removeAttribute(index)}
+                            data-testid={`game-character-sheet-remove-attribute-${index}`}
                             className="inline-flex items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] px-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-red-400"
                             title={localizeUi("ui.game.gamecharactersheet.removeAttribute")}
                           >
@@ -767,6 +786,7 @@ export function GameCharacterSheet({
                       ))}
                       <button
                         onClick={addAttribute}
+                        data-testid="game-character-sheet-add-attribute-button"
                         className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--marinara-chat-chrome-panel-border)] px-3 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)]"
                       >
                         <Plus size={13} />
@@ -790,6 +810,7 @@ export function GameCharacterSheet({
                   />
                   <button
                     onClick={() => addListItem("abilities")}
+                    data-testid="game-character-sheet-add-ability-button"
                     className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--marinara-chat-chrome-panel-border)] px-3 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)]"
                   >
                     <Plus size={13} />
@@ -803,11 +824,13 @@ export function GameCharacterSheet({
                         type="text"
                         value={ability}
                         onChange={(e) => updateListItem("abilities", index, e.target.value)}
+                        data-testid={`game-character-sheet-ability-input-${index}`}
                         placeholder={localizeUi("ui.game.gamecharactersheet.dualWieldingArcaneShieldEtc")}
                         className={TEXT_INPUT_CLASS}
                       />
                       <button
                         onClick={() => removeListItem("abilities", index)}
+                        data-testid={`game-character-sheet-remove-ability-${index}`}
                         className="inline-flex items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] px-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-red-400"
                         title={localizeUi("ui.game.gamecharactersheet.removeAbility")}
                       >
@@ -829,6 +852,7 @@ export function GameCharacterSheet({
                       />
                       <button
                         onClick={() => addListItem("strengths")}
+                        data-testid="game-character-sheet-add-strength-button"
                         className="inline-flex items-center gap-1 rounded-lg border border-dashed border-[var(--marinara-chat-chrome-panel-border)] px-2 py-1 text-[0.6875rem] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)]"
                       >
                         <Plus size={12} />
@@ -842,11 +866,13 @@ export function GameCharacterSheet({
                             type="text"
                             value={strength}
                             onChange={(e) => updateListItem("strengths", index, e.target.value)}
+                            data-testid={`game-character-sheet-strength-input-${index}`}
                             placeholder={localizeUi("ui.game.gamecharactersheet.reliableQuickThinkerEtc")}
                             className={TEXT_INPUT_CLASS}
                           />
                           <button
                             onClick={() => removeListItem("strengths", index)}
+                            data-testid={`game-character-sheet-remove-strength-${index}`}
                             className="inline-flex items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] px-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-red-400"
                             title={localizeUi("ui.game.gamecharactersheet.removeStrength")}
                           >
@@ -865,6 +891,7 @@ export function GameCharacterSheet({
                       />
                       <button
                         onClick={() => addListItem("weaknesses")}
+                        data-testid="game-character-sheet-add-weakness-button"
                         className="inline-flex items-center gap-1 rounded-lg border border-dashed border-[var(--marinara-chat-chrome-panel-border)] px-2 py-1 text-[0.6875rem] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)]"
                       >
                         <Plus size={12} />
@@ -878,11 +905,13 @@ export function GameCharacterSheet({
                             type="text"
                             value={weakness}
                             onChange={(e) => updateListItem("weaknesses", index, e.target.value)}
+                            data-testid={`game-character-sheet-weakness-input-${index}`}
                             placeholder={localizeUi("ui.game.gamecharactersheet.impulsivePoorSwimmerEtc")}
                             className={TEXT_INPUT_CLASS}
                           />
                           <button
                             onClick={() => removeListItem("weaknesses", index)}
+                            data-testid={`game-character-sheet-remove-weakness-${index}`}
                             className="inline-flex items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] px-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-red-400"
                             title={localizeUi("ui.game.gamecharactersheet.removeWeakness")}
                           >
@@ -904,6 +933,7 @@ export function GameCharacterSheet({
                   />
                   <button
                     onClick={addExtraEntry}
+                    data-testid="game-character-sheet-add-detail-button"
                     className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--marinara-chat-chrome-panel-border)] px-3 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--foreground)]"
                   >
                     <Plus size={13} />
@@ -923,6 +953,7 @@ export function GameCharacterSheet({
                         type="text"
                         value={entry.key}
                         onChange={(e) => updateExtraEntry(index, "key", e.target.value)}
+                        data-testid={`game-character-sheet-detail-key-${index}`}
                         placeholder={localizeUi("ui.game.gamecharactersheet.skills")}
                         className={TEXT_INPUT_CLASS}
                       />
@@ -930,11 +961,13 @@ export function GameCharacterSheet({
                         type="text"
                         value={entry.value}
                         onChange={(e) => updateExtraEntry(index, "value", e.target.value)}
+                        data-testid={`game-character-sheet-detail-value-${index}`}
                         placeholder={localizeUi("ui.game.gamecharactersheet.lockpickingSurvivalMarksmanship")}
                         className={TEXT_INPUT_CLASS}
                       />
                       <button
                         onClick={() => removeExtraEntry(index)}
+                        data-testid={`game-character-sheet-remove-detail-${index}`}
                         className="inline-flex items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-panel-border)] px-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-red-400 max-sm:h-10"
                         title={localizeUi("ui.game.gamecharactersheet.removeDetail")}
                       >

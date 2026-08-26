@@ -1086,6 +1086,7 @@ export function AgentsPanel() {
         type="file"
         accept="image/*"
         className="hidden"
+        data-testid="agents-panel-image-input"
         onChange={handleAgentImageSelected}
       />
       <input
@@ -1093,6 +1094,7 @@ export function AgentsPanel() {
         type="file"
         accept="application/json,application/zip,.json,.zip"
         className="hidden"
+        data-testid="agents-panel-import-input"
         onChange={handleImportAgents}
       />
       <input
@@ -1100,6 +1102,7 @@ export function AgentsPanel() {
         type="file"
         multiple
         className="hidden"
+        data-testid="agents-panel-folder-import-input"
         onChange={handleImportAgentFolder}
         // @ts-expect-error — webkitdirectory is a non-standard but widely-supported attribute
         webkitdirectory=""
@@ -1108,6 +1111,7 @@ export function AgentsPanel() {
       <button
         type="button"
         onClick={() => openAgentCatalog()}
+        data-testid="agents-panel-download-agents-button"
         className="mari-chrome-control mari-chrome-control--primary w-full text-xs"
       >
         <Sparkles size="0.875rem" />
@@ -1117,6 +1121,7 @@ export function AgentsPanel() {
       <div className="flex gap-2">
         <button
           onClick={handleCreateAgent}
+          data-testid="agents-panel-create-agent-button"
           className={cn("flex-1 text-xs", AGENT_GRADIENT_BUTTON)}
           title={localizeUi("ui.lorebooks.lorebookassignmentsection.new")}
         >
@@ -1125,6 +1130,7 @@ export function AgentsPanel() {
         <button
           type="button"
           onClick={() => void chooseAgentImportSource()}
+          data-testid="agents-panel-import-agents-button"
           aria-disabled={!agentImportsEnabled || agentImportPolicyLoading}
           className={cn(
             "mari-chrome-control mari-chrome-control--primary flex-1 text-xs",
@@ -1139,6 +1145,7 @@ export function AgentsPanel() {
             if (selectionMode) exitSelectionMode();
             else setSelectionMode(true);
           }}
+          data-testid="agents-panel-select-agents-button"
           disabled={selectableAgents.length === 0}
           className={cn(
             "mari-chrome-control mari-chrome-control--primary flex-1 text-xs",
@@ -1154,6 +1161,7 @@ export function AgentsPanel() {
         <select
           value={bulkConnectionId}
           onChange={(event) => setBulkConnectionId(event.target.value)}
+          data-testid="agents-panel-bulk-connection-select"
           disabled={bulkAssigning || bulkAssignTargetCount === 0}
           className="mari-chrome-field h-8 min-w-0 flex-1 px-2 py-0 text-[0.6875rem]"
           aria-label={localizeUi("ui.panels.agentspanel.bulkConnectionLabel")}
@@ -1168,6 +1176,7 @@ export function AgentsPanel() {
         <button
           type="button"
           onClick={() => void handleBulkAssignConnection()}
+          data-testid="agents-panel-bulk-assign-button"
           disabled={bulkAssigning || bulkAssignTargetCount === 0}
           className="mari-chrome-control mari-chrome-control--small h-8 min-h-0 shrink-0 px-2 text-[0.6875rem]"
           title={localizeUi("ui.panels.agentspanel.bulkConnectionLabel")}
@@ -1213,6 +1222,7 @@ export function AgentsPanel() {
               value={agentSearch}
               onChange={(event) => setAgentSearch(event.target.value)}
               placeholder={localize("Search agents")}
+              data-testid="agents-panel-search-input"
               className="mari-chrome-field h-10 w-full py-0 pl-8 pr-3 text-xs md:h-9"
             />
           </div>
@@ -1220,6 +1230,7 @@ export function AgentsPanel() {
             <select
               value={sort}
               onChange={(event) => setSort(event.target.value as ResourcePanelSort)}
+              data-testid="agents-panel-sort-select"
               className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
               title={localizeUi("ui.panels.agentspanel.sortOrder")}
               aria-label={localizeUi("ui.panels.agentspanel.sortAgents")}
@@ -1254,6 +1265,7 @@ export function AgentsPanel() {
           <div className="flex items-center gap-1">
             <button
               onClick={handleCreateFolder}
+              data-testid="agents-panel-create-folder-button"
               className="mari-chrome-control mari-chrome-control--small flex-1 justify-start text-[0.6875rem]"
             >
               <FolderPlus size="0.75rem" />
@@ -1358,6 +1370,7 @@ export function AgentsPanel() {
                       <input
                         autoFocus
                         value={editFolderName}
+                        data-testid={`agents-panel-folder-name-input-${folder.id}`}
                         onChange={(event) => setEditFolderName(event.target.value)}
                         onKeyDown={(event) => {
                           if (event.key === "Enter") event.currentTarget.blur();
@@ -1411,6 +1424,7 @@ export function AgentsPanel() {
                         });
                       }}
                       className="mari-chrome-control mari-chrome-control--small p-1"
+                      data-testid={`agents-panel-delete-folder-button-${folder.id}`}
                       title={localizeUi("ui.panels.backgroundpicker.deleteFolder")}
                     >
                       <Trash2 size="0.6875rem" />
@@ -1676,6 +1690,7 @@ export function AgentsPanel() {
                                   type="checkbox"
                                   checked={checked}
                                   disabled={importAgent.isPending}
+                                  data-testid={`agents-panel-import-capability-${candidate.type}-${capability}`}
                                   onChange={() => toggleApprovedImportCapability(candidate.type, capability)}
                                   className="mt-0.5 h-3.5 w-3.5 accent-[var(--primary)]"
                                 />
@@ -1706,6 +1721,7 @@ export function AgentsPanel() {
                 type="button"
                 disabled={importAgent.isPending}
                 onClick={() => setPendingAgentImport(null)}
+                data-testid="agents-panel-import-cancel-button"
                 className="mari-chrome-control h-10 px-4 text-sm"
               >
                 {localizeUi("chat.delete.dialog.cancel")}
@@ -1714,6 +1730,7 @@ export function AgentsPanel() {
                 type="button"
                 disabled={importAgent.isPending}
                 onClick={() => void handleApproveAgentImport()}
+                data-testid="agents-panel-import-approve-button"
                 className="mari-chrome-control mari-chrome-control--primary h-10 px-4 text-sm"
               >
                 <ShieldCheck size="0.9rem" />
@@ -1837,6 +1854,7 @@ function renderAgentCard({
           }
           onImagePick();
         }}
+        data-testid={`agent-card-image-button-${id}`}
         className={cn(
           iconClasses,
           "transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--ring)]/50",
@@ -1880,6 +1898,7 @@ function renderAgentCard({
           }
           openAgentDetail(custom ? id : type);
         }}
+        data-testid={`agent-card-open-button-${id}`}
       >
         <div className="truncate text-sm font-medium">{name}</div>
         <div className="mt-0.5 text-[0.625rem] text-[var(--muted-foreground)] line-clamp-2">
@@ -1896,6 +1915,7 @@ function renderAgentCard({
             className="mari-chrome-control mari-chrome-control--small p-1.5"
             title={localizeUi("ui.panels.agentcard.copyAgent")}
             aria-label={localizeUi("ui.panels.agentcard.copyAgent")}
+            data-testid={`agent-card-copy-button-${id}`}
             onClick={(event) => {
               event.stopPropagation();
               onDuplicate();
@@ -1908,6 +1928,7 @@ function renderAgentCard({
               className="mari-chrome-control mari-chrome-control--small p-1.5"
               title={localizeUi("ui.panels.agentcard.deleteAgent")}
               aria-label={localizeUi("ui.panels.agentcard.deleteAgent")}
+              data-testid={`agent-card-delete-button-${id}`}
               onClick={(event) => {
                 event.stopPropagation();
                 void onDelete();
@@ -1943,6 +1964,7 @@ function PanelSection({
       <div className="flex items-center justify-between">
         <button
           onClick={() => setOpen((o) => !o)}
+          data-testid="agents-panel-section-toggle-button"
           className="flex items-center gap-1.5 px-1 py-1 text-left text-[0.6875rem] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]"
         >
           <ChevronDown

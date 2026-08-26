@@ -72,6 +72,7 @@ export function ConversationPromptSection({
             value={promptPresetId ?? ""}
             onChange={(event) => onPromptPresetChange(event.target.value || null)}
             disabled={promptPresets.length === 0}
+            data-testid="conversation-prompt-preset-select"
             className="mari-preset-native-select min-w-0 flex-1 truncate rounded-lg bg-[var(--secondary)] px-3 py-2 pr-8 text-xs text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] transition-shadow focus:ring-[var(--primary)]/40 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">
@@ -100,6 +101,7 @@ export function ConversationPromptSection({
               <button
                 type="button"
                 onClick={resetPrompt}
+                data-testid="conversation-prompt-reset-button"
                 className="flex items-center justify-center rounded-lg bg-[var(--secondary)] px-2 py-1 text-[0.625rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                 title={localizeUi("ui.chatSettings.conversationpromptsection.resetToDefaultPrompt")}
               >
@@ -115,6 +117,7 @@ export function ConversationPromptSection({
             onChange={setDraft}
             onBlur={commitDraft}
             onExpandedClose={commitDraft}
+            testId="conversation-prompt"
             title={localizeUi("ui.chatSettings.conversationpromptsection.editConversationPrompt")}
             placeholder={localizeUi("ui.chatSettings.conversationpromptsection.enterYourCustomConversationPrompt")}
             rows={6}

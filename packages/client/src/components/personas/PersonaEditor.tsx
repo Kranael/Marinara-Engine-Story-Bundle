@@ -548,6 +548,7 @@ function PersonaGalleryTab({
               type="button"
               onClick={() => setMediaTab(tab.id)}
               aria-pressed={active}
+              data-testid={`persona-gallery-media-tab-${tab.id}`}
               className={cn(
                 "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
                 active
@@ -574,6 +575,7 @@ function PersonaGalleryTab({
                   else setSelectingImages(true);
                 }}
                 className="mari-editor-action inline-flex"
+                data-testid="persona-gallery-select-toggle-button"
               >
                 {selectingImages ? <X size="0.875rem" /> : <Check size="0.875rem" />}
                 {localizeUi(selectingImages ? "ui.gallery.batch.cancel" : "ui.gallery.batch.selectImages")}
@@ -586,6 +588,7 @@ function PersonaGalleryTab({
                   setSelectedImageIds(new Set(images?.map((image) => image.id) ?? []));
                 }}
                 className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
+                data-testid="persona-gallery-select-all-button"
               >
                 <Check size="0.875rem" />
                 {localizeUi("ui.gallery.batch.selectAll")}
@@ -600,6 +603,7 @@ function PersonaGalleryTab({
               type="button"
               onClick={onCreateCharacterSheet}
               className="mari-editor-action mari-editor-action--primary inline-flex max-sm:w-full max-sm:justify-center"
+              data-testid="persona-gallery-create-character-sheet-button"
             >
               <Wand2 size="0.875rem" />
               {localizeUi("ui.characters.charactersheet.createWithAi")}
@@ -652,6 +656,7 @@ function PersonaGalleryTab({
                           ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]"
                           : "border-white/65 bg-black/55 text-transparent hover:bg-black/75",
                       )}
+                      data-testid={`persona-gallery-select-image-${image.id}`}
                     >
                       <Check size="0.9rem" />
                     </button>
@@ -660,6 +665,7 @@ function PersonaGalleryTab({
                     type="button"
                     className="block aspect-square w-full bg-[var(--secondary)]"
                     onClick={() => (selectingImages ? toggleImageSelection(image.id) : setLightbox(image))}
+                    data-testid={`persona-gallery-open-image-${image.id}`}
                   >
                     <img
                       src={image.url}
@@ -688,6 +694,7 @@ function PersonaGalleryTab({
                           disabled={editorBusy}
                           className="rounded-lg bg-white/15 p-1.5 text-white transition-colors hover:bg-white/25 disabled:opacity-50"
                           title={localizeUi("ui.personas.personagallerytab.setAsAvatar")}
+                          data-testid={`persona-gallery-set-avatar-${image.id}`}
                         >
                           {galleryAvatarPending ? (
                             <Loader2 size="0.75rem" className="animate-spin" />
@@ -702,6 +709,7 @@ function PersonaGalleryTab({
                           onClick={() => void handleBatchDownload()}
                           className="rounded-lg bg-white/15 p-1.5 text-white transition-colors hover:bg-white/25"
                           title={localizeUi("ui.gallery.batch.download")}
+                          data-testid="persona-gallery-batch-download-button"
                         >
                           <Download size="0.75rem" />
                         </button>
@@ -712,6 +720,7 @@ function PersonaGalleryTab({
                           className="rounded-lg bg-white/15 p-1.5 text-white transition-colors hover:bg-white/25"
                           title={localizeUi("ui.personas.personagallerytab.download")}
                           onClick={(e) => e.stopPropagation()}
+                          data-testid={`persona-gallery-download-image-${image.id}`}
                         >
                           <Download size="0.75rem" />
                         </a>
@@ -722,6 +731,7 @@ function PersonaGalleryTab({
                         disabled={remove.isPending}
                         className="rounded-lg bg-white/15 p-1.5 text-white transition-colors hover:bg-white/25 disabled:opacity-50"
                         title={localizeUi(selectingImages ? "ui.gallery.batch.delete" : "lorebook.editor.batch.delete")}
+                        data-testid={`persona-gallery-delete-image-${image.id}`}
                       >
                         <Trash2 size="0.75rem" />
                       </button>
@@ -753,6 +763,7 @@ function PersonaGalleryTab({
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 max-md:pt-[env(safe-area-inset-top)]"
           onClick={() => setLightbox(null)}
+          data-testid="persona-gallery-lightbox-backdrop"
         >
           <div className="relative max-h-[90vh] max-w-[90vw] w-[min(90vw,90vh)]" onClick={(e) => e.stopPropagation()}>
             <img
@@ -767,6 +778,7 @@ function PersonaGalleryTab({
                 disabled={editorBusy}
                 className="rounded-lg bg-black/60 p-2 text-white transition-colors hover:bg-black/80 disabled:opacity-50"
                 title={localizeUi("ui.personas.personagallerytab.setAsAvatar")}
+                data-testid="persona-gallery-lightbox-set-avatar-button"
               >
                 {galleryAvatarPending ? <Loader2 size="0.875rem" className="animate-spin" /> : <User size="0.875rem" />}
               </button>
@@ -783,6 +795,7 @@ function PersonaGalleryTab({
                 className="rounded-lg bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
                 title={localizeUi("lorebook.editor.batch.delete")}
                 aria-label={localizeUi("lorebook.editor.batch.delete")}
+                data-testid="persona-gallery-lightbox-delete-button"
               >
                 <Trash2 size="0.875rem" />
               </button>
@@ -790,6 +803,7 @@ function PersonaGalleryTab({
                 type="button"
                 onClick={() => setLightbox(null)}
                 className="rounded-lg bg-black/60 p-2 text-white transition-colors hover:bg-black/80"
+                data-testid="persona-gallery-lightbox-close-button"
               >
                 <X size="0.875rem" />
               </button>
@@ -1040,6 +1054,7 @@ function PersonaCallClipsGallery({ personaId, personaName }: { personaId: string
         accept="video/mp4,.mp4"
         className="hidden"
         onChange={handleUploadClipFile}
+        data-testid="persona-clip-upload-input"
       />
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-3">
         <div className="min-w-0">
@@ -1058,6 +1073,7 @@ function PersonaCallClipsGallery({ personaId, personaName }: { personaId: string
             onClick={() => clipUploadInputRef.current?.click()}
             disabled={uploadClip.isPending}
             className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-xs font-semibold text-[var(--foreground)] transition-colors hover:border-[var(--primary)]/50 disabled:cursor-not-allowed disabled:opacity-60"
+            data-testid="persona-clip-upload-button"
           >
             {uploadClip.isPending ? <Loader2 size="0.85rem" className="animate-spin" /> : <Upload size="0.85rem" />}
             {localizeUi("ui.personas.personacallclipsgallery.uploadExtra")}
@@ -1067,6 +1083,7 @@ function PersonaCallClipsGallery({ personaId, personaName }: { personaId: string
             onClick={() => setGenerationDialogOpen(true)}
             disabled={generationLockActive}
             className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+            data-testid="persona-clip-generate-button"
           >
             {generateCallClips.isPending || generateCustomCallClip.isPending ? (
               <Loader2 size="0.85rem" className="animate-spin" />
@@ -1197,6 +1214,7 @@ function PersonaClipCard({
                 disabled={deleting}
                 className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] p-1.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
                 title={localizeUi("lorebook.editor.batch.delete")}
+                data-testid={`persona-clip-delete-${clip.id}`}
                 aria-label={localizeUi("ui.personas.personaclipcard.deleteValue1", {
                   value1: clip.label || localizeUi("ui.panels.ttsconfigcard.clip"),
                 })}
@@ -1874,6 +1892,7 @@ export function PersonaEditor() {
         onClick={() => setExportDialogOpen(true)}
         className={headerActionButtonClass}
         title={localizeUi("ui.personas.personaeditor.exportPersona")}
+        data-testid="persona-editor-export-button"
       >
         <svg width="1rem" height="1rem" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -1893,6 +1912,7 @@ export function PersonaEditor() {
         disabled={createCharacter.isPending || uploadCharacterAvatar.isPending}
         className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("ui.personas.personaeditor.addPersonaAsCharacter")}
+        data-testid="persona-editor-add-as-character-button"
       >
         {createCharacter.isPending || uploadCharacterAvatar.isPending ? (
           <Loader2 size="1rem" className="animate-spin" />
@@ -1914,6 +1934,7 @@ export function PersonaEditor() {
         disabled={duplicatePersona.isPending}
         className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("ui.personas.personaeditor.duplicatePersona")}
+        data-testid="persona-editor-duplicate-button"
       >
         {duplicatePersona.isPending ? <Loader2 size="1rem" className="animate-spin" /> : <Copy size="1rem" />}
       </button>
@@ -1924,6 +1945,7 @@ export function PersonaEditor() {
         disabled={mutationBusy}
         className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
         title={localizeUi("ui.personas.personaeditor.deletePersona")}
+        data-testid="persona-editor-delete-button"
       >
         <Trash2 size="1rem" />
       </button>
@@ -1975,6 +1997,7 @@ export function PersonaEditor() {
             disabled={mutationBusy}
             className="mari-editor-action inline-flex disabled:cursor-not-allowed disabled:opacity-50"
             title={localizeUi("ui.noodle.noodlerframe.back")}
+            data-testid="persona-editor-back-button"
           >
             <ArrowLeft size="1.125rem" />
           </button>
@@ -1989,6 +2012,7 @@ export function PersonaEditor() {
             onClick={() => {
               if (!mutationBusy) fileInputRef.current?.click();
             }}
+            data-testid="persona-editor-avatar-tile"
           >
             {avatarPreview ? (
               <img
@@ -2006,7 +2030,7 @@ export function PersonaEditor() {
                 if (!mutationBusy) setAvatarGeneratorOpen(true);
               }}
             />
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} data-testid="persona-editor-avatar-file-input" />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -2017,6 +2041,7 @@ export function PersonaEditor() {
                 className="mari-editor-title-input"
                 placeholder={localizeUi("ui.personas.personaeditor.personaName")}
                 size={Math.max(1, Math.min(formData.name.length || 12, 80))}
+                data-testid="persona-editor-name-input"
               />
               <p
                 className="mari-editor-meta mari-editor-byline"
@@ -2045,6 +2070,7 @@ export function PersonaEditor() {
                 onChange={(e) => updateField("comment", e.target.value)}
                 className="mari-editor-subtitle-input"
                 placeholder={localizeUi("ui.personas.personaeditor.titleCommentEGModernAuVersion")}
+                data-testid="persona-editor-comment-input"
               />
             </div>
           </div>
@@ -2060,6 +2086,7 @@ export function PersonaEditor() {
             className={saveButtonClass}
             aria-label={saveLabel}
             title={saveLabel}
+            data-testid="persona-editor-save-button"
           >
             <Save size="0.9375rem" />
             <span className="mari-editor-save-label">{saveLabel}</span>
@@ -2079,6 +2106,7 @@ export function PersonaEditor() {
             type="button"
             onClick={keepEditing}
             className="rounded-lg px-3 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--accent)]"
+            data-testid="persona-editor-unsaved-keep-editing-button"
           >
             {localizeUi("ui.personas.personaeditor.keepEditing")}
           </button>
@@ -2089,6 +2117,7 @@ export function PersonaEditor() {
             onClick={discardAndNavigate}
             disabled={mutationBusy}
             className="rounded-lg bg-amber-500/15 px-3 py-1 text-xs font-medium text-amber-500 transition-all hover:bg-amber-500/25 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-amber-500/15"
+            data-testid="persona-editor-unsaved-discard-button"
           >
             {localizeUi("ui.personas.personaeditor.discardClose")}
           </button>
@@ -2097,6 +2126,7 @@ export function PersonaEditor() {
             onClick={() => void handleSaveAndClose()}
             disabled={mutationBusy}
             className="mari-editor-action mari-editor-action--primary mari-editor-action--compact inline-flex rounded-lg px-3 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+            data-testid="persona-editor-unsaved-save-close-button"
           >
             {localizeUi("ui.personas.personaeditor.saveClose")}
           </button>
@@ -2281,6 +2311,7 @@ function PersonaSpritesTab({
           type="button"
           onClick={() => setCategory(tab.id)}
           aria-pressed={category === tab.id}
+          data-testid={`persona-sprites-category-tab-${tab.id}`}
           className={cn(
             "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
             category === tab.id
@@ -2607,7 +2638,7 @@ function PersonaSpritesTab({
 
       {categoryTabs}
 
-      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} data-testid="persona-sprites-file-input" />
       <input
         ref={folderInputRef}
         type="file"
@@ -2617,6 +2648,7 @@ function PersonaSpritesTab({
         webkitdirectory=""
         className="hidden"
         onChange={handleFolderUpload}
+        data-testid="persona-sprites-folder-input"
       />
 
       {/* Upload new expression */}
@@ -2632,6 +2664,7 @@ function PersonaSpritesTab({
               onClick={() => setSpriteGenOpen(true)}
               disabled={spriteGenerationUnavailable}
               className="mari-chrome-accent-surface mari-accent-animated flex min-w-0 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-center text-[0.6875rem] font-medium leading-tight transition-all disabled:cursor-not-allowed disabled:opacity-40 max-md:flex-1 max-md:basis-[calc(50%-0.25rem)] max-md:px-2.5"
+              data-testid="persona-sprites-generate-button"
               title={
                 spriteGenerationUnavailable
                   ? spriteGenerationReason
@@ -2646,6 +2679,7 @@ function PersonaSpritesTab({
               onClick={() => folderInputRef.current?.click()}
               disabled={!!folderProgress}
               className="flex min-w-0 items-center justify-center gap-1.5 rounded-lg bg-[var(--secondary)] px-3 py-1.5 text-center text-[0.6875rem] font-medium leading-tight text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-all hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-40 max-md:flex-1 max-md:basis-[calc(50%-0.25rem)] max-md:px-2.5"
+              data-testid="persona-sprites-upload-folder-button"
               title={localizeUi("ui.personas.personaspritestab.selectAFolderOfPngs")}
             >
               <FolderOpen size="0.8125rem" />
@@ -2656,6 +2690,7 @@ function PersonaSpritesTab({
               onClick={() => void handleCleanVisibleSprites()}
               disabled={cleaningSprites || backgroundCleanupUnavailable || visibleSprites.length === 0}
               className="flex min-w-0 items-center justify-center gap-1.5 rounded-lg bg-[var(--secondary)] px-3 py-1.5 text-center text-[0.6875rem] font-medium leading-tight text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-all hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-40 max-md:flex-1 max-md:basis-[calc(50%-0.25rem)] max-md:px-2.5"
+              data-testid="persona-sprites-clean-backgrounds-button"
               title={
                 backgroundCleanupUnavailable
                   ? backgroundCleanupReason
@@ -2673,6 +2708,7 @@ function PersonaSpritesTab({
                 onClick={() => setExportMenuOpen((open) => !open)}
                 disabled={exporting || allSprites.length === 0}
                 className="flex w-full min-w-0 items-center justify-center gap-1.5 rounded-lg bg-[var(--secondary)] px-3 py-1.5 text-center text-[0.6875rem] font-medium leading-tight text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-all hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-40 max-md:px-2.5"
+                data-testid="persona-sprites-export-menu-toggle"
                 title={localizeUi("ui.personas.personaspritestab.chooseWhichSavedSpritesToExport")}
               >
                 <ImageDown size="0.8125rem" />
@@ -2690,6 +2726,7 @@ function PersonaSpritesTab({
                     }}
                     disabled={visibleSprites.length === 0}
                     className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[var(--foreground)] transition-colors hover:bg-[var(--secondary)] disabled:cursor-not-allowed disabled:opacity-40"
+                    data-testid="persona-sprites-export-visible-button"
                   >
                     <ImageDown size="0.75rem" />
                     {category === "full-body"
@@ -2704,6 +2741,7 @@ function PersonaSpritesTab({
                     }}
                     disabled={allSprites.length === 0}
                     className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-[var(--foreground)] transition-colors hover:bg-[var(--secondary)] disabled:cursor-not-allowed disabled:opacity-40"
+                    data-testid="persona-sprites-export-all-button"
                   >
                     <ImageDown size="0.75rem" />
                     {localizeUi("ui.personas.personaspritestab.allSprites")}
@@ -2730,6 +2768,7 @@ function PersonaSpritesTab({
             onChange={(e) => setSavedCleanupStrength(Number(e.target.value))}
             disabled={cleaningSprites}
             className="min-w-40 flex-1 accent-[var(--primary)] disabled:opacity-50"
+            data-testid="persona-sprites-cleanup-strength-slider"
           />
           <span className="text-[0.625rem] text-[var(--muted-foreground)]">
             {localizeUi("ui.personas.personaspritestab.aggressive")}
@@ -2760,6 +2799,7 @@ function PersonaSpritesTab({
               onClick={() => void handleRestoreLastCleanup()}
               disabled={restoringCleanup}
               className="flex items-center gap-1.5 rounded-md bg-[var(--card)] px-2.5 py-1 text-[0.6875rem] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] disabled:opacity-40"
+              data-testid="persona-sprites-restore-cleanup-button"
             >
               {restoringCleanup ? <Loader2 size="0.75rem" className="animate-spin" /> : <RotateCcw size="0.75rem" />}
               {localizeUi("ui.personas.personaspritestab.undoCleanup")}
@@ -2791,12 +2831,14 @@ function PersonaSpritesTab({
                 startUpload(normalizeExpressionForCategory(newExpression));
               }
             }}
+            data-testid="persona-sprites-new-expression-input"
           />
           <button
             type="button"
             onClick={() => newExpression.trim() && startUpload(normalizeExpressionForCategory(newExpression))}
             disabled={!newExpression.trim() || uploading}
             className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-[var(--primary)] px-4 py-2 text-xs font-medium text-[var(--primary-foreground)] shadow-sm transition-all hover:shadow-md disabled:opacity-40 sm:w-auto"
+            data-testid="persona-sprites-add-expression-button"
           >
             <Plus size="0.8125rem" />
             {localizeUi("ui.personas.personaspritestab.upload")}
@@ -2815,6 +2857,7 @@ function PersonaSpritesTab({
                   key={expr}
                   onClick={() => startUpload(expr)}
                   className="rounded-lg bg-[var(--secondary)] px-2.5 py-1 text-[0.6875rem] font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-all hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                  data-testid={`persona-sprites-quick-add-${expr}`}
                 >
                   {expr}
                 </button>
@@ -2863,6 +2906,7 @@ function PersonaSpritesTab({
                 onClick={() => setWandCleanupSprite(sprite)}
                 className="group/preview relative block aspect-[3/4] w-full bg-[var(--secondary)]"
                 title={localizeUi("ui.personas.personaspritestab.openWandCleanup")}
+                data-testid={`persona-sprite-wand-cleanup-${sprite.expression}`}
               >
                 <img src={sprite.url} alt={sprite.expression} loading="lazy" className="h-full w-full object-contain" />
                 <span className="pointer-events-none absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--card)]/90 text-[var(--primary)] opacity-0 shadow-lg ring-1 ring-[var(--border)] transition-opacity group-hover/preview:opacity-100 max-md:opacity-100">
@@ -2882,6 +2926,7 @@ function PersonaSpritesTab({
                     onClick={() => setFramingSprite(sprite)}
                     className="rounded-lg p-1 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     title={localizeUi("ui.personas.personaspritestab.frame")}
+                    data-testid={`persona-sprite-frame-${sprite.expression}`}
                   >
                     <Crop size="0.6875rem" />
                   </button>
@@ -2890,6 +2935,7 @@ function PersonaSpritesTab({
                     onClick={() => void downloadSpriteFile(sprite)}
                     className="rounded-lg p-1 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     title={localizeUi("ui.personas.personagallerytab.download")}
+                    data-testid={`persona-sprite-download-${sprite.expression}`}
                   >
                     <ImageDown size="0.6875rem" />
                   </button>
@@ -2898,6 +2944,7 @@ function PersonaSpritesTab({
                     onClick={() => startUpload(sprite.expression)}
                     className="rounded-lg p-1 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     title={localizeUi("settings.notifications.customSound.actions.replace")}
+                    data-testid={`persona-sprite-replace-${sprite.expression}`}
                   >
                     <Upload size="0.6875rem" />
                   </button>
@@ -2906,6 +2953,7 @@ function PersonaSpritesTab({
                     onClick={() => setDeleteSpriteRequest(sprite)}
                     className="rounded-lg p-1 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                     title={localizeUi("lorebook.editor.batch.delete")}
+                    data-testid={`persona-sprite-delete-${sprite.expression}`}
                   >
                     <Trash2 size="0.6875rem" />
                   </button>
@@ -2951,6 +2999,7 @@ function PersonaSpritesTab({
                   onClick={() => void handleDeleteVisibleSprites()}
                   disabled={!!deletingSprites}
                   className="mr-auto inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-2 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-50 sm:px-3 sm:text-sm"
+                  data-testid="persona-sprite-delete-all-visible-button"
                 >
                   {deletingSprites === "all" ? (
                     <Loader2 size="0.875rem" className="animate-spin" />
@@ -2969,6 +3018,7 @@ function PersonaSpritesTab({
                   onClick={() => setDeleteSpriteRequest(null)}
                   disabled={!!deletingSprites}
                   className="rounded-lg px-2.5 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-50 sm:px-3 sm:text-sm"
+                  data-testid="persona-sprite-delete-cancel-button"
                 >
                   {localizeUi("chat.delete.dialog.cancel")}
                 </button>
@@ -2977,6 +3027,7 @@ function PersonaSpritesTab({
                   onClick={() => void handleDeleteSingleSprite()}
                   disabled={!!deletingSprites}
                   className="mari-chrome-accent-surface mari-accent-animated inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium transition-colors disabled:opacity-50 sm:px-3 sm:text-sm"
+                  data-testid="persona-sprite-delete-confirm-button"
                 >
                   {deletingSprites === "single" && <Loader2 size="0.875rem" className="animate-spin" />}
                   {localizeUi("lorebook.editor.batch.delete")}
@@ -3046,6 +3097,7 @@ function PersonaColorsTab({
         disabled={!avatarUrl || extracting}
         onClick={handleExtract}
         className="mari-editor-action mari-editor-action--accent mari-editor-action--primary flex w-full rounded-xl px-4 py-2.5 text-xs"
+        data-testid="persona-colors-extract-button"
       >
         {extracting ? <Loader2 size="0.875rem" className="animate-spin" /> : <Palette size="0.875rem" />}
         {extracting
@@ -3124,6 +3176,7 @@ function PersonaColorsTab({
         gradient
         label={localizeUi("ui.personas.personacolorstab.nameDisplayColor")}
         helpText="The color (or gradient) used for your persona's name in chat messages and persona selectors. Supports gradients!"
+        testId="persona-colors-name-color"
       />
 
       {/* Dialogue Color */}
@@ -3134,6 +3187,7 @@ function PersonaColorsTab({
         helpText={
           'Text inside dialogue quotation marks ("", “”, «», 「」, 『』) will be automatically colored with this, and can also be bolded from Settings.'
         }
+        testId="persona-colors-dialogue-color"
       />
 
       {/* Box Color */}
@@ -3142,6 +3196,7 @@ function PersonaColorsTab({
         onChange={(v) => updateField("boxColor", v)}
         label={localizeUi("ui.personas.personacolorstab.messageBoxColor")}
         helpText="Background color for your persona's chat message bubbles. Use a semi-transparent color for best results (e.g. rgba)."
+        testId="persona-colors-box-color"
       />
     </div>
   );
@@ -3286,6 +3341,7 @@ function PersonaStatsTab({
         labelPosition="start"
         className="justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
         labelClassName="text-sm"
+        testId="persona-stats-enable-switch"
       />
 
       {parsed.enabled && (
@@ -3298,6 +3354,7 @@ function PersonaStatsTab({
                 type="button"
                 onClick={addBar}
                 className="mari-chrome-accent-surface mari-accent-animated flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
+                data-testid="persona-stats-add-bar-button"
               >
                 <Plus size="0.75rem" />
                 {localizeUi("ui.personas.personastatstab.add")}
@@ -3313,6 +3370,7 @@ function PersonaStatsTab({
                       value={bar.color}
                       onChange={(e) => updateBar(i, "color", e.target.value)}
                       className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
+                      data-testid={`persona-stats-bar-color-${i}`}
                     />
                     <StatIconPicker
                       value={resolveStatIconAssignment(
@@ -3337,6 +3395,7 @@ function PersonaStatsTab({
                       onChange={(e) => updateBar(i, "name", e.target.value)}
                       className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-xs font-medium"
                       placeholder={localizeUi("ui.personas.personastatstab.statName")}
+                      data-testid={`persona-stats-bar-name-${i}`}
                     />
                     <span className="text-[0.625rem] text-[var(--muted-foreground)]">
                       {localizeUi("ui.personas.personastatstab.max")}
@@ -3347,11 +3406,13 @@ function PersonaStatsTab({
                       onChange={(e) => updateBar(i, "max", parseInt(e.target.value) || 1)}
                       className="w-14 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-center text-xs"
                       min={1}
+                      data-testid={`persona-stats-bar-max-${i}`}
                     />
                     <button
                       type="button"
                       onClick={() => removeBar(i)}
                       className="rounded-lg p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
+                      data-testid={`persona-stats-remove-bar-${i}`}
                     >
                       <X size="0.75rem" />
                     </button>
@@ -3379,6 +3440,7 @@ function PersonaStatsTab({
           labelPosition="start"
           className="justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
           labelClassName="text-sm"
+          testId="persona-stats-rpg-enable-switch"
         />
 
         {rpgStats.enabled && (
@@ -3391,6 +3453,7 @@ function PersonaStatsTab({
                   type="button"
                   onClick={() => updateRpgPools([...rpgPools, createNewRpgPool(rpgPools)])}
                   className="mari-chrome-accent-surface mari-accent-animated flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
+                  data-testid="persona-stats-add-pool-button"
                 >
                   <Plus size="0.75rem" />
                   {localizeUi("ui.personas.personastatstab.add")}
@@ -3410,12 +3473,14 @@ function PersonaStatsTab({
                       aria-label={localizeUi("ui.personas.personastatstab.value1Color", {
                         value1: pool.name || localizeUi("ui.personas.personastatstab.pool"),
                       })}
+                      data-testid={`persona-stats-pool-color-${i}`}
                     />
                     <input
                       value={pool.name}
                       onChange={(e) => updateRpgPool(i, { name: e.target.value })}
                       className="min-w-0 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-xs font-medium"
                       placeholder={localizeUi("ui.personas.personastatstab.name")}
+                      data-testid={`persona-stats-pool-name-${i}`}
                     />
                     <input
                       type="number"
@@ -3426,6 +3491,7 @@ function PersonaStatsTab({
                       aria-label={localizeUi("ui.personas.personastatstab.value1Value", {
                         value1: pool.name || localizeUi("ui.personas.personastatstab.pool"),
                       })}
+                      data-testid={`persona-stats-pool-value-${i}`}
                     />
                     <input
                       type="number"
@@ -3436,6 +3502,7 @@ function PersonaStatsTab({
                       aria-label={localizeUi("ui.personas.personastatstab.value1Max", {
                         value1: pool.name || localizeUi("ui.personas.personastatstab.pool"),
                       })}
+                      data-testid={`persona-stats-pool-max-${i}`}
                     />
                     <button
                       type="button"
@@ -3444,6 +3511,7 @@ function PersonaStatsTab({
                       aria-label={localizeUi("ui.personas.personastatstab.removeValue1", {
                         value1: pool.name || localizeUi("ui.personas.personastatstab.pool_51a4b13"),
                       })}
+                      data-testid={`persona-stats-remove-pool-${i}`}
                     >
                       <X size="0.75rem" />
                     </button>
@@ -3460,6 +3528,7 @@ function PersonaStatsTab({
                   type="button"
                   onClick={addRpgAttribute}
                   className="mari-chrome-accent-surface mari-accent-animated flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
+                  data-testid="persona-stats-add-attribute-button"
                 >
                   <Plus size="0.75rem" />
                   {localizeUi("ui.personas.personastatstab.add")}
@@ -3477,17 +3546,20 @@ function PersonaStatsTab({
                       onChange={(e) => updateRpgAttribute(i, "name", e.target.value)}
                       className="w-20 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-xs font-medium"
                       placeholder={localizeUi("ui.personas.personastatstab.name")}
+                      data-testid={`persona-stats-attribute-name-${i}`}
                     />
                     <input
                       type="number"
                       value={attr.value}
                       onChange={(e) => updateRpgAttribute(i, "value", parseInt(e.target.value) || 0)}
                       className="w-16 rounded-lg border border-[var(--border)] bg-[var(--input)] px-2 py-1 text-center text-xs"
+                      data-testid={`persona-stats-attribute-value-${i}`}
                     />
                     <button
                       type="button"
                       onClick={() => removeRpgAttribute(i)}
                       className="rounded-lg p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
+                      data-testid={`persona-stats-remove-attribute-${i}`}
                     >
                       <X size="0.75rem" />
                     </button>
@@ -3578,6 +3650,7 @@ function PersonaMetadataTab({
             }}
             className="mari-editor-action inline-flex h-8 px-2 text-[0.6875rem]"
             title={localizeUi("ui.personas.personametadatatab.copyPersonaId")}
+            data-testid="persona-metadata-copy-id-button"
           >
             <Copy size="0.75rem" />
             {localizeUi("lorebook.editor.batch.copy")}
@@ -3632,6 +3705,7 @@ function PersonaMetadataTab({
             onChange={(e) => updateField("name", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={localizeUi("ui.personas.personaeditor.personaName")}
+            data-testid="persona-metadata-name-input"
           />
         </label>
         <label className="space-y-1.5 sm:col-span-2">
@@ -3644,6 +3718,7 @@ function PersonaMetadataTab({
             onChange={(e) => updateField("comment", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={localizeUi("ui.personas.personametadatatab.modernAuVersion")}
+            data-testid="persona-metadata-comment-input"
           />
         </label>
         <label className="space-y-1.5">
@@ -3660,6 +3735,7 @@ function PersonaMetadataTab({
             onChange={(e) => updateField("phoneticName", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={formData.name}
+            data-testid="persona-metadata-phonetic-name-input"
           />
         </label>
         <label className="space-y-1.5">
@@ -3674,6 +3750,7 @@ function PersonaMetadataTab({
             onChange={(e) => updateField("creator", e.target.value)}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
             placeholder={localizeUi("ui.personas.personametadatatab.yourName")}
+            data-testid="persona-metadata-creator-input"
           />
         </label>
         <div className="space-y-1.5">
@@ -3699,6 +3776,7 @@ function PersonaMetadataTab({
               title={localizeUi("ui.cardversionhistory.automaticVersioningDescription")}
               className="min-h-11 gap-2 rounded-md px-1 py-0"
               labelClassName="text-xs font-medium text-[var(--muted-foreground)]"
+              testId="persona-metadata-versioning-switch"
             />
           </div>
           <input
@@ -3707,6 +3785,7 @@ function PersonaMetadataTab({
             disabled={!formData.versioningEnabled}
             className="w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="1.0"
+            data-testid="persona-metadata-version-input"
           />
           <PersonaVersionHistoryPanel
             personaId={personaId}
@@ -3730,6 +3809,7 @@ function PersonaMetadataTab({
               type="button"
               onClick={removeAllTags}
               className="mari-chrome-accent-surface mari-accent-animated rounded-lg border px-2.5 py-1 text-[0.6875rem] font-medium transition-colors"
+              data-testid="persona-metadata-remove-all-tags-button"
             >
               {localizeUi("ui.personas.personametadatatab.removeAll")}
             </button>
@@ -3745,6 +3825,7 @@ function PersonaMetadataTab({
                 onClick={() => removeTag(tag)}
                 className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-[var(--primary)]/15 hover:text-[var(--primary)]"
                 title={localizeUi("ui.personas.personametadatatab.removeTagValue1", { value1: tag })}
+                data-testid={`persona-metadata-remove-tag-${tag}`}
               >
                 <X size="0.625rem" />
               </button>
@@ -3763,11 +3844,13 @@ function PersonaMetadataTab({
             }}
             placeholder={localizeUi("ui.personas.personametadatatab.addTag")}
             className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5 text-xs outline-none focus:border-[var(--primary)]/40"
+            data-testid="persona-metadata-add-tag-input"
           />
           <button
             type="button"
             onClick={addTag}
             className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--selected px-3 py-1.5"
+            data-testid="persona-metadata-add-tag-button"
           >
             {localizeUi("ui.personas.personastatstab.add")}
           </button>
@@ -3789,6 +3872,7 @@ function PersonaMetadataTab({
           showMarkdownPreview
           className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-3 text-sm outline-none placeholder:text-[var(--muted-foreground)]/40 focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20"
           placeholder={localizeUi("ui.personas.personametadatatab.notesAboutThisPersonaIntendedUseTipsForBest")}
+          testId="persona-metadata-creator-notes-textarea"
         />
       </div>
     </div>
@@ -3870,6 +3954,7 @@ function PersonaCharacterSheetSection({
             onClick={onCreateCharacterSheet}
             disabled={upload.isPending}
             className="mari-editor-action mari-editor-action--primary inline-flex w-full justify-center disabled:cursor-wait disabled:opacity-60"
+            data-testid="persona-character-sheet-generate-button"
           >
             <Wand2 size="0.875rem" />
             {localizeUi("ui.characters.charactersheet.createWithAi")}
@@ -3898,6 +3983,7 @@ function PersonaCharacterSheetSection({
             onChange={(checked) => updateField("useCharacterSheetAsReference", checked)}
             labelPosition="start"
             className="justify-between rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
+            testId="persona-character-sheet-use-as-reference-switch"
           />
 
           <p className="rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-xs text-[var(--muted-foreground)]">
@@ -3911,6 +3997,7 @@ function PersonaCharacterSheetSection({
               type="button"
               onClick={clearSelection}
               className="mari-editor-action inline-flex w-full justify-center text-red-500"
+              data-testid="persona-character-sheet-clear-button"
             >
               <X size="0.875rem" />
               {localizeUi("ui.characters.charactersheet.remove")}
@@ -4126,6 +4213,7 @@ function PersonaVersionHistoryPanel({
             onClick={handleResetVersions}
             disabled={isLoading || versionMutationPending || hasUnsavedChanges}
             className="mari-editor-action mari-editor-action--compact inline-flex h-7 px-2 text-[0.625rem]"
+            data-testid="persona-version-history-reset-button"
             title={localizeUi(
               hasUnsavedChanges
                 ? "ui.cardversionhistory.saveOrDiscardEditsBeforeResettingVersioning"
@@ -4165,6 +4253,7 @@ function PersonaVersionHistoryPanel({
                 }}
                 disabled={version.isCurrent}
                 className="min-w-0 flex-1 text-left disabled:cursor-default"
+                data-testid={`persona-version-select-${version.id}`}
                 title={
                   version.isCurrent
                     ? undefined
@@ -4189,6 +4278,7 @@ function PersonaVersionHistoryPanel({
                     disabled={versionMutationPending}
                     className="mari-editor-action mari-editor-action--compact inline-flex h-7 w-7 rounded-lg p-0"
                     title={localizeUi("ui.cardversionhistory.renameThisSavedVersion")}
+                    data-testid={`persona-version-rename-${version.id}`}
                   >
                     {renameVersion.isPending && renameVersion.variables?.versionId === version.id ? (
                       <Loader2 size="0.75rem" className="animate-spin" />
@@ -4202,6 +4292,7 @@ function PersonaVersionHistoryPanel({
                     disabled={versionMutationPending}
                     className="mari-editor-action mari-editor-action--compact inline-flex h-7 w-7 rounded-lg p-0"
                     title={localizeUi("ui.personas.personaversionhistorypanel.restoreThisVersion")}
+                    data-testid={`persona-version-restore-${version.id}`}
                   >
                     {restoreVersion.isPending ? (
                       <Loader2 size="0.75rem" className="animate-spin" />
@@ -4215,6 +4306,7 @@ function PersonaVersionHistoryPanel({
                     disabled={versionMutationPending}
                     className="mari-editor-action mari-editor-action--compact mari-editor-action--danger inline-flex h-7 w-7 rounded-lg p-0"
                     title={localizeUi("ui.personas.personaversionhistorypanel.deleteThisSavedVersion")}
+                    data-testid={`persona-version-delete-${version.id}`}
                   >
                     {deleteVersion.isPending && deleteVersion.variables?.versionId === version.id ? (
                       <Loader2 size="0.75rem" className="animate-spin" />
@@ -4311,6 +4403,7 @@ function PersonaVersionHistoryPanel({
                 type="button"
                 onClick={() => handleRestore(selectedVersion)}
                 disabled={restoreVersion.isPending}
+                data-testid="persona-version-compare-restore-button"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 {restoreVersion.isPending ? (
@@ -4381,6 +4474,7 @@ function PersonaCardTab({
             onChange={(v) => updateField("personality", v)}
             placeholder={localizeUi("ui.personas.personacardtab.calmAndAnalyticalButQuickToActWhenSomeone")}
             rows={8}
+            testId="persona-card-personality-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="persona-card-backstory">
@@ -4392,6 +4486,7 @@ function PersonaCardTab({
             onChange={(v) => updateField("backstory", v)}
             placeholder={localizeUi("ui.personas.personacardtab.grewUpInAFrontierTownApprenticedUnderA")}
             rows={12}
+            testId="persona-card-backstory-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="persona-card-appearance">
@@ -4407,6 +4502,7 @@ function PersonaCardTab({
               "ui.personas.personacardtab.averageHeightDarkHairWornLoosePrefersPracticalClothing",
             )}
             rows={8}
+            testId="persona-card-appearance-textarea"
           />
         </EditorSectionAnchor>
         <EditorSectionAnchor id="persona-card-scenario">
@@ -4420,6 +4516,7 @@ function PersonaCardTab({
               "ui.personas.personacardtab.aWanderingAdventurerSeekingAnswersAboutAMysteriousArtifact",
             )}
             rows={8}
+            testId="persona-card-scenario-textarea"
           />
         </EditorSectionAnchor>
       </div>
@@ -4466,6 +4563,7 @@ function DescriptionTab({
         title={localizeUi("chat.settings.inlineEditor.fields.description")}
         showMarkdownPreview
         className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-emerald-400/40 focus:ring-1 focus:ring-emerald-400/20"
+        testId="persona-card-description-textarea"
       />
       <p className="mt-1.5 text-right text-[0.625rem] text-[var(--muted-foreground)]">
         {formatPersonaTextTokens(formData.description)}
@@ -4504,6 +4602,7 @@ function TextareaTab({
   placeholder,
   rows = 8,
   helpText,
+  testId,
 }: {
   title: string;
   subtitle: string;
@@ -4512,6 +4611,7 @@ function TextareaTab({
   onChange: (v: string) => void;
   placeholder: string;
   rows?: number;
+  testId?: string;
 }) {
   return (
     <div className="mari-editor-panel space-y-3 p-3">
@@ -4524,6 +4624,7 @@ function TextareaTab({
         title={title}
         showMarkdownPreview
         className="w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-relaxed outline-none transition-colors placeholder:text-[var(--muted-foreground)]/40 focus:border-emerald-400/40 focus:ring-1 focus:ring-emerald-400/20"
+        testId={testId}
       />
       <p className="mt-1.5 text-right text-[0.625rem] text-[var(--muted-foreground)]">
         {formatPersonaTextTokens(value)}

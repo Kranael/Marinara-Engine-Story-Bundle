@@ -107,6 +107,7 @@ function CompactCardTextarea({
   onChange,
   onBlur,
   onExpand,
+  testId,
 }: {
   label: string;
   value: string;
@@ -114,6 +115,7 @@ function CompactCardTextarea({
   onChange: (value: string) => void;
   onBlur: () => void;
   onExpand: () => void;
+  testId: string;
 }) {
   const { t } = useTranslation();
   return (
@@ -123,6 +125,7 @@ function CompactCardTextarea({
         <button
           type="button"
           onClick={onExpand}
+          data-testid={`${testId}-expand-button`}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--marinara-chat-chrome-panel-muted)] transition-colors hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
           title={t("chat.settings.inlineEditor.expandField", { field: label })}
           aria-label={t("chat.settings.inlineEditor.expandField", { field: label })}
@@ -137,6 +140,7 @@ function CompactCardTextarea({
         aria-label={label}
         rows={2}
         placeholder={placeholder}
+        data-testid={`${testId}-textarea`}
         className="w-full resize-y rounded-lg border border-[var(--marinara-chat-chrome-input-border)] bg-[var(--marinara-chat-chrome-input-bg)] px-2.5 py-2 text-xs leading-relaxed text-[var(--marinara-chat-chrome-panel-text)] outline-none placeholder:text-[var(--marinara-chat-chrome-panel-muted)]/55 focus:border-[var(--marinara-chat-chrome-input-border-focus)] focus:ring-1 focus:ring-[var(--marinara-chat-chrome-focus-ring)]"
       />
     </label>
@@ -354,6 +358,7 @@ export function InlineChatCardEditor({ entityId, entityKind, displayName, onClos
         <button
           type="button"
           onClick={onClose}
+          data-testid="inline-chat-card-editor-close-button"
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--marinara-chat-chrome-panel-muted)] transition-colors hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
           title={t("chat.settings.inlineEditor.close")}
           aria-label={t("chat.settings.inlineEditor.close")}
@@ -387,6 +392,7 @@ export function InlineChatCardEditor({ entityId, entityKind, displayName, onClos
               onChange={(value) => updateTextField(field, value)}
               onBlur={() => commitField(field)}
               onExpand={() => setExpandedField(field)}
+              testId={`inline-chat-card-editor-${field}`}
             />
           ))}
 
@@ -398,6 +404,7 @@ export function InlineChatCardEditor({ entityId, entityKind, displayName, onClos
               onChange={(value) => updateTextField("exampleDialogue", value)}
               onBlur={() => commitField("exampleDialogue")}
               onExpand={() => setExpandedField("exampleDialogue")}
+              testId="inline-chat-card-editor-example-dialogue"
             />
           )}
         </div>

@@ -400,12 +400,14 @@ export function STBulkImportModal({ open, onClose }: Props) {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleScan();
                   }}
+                  data-testid="st-bulk-import-folder-path-input"
                 />
                 <button
                   onClick={handleBrowse}
                   disabled={phase === "scanning" || picking}
                   className="flex items-center justify-center gap-1 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium transition-all hover:bg-[var(--secondary)] active:scale-95 disabled:opacity-50"
                   title={localizeUi("ui.modals.stbulkimportmodal.browseForFolder")}
+                  data-testid="st-bulk-import-browse-button"
                 >
                   {picking ? <Loader2 size="0.875rem" className="animate-spin" /> : <FolderOpen size="0.875rem" />}
                   {localizeUi("ui.modals.stbulkimportmodal.browse")}
@@ -426,6 +428,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                     disabled={browserLoading || browserPath === "/"}
                     className="rounded p-1 transition-colors hover:bg-[var(--accent)] disabled:opacity-30"
                     title={localizeUi("ui.modals.stbulkimportmodal.goUp")}
+                    data-testid="st-bulk-import-folder-browser-up-button"
                   >
                     <ArrowLeft size="0.75rem" />
                   </button>
@@ -438,6 +441,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                       setShowFolderBrowser(false);
                     }}
                     className="rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[0.625rem] font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 active:scale-95"
+                    data-testid="st-bulk-import-folder-browser-select-button"
                   >
                     {localizeUi("ui.modals.stbulkimportmodal.selectThisFolder")}
                   </button>
@@ -460,6 +464,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                           loadDirectory(browserPath ? `${browserPath}${sep}${name}` : name);
                         }}
                         className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-[var(--accent)]"
+                        data-testid={`st-bulk-import-folder-browser-item-${name}`}
                       >
                         <Folder size="0.8125rem" className="shrink-0 text-sky-400" />
                         <span className="truncate">{name}</span>
@@ -474,6 +479,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
             <button
               onClick={handleScan}
               disabled={!folderPath.trim() || phase === "scanning"}
+              data-testid="st-bulk-import-scan-button"
               className={cn(
                 "flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-xs font-medium transition-all",
                 folderPath.trim() && phase !== "scanning"
@@ -553,6 +559,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                   )
                 }
                 onSelectNone={() => updateCategorySelection("characters", [])}
+                testIdPrefix="characters"
                 renderDetails={(item) => {
                   const modified = formatModifiedAt(item.modifiedAt);
                   return (
@@ -589,6 +596,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                           checked={characterTagImportMode === option.value}
                           onChange={() => setCharacterTagImportMode(option.value)}
                           className="sr-only"
+                          data-testid={`st-bulk-import-character-tag-mode-${option.value}`}
                         />
                         <span className="block text-xs font-medium text-[var(--foreground)]">{option.label}</span>
                         <span className="mt-1 block text-[0.625rem] leading-snug text-[var(--muted-foreground)]">
@@ -625,6 +633,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                           checked={regexScriptScope === option.value}
                           onChange={() => setRegexScriptScope(option.value)}
                           className="sr-only"
+                          data-testid={`st-bulk-import-regex-scope-${option.value}`}
                         />
                         <span className="block text-xs font-medium text-[var(--foreground)]">{option.label}</span>
                         <span className="mt-1 block text-[0.625rem] leading-snug text-[var(--muted-foreground)]">
@@ -649,6 +658,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                   )
                 }
                 onSelectNone={() => updateCategorySelection("chats", [])}
+                testIdPrefix="chats"
                 getItemLabel={(item) => item.name || item.characterName}
                 renderDetails={(item) => {
                   const modified = formatModifiedAt(item.modifiedAt);
@@ -676,6 +686,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                   )
                 }
                 onSelectNone={() => updateCategorySelection("groupChats", [])}
+                testIdPrefix="group-chats"
                 getItemLabel={(item) => item.groupName || item.name}
                 renderDetails={(item) => {
                   const modified = formatModifiedAt(item.modifiedAt);
@@ -703,6 +714,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                   )
                 }
                 onSelectNone={() => updateCategorySelection("presets", [])}
+                testIdPrefix="presets"
                 renderDetails={(item) => {
                   const modified = formatModifiedAt(item.modifiedAt);
                   return (
@@ -736,6 +748,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                   )
                 }
                 onSelectNone={() => updateCategorySelection("lorebooks", [])}
+                testIdPrefix="lorebooks"
                 renderDetails={(item) => {
                   const modified = formatModifiedAt(item.modifiedAt);
                   return modified ? (
@@ -759,6 +772,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                   )
                 }
                 onSelectNone={() => updateCategorySelection("backgrounds", [])}
+                testIdPrefix="backgrounds"
                 renderDetails={(item) => {
                   const modified = formatModifiedAt(item.modifiedAt);
                   return modified ? (
@@ -782,6 +796,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
                   )
                 }
                 onSelectNone={() => updateCategorySelection("personas", [])}
+                testIdPrefix="personas"
                 renderDetails={(item) => {
                   const modified = formatModifiedAt(item.modifiedAt);
                   const description = item.description?.trim();
@@ -806,12 +821,14 @@ export function STBulkImportModal({ open, onClose }: Props) {
               <button
                 onClick={reset}
                 className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium transition-all hover:bg-[var(--secondary)] active:scale-95"
+                data-testid="st-bulk-import-back-button"
               >
                 {localizeUi("ui.noodle.noodlerframe.back")}
               </button>
               <button
                 onClick={handleImport}
                 disabled={!hasAnySelected}
+                data-testid="st-bulk-import-import-selected-button"
                 className={cn(
                   "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-all active:scale-95",
                   hasAnySelected
@@ -985,6 +1002,7 @@ export function STBulkImportModal({ open, onClose }: Props) {
             <button
               onClick={handleClose}
               className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 active:scale-95"
+              data-testid="st-bulk-import-done-button"
             >
               {localizeUi("lorebook.editor.batch.done")}
             </button>
@@ -1006,6 +1024,7 @@ function SelectableImportCategory<T extends ScanItemBase>({
   getItemLabel,
   renderDetails,
   renderBadge,
+  testIdPrefix,
 }: {
   icon: React.ReactNode;
   label: string;
@@ -1017,6 +1036,7 @@ function SelectableImportCategory<T extends ScanItemBase>({
   getItemLabel?: (item: T) => string;
   renderDetails?: (item: T) => React.ReactNode;
   renderBadge?: (item: T) => React.ReactNode;
+  testIdPrefix: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const [expanded, setExpanded] = useState(items.length <= 8 && items.length > 0);
@@ -1044,6 +1064,7 @@ function SelectableImportCategory<T extends ScanItemBase>({
               type="button"
               onClick={onSelectAll}
               className="rounded-md px-2 py-1 text-[0.625rem] font-medium text-[var(--primary)] transition-colors hover:bg-[var(--accent)]"
+              data-testid={`st-bulk-import-${testIdPrefix}-select-all-button`}
             >
               {localizeUi("ui.noodle.stageprofilesourcepicker.all")}
             </button>
@@ -1051,6 +1072,7 @@ function SelectableImportCategory<T extends ScanItemBase>({
               type="button"
               onClick={onSelectNone}
               className="rounded-md px-2 py-1 text-[0.625rem] font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+              data-testid={`st-bulk-import-${testIdPrefix}-select-none-button`}
             >
               {localizeUi("ui.game.gamesurfacecomponent.none")}
             </button>
@@ -1058,6 +1080,7 @@ function SelectableImportCategory<T extends ScanItemBase>({
               type="button"
               onClick={() => setExpanded((prev) => !prev)}
               className="rounded-md px-2 py-1 text-[0.625rem] font-medium text-[var(--primary)] transition-colors hover:bg-[var(--accent)]"
+              data-testid={`st-bulk-import-${testIdPrefix}-toggle-expand-button`}
             >
               {expanded
                 ? localizeUi("ui.noodle.stageprofileview.hide")
@@ -1084,6 +1107,7 @@ function SelectableImportCategory<T extends ScanItemBase>({
                   checked={checked}
                   onChange={(e) => onToggleItem(item.id, e.target.checked)}
                   className="mt-0.5 h-3.5 w-3.5 rounded border-[var(--border)] accent-[var(--primary)]"
+                  data-testid={`st-bulk-import-${testIdPrefix}-item-${item.id}`}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

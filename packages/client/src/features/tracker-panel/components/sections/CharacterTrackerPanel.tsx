@@ -187,6 +187,7 @@ export function CharacterTrackerPanel({
             <AddRowButton
               title={localizeUi("ui.trackerPanel.charactertrackerpanel.addCharacter")}
               onClick={onAddCharacter}
+              testId="character-tracker-add-character-button"
               className="rounded-sm"
             />
           ) : undefined

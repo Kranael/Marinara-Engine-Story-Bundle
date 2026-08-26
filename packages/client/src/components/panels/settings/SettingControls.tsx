@@ -482,6 +482,7 @@ export function ToggleSetting({
   disabled = false,
   anchorId,
   switchClassName,
+  testId,
 }: {
   label: ReactNode;
   checked: boolean;
@@ -491,6 +492,7 @@ export function ToggleSetting({
   disabled?: boolean;
   anchorId?: string;
   switchClassName?: string;
+  testId?: string;
 }) {
   return (
     <SettingsSwitch
@@ -505,6 +507,7 @@ export function ToggleSetting({
       labelClassName="text-xs"
       switchClassName={switchClassName}
       endAction={endAction}
+      testId={testId}
     />
   );
 }
@@ -521,6 +524,7 @@ export function SettingsCheckbox({
   anchorId,
   className,
   labelClassName,
+  testId,
 }: {
   label: ReactNode;
   checked: boolean;
@@ -533,6 +537,7 @@ export function SettingsCheckbox({
   anchorId?: string;
   className?: string;
   labelClassName?: string;
+  testId?: string;
 }) {
   const localize = useLocalizedUiText();
   const localizedLabel = localizeStringNode(label, localize);
@@ -543,6 +548,7 @@ export function SettingsCheckbox({
       checked={checked}
       disabled={disabled}
       onChange={(e) => onChange(e.target.checked)}
+      data-testid={testId ?? anchorId}
       className={cn(
         "h-3.5 w-3.5 shrink-0 rounded border-[var(--border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
         tone === "danger" ? "accent-[var(--destructive)]" : "accent-[var(--primary)]",
@@ -642,6 +648,8 @@ type SettingsSwitchProps = SettingsSwitchAccessibleLabel & {
   labelClassName?: string;
   /** Appended last so callers can intentionally override checked-track visuals. */
   switchClassName?: string;
+  /** Stable identifier for automated tests; rendered as data-testid on the checkbox input. Falls back to anchorId. */
+  testId?: string;
 };
 
 export function SettingsSwitch({
@@ -660,6 +668,7 @@ export function SettingsSwitch({
   className,
   labelClassName,
   switchClassName,
+  testId,
 }: SettingsSwitchProps) {
   const inputId = useId();
   const localize = useLocalizedUiText();
@@ -679,6 +688,7 @@ export function SettingsSwitch({
         disabled={disabled}
         aria-label={!label && ariaLabel ? localize(ariaLabel) : undefined}
         onChange={(e) => onChange(e.target.checked)}
+        data-testid={testId ?? anchorId}
         className="peer sr-only"
       />
       <SettingsSwitchTrack

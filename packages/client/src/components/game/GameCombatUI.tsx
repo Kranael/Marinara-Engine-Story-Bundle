@@ -1135,6 +1135,7 @@ export function GameCombatUI({
             <button
               type="button"
               onClick={combatVoicePaused ? resumeCombatVoicePlayback : pauseCombatVoicePlayback}
+              data-testid="game-combat-voice-pause-toggle-button"
               className="inline-flex h-6 w-6 items-center justify-center rounded-full text-sky-100 transition-colors hover:bg-white/10"
               title={
                 combatVoicePaused
@@ -1152,6 +1153,7 @@ export function GameCombatUI({
             <button
               type="button"
               onClick={restartCombatVoicePlayback}
+              data-testid="game-combat-voice-restart-button"
               className="inline-flex h-6 w-6 items-center justify-center rounded-full text-sky-100 transition-colors hover:bg-white/10"
               title={localizeUi("ui.game.gamecombatui.restartCombatVoiceOver")}
               aria-label={localizeUi("ui.game.gamecombatui.restartCombatVoiceOver")}
@@ -1161,6 +1163,7 @@ export function GameCombatUI({
             <button
               type="button"
               onClick={stopCombatVoicePlayback}
+              data-testid="game-combat-voice-stop-button"
               className="inline-flex h-6 w-6 items-center justify-center rounded-full text-sky-100 transition-colors hover:bg-white/10"
               title={localizeUi("ui.game.gamecombatui.stopCombatVoiceOver")}
               aria-label={localizeUi("ui.game.gamecombatui.stopCombatVoiceOver")}
@@ -1172,6 +1175,7 @@ export function GameCombatUI({
           <button
             type="button"
             onClick={() => playCombatVoiceKeys(playableCombatVoiceKeys)}
+            data-testid="game-combat-voice-play-button"
             className="inline-flex h-6 w-6 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-sky-100 disabled:cursor-not-allowed disabled:opacity-40"
             title={localizeUi("ui.game.gamecombatui.playCombatVoiceOver")}
             aria-label={localizeUi("ui.game.gamecombatui.playCombatVoiceOver")}
@@ -1765,6 +1769,7 @@ export function GameCombatUI({
               <AnimatedText html="{bounce:Victory!}" className="text-2xl font-bold text-amber-200" />
               <button
                 onClick={() => onCombatEnd("victory", buildSummary("victory"))}
+                data-testid="game-combat-victory-continue-button"
                 className="rounded-lg bg-amber-500/20 px-6 py-2.5 text-sm font-semibold text-amber-200 ring-1 ring-amber-400/30 transition-colors hover:bg-amber-500/30"
               >
                 {localizeUi("ui.noodle.wizardfooter.continue")}
@@ -1778,6 +1783,7 @@ export function GameCombatUI({
               <AnimatedText html="{pulse:Your party has fallen.}" className="text-xs text-white/55" />
               <button
                 onClick={() => onCombatEnd("defeat", buildSummary("defeat"))}
+                data-testid="game-combat-defeat-continue-button"
                 className="rounded-lg bg-red-500/20 px-6 py-2.5 text-sm font-semibold text-red-200 ring-1 ring-red-400/30 transition-colors hover:bg-red-500/30"
               >
                 {localizeUi("ui.noodle.wizardfooter.continue")}
@@ -1791,6 +1797,7 @@ export function GameCombatUI({
             <button
               type="button"
               onClick={showNextMobileCombatDialogue}
+              data-testid="game-combat-mobile-dialogue-next-button"
               className={cn(
                 "game-combat-action-bark mx-auto block max-h-[18svh] w-full overflow-y-auto rounded-xl border px-3 py-2 text-left shadow-lg backdrop-blur-md animate-party-slide-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
                 activeMobileCombatDialogueIsEnemy
@@ -1835,6 +1842,7 @@ export function GameCombatUI({
             <button
               type="button"
               onClick={() => setOpenDrawer((d) => (d === "party" ? null : "party"))}
+              data-testid="game-combat-drawer-party-button"
               className={cn(
                 "shrink-0 rounded border px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-wide",
                 openDrawer === "party"
@@ -1848,6 +1856,7 @@ export function GameCombatUI({
               <button
                 type="button"
                 onClick={() => setOpenDrawer((d) => (d === "mechanics" ? null : "mechanics"))}
+                data-testid="game-combat-drawer-mechanics-button"
                 className={cn(
                   "shrink-0 rounded border px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-wide",
                   openDrawer === "mechanics"
@@ -1862,6 +1871,7 @@ export function GameCombatUI({
               <button
                 type="button"
                 onClick={() => setOpenDrawer((d) => (d === "cues" ? null : "cues"))}
+                data-testid="game-combat-drawer-cues-button"
                 className={cn(
                   "shrink-0 rounded border px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-wide",
                   openDrawer === "cues"
@@ -1875,6 +1885,7 @@ export function GameCombatUI({
             <button
               type="button"
               onClick={() => setOpenDrawer((d) => (d === "log" ? null : "log"))}
+              data-testid="game-combat-drawer-log-button"
               className={cn(
                 "shrink-0 rounded border px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-wide",
                 openDrawer === "log"
@@ -1941,6 +1952,7 @@ export function GameCombatUI({
                       setActionMenuIndex(i);
                       handleActionSelect(action.id);
                     }}
+                    data-testid={`game-combat-action-${action.id}`}
                     className={cn(
                       "flex flex-col items-center gap-1 rounded-lg border px-2 py-2 text-[0.65rem] font-medium transition-all duration-150",
                       actionMenuIndex === i
@@ -1978,6 +1990,7 @@ export function GameCombatUI({
                             setSelectedItemName(null);
                             setPhase("target-select");
                           }}
+                          data-testid={`game-combat-skill-${skill.id}`}
                           className={cn(
                             "flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left text-xs transition-all",
                             insufficientMp
@@ -2006,6 +2019,7 @@ export function GameCombatUI({
                     setSelectedSkillId(null);
                     setSelectedItemName(null);
                   }}
+                  data-testid="game-combat-skill-select-back-button"
                   className="self-start rounded border border-white/15 px-2 py-0.5 text-[0.65rem] text-white/60 hover:bg-white/10 hover:text-white"
                 >
                   {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2026,6 +2040,7 @@ export function GameCombatUI({
                     <button
                       type="button"
                       onClick={onOpenInventory}
+                      data-testid="game-combat-open-inventory-button"
                       className="rounded border border-white/15 px-2 py-0.5 text-[0.6rem] text-white/60 hover:bg-white/10 hover:text-white"
                     >
                       {localizeUi("ui.game.gamecombatui.fullInventory")}
@@ -2041,6 +2056,7 @@ export function GameCombatUI({
                           key={item.name}
                           type="button"
                           onClick={() => handleItemSelect(item.name)}
+                          data-testid={`game-combat-item-${item.name}`}
                           className="rounded-lg border border-green-400/20 bg-green-500/10 px-3 py-2 text-left text-xs text-white/85 transition-all hover:border-green-400/40 hover:bg-green-500/15"
                         >
                           <div className="flex items-center justify-between gap-2">
@@ -2073,6 +2089,7 @@ export function GameCombatUI({
                     setSelectedSkillId(null);
                     setSelectedItemName(null);
                   }}
+                  data-testid="game-combat-item-select-back-button"
                   className="self-start rounded border border-white/15 px-2 py-0.5 text-[0.65rem] text-white/60 hover:bg-white/10 hover:text-white"
                 >
                   {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2091,6 +2108,7 @@ export function GameCombatUI({
                 <textarea
                   value={customInstruction}
                   onChange={(event) => setCustomInstruction(event.target.value)}
+                  data-testid="game-combat-custom-instruction-textarea"
                   onKeyDown={(event) => {
                     if (event.key === "Escape") {
                       setPhase("player-turn");
@@ -2112,6 +2130,7 @@ export function GameCombatUI({
                     type="button"
                     onClick={submitCustomInstruction}
                     disabled={!customInstruction.trim() || !onCustomInstruction}
+                    data-testid="game-combat-custom-instruction-submit-button"
                     className="rounded-lg border border-violet-300/25 bg-violet-500/15 px-3 py-1.5 text-xs font-semibold text-violet-100 transition-colors hover:bg-violet-500/25 disabled:cursor-not-allowed disabled:opacity-45"
                   >
                     {localizeUi("ui.game.gamecombatui.askGm")}
@@ -2124,6 +2143,7 @@ export function GameCombatUI({
                       setSelectedItemName(null);
                       setCustomInstruction("");
                     }}
+                    data-testid="game-combat-custom-instruction-back-button"
                     className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:bg-white/10 hover:text-white"
                   >
                     {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2155,6 +2175,7 @@ export function GameCombatUI({
                         type="button"
                         disabled={member.hp <= 0}
                         onClick={() => handleTargetSelect(member.id)}
+                        data-testid={`game-combat-target-ally-${member.id}`}
                         className={cn(
                           "flex items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs",
                           member.hp <= 0
@@ -2178,6 +2199,7 @@ export function GameCombatUI({
                         type="button"
                         disabled={enemy.hp <= 0}
                         onClick={() => handleTargetSelect(enemy.id)}
+                        data-testid={`game-combat-target-enemy-${enemy.id}`}
                         className={cn(
                           "flex items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-xs",
                           enemy.hp <= 0
@@ -2208,6 +2230,7 @@ export function GameCombatUI({
                       setSelectedItemName(null);
                     }
                   }}
+                  data-testid="game-combat-target-back-button"
                   className="self-start rounded border border-white/15 px-2 py-0.5 text-[0.65rem] text-white/60 hover:bg-white/10 hover:text-white"
                 >
                   {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2238,6 +2261,7 @@ export function GameCombatUI({
                 <button
                   type="button"
                   onClick={() => setOpenDrawer(null)}
+                  data-testid="game-combat-drawer-close-button"
                   className="rounded p-1 text-white/55 hover:bg-white/10 hover:text-white"
                   aria-label={localizeUi("ui.game.gamecombatui.closeDrawer")}
                 >
@@ -2500,6 +2524,7 @@ export function GameCombatUI({
                     setActionMenuIndex(i);
                     playSfx(COMBAT_SFX.menuHover);
                   }}
+                  data-testid={`game-combat-action-${action.id}`}
                   className={cn(
                     "group flex items-center gap-1.5 rounded-md border px-3 py-2 text-xs font-medium transition-all duration-150",
                     actionMenuIndex === i
@@ -2545,6 +2570,7 @@ export function GameCombatUI({
                         setSelectedItemName(null);
                         setPhase("target-select");
                       }}
+                      data-testid={`game-combat-skill-${skill.id}`}
                       className={cn(
                         "rounded-lg border px-3 py-2 text-left text-xs transition-all",
                         insufficientMp
@@ -2576,6 +2602,7 @@ export function GameCombatUI({
                   setSelectedSkillId(null);
                   setSelectedItemName(null);
                 }}
+                data-testid="game-combat-skill-back-button"
                 className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:bg-white/10 hover:text-white"
               >
                 {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2603,6 +2630,7 @@ export function GameCombatUI({
                 <button
                   type="button"
                   onClick={onOpenInventory}
+                  data-testid="game-combat-open-inventory-button"
                   className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:bg-white/10 hover:text-white"
                 >
                   {localizeUi("ui.game.gamecombatui.openInventory")}
@@ -2619,6 +2647,7 @@ export function GameCombatUI({
                       key={item.name}
                       type="button"
                       onClick={() => handleItemSelect(item.name)}
+                      data-testid={`game-combat-item-${item.name}`}
                       className="rounded-lg border border-green-400/20 bg-green-500/10 px-3 py-2 text-left text-xs text-white/80 transition-all hover:border-green-400/40 hover:bg-green-500/15"
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -2653,6 +2682,7 @@ export function GameCombatUI({
                   setSelectedSkillId(null);
                   setSelectedItemName(null);
                 }}
+                data-testid="game-combat-custom-action-back-button"
                 className="rounded border border-white/15 px-2 py-1 text-xs text-white/60 hover:bg-white/10 hover:text-white"
               >
                 {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2679,6 +2709,7 @@ export function GameCombatUI({
             <textarea
               value={customInstruction}
               onChange={(event) => setCustomInstruction(event.target.value)}
+              data-testid="game-combat-custom-instruction-textarea"
               onKeyDown={(event) => {
                 if (event.key === "Escape") {
                   setPhase("player-turn");
@@ -2701,6 +2732,7 @@ export function GameCombatUI({
                 type="button"
                 onClick={submitCustomInstruction}
                 disabled={!customInstruction.trim() || !onCustomInstruction}
+                data-testid="game-combat-custom-instruction-submit-button"
                 className="rounded-lg border border-violet-300/25 bg-violet-500/15 px-3 py-1.5 text-xs font-semibold text-violet-100 transition-colors hover:bg-violet-500/25 disabled:cursor-not-allowed disabled:opacity-45"
               >
                 {localizeUi("ui.game.gamecombatui.askGm")}
@@ -2713,6 +2745,7 @@ export function GameCombatUI({
                   setSelectedItemName(null);
                   setCustomInstruction("");
                 }}
+                data-testid="game-combat-custom-instruction-back-button"
                 className="rounded border border-white/15 px-2 py-1.5 text-xs text-white/60 hover:bg-white/10 hover:text-white"
               >
                 {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2745,6 +2778,7 @@ export function GameCombatUI({
                     type="button"
                     disabled={enemy.hp <= 0}
                     onClick={() => handleTargetSelect(enemy.id)}
+                    data-testid={`game-combat-target-enemy-${enemy.id}`}
                     className={cn(
                       "rounded-lg border px-3 py-2 text-left text-xs transition-colors",
                       enemy.hp <= 0
@@ -2768,6 +2802,7 @@ export function GameCombatUI({
                     type="button"
                     disabled={member.hp <= 0}
                     onClick={() => handleTargetSelect(member.id)}
+                    data-testid={`game-combat-target-ally-${member.id}`}
                     className={cn(
                       "rounded-lg border px-3 py-2 text-left text-xs transition-colors",
                       member.hp <= 0
@@ -2798,6 +2833,7 @@ export function GameCombatUI({
                   setSelectedItemName(null);
                 }
               }}
+              data-testid="game-combat-target-back-button"
               className="rounded border border-white/15 px-2 py-0.5 text-xs text-white/60 hover:bg-white/10 hover:text-white"
             >
               {localizeUi("ui.noodle.noodlerframe.back")}
@@ -2812,6 +2848,7 @@ export function GameCombatUI({
             <AnimatedText html="{bounce:Victory!}" className="text-lg font-bold text-amber-200" />
             <button
               onClick={() => onCombatEnd("victory", buildSummary("victory"))}
+              data-testid="game-combat-victory-continue-button"
               className="mt-2 rounded-lg bg-amber-500/20 px-6 py-2 text-sm font-semibold text-amber-200 ring-1 ring-amber-400/30 transition-colors hover:bg-amber-500/30"
             >
               {localizeUi("ui.noodle.wizardfooter.continue")}
@@ -2827,6 +2864,7 @@ export function GameCombatUI({
             <AnimatedText html="{pulse:Your party has fallen.}" className="text-xs text-white/50" />
             <button
               onClick={() => onCombatEnd("defeat", buildSummary("defeat"))}
+              data-testid="game-combat-defeat-continue-button"
               className="mt-2 rounded-lg bg-red-500/20 px-6 py-2 text-sm font-semibold text-red-200 ring-1 ring-red-400/30 transition-colors hover:bg-red-500/30"
             >
               {localizeUi("ui.noodle.wizardfooter.continue")}
@@ -3037,6 +3075,7 @@ function CombatantCard({
       aria-disabled={!canSelect}
       onClick={canSelect ? onSelect : undefined}
       onKeyDown={handleKeyDown}
+      data-testid={`game-combat-combatant-${combatant.id}-card`}
       style={cardStyle}
       className={cn(
         "relative flex min-w-0 flex-col items-center rounded-2xl border border-transparent p-1 text-center transition-all duration-200",
@@ -3062,6 +3101,7 @@ function CombatantCard({
                 event.stopPropagation();
                 onDismissDialogue(line);
               }}
+              data-testid={`game-combat-dialogue-dismiss-${index}-button`}
               className={cn(
                 "game-combat-action-bark max-h-[var(--combat-dialogue-max-height)] w-full overflow-y-auto rounded-xl border px-2 py-1.5 text-left shadow-lg backdrop-blur-md transition-colors animate-party-slide-in hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50",
                 side === "enemy"

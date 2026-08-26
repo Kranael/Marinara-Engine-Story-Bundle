@@ -288,6 +288,7 @@ export function ImportCharacterModal({ open, onClose }: Props) {
                     type="button"
                     onClick={() => void handleFiles(pendingLorebookChoice.files, false)}
                     className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                    data-testid="import-character-modal-no-lorebook-button"
                   >
                     {localizeUi("ui.modals.importcharactermodal.noImport")}
                   </button>
@@ -295,6 +296,7 @@ export function ImportCharacterModal({ open, onClose }: Props) {
                     type="button"
                     onClick={() => void handleFiles(pendingLorebookChoice.files, true)}
                     className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90"
+                    data-testid="import-character-modal-import-lorebook-button"
                   >
                     {localizeUi("ui.modals.importcharactermodal.importLorebook")}
                   </button>
@@ -332,6 +334,7 @@ export function ImportCharacterModal({ open, onClose }: Props) {
                   checked={tagImportMode === option.value}
                   onChange={() => setTagImportMode(option.value)}
                   className="sr-only"
+                  data-testid={`import-character-modal-tag-mode-${option.value}`}
                 />
                 <span className="block text-xs font-medium text-[var(--foreground)]">{option.label}</span>
                 <span className="mt-1 block text-[0.625rem] leading-snug text-[var(--muted-foreground)]">
@@ -368,6 +371,7 @@ export function ImportCharacterModal({ open, onClose }: Props) {
                   checked={regexScriptScope === option.value}
                   onChange={() => setRegexScriptScope(option.value)}
                   className="sr-only"
+                  data-testid={`import-character-modal-regex-scope-${option.value}`}
                 />
                 <span className="block text-xs font-medium text-[var(--foreground)]">{option.label}</span>
                 <span className="mt-1 block text-[0.625rem] leading-snug text-[var(--muted-foreground)]">
@@ -387,6 +391,7 @@ export function ImportCharacterModal({ open, onClose }: Props) {
           }}
           onDragLeave={() => setDragOver(false)}
           onClick={() => fileRef.current?.click()}
+          data-testid="import-character-modal-dropzone"
           className={`flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 transition-all ${
             dragOver
               ? "border-[var(--primary)] bg-[var(--primary)]/10"
@@ -427,6 +432,7 @@ export function ImportCharacterModal({ open, onClose }: Props) {
           accept=".json,.png,.marinara,.charx"
           multiple
           className="hidden"
+          data-testid="import-character-modal-file-input"
           onChange={(e) => {
             handleFiles(Array.from(e.target.files ?? []));
             e.target.value = "";
@@ -484,6 +490,7 @@ export function ImportCharacterModal({ open, onClose }: Props) {
               onClose();
             }}
             className="rounded-lg px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
+            data-testid="import-character-modal-close-button"
           >
             {localizeUi("capabilities.actions.close")}
           </button>

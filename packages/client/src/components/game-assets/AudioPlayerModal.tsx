@@ -58,6 +58,7 @@ export function AudioPlayerModal({ path, name, onClose }: { path: string; name: 
           <a
             href={assetUrl}
             download={name}
+            data-testid="game-assets-audio-download-link"
             className="rounded-lg border border-(--border) bg-(--background) px-4 py-2 text-xs font-medium text-(--foreground) transition-colors hover:bg-(--accent)"
           >
             {localizeUi("ui.characters.charactergallerytab.download")}
@@ -65,6 +66,7 @@ export function AudioPlayerModal({ path, name, onClose }: { path: string; name: 
           <button
             type="button"
             onClick={onClose}
+            data-testid="game-assets-audio-close-button"
             className="rounded-lg border border-(--border) bg-(--background) px-4 py-2 text-xs font-medium text-(--foreground) transition-colors hover:bg-(--accent)"
           >
             {localizeUi("capabilities.actions.close")}

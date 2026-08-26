@@ -50,6 +50,7 @@ export function QuestBoard({
             <AddRowButton
               title={localizeUi("ui.trackerPanel.questboard.addQuest")}
               onClick={onAddQuest}
+              testId="quest-board-add-quest-button"
               className="rounded-sm"
             />
           ) : undefined

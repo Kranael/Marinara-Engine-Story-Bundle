@@ -31,6 +31,7 @@ export function SearchInput({ search, onSearch }: { search: string; onSearch: (v
       {!expanded && (
         <button
           onClick={() => setExpanded(true)}
+          data-testid="game-assets-search-expand-button"
           className="flex h-10 w-10 items-center justify-center rounded-lg border border-(--border) bg-(--background) text-(--muted-foreground) transition-colors hover:bg-(--accent) hover:text-(--foreground) sm:hidden"
           title={t("search.folder.title")}
         >
@@ -55,6 +56,7 @@ export function SearchInput({ search, onSearch }: { search: string; onSearch: (v
               onSearch("");
             }
           }}
+          data-testid="game-assets-search-input"
           placeholder={t("search.folder.placeholder")}
           className="h-10 w-48 rounded-lg border border-(--border) bg-(--background) pl-7 pr-7 text-sm text-(--foreground) outline-none transition-colors focus:border-(--foreground)/40 focus:ring-1 focus:ring-(--foreground)/15 max-sm:absolute max-sm:right-0 max-sm:top-1/2 max-sm:w-48 max-sm:-translate-y-1/2 sm:h-8"
         />
@@ -64,6 +66,7 @@ export function SearchInput({ search, onSearch }: { search: string; onSearch: (v
               setExpanded(false);
               onSearch("");
             }}
+            data-testid="game-assets-search-clear-button"
             className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-(--muted-foreground) hover:bg-(--accent) hover:text-(--foreground) sm:hidden"
           >
             <X size="0.75rem" />

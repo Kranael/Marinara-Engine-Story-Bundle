@@ -192,6 +192,7 @@ export function AgentWriteApprovalModal({ open, onClose }: Props) {
             onChange={(event) => setDraft(event.target.value)}
             placeholder={placeholder}
             className="min-h-[18rem] w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-xs leading-relaxed text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)]/55 focus:border-[var(--ring)] focus:ring-1 focus:ring-[var(--ring)]"
+            data-testid="agent-write-approval-draft-textarea"
           />
         </label>
 
@@ -215,6 +216,7 @@ export function AgentWriteApprovalModal({ open, onClose }: Props) {
             onClick={closeAndAdvance}
             disabled={busyAction !== null}
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
+            data-testid="agent-write-approval-discard-button"
           >
             <Trash2 size="0.75rem" />
             {localizeUi("ui.agents.agenteditor.discard")}
@@ -224,6 +226,7 @@ export function AgentWriteApprovalModal({ open, onClose }: Props) {
             onClick={handleRegenerate}
             disabled={!canRegenerate || busyAction !== null}
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
+            data-testid="agent-write-approval-regenerate-button"
             title={
               canRegenerate
                 ? localizeUi("ui.modals.agentwriteapprovalmodal.regenerateThisProposal")
@@ -242,6 +245,7 @@ export function AgentWriteApprovalModal({ open, onClose }: Props) {
             onClick={handleAccept}
             disabled={busyAction !== null || !draft.trim()}
             className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50"
+            data-testid="agent-write-approval-accept-button"
           >
             {busyAction === "accept" ? <Loader2 size="0.75rem" className="animate-spin" /> : <Check size="0.75rem" />}
             {localizeUi("ui.modals.agentwriteapprovalmodal.accept")}

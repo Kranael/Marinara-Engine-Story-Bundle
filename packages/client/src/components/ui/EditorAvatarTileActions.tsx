@@ -17,6 +17,7 @@ export function EditorAvatarTileActions({ generationAvailable, onGenerate }: Edi
       {generationAvailable && (
         <button
           type="button"
+          data-testid="editor-avatar-tile-generate-button"
           onClick={(event) => {
             event.stopPropagation();
             onGenerate();

@@ -45,6 +45,7 @@ export function PersonalExtensionTopbarButtons() {
         value1: contribution.label,
         value2: contribution.extensionName,
       })}
+      data-testid={`personal-extension-topbar-button-${contribution.key}`}
     >
       <PersonalExtensionContributionIcon icon={contribution.icon} size={15} />
     </button>
@@ -66,6 +67,7 @@ function ContributionRow({
       role="menuitem"
       onClick={onActivate}
       className="group flex min-h-11 w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
+      data-testid={`personal-extension-contribution-row-${contribution.key}`}
     >
       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--secondary)] text-[var(--foreground)] transition-colors group-hover:bg-[var(--card)]">
         <PersonalExtensionContributionIcon icon={contribution.icon} />
@@ -194,6 +196,7 @@ export function PersonalExtensionContributionsMenu() {
         aria-haspopup="menu"
         aria-label={t("extensions.contributions.openMenu")}
         title={t("extensions.contributions.title")}
+        data-testid="personal-extension-contributions-menu-trigger"
         className={cn(
           "mari-topbar-action relative flex h-8 w-8 items-center justify-center rounded-lg p-0 transition-all active:scale-95 max-sm:h-7 max-sm:w-7",
           open

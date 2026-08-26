@@ -54,6 +54,7 @@ export function ImpersonateSection({ presets, connections }: ImpersonateSectionP
               <select
                 value={presetId ?? ""}
                 onChange={(event) => setPresetId(event.target.value || null)}
+                data-testid="impersonate-preset-select"
                 className="w-full rounded-lg bg-[var(--secondary)]/70 px-2.5 py-1.5 text-xs outline-none ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--secondary)] focus:ring-2 focus:ring-[var(--ring)]"
               >
                 <option value="">{localizeUi("ui.chatSettings.impersonatesection.useChatDefault")}</option>
@@ -79,6 +80,7 @@ export function ImpersonateSection({ presets, connections }: ImpersonateSectionP
               <select
                 value={connectionId ?? ""}
                 onChange={(event) => setConnectionId(event.target.value || null)}
+                data-testid="impersonate-connection-select"
                 className="w-full rounded-lg bg-[var(--secondary)]/70 px-2.5 py-1.5 text-xs outline-none ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--secondary)] focus:ring-2 focus:ring-[var(--ring)]"
               >
                 <option value="">{localizeUi("ui.chatSettings.impersonatesection.useChatDefault")}</option>
@@ -102,6 +104,7 @@ export function ImpersonateSection({ presets, connections }: ImpersonateSectionP
               helpPosition="label"
               checked={blockAgents}
               onChange={setBlockAgents}
+              testId="impersonate-skip-agents-switch"
               labelPosition="start"
               className="justify-between rounded-md px-2 py-1.5 text-left"
               labelClassName="text-xs font-semibold"
@@ -114,6 +117,7 @@ export function ImpersonateSection({ presets, connections }: ImpersonateSectionP
               helpPosition="label"
               checked={cyoaChoices}
               onChange={setCyoaChoices}
+              testId="impersonate-cyoa-switch"
               labelPosition="start"
               className="justify-between rounded-md px-2 py-1.5 text-left"
               labelClassName="text-xs font-semibold"
@@ -127,6 +131,7 @@ export function ImpersonateSection({ presets, connections }: ImpersonateSectionP
             <button
               type="button"
               onClick={handleOpenQuickReplySettings}
+              data-testid="impersonate-open-quick-reply-settings-button"
               className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-[0.65rem] font-medium text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/10"
             >
               {localizeUi("ui.chatSettings.impersonatesection.openSettings")}

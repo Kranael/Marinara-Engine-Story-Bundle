@@ -125,6 +125,7 @@ export function ImageUploadDropzone({
     <>
       <button
         type="button"
+        data-testid="image-upload-dropzone-button"
         onClick={() => {
           if (!isDisabled) inputRef.current?.click();
         }}
@@ -149,6 +150,7 @@ export function ImageUploadDropzone({
       <input
         ref={inputRef}
         type="file"
+        data-testid="image-upload-dropzone-input"
         accept={accept}
         multiple={multiple}
         onChange={handleInputChange}

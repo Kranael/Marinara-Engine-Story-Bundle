@@ -1849,7 +1849,14 @@ export function SpriteGenerationModal({
         width="max-w-2xl"
         testId="sprite-generation-dialog"
       >
-        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleReferenceUpload} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          data-testid="sprite-generation-reference-file-input"
+          onChange={handleReferenceUpload}
+        />
 
         {/* Step 0: Configuration */}
         {step === 0 && (
@@ -1858,6 +1865,7 @@ export function SpriteGenerationModal({
             <div className="flex gap-2">
               <button
                 type="button"
+                data-testid="sprite-generation-type-expressions"
                 aria-pressed={spriteType === "expressions"}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-xs font-medium transition-colors ring-1",
@@ -1875,6 +1883,7 @@ export function SpriteGenerationModal({
               </button>
               <button
                 type="button"
+                data-testid="sprite-generation-type-full-body"
                 aria-pressed={spriteType === "full-body"}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-xs font-medium transition-colors ring-1",
@@ -1906,6 +1915,7 @@ export function SpriteGenerationModal({
               <label className="flex items-start gap-3 rounded-lg bg-[var(--secondary)]/60 p-2.5 text-xs text-[var(--foreground)] ring-1 ring-[var(--border)]/60">
                 <input
                   type="checkbox"
+                  data-testid="sprite-generation-animated-portraits-checkbox"
                   checked={animatedPortraits}
                   onChange={(e) => setAnimatedPortraits(e.target.checked)}
                   className="mt-0.5 accent-[var(--primary)]"
@@ -1937,6 +1947,7 @@ export function SpriteGenerationModal({
                 </p>
               ) : (
                 <select
+                  data-testid="sprite-generation-connection-select"
                   value={effectiveConnectionId ?? ""}
                   onChange={(e) =>
                     animatedExpressionMode
@@ -1968,6 +1979,7 @@ export function SpriteGenerationModal({
                 <label className="mb-2 flex items-center gap-3 rounded-lg bg-[var(--secondary)]/60 p-2.5 text-xs text-[var(--foreground)] ring-1 ring-[var(--border)]/60">
                   <input
                     type="checkbox"
+                    data-testid="sprite-generation-use-current-avatar-checkbox"
                     checked={useCurrentAvatarReference}
                     onChange={(e) => {
                       const enabled = e.target.checked;
@@ -2010,6 +2022,7 @@ export function SpriteGenerationModal({
                         className="h-20 w-20 rounded-lg object-cover ring-1 ring-[var(--border)]"
                       />
                       <button
+                        data-testid={`sprite-generation-remove-reference-${idx}`}
                         onClick={() => removeReferenceImage(idx)}
                         className="absolute -right-1.5 -top-1.5 rounded-full bg-[var(--destructive)] p-0.5 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                       >
@@ -2019,6 +2032,7 @@ export function SpriteGenerationModal({
                   ))}
                   {referenceImages.length < maxUploadedReferenceImages && (
                     <button
+                      data-testid="sprite-generation-add-reference-button"
                       onClick={() => fileInputRef.current?.click()}
                       className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-[var(--border)] text-[var(--muted-foreground)] transition-colors hover:border-[var(--primary)]/40 hover:text-[var(--primary)]"
                     >
@@ -2041,6 +2055,7 @@ export function SpriteGenerationModal({
                 {localizeUi("ui.ui.spritegenerationmodal.appearanceDescription")}
               </label>
               <textarea
+                data-testid="sprite-generation-appearance-textarea"
                 value={appearance}
                 onChange={(e) => setAppearance(e.target.value)}
                 placeholder={localizeUi("ui.ui.spritegenerationmodal.blueEyesBlondeHairAnimeStyleWearingAHoodie")}
@@ -2095,6 +2110,7 @@ export function SpriteGenerationModal({
                       <button
                         key={key}
                         type="button"
+                        data-testid={`sprite-generation-preset-${key}`}
                         onClick={() => handlePresetChange(key)}
                         aria-pressed={preset === key}
                         className={cn(
@@ -2121,6 +2137,7 @@ export function SpriteGenerationModal({
                       <button
                         key={expr}
                         type="button"
+                        data-testid={`sprite-generation-expression-${expr}`}
                         onClick={() => toggleExpression(expr)}
                         aria-pressed={selectedExpressions.includes(expr)}
                         className={cn(
@@ -2216,6 +2233,7 @@ export function SpriteGenerationModal({
                           <button
                             key={key}
                             type="button"
+                            data-testid={`sprite-generation-pose-preset-${key}`}
                             onClick={() => handlePresetChange(key)}
                             aria-pressed={preset === key}
                             className={cn(
@@ -2241,6 +2259,7 @@ export function SpriteGenerationModal({
                           <button
                             key={pose}
                             type="button"
+                            data-testid={`sprite-generation-pose-${pose}`}
                             onClick={() => toggleExpression(pose)}
                             aria-pressed={selectedExpressions.includes(pose)}
                             className={cn(
@@ -2272,6 +2291,7 @@ export function SpriteGenerationModal({
             {/* Generate Button */}
             <div className="flex items-center justify-between border-t border-[var(--border)]/30 pt-4">
               <button
+                data-testid="sprite-generation-cancel-button"
                 onClick={handleClose}
                 className="rounded-lg px-3 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--secondary)]"
               >
@@ -2341,6 +2361,7 @@ export function SpriteGenerationModal({
             </div>
             <button
               type="button"
+              data-testid="sprite-generation-cancel-generation-button"
               onClick={handleCancelGeneration}
               className="rounded-lg px-3 py-1.5 text-xs text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
             >
@@ -2374,6 +2395,7 @@ export function SpriteGenerationModal({
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border)]/30 pt-4">
               <button
                 type="button"
+                data-testid="sprite-generation-regenerate-neutral-button"
                 onClick={handleGenerate}
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
               >
@@ -2420,6 +2442,7 @@ export function SpriteGenerationModal({
                   </div>
                   <button
                     type="button"
+                    data-testid="sprite-generation-retry-failed-batch-button"
                     onClick={handleRetryFailedMatchedBatch}
                     disabled={spriteGenerationUnavailable || !effectiveConnectionId}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
@@ -2469,6 +2492,7 @@ export function SpriteGenerationModal({
                   <div className="flex gap-2">
                     <button
                       type="button"
+                      data-testid="sprite-generation-reset-slice-button"
                       onClick={handleResetSliceAdjustments}
                       disabled={sliceApplying}
                       className="rounded-lg px-2.5 py-1 text-[0.6875rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:text-[var(--foreground)] disabled:opacity-50"
@@ -2477,6 +2501,7 @@ export function SpriteGenerationModal({
                     </button>
                     <button
                       type="button"
+                      data-testid="sprite-generation-apply-slice-button"
                       onClick={handleApplySliceAdjustments}
                       disabled={sliceApplying}
                       className="rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[0.6875rem] font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
@@ -2539,6 +2564,7 @@ export function SpriteGenerationModal({
                         </span>
                         <input
                           type="range"
+                          data-testid={`sprite-generation-slice-row-cut-${index}`}
                           min={-12}
                           max={12}
                           step={0.1}
@@ -2559,6 +2585,7 @@ export function SpriteGenerationModal({
                         </span>
                         <input
                           type="range"
+                          data-testid={`sprite-generation-slice-col-cut-${index}`}
                           min={-12}
                           max={12}
                           step={0.1}
@@ -2591,6 +2618,7 @@ export function SpriteGenerationModal({
                     <label className="flex items-center gap-2 text-xs text-[var(--foreground)]">
                       <input
                         type="checkbox"
+                        data-testid="sprite-generation-no-background-checkbox"
                         checked={noBackground}
                         onChange={(e) => {
                           const enabled = e.target.checked;
@@ -2611,6 +2639,7 @@ export function SpriteGenerationModal({
                           </span>
                           <input
                             type="range"
+                            data-testid="sprite-generation-cleanup-strength-range"
                             min={0}
                             max={100}
                             step={1}
@@ -2624,6 +2653,7 @@ export function SpriteGenerationModal({
                         </div>
                         <span className="text-[0.6875rem] text-[var(--muted-foreground)]">{cleanupStrength}</span>
                         <button
+                          data-testid="sprite-generation-apply-cleanup-button"
                           onClick={handleApplyCleanup}
                           disabled={cleanupApplying || cells.length === 0}
                           className="rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[0.6875rem] font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
@@ -2637,6 +2667,7 @@ export function SpriteGenerationModal({
                         </button>
                         {cleanupApplied && (
                           <button
+                            data-testid="sprite-generation-use-original-button"
                             onClick={handleUseOriginal}
                             disabled={cleanupApplying}
                             className="rounded-lg px-2.5 py-1 text-[0.6875rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:text-[var(--foreground)]"
@@ -2672,6 +2703,7 @@ export function SpriteGenerationModal({
                         </span>
                         <button
                           type="button"
+                          data-testid="sprite-generation-close-cell-frame-button"
                           onClick={handleCloseCellFrame}
                           className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                           aria-label={localizeUi("ui.ui.spriteframeeditor.closeFrameEditor")}
@@ -2686,6 +2718,7 @@ export function SpriteGenerationModal({
                             <span className="w-12 shrink-0 text-[var(--foreground)]">{label}</span>
                             <input
                               type="range"
+                              data-testid={`sprite-generation-frame-range-${key}`}
                               min={0}
                               max={80}
                               step={0.5}
@@ -2702,6 +2735,7 @@ export function SpriteGenerationModal({
                       <div className="flex flex-wrap items-center gap-2">
                         <button
                           type="button"
+                          data-testid="sprite-generation-reset-frame-button"
                           onClick={() => setFrameAdjustments(DEFAULT_SPRITE_FRAME_ADJUSTMENTS)}
                           className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-[0.6875rem] text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:text-[var(--foreground)]"
                         >
@@ -2710,6 +2744,7 @@ export function SpriteGenerationModal({
                         </button>
                         <button
                           type="button"
+                          data-testid="sprite-generation-apply-frame-button"
                           onClick={handleApplyCellFrame}
                           disabled={frameApplying}
                           className="inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-2.5 py-1 text-[0.6875rem] font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"
@@ -2758,7 +2793,11 @@ export function SpriteGenerationModal({
                       )}
                     >
                       {/* Image */}
-                      <button onClick={() => handleCellToggle(i)} className="block w-full">
+                      <button
+                        data-testid={`sprite-generation-cell-toggle-${i}`}
+                        onClick={() => handleCellToggle(i)}
+                        className="block w-full"
+                      >
                         <div className="aspect-square bg-[var(--secondary)]">
                           <img src={cell.dataUrl} alt={cell.expression} className="h-full w-full object-contain" />
                         </div>
@@ -2777,6 +2816,7 @@ export function SpriteGenerationModal({
                       {/* Expression label */}
                       <div className="space-y-1.5 p-1.5">
                         <select
+                          data-testid={`sprite-generation-cell-assign-${i}`}
                           value={normalizedExpression}
                           onChange={(e) => handleCellRename(i, e.target.value)}
                           className="w-full rounded bg-[var(--secondary)] px-2 py-1 text-center text-[0.6875rem] capitalize text-[var(--foreground)] outline-none focus:ring-1 focus:ring-[var(--primary)]/40"
@@ -2791,6 +2831,7 @@ export function SpriteGenerationModal({
                           ))}
                         </select>
                         <input
+                          data-testid={`sprite-generation-cell-filename-${i}`}
                           value={cell.expression}
                           onChange={(e) => handleCellRename(i, e.target.value)}
                           onBlur={() => handleCellRenameBlur(i)}
@@ -2803,6 +2844,7 @@ export function SpriteGenerationModal({
                           <div className="flex justify-center">
                             <button
                               type="button"
+                              data-testid={`sprite-generation-cell-frame-${i}`}
                               onClick={() => handleOpenCellFrame(i)}
                               className={cn(
                                 "inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]",
@@ -2828,6 +2870,7 @@ export function SpriteGenerationModal({
             {/* Actions */}
             <div className="flex items-center justify-between border-t border-[var(--border)]/30 pt-4">
               <button
+                data-testid="sprite-generation-reset-button"
                 onClick={handleReset}
                 className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] hover:bg-[var(--secondary)]"
               >
@@ -2835,6 +2878,7 @@ export function SpriteGenerationModal({
                 {localizeUi("ui.agents.secretplotpanel.regenerate")}
               </button>
               <button
+                data-testid="sprite-generation-save-button"
                 onClick={handleSave}
                 disabled={saving || selectedCount === 0}
                 className="flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:opacity-50"

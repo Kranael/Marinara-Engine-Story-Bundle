@@ -236,6 +236,7 @@ export function CustomAgentRepositoriesModal({ open, onClose }: { open: boolean;
             }}
           >
             <input
+              data-testid="custom-agent-repositories-url-input"
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               className="mari-chrome-field h-11 min-w-0 flex-1 px-3 text-sm"
@@ -245,6 +246,7 @@ export function CustomAgentRepositoriesModal({ open, onClose }: { open: boolean;
             />
             <button
               type="submit"
+              data-testid="custom-agent-repositories-preview-submit"
               className="mari-chrome-control mari-chrome-control--primary h-11 shrink-0 px-4 text-sm"
               disabled={pending || !url.trim()}
             >
@@ -297,6 +299,7 @@ export function CustomAgentRepositoriesModal({ open, onClose }: { open: boolean;
                   </div>
                   <button
                     type="button"
+                    data-testid={`custom-agent-repositories-preview-${repository.id}`}
                     className="mari-chrome-control h-10 px-3 text-xs"
                     onClick={() => void previewExisting(repository.id)}
                     disabled={pending}
@@ -310,6 +313,7 @@ export function CustomAgentRepositoriesModal({ open, onClose }: { open: boolean;
                   </button>
                   <button
                     type="button"
+                    data-testid={`custom-agent-repositories-remove-${repository.id}`}
                     className="mari-chrome-control h-10 w-10 p-0 text-[var(--destructive)]"
                     onClick={() => void removeRepository(repository.id, `${repository.owner}/${repository.name}`)}
                     disabled={pending}
@@ -353,6 +357,7 @@ export function CustomAgentRepositoriesModal({ open, onClose }: { open: boolean;
               </div>
               <button
                 type="button"
+                data-testid="custom-agent-repositories-apply"
                 className="mari-chrome-control mari-chrome-control--primary h-10 px-4 text-sm"
                 onClick={() => void applyPreview()}
                 disabled={pending || !agentImportsEnabled}

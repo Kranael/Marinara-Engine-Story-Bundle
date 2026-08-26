@@ -145,6 +145,7 @@ export function KaomojiPicker({ open, onClose, onSelect, anchorRef, containerRef
           <input
             ref={searchInputRef}
             type="text"
+            data-testid="kaomoji-picker-search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("chat.kaomoji.search")}
@@ -163,6 +164,7 @@ export function KaomojiPicker({ open, onClose, onSelect, anchorRef, containerRef
             <button
               key={category.id}
               type="button"
+              data-testid={`kaomoji-picker-category-${category.id}`}
               onClick={() => setActiveCategory(index)}
               aria-pressed={index === activeCategory}
               className={cn(
@@ -189,6 +191,7 @@ export function KaomojiPicker({ open, onClose, onSelect, anchorRef, containerRef
                 <button
                   key={item.value}
                   type="button"
+                  data-testid={`kaomoji-picker-recent-${item.value}`}
                   onClick={() => handleSelect(item.value)}
                   title={item.label ?? item.value}
                   className="min-w-0 truncate rounded-lg px-2 py-2 text-center text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--secondary)]/60 active:scale-95"
@@ -207,6 +210,7 @@ export function KaomojiPicker({ open, onClose, onSelect, anchorRef, containerRef
               <button
                 key={entry.value}
                 type="button"
+                data-testid={`kaomoji-picker-entry-${entry.value}`}
                 onClick={() => handleSelect(entry.value)}
                 title={entry.keywords}
                 className="min-w-0 truncate rounded-lg px-2 py-2 text-center text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--secondary)]/60 active:scale-95"

@@ -176,6 +176,7 @@ function ScopeTargetPicker({
   removeLabel,
   onAdd,
   onRemove,
+  testId,
 }: {
   icon: ReactNode;
   options: Array<{ id: string; name: string }>;
@@ -185,6 +186,7 @@ function ScopeTargetPicker({
   removeLabel: (name: string) => string;
   onAdd: (id: string) => void;
   onRemove: (id: string) => void;
+  testId?: string;
 }) {
   const selected = selectedIds.map((id) => options.find((option) => option.id === id) ?? { id, name: id });
   const available = options.filter((option) => !selectedIds.includes(option.id));
@@ -197,6 +199,7 @@ function ScopeTargetPicker({
           <span className="min-w-0 flex-1 truncate text-xs">{option.name}</span>
           <button
             type="button"
+            data-testid={testId ? `${testId}-remove-${option.id}` : undefined}
             onClick={() => onRemove(option.id)}
             className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--destructive)]/15 hover:text-[var(--destructive)]"
             aria-label={removeLabel(option.name)}
@@ -208,6 +211,7 @@ function ScopeTargetPicker({
       ))}
       <select
         value=""
+        data-testid={testId ? `${testId}-select` : undefined}
         disabled={available.length === 0}
         onChange={(event) => {
           if (event.target.value) onAdd(event.target.value);
@@ -580,6 +584,7 @@ export function RegexScriptEditor() {
       <div className="mari-editor-header">
         <button
           type="button"
+          data-testid="regex-script-editor-back"
           onClick={handleClose}
           aria-label={localizeUi("ui.agents.regexscripteditor.backToRegexScripts")}
           className="mari-editor-action inline-flex"
@@ -590,6 +595,7 @@ export function RegexScriptEditor() {
           <Regex size="1.125rem" className="max-md:!h-[0.875rem] max-md:!w-[0.875rem]" />
         </div>
         <input
+          data-testid="regex-script-editor-name"
           value={localName}
           onChange={(e) => {
             setLocalName(e.target.value);
@@ -615,6 +621,7 @@ export function RegexScriptEditor() {
             </span>
           )}
           <button
+            data-testid="regex-script-editor-save"
             onClick={handleSave}
             disabled={
               isPending ||
@@ -630,6 +637,7 @@ export function RegexScriptEditor() {
             <Save size="0.8125rem" /> <span className="max-md:hidden">{localizeUi("ui.noodle.noodlehome.save")}</span>
           </button>
           <SettingsSwitch
+            testId="regex-script-editor-enabled"
             ariaLabel={localEnabled ? "Disable regex script" : "Enable regex script"}
             title={
               localEnabled ? localizeUi("ui.noodle.noodlehome.enabled") : localizeUi("ui.agents.agenteditor.disabled")
@@ -642,6 +650,7 @@ export function RegexScriptEditor() {
             className="mari-editor-action inline-flex p-1.5 hover:bg-[var(--accent)]"
           />
           <button
+            data-testid="regex-script-editor-export"
             onClick={handleExport}
             className="mari-editor-action inline-flex"
             title={localizeUi("ui.agents.regexscripteditor.exportRegexScript")}
@@ -651,6 +660,7 @@ export function RegexScriptEditor() {
           </button>
           {dbRow && (
             <button
+              data-testid="regex-script-editor-delete"
               onClick={handleDelete}
               className="mari-editor-action inline-flex"
               title={localizeUi("ui.agents.regexscripteditor.deleteRegexScript")}
@@ -668,18 +678,21 @@ export function RegexScriptEditor() {
           <span>{localizeUi("ui.agents.agenteditor.youHaveUnsavedChanges")}</span>
           <div className="flex gap-2">
             <button
+              data-testid="regex-script-editor-keep-editing"
               onClick={() => setShowUnsavedWarning(false)}
               className="rounded-lg px-3 py-1 hover:bg-[var(--accent)]"
             >
               {localizeUi("ui.agents.agenteditor.keepEditing")}
             </button>
             <button
+              data-testid="regex-script-editor-discard"
               onClick={() => closeRegexDetail()}
               className="rounded-lg px-3 py-1 text-[var(--destructive)] hover:bg-[var(--destructive)]/15"
             >
               {localizeUi("ui.agents.agenteditor.discard")}
             </button>
             <button
+              data-testid="regex-script-editor-save-close"
               onClick={async () => {
                 await handleSave();
                 closeRegexDetail();
@@ -697,7 +710,7 @@ export function RegexScriptEditor() {
         <div className="flex items-center gap-2 bg-red-500/10 px-4 py-2 text-xs text-red-400">
           <AlertCircle size="0.8125rem" />
           <span className="flex-1">{saveError}</span>
-          <button onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20">
+          <button data-testid="regex-script-editor-save-error-close" onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20">
             <X size="0.75rem" />
           </button>
         </div>
@@ -714,6 +727,7 @@ export function RegexScriptEditor() {
           >
             <div className="relative">
               <input
+                data-testid="regex-script-editor-find-regex"
                 value={localFindRegex}
                 onChange={(e) => {
                   setLocalFindRegex(e.target.value);
@@ -736,6 +750,7 @@ export function RegexScriptEditor() {
             help={localizeUi("ui.agents.regexscripteditor.theReplacementStringSupportsCaptureGroups12Named")}
           >
             <input
+              data-testid="regex-script-editor-replace-string"
               value={localReplaceString}
               onChange={(e) => {
                 setLocalReplaceString(e.target.value);
@@ -758,6 +773,7 @@ export function RegexScriptEditor() {
                 return (
                   <button
                     key={flag}
+                    data-testid={`regex-script-editor-flag-${flag}`}
                     onClick={() => {
                       setLocalFlags((prev) => (active ? prev.replace(flag, "") : prev + flag));
                       markDirty();
@@ -789,6 +805,7 @@ export function RegexScriptEditor() {
                   return (
                     <button
                       key={placement}
+                      data-testid={`regex-script-editor-placement-${placement}`}
                       onClick={() => togglePlacement(placement)}
                       className={cn(
                         "flex flex-col items-center gap-1 rounded-xl p-3 text-xs ring-1 transition-all",
@@ -807,6 +824,7 @@ export function RegexScriptEditor() {
             <div className="rounded-xl bg-[var(--secondary)]/60 p-3 ring-1 ring-[var(--border)]">
               <div className="flex items-start gap-2.5">
                 <SettingsSwitch
+                  testId="regex-script-editor-character-scope"
                   ariaLabel="Toggle character target scope"
                   checked={localCharacterScopeEnabled}
                   onChange={(checked) => {
@@ -835,6 +853,7 @@ export function RegexScriptEditor() {
               {localCharacterScopeEnabled && (
                 <div>
                   <ScopeTargetPicker
+                    testId="regex-script-editor-character-scope"
                     icon={<Users size="0.75rem" />}
                     options={characterOptions}
                     selectedIds={localTargetCharacterIds}
@@ -861,6 +880,7 @@ export function RegexScriptEditor() {
             <div className="rounded-xl bg-[var(--secondary)]/60 p-3 ring-1 ring-[var(--border)]">
               <div className="flex items-start gap-2.5">
                 <SettingsSwitch
+                  testId="regex-script-editor-prompt-preset-scope"
                   ariaLabel={localizeUi("ui.agents.regexscripteditor.togglePromptPresetScope")}
                   checked={localPromptPresetScopeEnabled}
                   onChange={(checked) => {
@@ -889,6 +909,7 @@ export function RegexScriptEditor() {
               {localPromptPresetScopeEnabled && (
                 <div>
                   <ScopeTargetPicker
+                    testId="regex-script-editor-prompt-preset-scope"
                     icon={<FileText size="0.75rem" />}
                     options={promptPresetOptions}
                     selectedIds={localTargetPromptPresetIds}
@@ -924,6 +945,7 @@ export function RegexScriptEditor() {
               {localTrimStrings.map((s, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input
+                    data-testid={`regex-script-editor-trim-string-${i}`}
                     value={s}
                     onChange={(e) => {
                       const updated = [...localTrimStrings];
@@ -935,6 +957,7 @@ export function RegexScriptEditor() {
                     placeholder={localizeUi("ui.agents.regexscripteditor.stringToTrim")}
                   />
                   <button
+                    data-testid={`regex-script-editor-trim-string-remove-${i}`}
                     onClick={() => {
                       setLocalTrimStrings((prev) => prev.filter((_, j) => j !== i));
                       markDirty();
@@ -946,6 +969,7 @@ export function RegexScriptEditor() {
                 </div>
               ))}
               <button
+                data-testid="regex-script-editor-add-trim-string"
                 onClick={() => {
                   setLocalTrimStrings((prev) => [...prev, ""]);
                   markDirty();
@@ -975,6 +999,7 @@ export function RegexScriptEditor() {
                         <button
                           key={mode}
                           type="button"
+                          data-testid={`regex-script-editor-apply-mode-${mode}`}
                           onClick={() => {
                             setLocalApplyMode(mode);
                             markDirty();
@@ -1001,6 +1026,7 @@ export function RegexScriptEditor() {
                   {localizeUi("ui.agents.regexscripteditor.executionOrder")}
                 </span>
                 <DraftNumberInput
+                  testId="regex-script-editor-order"
                   value={localOrder}
                   onCommit={(value) => {
                     setLocalOrder(value);
@@ -1019,6 +1045,7 @@ export function RegexScriptEditor() {
                 <span className="text-xs font-medium w-24">{localizeUi("ui.agents.regexscripteditor.depthRange")}</span>
                 <input
                   type="text"
+                  data-testid="regex-script-editor-min-depth"
                   inputMode="numeric"
                   pattern="[0-9]*"
                   value={localMinDepth ?? ""}
@@ -1035,6 +1062,7 @@ export function RegexScriptEditor() {
                 </span>
                 <input
                   type="text"
+                  data-testid="regex-script-editor-max-depth"
                   inputMode="numeric"
                   pattern="[0-9]*"
                   value={localMaxDepth ?? ""}
@@ -1066,6 +1094,7 @@ export function RegexScriptEditor() {
           >
             <div className="space-y-2">
               <textarea
+                data-testid="regex-script-editor-live-test"
                 value={testInput}
                 onChange={(e) => setTestInput(e.target.value)}
                 rows={3}

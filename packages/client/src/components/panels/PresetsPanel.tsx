@@ -984,6 +984,7 @@ export function PresetsPanel() {
               <button
                 type="button"
                 data-preset-image-action={preset.id}
+                data-testid={`preset-image-button-${preset.id}`}
                 onClick={(event) => {
                   event.stopPropagation();
                   handlePickPresetImage(preset.id);
@@ -1057,6 +1058,7 @@ export function PresetsPanel() {
                     event.stopPropagation();
                     selectPreset(preset.id);
                   }}
+                  data-testid={`preset-assign-button-${preset.id}`}
                   className={cn(
                     "mari-chrome-control mari-chrome-control--small p-1.5",
                     isSelected && "mari-chrome-control--selected",
@@ -1081,6 +1083,7 @@ export function PresetsPanel() {
                   event.stopPropagation();
                   setDefaultPreset.mutate(preset.id);
                 }}
+                data-testid={`preset-set-default-button-${preset.id}`}
                 className={cn(
                   "rounded-lg p-1.5 transition-all active:scale-90",
                   isDefault
@@ -1106,6 +1109,7 @@ export function PresetsPanel() {
                   event.stopPropagation();
                   duplicatePreset.mutate(preset.id);
                 }}
+                data-testid={`preset-duplicate-button-${preset.id}`}
                 className="mari-chrome-control mari-chrome-control--small p-1.5"
                 title={localizeUi("ui.presets.sectionstab.duplicate")}
                 aria-label={localizeUi("ui.panels.presetspanel.duplicatePreset")}
@@ -1128,6 +1132,7 @@ export function PresetsPanel() {
                       deletePreset.mutate(preset.id);
                     }
                   }}
+                  data-testid={`preset-delete-button-${preset.id}`}
                   className="mari-chrome-control mari-chrome-control--small p-1.5"
                   title={localizeUi("lorebook.editor.batch.delete")}
                   aria-label={localizeUi("ui.panels.presetspanel.deletePreset")}
@@ -1167,6 +1172,7 @@ export function PresetsPanel() {
         type="file"
         accept="image/*"
         className="hidden"
+        data-testid="presets-panel-image-input"
         onChange={handlePresetImageSelected}
       />
 
@@ -1175,6 +1181,7 @@ export function PresetsPanel() {
         <button
           type="button"
           onClick={() => openModal("create-preset")}
+          data-testid="presets-panel-create-preset-button"
           className="mari-panel-gradient-button mari-panel-gradient--presets flex-1 text-xs"
           aria-label={localizeUi("ui.panels.presetspanel.createPreset")}
           title={localizeUi("ui.lorebooks.lorebookassignmentsection.new")}
@@ -1184,6 +1191,7 @@ export function PresetsPanel() {
         <button
           type="button"
           onClick={() => openModal("import-preset")}
+          data-testid="presets-panel-import-preset-button"
           className="mari-chrome-control mari-chrome-control--primary flex-1 text-xs"
           aria-label={localizeUi("ui.panels.presetspanel.importPreset")}
           title={localizeUi("ui.chat.chatbranchselector.import")}
@@ -1196,6 +1204,7 @@ export function PresetsPanel() {
             if (selectionMode) exitSelectionMode();
             else setSelectionMode(true);
           }}
+          data-testid="presets-panel-select-button"
           className={cn(
             "mari-chrome-control mari-chrome-control--primary flex-1 text-xs",
             selectionMode && "mari-chrome-control--selected",
@@ -1223,6 +1232,7 @@ export function PresetsPanel() {
             placeholder={localize("Search presets")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            data-testid="presets-panel-search-input"
             className="mari-chrome-field h-10 w-full py-0 pl-8 pr-3 text-xs md:h-9"
           />
         </div>
@@ -1230,6 +1240,7 @@ export function PresetsPanel() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as ResourcePanelSort)}
+            data-testid="presets-panel-sort-select"
             className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
             title={localizeUi("ui.panels.agentspanel.sortOrder")}
             aria-label={localizeUi("ui.panels.presetspanel.sortPresets")}
@@ -1250,6 +1261,7 @@ export function PresetsPanel() {
         <div className="flex items-center gap-1">
           <button
             onClick={handleCreateFolder}
+            data-testid="presets-panel-create-folder-button"
             className="mari-chrome-control mari-chrome-control--small flex-1 justify-start text-[0.6875rem]"
           >
             <FolderPlus size="0.75rem" />
@@ -1337,6 +1349,7 @@ export function PresetsPanel() {
                       <input
                         autoFocus
                         value={editFolderName}
+                        data-testid={`presets-panel-folder-name-input-${folder.id}`}
                         onChange={(event) => setEditFolderName(event.target.value)}
                         onKeyDown={(event) => {
                           if (event.key === "Enter") event.currentTarget.blur();
@@ -1392,6 +1405,7 @@ export function PresetsPanel() {
                           if (expandedFolderId === folder.id) setExpandedFolderId(null);
                         });
                       }}
+                      data-testid={`presets-panel-delete-folder-button-${folder.id}`}
                       className="mari-chrome-control mari-chrome-control--small p-1"
                       title={localizeUi("ui.panels.backgroundpicker.deleteFolder")}
                       aria-label={localizeUi("ui.panels.backgroundpicker.deleteFolder")}
@@ -1609,6 +1623,7 @@ function RegexSection({
           <button
             type="button"
             onClick={handleCreateRegex}
+            data-testid="presets-panel-create-regex-button"
             className="mari-chrome-control mari-chrome-control--small p-1.5"
             title={localizeUi("ui.characters.characterregexsection.createRegex")}
             aria-label={localizeUi("ui.characters.characterregexsection.createRegex")}
@@ -1620,13 +1635,14 @@ function RegexSection({
             title={localizeUi("ui.characters.characterregexsection.importRegexesFromJson")}
             aria-label={localizeUi("ui.characters.characterregexsection.importRegexesFromJson")}
           >
-            <input type="file" accept="application/json" className="hidden" onChange={handleImportRegex} />
+            <input type="file" accept="application/json" className="hidden" data-testid="presets-panel-import-regex-input" onChange={handleImportRegex} />
             <Download size="0.8125rem" />
           </label>
           <button
             type="button"
             onClick={handleExportRegex}
             disabled={sortedRegexScripts.length === 0}
+            data-testid="presets-panel-export-regex-button"
             className="mari-chrome-control mari-chrome-control--small p-1.5"
             title={localizeUi("ui.characters.characterregexsection.exportRegexesToJson")}
             aria-label={localizeUi("ui.characters.characterregexsection.exportRegexesToJson")}
@@ -1720,6 +1736,7 @@ function RegexSection({
                 <Regex size="0.875rem" className="mt-0.5 shrink-0 text-[var(--marinara-chat-chrome-button-text)]" />
                 <button
                   className="min-w-0 flex-1 basis-[min(100%,10rem)] text-left"
+                  data-testid={`regex-open-button-${script.id}`}
                   onClick={() => openRegexDetail(script.id)}
                 >
                   <div className="text-xs font-medium">{script.name}</div>
@@ -1769,6 +1786,7 @@ function RegexSection({
                     className="mari-chrome-control mari-chrome-control--small shrink-0 p-1"
                     title={localizeUi("ui.characters.characterregexsection.editRegex")}
                     aria-label={localizeUi("ui.characters.characterregexsection.editRegex")}
+                    data-testid={`regex-edit-button-${script.id}`}
                     onClick={() => openRegexDetail(script.id)}
                   >
                     <Pencil size="0.8125rem" />
@@ -1778,6 +1796,7 @@ function RegexSection({
                     className="mari-chrome-control mari-chrome-control--small shrink-0 p-1"
                     title={localizeUi("ui.characters.characterregexsection.deleteRegex")}
                     aria-label={localizeUi("ui.characters.characterregexsection.deleteRegex")}
+                    data-testid={`regex-delete-button-${script.id}`}
                     onClick={async () => {
                       if (
                         await showConfirmDialog({
@@ -1874,6 +1893,7 @@ function FunctionsSection({
           <button
             type="button"
             onClick={handleCreateFunction}
+            data-testid="presets-panel-create-function-button"
             className="mari-chrome-control mari-chrome-control--small p-1.5"
             title={localizeUi("ui.panels.functionssection.createFunction")}
             aria-label={localizeUi("ui.panels.functionssection.createFunction")}
@@ -1889,6 +1909,7 @@ function FunctionsSection({
               type="file"
               accept="application/json,application/zip,.json,.zip"
               className="hidden"
+              data-testid="presets-panel-import-functions-input"
               onChange={handleImportFunctions}
             />
             <Download size="0.8125rem" />
@@ -1897,6 +1918,7 @@ function FunctionsSection({
             type="button"
             onClick={handleExportFunctions}
             disabled={customToolRows.length === 0}
+            data-testid="presets-panel-export-functions-button"
             className="mari-chrome-control mari-chrome-control--small p-1.5"
             title={localizeUi("ui.panels.functionssection.exportFunctionsToZip")}
             aria-label={localizeUi("ui.panels.functionssection.exportFunctionsToZip")}
@@ -2058,6 +2080,7 @@ function FunctionsSection({
                 <Wrench size="0.875rem" className="mt-0.5 shrink-0 text-[var(--marinara-chat-chrome-button-text)]" />
                 <button
                   className="min-w-0 flex-1 basis-[min(100%,10rem)] text-left"
+                  data-testid={`function-open-button-${tool.id}`}
                   onClick={() => openToolDetail(tool.id)}
                 >
                   <div className="flex min-w-0 items-center gap-1">
@@ -2105,6 +2128,7 @@ function FunctionsSection({
                     className="mari-chrome-control mari-chrome-control--small shrink-0 p-1"
                     title={localizeUi("ui.panels.functionssection.editFunction")}
                     aria-label={localizeUi("ui.panels.functionssection.editFunction")}
+                    data-testid={`function-edit-button-${tool.id}`}
                     onClick={() => openToolDetail(tool.id)}
                   >
                     <Pencil size="0.8125rem" />
@@ -2114,6 +2138,7 @@ function FunctionsSection({
                     className="mari-chrome-control mari-chrome-control--small shrink-0 p-1"
                     title={localizeUi("ui.agents.tooleditor.deleteFunction")}
                     aria-label={localizeUi("ui.agents.tooleditor.deleteFunction")}
+                    data-testid={`function-delete-button-${tool.id}`}
                     onClick={async () => {
                       if (
                         await showConfirmDialog({
@@ -2175,6 +2200,7 @@ function PanelSection({
       <div className="flex items-center justify-between">
         <button
           onClick={() => setOpen((current) => !current)}
+          data-testid="presets-panel-section-toggle-button"
           className="flex items-center gap-1.5 px-1 py-1 text-left text-[0.6875rem] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]"
         >
           <ChevronDown

@@ -56,6 +56,7 @@ export function KeysEditor({ keys, onChange }: { keys: string[]; onChange: (keys
             <button
               onClick={() => onChange(keys.filter((_, j) => j !== i))}
               className="ml-0.5 rounded-sm text-[var(--marinara-editor-muted)] hover:text-[var(--destructive)]"
+              data-testid={`lorebook-keys-editor-remove-key-${i}`}
             >
               ×
             </button>
@@ -70,11 +71,13 @@ export function KeysEditor({ keys, onChange }: { keys: string[]; onChange: (keys
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addKey())}
           className="mari-editor-field flex-1 px-2 py-1.5 text-xs"
           placeholder={localizeUi("ui.lorebooks.keyseditor.typeKeywordsSeparatedByCommasThenPressEnter")}
+          data-testid="lorebook-keys-editor-input"
         />
         <button
           type="button"
           onClick={addKey}
           className="mari-editor-action mari-editor-action--compact px-2 py-1.5 text-[0.6875rem]"
+          data-testid="lorebook-keys-editor-add-button"
         >
           {localizeUi("ui.lorebooks.keyseditor.add")}
         </button>
@@ -88,11 +91,13 @@ export function ToggleButton({
   value,
   onChange,
   tooltip,
+  testId,
 }: {
   label: string;
   value: boolean;
   onChange: (v: boolean) => void;
   tooltip?: string;
+  testId?: string;
 }) {
   return (
     <SettingsSwitch
@@ -108,6 +113,7 @@ export function ToggleButton({
       )}
       labelClassName="text-xs"
       labelPosition="start"
+      testId={testId}
     />
   );
 }
@@ -150,6 +156,7 @@ export function ExpandableTextarea({
   placeholder,
   title,
   showMacroReference = false,
+  testId,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -159,6 +166,7 @@ export function ExpandableTextarea({
   placeholder?: string;
   title?: string;
   showMacroReference?: boolean;
+  testId?: string;
 }) {
   return (
     <MacroTextarea
@@ -172,6 +180,7 @@ export function ExpandableTextarea({
       showMacroReference={showMacroReference}
       showMarkdownPreview
       className="mari-editor-field w-full resize-y p-2.5 text-sm"
+      testId={testId}
     />
   );
 }

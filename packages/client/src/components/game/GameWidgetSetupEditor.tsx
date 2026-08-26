@@ -394,12 +394,14 @@ export function GameWidgetFileControls({
         type="file"
         accept="application/json,.json"
         className="hidden"
+        data-testid="game-widget-file-import-input"
         onChange={(event) => void handleImport(event.target.files?.[0])}
       />
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={disabled}
+        data-testid="game-widget-file-import-button"
         className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Download size="0.75rem" />
@@ -409,6 +411,7 @@ export function GameWidgetFileControls({
         type="button"
         onClick={() => exportGameHudWidgets(normalizedWidgets, exportFilename)}
         disabled={!canExport}
+        data-testid="game-widget-file-export-button"
         className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
       >
         <Upload size="0.75rem" />
@@ -493,6 +496,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
             value={newWidgetType}
             onChange={(event) => setNewWidgetType(event.target.value as HudWidgetType)}
             disabled={disabled || !canAddWidget}
+            data-testid="game-widget-setup-new-type-select"
             className="min-w-0 rounded-lg border border-[var(--border)] bg-[var(--background)] px-2.5 py-1.5 text-xs text-[var(--foreground)] disabled:opacity-50"
           >
             {WIDGET_TYPES.map((type) => (
@@ -506,6 +510,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
             variant="primary"
             onClick={addWidget}
             disabled={disabled || !canAddWidget}
+            data-testid="game-widget-setup-add-button"
           >
             <Plus size="0.75rem" />
             <span>{localizeUi("ui.characters.metadatatab.add")}</span>
@@ -531,6 +536,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
                     maxLength={8}
                     disabled={disabled}
                     onChange={(event) => replaceWidget(widget.id, { icon: event.target.value })}
+                    data-testid={`game-widget-setup-icon-${widget.id}`}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                   />
                 </label>
@@ -542,6 +548,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
                     value={widget.label}
                     disabled={disabled}
                     onChange={(event) => replaceWidget(widget.id, { label: event.target.value })}
+                    data-testid={`game-widget-setup-label-${widget.id}`}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                   />
                 </label>
@@ -553,6 +560,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
                     value={widget.type}
                     disabled={disabled}
                     onChange={(event) => replaceWidget(widget.id, { type: event.target.value as HudWidgetType })}
+                    data-testid={`game-widget-setup-type-${widget.id}`}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                   >
                     {WIDGET_TYPES.map((type) => (
@@ -567,6 +575,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
                     type="button"
                     onClick={() => duplicateWidget(widget)}
                     disabled={disabled || !canAddWidget}
+                    data-testid={`game-widget-setup-duplicate-${widget.id}`}
                     className="inline-flex h-9 items-center justify-center rounded-lg border border-[var(--border)] px-3 text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
                     aria-label={localizeUi("ui.game.gamewidgetsetupeditor.duplicateValue1", {
                       value1: widget.label.trim() || formatWidgetTypeLabel(widget.type),
@@ -578,6 +587,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
                     type="button"
                     onClick={() => onChange(normalizedWidgets.filter((entry) => entry.id !== widget.id))}
                     disabled={disabled}
+                    data-testid={`game-widget-setup-remove-${widget.id}`}
                     className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--marinara-chat-chrome-accent)]/25 px-3 text-[var(--marinara-chat-chrome-accent)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] disabled:opacity-50"
                     aria-label={localizeUi("ui.game.gamewidgetsetupeditor.removeValue1", {
                       value1: widget.label.trim() || formatWidgetTypeLabel(widget.type),
@@ -597,6 +607,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
                     key={widget.id}
                     defaultValue={widget.id}
                     disabled={disabled}
+                    data-testid={`game-widget-setup-id-${widget.id}`}
                     onBlur={(event) => {
                       event.currentTarget.value = replaceWidgetId(widget.id, event.currentTarget.value);
                     }}
@@ -618,6 +629,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
                         position: event.target.value === "hud_right" ? "hud_right" : "hud_left",
                       })
                     }
+                    data-testid={`game-widget-setup-position-${widget.id}`}
                     className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-2 text-xs text-[var(--foreground)]"
                   >
                     <option value="hud_left">{localizeUi("ui.game.gamewidgetsetupeditor.leftHud")}</option>
@@ -633,6 +645,7 @@ export function GameWidgetSetupEditor({ widgets, onChange, disabled, className }
                     value={/^#[0-9a-f]{6}$/i.test(widget.accent ?? "") ? widget.accent : DEFAULT_ACCENTS[widget.type]}
                     disabled={disabled}
                     onChange={(event) => replaceWidget(widget.id, { accent: event.target.value })}
+                    data-testid={`game-widget-setup-accent-${widget.id}`}
                     className="h-9 w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2 py-1"
                   />
                 </label>
@@ -730,6 +743,7 @@ function WidgetConfigFields({
                 );
                 onConfigChange({ stats: next });
               }}
+              data-testid={`game-widget-config-stat-name-${index}`}
               placeholder={localizeUi("ui.game.widgeteditormodal.stat")}
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-2 text-xs text-[var(--foreground)]"
             />
@@ -742,6 +756,7 @@ function WidgetConfigFields({
                 );
                 onConfigChange({ stats: next });
               }}
+              data-testid={`game-widget-config-stat-value-${index}`}
               placeholder={localizeUi("ui.game.widgeteditormodal.value")}
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-2 text-xs text-[var(--foreground)]"
             />
@@ -749,6 +764,7 @@ function WidgetConfigFields({
               type="button"
               onClick={() => onConfigChange({ stats: stats.filter((_, entryIndex) => entryIndex !== index) })}
               disabled={disabled}
+              data-testid={`game-widget-config-stat-remove-${index}`}
               className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--marinara-chat-chrome-accent)]/25 px-3 text-[var(--marinara-chat-chrome-accent)] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] disabled:opacity-50"
               aria-label={localizeUi("ui.game.widgetconfigfields.removeStat")}
             >
@@ -760,6 +776,7 @@ function WidgetConfigFields({
           type="button"
           onClick={() => onConfigChange({ stats: [...stats, { name: nextStatBlockName(stats), value: "" }] })}
           disabled={disabled}
+          data-testid="game-widget-config-add-stat-button"
           className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
         >
           <Plus size="0.75rem" />
@@ -806,6 +823,7 @@ function WidgetConfigFields({
                 contents: buildInventoryGridContentsFromText(event.target.value, contents),
               })
             }
+            data-testid="game-widget-config-contents-textarea"
             className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-2 text-xs text-[var(--foreground)]"
           />
         </label>
@@ -834,6 +852,7 @@ function WidgetConfigFields({
           checked={widget.config.running === true}
           disabled={disabled}
           onChange={(event) => onConfigChange({ running: event.target.checked })}
+          data-testid="game-widget-config-running-checkbox"
           className="h-4 w-4 rounded border-[var(--border)]"
         />
         {localizeUi("ui.game.widgetconfigfields.running")}
@@ -874,6 +893,7 @@ function ListItemsField({
           setDraft(nextDraft);
           onConfigChange({ items: nextItems });
         }}
+        data-testid="game-widget-config-list-items-textarea"
         className="w-full resize-y rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-2.5 py-2 text-xs text-[var(--foreground)]"
       />
     </label>

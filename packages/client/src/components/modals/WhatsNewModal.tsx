@@ -619,6 +619,7 @@ export function WhatsNewModal({
               target="_blank"
               rel="noreferrer"
               className="mari-chrome-control min-h-10 justify-center px-4 py-2 text-sm"
+              data-testid="whats-new-modal-view-release-link"
             >
               {localizeUi("ui.modals.whatsnewmodal.viewRelease")}
               <ExternalLink size="0.875rem" aria-hidden="true" />
@@ -627,6 +628,7 @@ export function WhatsNewModal({
               type="button"
               onClick={() => setOpen(false)}
               className="mari-chrome-control mari-chrome-control--primary min-h-10 justify-center px-5 py-2 text-sm"
+              data-testid="whats-new-modal-got-it-button"
             >
               {localizeUi("ui.modals.whatsnewmodal.gotIt")}
             </button>

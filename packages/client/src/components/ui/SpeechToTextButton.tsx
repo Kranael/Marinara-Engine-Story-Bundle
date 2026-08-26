@@ -100,6 +100,7 @@ export function SpeechToTextButton({ disabled, onTranscript, className, iconSize
   return (
     <button
       type="button"
+      data-testid="speech-to-text-button"
       onClick={startListening}
       disabled={disabled}
       className={cn(

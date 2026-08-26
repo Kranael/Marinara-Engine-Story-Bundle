@@ -892,6 +892,7 @@ export function EmojiPicker({
           <Search aria-hidden="true" size="0.875rem" className="shrink-0 text-foreground/45" />
           <input
             type="text"
+            data-testid="emoji-picker-search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={localizeUi("ui.ui.emojipicker.searchEmojis")}
@@ -908,6 +909,7 @@ export function EmojiPicker({
           <button
             key={cat.label}
             type="button"
+            data-testid={`emoji-picker-category-${i}`}
             onClick={() => setActiveCategory(i)}
             aria-label={cat.label}
             aria-pressed={activeCategory === i}
@@ -925,6 +927,7 @@ export function EmojiPicker({
         {customTab && (
           <button
             type="button"
+            data-testid="emoji-picker-custom-tab-button"
             onClick={() => setActiveCategory("custom")}
             aria-label={customTab.label ?? "Custom emojis"}
             aria-pressed={activeCategory === "custom"}
@@ -953,6 +956,7 @@ export function EmojiPicker({
                 <button
                   key={item.value}
                   type="button"
+                  data-testid={`emoji-picker-recent-${item.value}`}
                   onClick={() => handleSelect(item.value)}
                   aria-label={item.label ?? item.value}
                   title={item.label ?? item.value}
@@ -978,6 +982,7 @@ export function EmojiPicker({
                     <button
                       key={emoji}
                       type="button"
+                      data-testid={`emoji-picker-emoji-${emoji}`}
                       onClick={() => handleSelect(emoji)}
                       aria-label={EMOJI_SEARCH_NAMES[emoji] ?? EMOJI_KEYWORDS[emoji] ?? emoji}
                       title={EMOJI_SEARCH_NAMES[emoji] ?? EMOJI_KEYWORDS[emoji] ?? emoji}

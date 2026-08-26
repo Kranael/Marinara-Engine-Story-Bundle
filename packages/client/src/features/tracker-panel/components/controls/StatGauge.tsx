@@ -227,6 +227,7 @@ export function StatGauge({
               <button
                 type="button"
                 onClick={() => setEditingValues(true)}
+                data-testid="stat-gauge-edit-values-button"
                 className={cn(
                   "min-w-[2.25rem] rounded px-1 py-0 text-center outline-none hover:bg-[color-mix(in_srgb,var(--tracker-profile-text)_7%,transparent)] focus-visible:ring-1 focus-visible:ring-[color-mix(in_srgb,var(--tracker-profile-rule)_58%,transparent)]",
                   isCritical &&

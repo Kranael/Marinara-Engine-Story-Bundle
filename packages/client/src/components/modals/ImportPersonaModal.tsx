@@ -138,6 +138,7 @@ export function ImportPersonaModal({ open, onClose }: Props) {
           }}
           onDragLeave={() => setDragOver(false)}
           onClick={() => fileRef.current?.click()}
+          data-testid="import-persona-modal-dropzone"
           className={`flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 transition-all ${
             dragOver
               ? "border-[var(--primary)] bg-[var(--primary)]/10"
@@ -172,6 +173,7 @@ export function ImportPersonaModal({ open, onClose }: Props) {
           accept=".json,.marinara"
           multiple
           className="hidden"
+          data-testid="import-persona-modal-file-input"
           onChange={(e) => {
             handleFiles(Array.from(e.target.files ?? []));
             e.target.value = "";
@@ -229,6 +231,7 @@ export function ImportPersonaModal({ open, onClose }: Props) {
               onClose();
             }}
             className="rounded-lg px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
+            data-testid="import-persona-modal-close-button"
           >
             {localizeUi("capabilities.actions.close")}
           </button>

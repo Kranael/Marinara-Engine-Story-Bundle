@@ -389,8 +389,18 @@ function sameStringSet(left: string[], right: string[]): boolean {
   return left.every((value) => rightSet.has(value));
 }
 
-function ToggleRow({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
-  return <SettingsCheckbox label={label} checked={checked} onChange={onChange} align="between" />;
+function ToggleRow({
+  label,
+  checked,
+  onChange,
+  testId,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  testId?: string;
+}) {
+  return <SettingsCheckbox label={label} checked={checked} onChange={onChange} align="between" testId={testId} />;
 }
 
 function TtsDropdownIcon({ compact = false }: { compact?: boolean }) {
@@ -552,6 +562,7 @@ function TtsSearchableSelect({
         aria-expanded={open}
         aria-controls={open ? listboxId : undefined}
         disabled={disabled}
+        data-testid={`${testId}-trigger`}
         onClick={() => setOpen((current) => !current)}
         className={cn(
           INPUT_CLS,
@@ -590,6 +601,7 @@ function TtsSearchableSelect({
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder={searchPlaceholder}
+                    data-testid={`${testId}-search`}
                     className={cn(INPUT_CLS, "py-2 pl-8 text-xs")}
                   />
                 </label>
@@ -778,6 +790,7 @@ function PocketTTSVoiceControl({
   fetching,
   selectLabel,
   inputLabel,
+  testId,
   onChange,
 }: {
   value: string;
@@ -785,6 +798,7 @@ function PocketTTSVoiceControl({
   fetching: boolean;
   selectLabel: string;
   inputLabel: string;
+  testId?: string;
   onChange: (value: string) => void;
 }) {
   const { t: localizeUi } = useUiTranslation();
@@ -800,6 +814,7 @@ function PocketTTSVoiceControl({
             if (event.target.value) onChange(event.target.value);
           }}
           disabled={fetching || options.length === 0}
+          data-testid={testId ? `${testId}-select` : undefined}
           className={cn(INPUT_CLS, "cursor-pointer appearance-none pr-10")}
         >
           <option value="">
@@ -819,6 +834,7 @@ function PocketTTSVoiceControl({
         aria-label={inputLabel}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        data-testid={testId ? `${testId}-input` : undefined}
         className={INPUT_CLS}
         placeholder={localizeUi("ui.panels.pocketttsvoicecontrol.voiceIdUrlOrPath")}
       />
@@ -832,12 +848,14 @@ function NpcDefaultVoicePool({
   selected,
   onToggle,
   note,
+  testId,
 }: {
   label: string;
   options: VoiceOption[];
   selected: string[];
   onToggle: (voiceId: string, checked: boolean) => void;
   note?: string;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   return (
@@ -859,6 +877,7 @@ function NpcDefaultVoicePool({
                 type="checkbox"
                 checked={selected.includes(option.id)}
                 onChange={(e) => onToggle(option.id, e.target.checked)}
+                data-testid={testId ? `${testId}-${option.id}` : undefined}
                 className="h-3 w-3 shrink-0 rounded border-[var(--border)] accent-[var(--primary)]"
               />
               <span className="truncate">{formatVoiceOptionLabel(option)}</span>
@@ -1502,6 +1521,7 @@ export function TTSConfigCard() {
               mark({ enabled: checked });
             }}
             ariaLabel={enabled ? "Disable TTS" : "Enable TTS"}
+            testId="tts-enable-switch"
             title={
               enabled
                 ? localizeUi("ui.panels.ttsconfigcard.disableTts")
@@ -1512,6 +1532,7 @@ export function TTSConfigCard() {
 
           <button
             onClick={() => setExpanded((v) => !v)}
+            data-testid="tts-expand-toggle-button"
             className="mari-chrome-control mari-chrome-control--small h-8 min-h-0 w-8 p-0"
             title={
               expanded ? localizeUi("ui.panels.ttsconfigcard.collapse") : localizeUi("ui.panels.ttsconfigcard.expand")
@@ -1533,6 +1554,7 @@ export function TTSConfigCard() {
             <select
               value={source}
               onChange={(e) => handleSourceChange(e.target.value as TTSSource)}
+              data-testid="tts-source-select"
               className={cn(INPUT_CLS, "cursor-pointer appearance-none")}
             >
               {TTS_SOURCE_OPTIONS.map((option) => (
@@ -1564,6 +1586,7 @@ export function TTSConfigCard() {
                   setBaseUrl(e.target.value);
                   mark({ baseUrl: e.target.value });
                 }}
+                data-testid="tts-base-url-input"
                 className={cn(INPUT_CLS, "pl-8 font-mono")}
                 placeholder={selectedSource.baseUrl}
               />
@@ -1584,6 +1607,7 @@ export function TTSConfigCard() {
                   mark({ apiKey: e.target.value === TTS_API_KEY_MASK ? TTS_API_KEY_MASK : e.target.value });
                 }}
                 type="password"
+                data-testid="tts-api-key-input"
                 className={cn(INPUT_CLS, "pl-8")}
                 placeholder={localizeUi("ui.panels.ttsconfigcard.enterApiKeyOrClearToRemove")}
               />
@@ -1615,6 +1639,7 @@ export function TTSConfigCard() {
                     setModel(e.target.value);
                     mark({ model: e.target.value });
                   }}
+                  data-testid="tts-model-select"
                   className={cn(INPUT_CLS, "cursor-pointer appearance-none pr-10")}
                 >
                   {modelOptions.map((option) => (
@@ -1637,6 +1662,7 @@ export function TTSConfigCard() {
                   setModel(e.target.value);
                   mark({ model: e.target.value });
                 }}
+                data-testid="tts-model-input"
                 className={INPUT_CLS}
                 placeholder={selectedSource.model}
               />
@@ -1672,6 +1698,7 @@ export function TTSConfigCard() {
                 setVoiceMode(nextMode);
                 mark({ voiceMode: nextMode });
               }}
+              data-testid="tts-voice-mode-select"
               className={cn(INPUT_CLS, "cursor-pointer appearance-none")}
             >
               <option value="single">{localizeUi("ui.panels.ttsconfigcard.oneVoiceForAllCharacters")}</option>
@@ -1702,6 +1729,7 @@ export function TTSConfigCard() {
                     fetching={fetchingVoices}
                     selectLabel="PocketTTS server voice"
                     inputLabel="PocketTTS voice ID, URL, or path"
+                    testId="tts-pockettts-voice"
                     onChange={(nextVoice) => {
                       setVoice(nextVoice);
                       mark({ voice: nextVoice });
@@ -1743,6 +1771,7 @@ export function TTSConfigCard() {
                 <button
                   onClick={() => void handleRefreshVoices()}
                   disabled={fetchingVoices || !canRefreshVoices}
+                  data-testid="tts-refresh-voices-button"
                   className="mari-chrome-control mari-chrome-control--small shrink-0 text-xs"
                   title={localizeUi("ui.panels.ttsconfigcard.refreshVoicesFromProvider")}
                 >
@@ -1796,6 +1825,7 @@ export function TTSConfigCard() {
                     type="button"
                     onClick={() => void handleRefreshVoices()}
                     disabled={fetchingVoices || !canRefreshVoices}
+                    data-testid="tts-refresh-voices-button"
                     className="mari-chrome-control mari-chrome-control--small shrink-0 text-xs"
                     title={localizeUi("ui.panels.ttsconfigcard.refreshVoicesFromProvider")}
                   >
@@ -1848,6 +1878,7 @@ export function TTSConfigCard() {
                       <button
                         type="button"
                         onClick={() => handleRemoveVoiceAssignment(index)}
+                        data-testid={`tts-remove-voice-assignment-${index}`}
                         className="mari-chrome-control mari-chrome-control--small h-9 min-h-0 w-9 shrink-0 p-0"
                         title={localizeUi("ui.panels.ttsconfigcard.removeCharacterVoice")}
                       >
@@ -1860,6 +1891,7 @@ export function TTSConfigCard() {
                   type="button"
                   onClick={handleAddVoiceAssignment}
                   disabled={characterOptions.length === 0 || allCharactersAssigned}
+                  data-testid="tts-add-voice-assignment-button"
                   className="mari-chrome-control w-full text-xs"
                 >
                   <Plus size="0.75rem" />
@@ -1889,6 +1921,7 @@ export function TTSConfigCard() {
                 label={localizeUi("ui.panels.ttsconfigcard.useSeparateNarratorVoice")}
                 checked={narratorVoiceEnabled}
                 onChange={toggleNarratorVoice}
+                testId="tts-narrator-voice-toggle"
               />
               {narratorVoiceEnabled && (
                 <div className="flex gap-2 max-sm:flex-col">
@@ -1899,6 +1932,7 @@ export function TTSConfigCard() {
                       fetching={fetchingVoices}
                       selectLabel="PocketTTS narrator server voice"
                       inputLabel="PocketTTS narrator voice ID, URL, or path"
+                      testId="tts-pockettts-narrator-voice"
                       onChange={handleNarratorVoiceChange}
                     />
                   ) : source === "openai" ? (
@@ -1924,6 +1958,7 @@ export function TTSConfigCard() {
                     type="button"
                     onClick={() => void handleRefreshVoices()}
                     disabled={fetchingVoices || !canRefreshVoices}
+                    data-testid="tts-refresh-voices-button"
                     className="mari-chrome-control mari-chrome-control--small shrink-0 text-xs"
                     title={localizeUi("ui.panels.ttsconfigcard.refreshVoicesFromProvider")}
                   >
@@ -1951,6 +1986,7 @@ export function TTSConfigCard() {
                   setAudioFormat(next);
                   mark({ audioFormat: next });
                 }}
+                data-testid="tts-audio-format-select"
                 className={cn(INPUT_CLS, "cursor-pointer appearance-none")}
               >
                 <option value="mp3">{localizeUi("ui.panels.ttsconfigcard.mp3")}</option>
@@ -1968,6 +2004,7 @@ export function TTSConfigCard() {
                 label={localizeUi("ui.panels.ttsconfigcard.useDefaultVoicesForRandomNpcs")}
                 checked={npcDefaultVoicesEnabled}
                 onChange={toggleNpcDefaultVoices}
+                testId="tts-npc-default-voices-toggle"
               />
               {npcDefaultVoicesEnabled && (
                 <div className="space-y-3 pt-1">
@@ -1977,6 +2014,7 @@ export function TTSConfigCard() {
                     selected={npcDefaultMaleVoices}
                     onToggle={(voiceId, checked) => toggleNpcDefaultVoice("male", voiceId, checked)}
                     note={maleNpcVoiceFallbackNote}
+                    testId="tts-npc-male-voice"
                   />
                   <NpcDefaultVoicePool
                     label={localizeUi("ui.panels.ttsconfigcard.femaleNpcDefaults")}
@@ -1984,6 +2022,7 @@ export function TTSConfigCard() {
                     selected={npcDefaultFemaleVoices}
                     onToggle={(voiceId, checked) => toggleNpcDefaultVoice("female", voiceId, checked)}
                     note={femaleNpcVoiceFallbackNote}
+                    testId="tts-npc-female-voice"
                   />
                   <p className="text-[0.625rem] leading-relaxed text-[var(--muted-foreground)]">
                     {localizeUi("ui.panels.ttsconfigcard.npcsWithUnclearGenderUseAStablePickFrom")}
@@ -2010,6 +2049,7 @@ export function TTSConfigCard() {
                 setSpeed(parseFloat(e.target.value));
                 mark({ speed: parseFloat(e.target.value) });
               }}
+              data-testid="tts-speed-slider"
               className="w-full accent-[var(--primary)]"
             />
             <div className="flex justify-between text-[0.6rem] text-[var(--muted-foreground)]">
@@ -2030,6 +2070,7 @@ export function TTSConfigCard() {
                   setElevenLabsLanguageCode(e.target.value);
                   mark({ elevenLabsLanguageCode: e.target.value });
                 }}
+                data-testid="tts-elevenlabs-language-select"
                 className={cn(INPUT_CLS, "cursor-pointer appearance-none")}
               >
                 {ELEVENLABS_TTS_LANGUAGE_OPTIONS.map((option) => (
@@ -2070,6 +2111,7 @@ export function TTSConfigCard() {
                   setElevenLabsStability(next);
                   mark({ elevenLabsStability: next });
                 }}
+                data-testid="tts-elevenlabs-stability-slider"
                 className="w-full accent-[var(--primary)]"
               />
               <div className="flex justify-between text-[0.6rem] text-[var(--muted-foreground)]">
@@ -2093,6 +2135,7 @@ export function TTSConfigCard() {
                   setElevenLabsGameSoundEffects(value);
                   mark({ elevenLabsGameSoundEffects: value });
                 }}
+                testId="tts-game-sound-effects-toggle"
               />
               <ToggleRow
                 label={localizeUi("ui.panels.ttsconfigcard.generateGameMusic")}
@@ -2101,6 +2144,7 @@ export function TTSConfigCard() {
                   setElevenLabsGameMusic(value);
                   mark({ elevenLabsGameMusic: value });
                 }}
+                testId="tts-game-music-toggle"
               />
             </div>
           )}
@@ -2115,6 +2159,7 @@ export function TTSConfigCard() {
                 setAutoplayRP(v);
                 mark({ autoplayRP: v });
               }}
+              testId="tts-autoplay-roleplay-toggle"
             />
             <ToggleRow
               label={localizeUi("ui.panels.ttsconfigcard.roleplaySpeakerExtractor")}
@@ -2123,6 +2168,7 @@ export function TTSConfigCard() {
                 setRoleplaySpeakerExtractorEnabled(value);
                 mark({ roleplaySpeakerExtractorEnabled: value });
               }}
+              testId="tts-roleplay-speaker-extractor-toggle"
             />
             {roleplaySpeakerExtractorEnabled && (
               <div className="ml-2 space-y-2 rounded-xl border border-[var(--border)] bg-[var(--secondary)]/35 p-2.5">
@@ -2137,6 +2183,7 @@ export function TTSConfigCard() {
                       setRoleplaySpeakerExtractorConnectionId(connectionId);
                       mark({ roleplaySpeakerExtractorConnectionId: connectionId });
                     }}
+                    data-testid="tts-speaker-extractor-connection-select"
                     className={cn(INPUT_CLS, "cursor-pointer appearance-none")}
                   >
                     <option value="">
@@ -2175,6 +2222,7 @@ export function TTSConfigCard() {
                     setRoleplaySpeakerExtractorEmotionsEnabled(value);
                     mark({ roleplaySpeakerExtractorEmotionsEnabled: value });
                   }}
+                  testId="tts-emotion-indicators-toggle"
                 />
                 <p className="text-[0.625rem] leading-relaxed text-[var(--muted-foreground)]">
                   {localizeUi("ui.panels.ttsconfigcard.roleplaySpeakerExtractorHelp")}
@@ -2188,6 +2236,7 @@ export function TTSConfigCard() {
                 setAutoplayConvo(v);
                 mark({ autoplayConvo: v });
               }}
+              testId="tts-autoplay-conversation-toggle"
             />
             <ToggleRow
               label={localizeUi("ui.panels.ttsconfigcard.gameNarration")}
@@ -2196,6 +2245,7 @@ export function TTSConfigCard() {
                 setAutoplayGame(v);
                 mark({ autoplayGame: v });
               }}
+              testId="tts-autoplay-game-toggle"
             />
             <ToggleRow
               label={localizeUi("ui.panels.ttsconfigcard.progressivePlayback")}
@@ -2204,6 +2254,7 @@ export function TTSConfigCard() {
                 setProgressivePlayback(v);
                 mark({ progressivePlayback: v });
               }}
+              testId="tts-progressive-playback-toggle"
             />
             <ToggleRow
               label={localizeUi("ui.panels.ttsconfigcard.onlyReadDialogues")}
@@ -2212,6 +2263,7 @@ export function TTSConfigCard() {
                 setDialogueOnly(v);
                 mark({ dialogueOnly: v });
               }}
+              testId="tts-dialogue-only-toggle"
             />
             {dialogueOnly && (
               <FieldRow
@@ -2236,6 +2288,7 @@ export function TTSConfigCard() {
                     setDialoguePauseSeconds(next);
                     mark({ dialoguePauseMs: next * 1000 });
                   }}
+                  data-testid="tts-dialogue-pause-slider"
                   className="w-full accent-[var(--primary)]"
                 />
                 <div className="flex justify-between text-[0.6rem] text-[var(--muted-foreground)]">
@@ -2263,6 +2316,7 @@ export function TTSConfigCard() {
               type="button"
               onClick={() => void handleExportCachedClips()}
               disabled={exportingTtsCache || ttsCacheSummary.count === 0}
+              data-testid="tts-export-cached-clips-button"
               className="mari-chrome-control mari-chrome-control--small shrink-0 text-xs"
               title={localizeUi("ui.panels.ttsconfigcard.exportCachedTtsClips")}
             >
@@ -2276,6 +2330,7 @@ export function TTSConfigCard() {
             <button
               onClick={handlePreview}
               disabled={previewDisabled}
+              data-testid="tts-preview-button"
               className={cn(
                 "flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs ring-1 transition-all",
                 ttsState === "playing"

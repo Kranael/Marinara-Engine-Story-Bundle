@@ -99,6 +99,7 @@ export function FeatureAgentDetailHost({
       <header className="mari-editor-header">
         <button
           type="button"
+          data-testid="feature-agent-detail-back"
           onClick={onClose}
           aria-label={localizeUi("capabilities.actions.backToAgents")}
           className="mari-editor-action inline-flex"
@@ -191,6 +192,7 @@ export function FeatureAgentDetailHost({
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
+              data-testid="feature-agent-detail-manage-package"
               onClick={onManagePackage}
               className="mari-editor-action mari-editor-action--accent inline-flex min-h-11 px-4"
             >

@@ -52,6 +52,7 @@ export function ImageInfoPopover({ node, onClose }: { node: TreeNode; onClose: (
           type="button"
           aria-label={localizeUi("capabilities.actions.close")}
           onClick={onClose}
+          data-testid="game-assets-image-info-close-button"
           className="rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
         >
           <X size="0.875rem" />

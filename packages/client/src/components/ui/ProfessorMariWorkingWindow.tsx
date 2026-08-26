@@ -48,6 +48,7 @@ export function ProfessorMariWorkingWindow({ visible, onDismiss, className }: Pr
       {onDismiss && (
         <button
           type="button"
+          data-testid="professor-mari-working-dismiss-button"
           onClick={onDismiss}
           className="absolute right-1.5 top-1.5 inline-flex h-6 w-6 items-center justify-center rounded-md text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]/60"
           aria-label={localizeUi("ui.ui.professormariworkingwindow.hideProfessorMariWorkingIndicator")}

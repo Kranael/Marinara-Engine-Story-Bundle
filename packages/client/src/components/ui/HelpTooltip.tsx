@@ -159,6 +159,7 @@ export function HelpTooltip({
     >
       <button
         type="button"
+        data-testid="help-tooltip-trigger"
         aria-label={
           localizedLabel
             ? localizeUi("ui.ui.customemojitagbutton.value1Value2", {

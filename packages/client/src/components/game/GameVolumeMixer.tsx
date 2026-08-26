@@ -78,6 +78,7 @@ export function GameVolumeMixer({
           <button
             type="button"
             onClick={onToggleMute}
+            data-testid="game-volume-mixer-mute-toggle-button"
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-lg transition-colors",
               audioMuted
@@ -96,6 +97,7 @@ export function GameVolumeMixer({
           <button
             type="button"
             onClick={onClose}
+            data-testid="game-volume-mixer-close-button"
             className={NEUTRAL_PANEL_CLOSE_BUTTON}
             aria-label={localizeUi("ui.game.gamevolumemixer.closeVolume")}
           >
@@ -113,6 +115,7 @@ export function GameVolumeMixer({
               min={0}
               max={100}
               value={row.value}
+              data-testid={`game-volume-mixer-${row.id}-slider`}
               onPointerDown={onAudioInteract}
               onTouchStart={onAudioInteract}
               onInput={(event) => {

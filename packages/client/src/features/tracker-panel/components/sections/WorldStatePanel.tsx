@@ -338,6 +338,7 @@ function WorldCustomFieldPlate({
             onUpdateFieldLocks?.((locks) => removeTrackerFieldLockPrefix(locks, customPrefix));
             onRemove();
           }}
+          data-testid={`world-state-remove-field-${name}`}
           title={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", { value1: name })}
           aria-label={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", { value1: name })}
           className="absolute right-1 top-1/2 z-[4] flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--background)]/85 text-[var(--destructive)] shadow-sm ring-1 ring-[var(--border)]/70 backdrop-blur-sm transition-all hover:bg-[var(--accent)] focus-visible:outline-none focus-visible:ring-[var(--border)] active:scale-90 [@media(pointer:coarse)]:h-11 [@media(pointer:coarse)]:w-11"
@@ -409,6 +410,7 @@ export function WorldStatePanel({
                   },
                 ])
               }
+              testId="world-state-add-field-button"
               className="rounded-sm"
             />
           ) : undefined

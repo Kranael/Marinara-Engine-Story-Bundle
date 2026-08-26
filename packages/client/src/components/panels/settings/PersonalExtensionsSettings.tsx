@@ -531,6 +531,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
           <button
             type="button"
             onClick={closeEditor}
+            data-testid="personal-extension-editor-back-button"
             className="flex min-h-9 self-start items-center gap-1.5 rounded-md px-2 text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--secondary)] hover:text-[var(--foreground)]"
           >
             <ChevronLeft size="0.875rem" />
@@ -550,6 +551,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                   type="button"
                   onClick={() => void (current.enabled ? disableExtension(current) : runExtension(current))}
                   disabled={busy}
+                  data-testid="personal-extension-editor-toggle-button"
                   aria-label={
                     current.enabled
                       ? localizeUi("ui.panels.extensionsettings.disable")
@@ -586,6 +588,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                       createPersonalExtensionPackageFilename(current.name),
                     )
                   }
+                  data-testid="personal-extension-editor-export-button"
                   aria-label={localizeUi("ui.panels.extensionsettings.exportLocalPackage")}
                   title={localizeUi("ui.panels.extensionsettings.exportLocalPackage")}
                   className="flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-md bg-[var(--secondary)] px-2 text-xs font-semibold leading-none text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
@@ -600,6 +603,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                 type="button"
                 onClick={() => void saveDraft()}
                 disabled={busy}
+                data-testid="personal-extension-editor-save-button"
                 aria-label={localizeUi("ui.panels.extensionsettings.saveDraft")}
                 title={localizeUi("ui.panels.extensionsettings.saveDraft")}
                 className="flex min-h-9 min-w-0 items-center justify-center gap-1.5 rounded-md bg-[var(--primary)] px-2 text-xs font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
@@ -668,6 +672,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
               value={draft.name}
               readOnly={!isExternal}
               onChange={(event) => setDraft((value) => ({ ...value, name: event.target.value }))}
+              data-testid="personal-extension-name-input"
               className="min-h-10 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 text-xs text-[var(--foreground)] outline-none focus:border-[var(--primary)]/60"
             />
           </label>
@@ -678,6 +683,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
               readOnly={!isExternal}
               onChange={(event) => setDraft((value) => ({ ...value, version: event.target.value || null }))}
               placeholder="1.0.0"
+              data-testid="personal-extension-version-input"
               className="min-h-10 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 text-xs text-[var(--foreground)] outline-none focus:border-[var(--primary)]/60"
             />
           </label>
@@ -693,6 +699,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                   ...(event.target.value === "server" ? { capabilities: [] } : {}),
                 }))
               }
+              data-testid="personal-extension-runtime-select"
               className="min-h-10 rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 text-xs text-[var(--foreground)] outline-none focus:border-[var(--primary)]/60"
             >
               <option value="client">{localizeUi("settings.notifications.browser")}</option>
@@ -708,6 +715,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
             readOnly={!isExternal}
             onChange={(event) => setDraft((value) => ({ ...value, description: event.target.value }))}
             rows={2}
+            data-testid="personal-extension-description-input"
             className="resize-y rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-xs leading-relaxed text-[var(--foreground)] outline-none focus:border-[var(--primary)]/60"
           />
         </label>
@@ -772,6 +780,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                           : value.capabilities.filter((candidate) => candidate !== capability),
                       }))
                     }
+                    data-testid={`personal-extension-capability-${capability}`}
                     className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--primary)]"
                   />
                   <span className="min-w-0">
@@ -802,6 +811,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                 onChange={(event) => setDraft((value) => ({ ...value, css: event.target.value }))}
                 spellCheck={false}
                 placeholder={localizeUi("ui.panels.extensionsettings.optionalExtensionCss")}
+                data-testid="personal-extension-css-input"
                 className="min-h-72 resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 font-mono text-[0.6875rem] leading-relaxed text-[var(--foreground)] outline-none focus:border-[var(--primary)]/60"
               />
             </label>
@@ -813,6 +823,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                 onChange={(event) => setDraft((value) => ({ ...value, js: event.target.value }))}
                 spellCheck={false}
                 placeholder={localizeUi("ui.panels.extensionsettings.optionalBrowserJavascript")}
+                data-testid="personal-extension-js-input"
                 className="min-h-72 resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 font-mono text-[0.6875rem] leading-relaxed text-[var(--foreground)] outline-none focus:border-[var(--primary)]/60"
               />
             </label>
@@ -826,6 +837,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
               onChange={(event) => setDraft((value) => ({ ...value, serverJs: event.target.value }))}
               spellCheck={false}
               placeholder={localizeUi("ui.panels.extensionsettings.trustedServerJavascript")}
+              data-testid="personal-extension-server-js-input"
               className="min-h-96 resize-y rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 font-mono text-[0.6875rem] leading-relaxed text-[var(--foreground)] outline-none focus:border-[var(--primary)]/60"
             />
           </label>
@@ -858,6 +870,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                     type="button"
                     onClick={() => void restoreRevision(current, revision.contentHash)}
                     disabled={busy}
+                    data-testid={`personal-extension-restore-revision-${revision.contentHash}`}
                     className="ml-auto flex min-h-8 items-center gap-1 rounded-md px-2 text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/10 disabled:opacity-50"
                   >
                     <RotateCcw size="0.6875rem" />
@@ -905,6 +918,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                   })
                 }
                 disabled={busy}
+                data-testid="personal-extension-import-file-button"
                 className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--secondary)]/55 px-3 text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
               >
                 {importing ? <Loader2 size="0.875rem" className="animate-spin" /> : <FileArchive size="0.875rem" />}
@@ -920,6 +934,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                   })
                 }
                 disabled={busy}
+                data-testid="personal-extension-import-folder-button"
                 className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--secondary)]/55 px-3 text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
               >
                 <FolderOpen size="0.875rem" />
@@ -1005,6 +1020,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                         type="button"
                         onClick={() => void (extension.enabled ? disableExtension(extension) : runExtension(extension))}
                         disabled={busy}
+                        data-testid={`personal-extension-toggle-${extension.id}`}
                         aria-pressed={extension.enabled}
                         aria-label={
                           extension.enabled
@@ -1024,6 +1040,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                         type="button"
                         onClick={() => void removeExtension(extension)}
                         disabled={busy}
+                        data-testid={`personal-extension-delete-${extension.id}`}
                         aria-label={localizeUi("lorebook.editor.batch.delete")}
                         className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:scale-90 disabled:cursor-not-allowed disabled:opacity-50"
                         title={localizeUi("lorebook.editor.batch.delete")}
@@ -1034,6 +1051,7 @@ function ExtensionSettings({ showIntro, mode }: { showIntro: boolean; mode: Exte
                     <button
                       type="button"
                       onClick={() => openExisting(extension)}
+                      data-testid={`personal-extension-open-${extension.id}`}
                       className="flex min-w-0 flex-1 flex-col pt-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                     >
                       <span className="flex w-full min-w-0 items-baseline gap-1.5">

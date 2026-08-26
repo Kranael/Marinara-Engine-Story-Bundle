@@ -36,6 +36,7 @@ function NameAliasInput({ existing, onAdd }: { existing: string[]; onAdd: (alias
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-1">
       <input
         type="text"
+        data-testid="name-alias-input"
         aria-label={localizeUi("ui.characters.colorstab.nameAliases")}
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -51,6 +52,7 @@ function NameAliasInput({ existing, onAdd }: { existing: string[]; onAdd: (alias
       />
       <button
         type="button"
+        data-testid="name-alias-add-button"
         onClick={submit}
         disabled={!value.trim()}
         className="mari-editor-action mari-editor-action--accent mari-editor-action--primary rounded-xl px-3 py-1 text-[0.625rem]"
@@ -128,6 +130,7 @@ export function NameAliasesSection({ aliases, onChange, nameColor }: NameAliases
               </span>
               <button
                 type="button"
+                data-testid={`name-alias-remove-${idx}`}
                 aria-label={localizeUi("ui.characters.colorstab.nameAliasesRemove", { alias })}
                 onClick={() => {
                   const next = aliases.filter((_, i) => i !== idx);

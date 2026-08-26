@@ -744,6 +744,7 @@ export function LorebooksPanel() {
         type="file"
         accept="image/*"
         className="hidden"
+        data-testid="lorebooks-panel-image-input"
         onChange={handleLorebookImageSelected}
       />
 
@@ -751,6 +752,7 @@ export function LorebooksPanel() {
       <div className="flex gap-2">
         <button
           onClick={() => openModal("create-lorebook")}
+          data-testid="lorebooks-panel-create-lorebook-button"
           className="mari-panel-gradient-button mari-panel-gradient--lorebooks flex-1 text-xs"
           title={localizeUi("ui.lorebooks.lorebookassignmentsection.new")}
         >
@@ -758,6 +760,7 @@ export function LorebooksPanel() {
         </button>
         <button
           onClick={() => openModal("import-lorebook")}
+          data-testid="lorebooks-panel-import-lorebook-button"
           className="mari-chrome-control mari-chrome-control--primary flex-1 text-xs"
           title={localizeUi("ui.chat.chatbranchselector.import")}
         >
@@ -768,6 +771,7 @@ export function LorebooksPanel() {
             if (selectionMode) exitSelectionMode();
             else setSelectionMode(true);
           }}
+          data-testid="lorebooks-panel-select-button"
           className={cn(
             "mari-chrome-control mari-chrome-control--primary flex-1 text-xs",
             selectionMode && "mari-chrome-control--selected",
@@ -790,6 +794,7 @@ export function LorebooksPanel() {
             placeholder={localize("Search lorebooks")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            data-testid="lorebooks-panel-search-input"
             className="mari-chrome-field h-10 w-full py-0 pl-8 pr-3 text-xs md:h-9"
           />
         </div>
@@ -797,6 +802,7 @@ export function LorebooksPanel() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as LorebookPanelSort)}
+            data-testid="lorebooks-panel-sort-select"
             className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
             title={localizeUi("ui.panels.agentspanel.sortOrder")}
           >
@@ -817,6 +823,7 @@ export function LorebooksPanel() {
         <div className="flex items-center gap-1">
           <button
             onClick={handleCreateFolder}
+            data-testid="lorebooks-panel-create-folder-button"
             className="mari-chrome-control mari-chrome-control--small flex-1 justify-start text-[0.6875rem]"
           >
             <FolderPlus size="0.75rem" />
@@ -840,6 +847,7 @@ export function LorebooksPanel() {
             id="lorebook-category-filter"
             value={activeCategory}
             onChange={(event) => setActiveCategory(event.target.value as LorebookPanelCategory)}
+            data-testid="lorebooks-panel-category-filter-select"
             className="mari-chrome-field h-10 w-full min-w-0 appearance-none truncate py-0 pl-3 pr-8 text-xs"
             title={localizeUi("ui.panels.lorebookspanel.lorebookCategory")}
           >
@@ -856,6 +864,7 @@ export function LorebooksPanel() {
         </div>
         <button
           onClick={() => setTagsExpanded(!tagsExpanded)}
+          data-testid="lorebooks-panel-tags-toggle-button"
           className={cn(
             "mari-chrome-control mari-chrome-control--small shrink-0 whitespace-nowrap px-2 text-[0.6875rem]",
             tagFilterActive && "mari-chrome-control--selected",
@@ -879,6 +888,7 @@ export function LorebooksPanel() {
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
+              data-testid={`lorebooks-panel-category-${cat.id}`}
               className={cn(
                 "mari-chrome-control mari-chrome-control--small whitespace-nowrap text-[0.6875rem]",
                 isActive && "mari-chrome-control--selected",
@@ -890,6 +900,7 @@ export function LorebooksPanel() {
         })}
         <button
           onClick={() => setTagsExpanded(!tagsExpanded)}
+          data-testid="lorebooks-panel-tags-toggle-button-desktop"
           className={cn(
             "mari-chrome-control mari-chrome-control--small whitespace-nowrap text-[0.6875rem]",
             tagFilterActive && "mari-chrome-control--selected",
@@ -914,6 +925,7 @@ export function LorebooksPanel() {
                 setActiveCategory("all");
                 setActiveTag(null);
               }}
+              data-testid="lorebooks-panel-clear-tag-filter-button"
               className="mari-chrome-control mari-chrome-control--compact mari-chrome-control--danger"
             >
               <X size="0.5rem" /> {localizeUi("lorebook.editor.batch.clear")}
@@ -926,6 +938,7 @@ export function LorebooksPanel() {
                 key={cat.id}
                 type="button"
                 onClick={() => setActiveCategory(isActive ? "all" : cat.id)}
+                data-testid={`lorebooks-panel-category-${cat.id}`}
                 className={cn(
                   "mari-chrome-control mari-chrome-control--compact hidden cursor-pointer md:inline-flex",
                   isActive && "mari-chrome-control--selected",
@@ -940,6 +953,7 @@ export function LorebooksPanel() {
               key={tag}
               role="button"
               tabIndex={0}
+              data-testid={`lorebooks-panel-tag-toggle-${tag}`}
               onClick={() => setActiveTag(activeTag === tag ? null : tag)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -959,6 +973,7 @@ export function LorebooksPanel() {
                   e.stopPropagation();
                   handleDeleteTag(tag);
                 }}
+                data-testid={`lorebooks-panel-delete-tag-button-${tag}`}
                 className="ml-0.5 rounded-full p-0.5 transition-colors hover:bg-[var(--destructive)]/20 hover:text-[var(--destructive)]"
                 title={localizeUi("ui.panels.characterspanel.deleteTagValue1", { value1: tag })}
               >
@@ -1039,6 +1054,7 @@ export function LorebooksPanel() {
                     <input
                       autoFocus
                       value={editFolderName}
+                      data-testid={`lorebooks-panel-folder-name-input-${folder.id}`}
                       onChange={(event) => setEditFolderName(event.target.value)}
                       onKeyDown={(event) => {
                         if (event.key === "Enter") event.currentTarget.blur();
@@ -1091,6 +1107,7 @@ export function LorebooksPanel() {
                         if (expandedFolderId === folder.id) setExpandedFolderId(null);
                       });
                     }}
+                    data-testid={`lorebooks-panel-delete-folder-button-${folder.id}`}
                     className="mari-chrome-control mari-chrome-control--small p-1"
                     title={localizeUi("ui.panels.backgroundpicker.deleteFolder")}
                   >
@@ -1270,6 +1287,7 @@ function LorebookRow({
             e.stopPropagation();
             onToggleSelect?.();
           }}
+          data-testid={`lorebook-select-checkbox-${lorebook.id}`}
           className={cn(
             "flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors",
             isSelected
@@ -1302,6 +1320,7 @@ function LorebookRow({
             e.stopPropagation();
             onImagePick();
           }}
+          data-testid={`lorebook-image-button-${lorebook.id}`}
           className={cn(
             imageClasses,
             "transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -1354,6 +1373,7 @@ function LorebookRow({
               e.stopPropagation();
               onDuplicate();
             }}
+            data-testid={`lorebook-duplicate-button-${lorebook.id}`}
             className="mari-chrome-control mari-chrome-control--small p-1.5"
             title={localizeUi("lorebook.editor.batch.copy")}
           >
@@ -1364,6 +1384,7 @@ function LorebookRow({
               e.stopPropagation();
               onDelete();
             }}
+            data-testid={`lorebook-delete-button-${lorebook.id}`}
             className="mari-chrome-control mari-chrome-control--small p-1.5"
             title={localizeUi("lorebook.editor.batch.delete")}
           >

@@ -335,6 +335,7 @@ export function CharacterCardUpdateModal({ open, onClose }: Props) {
                     disabled={busyAction !== null}
                     rows={Math.max(3, Math.min(8, u.newText.split(/\r?\n/).length + 1))}
                     className="w-full resize-y rounded-md border border-emerald-500/10 bg-emerald-500/5 p-2 text-xs leading-relaxed text-[var(--foreground)] outline-none transition-colors placeholder:text-[var(--muted-foreground)]/55 focus:border-[var(--ring)] focus:ring-1 focus:ring-[var(--ring)] disabled:opacity-70"
+                    data-testid={`character-card-update-draft-textarea-${idx}`}
                   />
                 </div>
               </div>
@@ -355,6 +356,7 @@ export function CharacterCardUpdateModal({ open, onClose }: Props) {
             onClick={handleReject}
             disabled={busyAction !== null || updateCharacter.isPending}
             className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
+            data-testid="character-card-update-reject-button"
           >
             <X size="0.75rem" />
             {localizeUi("ui.modals.charactercardupdatemodal.reject")}
@@ -365,6 +367,7 @@ export function CharacterCardUpdateModal({ open, onClose }: Props) {
             disabled={busyAction !== null || updateCharacter.isPending}
             className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
             title={localizeUi("ui.modals.agentwriteapprovalmodal.regenerateThisProposal")}
+            data-testid="character-card-update-regenerate-button"
           >
             {busyAction === "regenerate" ? (
               <Loader2 size="0.75rem" className="animate-spin" />
@@ -380,6 +383,7 @@ export function CharacterCardUpdateModal({ open, onClose }: Props) {
               busyAction !== null || updateCharacter.isPending || isFetchingCharacter || applicableUpdates.length === 0
             }
             className="flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50"
+            data-testid="character-card-update-approve-button"
           >
             {busyAction === "approve" || updateCharacter.isPending ? (
               <Loader2 size="0.75rem" className="animate-spin" />
@@ -397,6 +401,7 @@ export function CharacterCardUpdateModal({ open, onClose }: Props) {
               onClick={() => void handleApprove(true)}
               disabled={busyAction !== null || updateCharacter.isPending || isFetchingCharacter}
               className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-4 py-2 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
+              data-testid="character-card-update-override-stale-button"
             >
               {busyAction === "approve" || updateCharacter.isPending ? (
                 <Loader2 size="0.75rem" className="animate-spin" />

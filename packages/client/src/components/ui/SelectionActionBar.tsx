@@ -48,6 +48,7 @@ export function SelectionActionBar({
         {extraAction}
         <button
           type="button"
+          data-testid="selection-action-bar-export-button"
           onClick={onExport}
           disabled={selectedCount === 0 || exportDisabled || exporting}
           className="mari-chrome-control flex-1 px-3 py-2 text-xs"
@@ -57,6 +58,7 @@ export function SelectionActionBar({
         </button>
         <button
           type="button"
+          data-testid="selection-action-bar-delete-button"
           onClick={onDelete}
           disabled={selectedCount === 0 || deleteDisabled || exporting}
           className={cn(

@@ -350,6 +350,7 @@ export function MobileWidgetPanel({ widgets, position, chatId }: MobileWidgetPan
                   <button
                     type="button"
                     onClick={() => openEditor(w)}
+                    data-testid={`game-widget-panel-mobile-edit-${w.id}`}
                     className={GAME_WIDGET_ICON_BUTTON_CLASS}
                     title={localizeUi("ui.game.mobilewidgetpanel.editValue1", { value1: w.label })}
                   >
@@ -358,6 +359,7 @@ export function MobileWidgetPanel({ widgets, position, chatId }: MobileWidgetPan
                   <button
                     type="button"
                     onClick={() => setExpandedId(null)}
+                    data-testid={`game-widget-panel-mobile-collapse-${w.id}`}
                     className={cn(GAME_WIDGET_ICON_BUTTON_CLASS, "text-xs font-medium")}
                     title={localizeUi("ui.game.mobilewidgetpanel.collapseWidget")}
                   >
@@ -375,6 +377,7 @@ export function MobileWidgetPanel({ widgets, position, chatId }: MobileWidgetPan
             <button
               key={w.id}
               onClick={() => setExpandedId(w.id)}
+              data-testid={`game-widget-panel-mobile-expand-${w.id}`}
               className="marinara-chat-toolbar-button flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] text-base text-[var(--marinara-chat-chrome-button-text)] backdrop-blur-md transition-all hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] active:scale-95"
               title={w.label}
             >
@@ -431,6 +434,7 @@ function WidgetCard({
         role="button"
         tabIndex={0}
         onClick={() => setCollapsed((c) => !c)}
+        data-testid={`game-widget-panel-header-${widget.id}`}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -447,6 +451,7 @@ function WidgetCard({
             event.stopPropagation();
             onEdit(widget);
           }}
+          data-testid={`game-widget-panel-edit-${widget.id}`}
           className={GAME_WIDGET_ICON_BUTTON_CLASS}
           title={localizeUi("ui.game.mobilewidgetpanel.editValue1", { value1: widget.label })}
         >
@@ -555,6 +560,7 @@ function WidgetEditorModal({
                 type="number"
                 value={draft.value}
                 onChange={(event) => setDraft((current) => ({ ...current, value: event.target.value }))}
+                data-testid="game-widget-editor-value-input"
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
               />
             </label>
@@ -567,6 +573,7 @@ function WidgetEditorModal({
                 min={1}
                 value={draft.max}
                 onChange={(event) => setDraft((current) => ({ ...current, max: event.target.value }))}
+                data-testid="game-widget-editor-max-input"
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
               />
             </label>
@@ -582,6 +589,7 @@ function WidgetEditorModal({
               type="number"
               value={draft.count}
               onChange={(event) => setDraft((current) => ({ ...current, count: event.target.value }))}
+              data-testid="game-widget-editor-count-input"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
             />
           </label>
@@ -620,6 +628,7 @@ function WidgetEditorModal({
                             ),
                           }))
                         }
+                        data-testid={`game-widget-editor-stat-name-${index}`}
                         placeholder={localizeUi("ui.characters.metadatatab.name")}
                         className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
                       />
@@ -649,6 +658,7 @@ function WidgetEditorModal({
                           ),
                         }))
                       }
+                      data-testid={`game-widget-editor-stat-value-${index}`}
                       className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
                     />
                   </label>
@@ -661,6 +671,7 @@ function WidgetEditorModal({
                           stats: current.stats.filter((_, entryIndex) => entryIndex !== index),
                         }))
                       }
+                      data-testid={`game-widget-editor-stat-remove-${index}`}
                       className="inline-flex h-10 items-center justify-center rounded-lg border border-[var(--destructive)]/25 px-3 text-sm text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10"
                     >
                       <Trash2 size={14} />
@@ -678,6 +689,7 @@ function WidgetEditorModal({
                     stats: [...current.stats, { name: "", value: "" }],
                   }))
                 }
+                data-testid="game-widget-editor-add-stat-button"
                 className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] px-3 py-2 text-sm text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
               >
                 <Plus size={14} />
@@ -696,6 +708,7 @@ function WidgetEditorModal({
               value={draft.items}
               onChange={(event) => setDraft((current) => ({ ...current, items: event.target.value }))}
               rows={6}
+              data-testid="game-widget-editor-items-textarea"
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
             />
             <span className="block text-xs text-[var(--muted-foreground)]">
@@ -715,6 +728,7 @@ function WidgetEditorModal({
                 min={0}
                 value={draft.seconds}
                 onChange={(event) => setDraft((current) => ({ ...current, seconds: event.target.value }))}
+                data-testid="game-widget-editor-seconds-input"
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--primary)]"
               />
             </label>
@@ -723,6 +737,7 @@ function WidgetEditorModal({
                 type="checkbox"
                 checked={draft.running}
                 onChange={(event) => setDraft((current) => ({ ...current, running: event.target.checked }))}
+                data-testid="game-widget-editor-running-checkbox"
                 className="h-4 w-4 rounded border-[var(--border)] text-[var(--primary)] focus:ring-[var(--primary)]"
               />
               {localizeUi("ui.game.widgeteditormodal.timerIsRunning")}
@@ -750,6 +765,7 @@ function WidgetEditorModal({
             type="button"
             onClick={onClose}
             disabled={isSaving}
+            data-testid="game-widget-editor-cancel-button"
             className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-50"
           >
             {localizeUi("chat.delete.dialog.cancel")}
@@ -758,6 +774,7 @@ function WidgetEditorModal({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
+            data-testid="game-widget-editor-save-button"
             className="rounded-lg bg-[var(--primary)] px-3 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {isSaving ? localizeUi("ui.noodle.stageprofileform.saving") : saveLabel}
@@ -933,6 +950,7 @@ export function GameWidgetSessionPrepModal({
                       type="button"
                       onClick={() => setEditingWidgetId(widget.id)}
                       disabled={interactionsLocked}
+                      data-testid={`game-widget-session-prep-edit-${widget.id}`}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:opacity-50"
                     >
                       <Pencil size={12} className="text-[var(--marinara-chat-chrome-text)]" />
@@ -942,6 +960,7 @@ export function GameWidgetSessionPrepModal({
                       type="button"
                       onClick={() => void handleRemoveWidget(widget.id)}
                       disabled={interactionsLocked}
+                      data-testid={`game-widget-session-prep-remove-${widget.id}`}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--destructive)]/25 px-3 py-1.5 text-xs font-medium text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/10 disabled:opacity-50"
                     >
                       <Trash2 size={12} />
@@ -958,6 +977,7 @@ export function GameWidgetSessionPrepModal({
               type="button"
               onClick={onClose}
               disabled={interactionsLocked}
+              data-testid="game-widget-session-prep-cancel-button"
               className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:opacity-50"
             >
               {copy.cancelLabel}
@@ -968,6 +988,7 @@ export function GameWidgetSessionPrepModal({
                 void handleStart();
               }}
               disabled={interactionsLocked}
+              data-testid="game-widget-session-prep-start-button"
               className="rounded-lg bg-[var(--primary)] px-3 py-2 text-sm font-medium text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {interactionsLocked ? copy.startingLabel : copy.startLabel}
@@ -1177,6 +1198,7 @@ function InventoryGridWidget({ widget }: { widget: HudWidget }) {
         <div className="mb-1.5 flex gap-1 overflow-x-auto">
           <button
             onClick={() => setActiveCategory(null)}
+            data-testid="game-widget-inventory-all-tab-button"
             className={cn(
               "shrink-0 rounded px-1.5 py-0.5 text-[0.5rem] transition-colors",
               !activeCategory
@@ -1186,10 +1208,11 @@ function InventoryGridWidget({ widget }: { widget: HudWidget }) {
           >
             {localizeUi("ui.noodle.stageprofilesourcepicker.all")}
           </button>
-          {categories.map((cat) => (
+          {categories.map((cat, categoryIndex) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
+              data-testid={`game-widget-inventory-category-tab-${categoryIndex}-button`}
               className={cn(
                 "shrink-0 rounded px-1.5 py-0.5 text-[0.5rem] capitalize transition-colors",
                 activeCategory === cat

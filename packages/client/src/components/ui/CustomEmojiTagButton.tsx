@@ -131,6 +131,7 @@ export function CustomEmojiTagButton({
       )}
       <button
         type="button"
+        data-testid="custom-emoji-tag-button"
         disabled={busy}
         onClick={(e) => {
           e.stopPropagation();

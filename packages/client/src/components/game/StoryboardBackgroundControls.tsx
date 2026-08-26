@@ -37,6 +37,7 @@ export function StoryboardBackgroundControls({
       <button
         type="button"
         onClick={onReplay}
+        data-testid="storyboard-background-replay-button"
         className={controlClassName}
         title={localizeUi("ui.game.storyboardbackgroundcontrols.replayBackgroundAnimation")}
         aria-label={localizeUi("ui.game.storyboardbackgroundcontrols.replayBackgroundAnimation")}
@@ -46,6 +47,7 @@ export function StoryboardBackgroundControls({
       <button
         type="button"
         onClick={onTogglePlayback}
+        data-testid="storyboard-background-playback-toggle-button"
         className={controlClassName}
         title={
           playing
@@ -63,6 +65,7 @@ export function StoryboardBackgroundControls({
       <button
         type="button"
         onClick={onToggleMute}
+        data-testid="storyboard-background-mute-toggle-button"
         className={controlClassName}
         title={
           muted

@@ -223,6 +223,7 @@ export function AvatarGenerationModal({
                   </p>
                 ) : (
                   <select
+                    data-testid="avatar-generation-connection-select"
                     value={effectiveConnectionId ?? ""}
                     onChange={(event) => setConnectionId(event.target.value || null)}
                     className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs text-[var(--foreground)] outline-none ring-1 ring-transparent transition-all focus:ring-[var(--primary)]/40"
@@ -249,6 +250,7 @@ export function AvatarGenerationModal({
                   )}
                 </span>
                 <textarea
+                  data-testid="avatar-generation-prompt-textarea"
                   value={appearance}
                   onChange={(event) => setAppearance(event.target.value)}
                   rows={7}
@@ -265,6 +267,7 @@ export function AvatarGenerationModal({
                 <label className="flex items-center gap-3 rounded-lg bg-[var(--secondary)]/60 p-2.5 text-xs text-[var(--foreground)] ring-1 ring-[var(--border)]/60">
                   <input
                     type="checkbox"
+                    data-testid="avatar-generation-use-current-reference-checkbox"
                     checked={useCurrentAvatarReference}
                     onChange={(event) => setUseCurrentAvatarReference(event.target.checked)}
                     className="accent-[var(--primary)]"
@@ -337,6 +340,7 @@ export function AvatarGenerationModal({
             <div className="flex justify-end gap-2">
               <button
                 type="button"
+                data-testid="avatar-generation-cancel-button"
                 onClick={onClose}
                 disabled={generating || saving}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--secondary)] px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
@@ -346,6 +350,7 @@ export function AvatarGenerationModal({
               </button>
               <button
                 type="button"
+                data-testid="avatar-generation-generate-button"
                 onClick={handleGenerate}
                 disabled={!effectiveConnectionId || !appearance.trim() || generating || saving}
                 className={cn(
@@ -362,6 +367,7 @@ export function AvatarGenerationModal({
               </button>
               <button
                 type="button"
+                data-testid="avatar-generation-use-avatar-button"
                 onClick={handleUseAvatar}
                 disabled={!generatedAvatar || generating || saving}
                 className={cn(

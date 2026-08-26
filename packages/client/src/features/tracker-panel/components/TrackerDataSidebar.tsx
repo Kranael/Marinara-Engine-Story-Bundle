@@ -319,6 +319,7 @@ export function TrackerDataSidebar({
                 <button
                   type="button"
                   onClick={retryGameState}
+                  data-testid="tracker-data-sidebar-retry-button"
                   className="rounded-sm bg-[var(--foreground)]/8 px-2 py-1 font-medium text-[var(--foreground)]/75 ring-1 ring-[var(--border)]/70 transition-colors hover:bg-[var(--foreground)]/12 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:scale-95"
                 >
                   {localizeUi("capabilities.actions.tryAgain")}

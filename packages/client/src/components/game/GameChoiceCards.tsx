@@ -68,6 +68,7 @@ export function GameChoiceCards({ choices, onSelect, onDismiss, disabled, replay
             <button
               type="button"
               onClick={onDismiss}
+              data-testid="game-choice-cards-close-button"
               className="rounded-lg p-1 text-white/55 transition-colors hover:bg-white/10 hover:text-white"
               title={localizeUi("ui.game.gamechoicecards.closeChoices")}
               aria-label={localizeUi("ui.game.gamechoicecards.closeChoices")}
@@ -88,6 +89,7 @@ export function GameChoiceCards({ choices, onSelect, onDismiss, disabled, replay
               <button
                 key={i}
                 onClick={() => handleSelect(choice, i)}
+                data-testid={`game-choice-cards-choice-${i}`}
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
                 disabled={choiceDisabled}

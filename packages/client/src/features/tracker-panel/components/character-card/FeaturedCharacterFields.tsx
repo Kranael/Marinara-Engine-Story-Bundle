@@ -92,6 +92,7 @@ function FeaturedFieldTile({
         <button
           type="button"
           onClick={onToggleHidden}
+          data-testid="featured-field-toggle-hidden"
           title={
             hidden
               ? localizeUi("ui.trackerPanel.compactcharacterfield.showValue1", {

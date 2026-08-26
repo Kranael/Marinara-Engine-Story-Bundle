@@ -427,6 +427,7 @@ export function TrackerCardColorSettings() {
           <button
             type="button"
             onClick={retryGameState}
+            data-testid="tracker-card-color-retry-button"
             className="rounded-sm bg-[var(--foreground)]/8 px-2 py-1 font-medium text-[var(--foreground)]/75 ring-1 ring-[var(--border)]/70 transition-colors hover:bg-[var(--foreground)]/12 hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] active:scale-95"
           >
             {localizeUi("capabilities.actions.tryAgain")}
@@ -450,6 +451,7 @@ export function TrackerCardColorSettings() {
               value={selectedTargetKey}
               onChange={(event) => setSelectedTargetKey(event.target.value)}
               disabled={saveState === "saving" || hasUnsavedChanges}
+              data-testid="tracker-card-color-target-select"
               title={
                 hasUnsavedChanges
                   ? localizeUi("ui.panels.trackercardcolorsettings.saveOrRevertBeforeChoosingAnotherCard")
@@ -471,6 +473,7 @@ export function TrackerCardColorSettings() {
                 type="button"
                 onClick={handleRevert}
                 disabled={!hasUnsavedChanges || saveState === "saving"}
+                data-testid="tracker-card-color-revert-button"
                 title={localizeUi("ui.panels.trackercardcolorsettings.revertToPreviousSave")}
                 className="inline-flex h-6 min-w-0 items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-1.5 text-[0.625rem] font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-45"
               >
@@ -481,6 +484,7 @@ export function TrackerCardColorSettings() {
                 type="button"
                 onClick={() => void handleSave()}
                 disabled={!hasUnsavedChanges || saveState === "saving"}
+                data-testid="tracker-card-color-save-button"
                 className="inline-flex h-6 min-w-0 items-center gap-1 rounded-md border border-[var(--primary)]/30 bg-[var(--primary)]/12 px-1.5 text-[0.625rem] font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/18 disabled:cursor-not-allowed disabled:border-[var(--border)] disabled:bg-[var(--secondary)] disabled:text-[var(--muted-foreground)] disabled:opacity-45"
               >
                 {saveState === "saving" ? (

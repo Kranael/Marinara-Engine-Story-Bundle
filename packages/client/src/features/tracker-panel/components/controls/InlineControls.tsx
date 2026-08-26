@@ -103,6 +103,7 @@ export function InlineEdit({
   locked = false,
   lockMode = false,
   onToggleLock,
+  testId,
 }: {
   value: string | number | null | undefined;
   onSave: (value: string) => void;
@@ -125,6 +126,7 @@ export function InlineEdit({
   locked?: boolean;
   lockMode?: boolean;
   onToggleLock?: () => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const currentValue = value === null || value === undefined ? "" : String(value);
@@ -183,6 +185,7 @@ export function InlineEdit({
         ref={inputRef}
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
+        data-testid={testId}
         onKeyDown={(event) => {
           if (event.key === "Enter") commit();
           if (event.key === "Escape") {
@@ -212,6 +215,7 @@ export function InlineEdit({
         }
         setEditing(true);
       }}
+      data-testid={testId}
       onMouseEnter={measureScrollOverflow}
       onFocus={measureScrollOverflow}
       onMouseLeave={resetScrollOverflow}
@@ -324,6 +328,7 @@ export function InlineNumber({
   locked = false,
   lockMode = false,
   onToggleLock,
+  testId,
 }: {
   value: number;
   onChange: (value: number) => void;
@@ -333,6 +338,7 @@ export function InlineNumber({
   locked?: boolean;
   lockMode?: boolean;
   onToggleLock?: () => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const numericValue = coerceStatNumber(value);
@@ -389,6 +395,7 @@ export function InlineNumber({
       <button
         type="button"
         onClick={onToggleLock}
+        data-testid={testId}
         title={
           locked
             ? localizeUi("ui.trackerPanel.inlinenumber.unlockField")
@@ -420,6 +427,7 @@ export function InlineNumber({
     <input
       type="number"
       value={draft}
+      data-testid={testId}
       onFocus={(event) => {
         cancelledRef.current = false;
         setFocused(true);
@@ -453,16 +461,19 @@ export function InlineAddRow({
   title,
   label,
   className,
+  testId,
 }: {
   onClick: () => void;
   title: string;
   label?: string;
   className?: string;
+  testId?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      data-testid={testId}
       title={title}
       aria-label={title}
       className={cn(

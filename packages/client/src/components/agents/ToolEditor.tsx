@@ -330,6 +330,7 @@ export function ToolEditor() {
       <div className="mari-editor-header">
         <button
           type="button"
+          data-testid="tool-editor-back"
           onClick={handleClose}
           aria-label={localizeUi("ui.agents.tooleditor.backToTools")}
           className="mari-editor-action inline-flex"
@@ -340,6 +341,7 @@ export function ToolEditor() {
           <Wrench size="1.125rem" className="max-md:!h-[0.875rem] max-md:!w-[0.875rem]" />
         </div>
         <input
+          data-testid="tool-editor-name"
           value={localName}
           onChange={(e) => {
             setLocalName(e.target.value);
@@ -365,6 +367,7 @@ export function ToolEditor() {
             </span>
           )}
           <button
+            data-testid="tool-editor-save"
             onClick={handleSave}
             disabled={isPending}
             className="mari-editor-action mari-editor-action--primary inline-flex disabled:opacity-50"
@@ -375,6 +378,7 @@ export function ToolEditor() {
           </button>
           {dbTool && (
             <button
+              data-testid="tool-editor-export"
               onClick={handleExport}
               className="mari-editor-action inline-flex"
               title={localizeUi("ui.agents.tooleditor.exportFunction")}
@@ -385,6 +389,7 @@ export function ToolEditor() {
           )}
           {dbTool && (
             <button
+              data-testid="tool-editor-delete"
               onClick={handleDelete}
               className="mari-editor-action inline-flex"
               title={localizeUi("ui.agents.tooleditor.deleteFunction")}
@@ -402,18 +407,21 @@ export function ToolEditor() {
           <span>{localizeUi("ui.agents.agenteditor.youHaveUnsavedChanges")}</span>
           <div className="flex gap-2">
             <button
+              data-testid="tool-editor-unsaved-keep-editing"
               onClick={() => setShowUnsavedWarning(false)}
               className="rounded-lg px-3 py-1 hover:bg-[var(--accent)]"
             >
               {localizeUi("ui.agents.agenteditor.keepEditing")}
             </button>
             <button
+              data-testid="tool-editor-unsaved-discard"
               onClick={() => closeToolDetail()}
               className="rounded-lg px-3 py-1 text-[var(--destructive)] hover:bg-[var(--destructive)]/15"
             >
               {localizeUi("ui.agents.agenteditor.discard")}
             </button>
             <button
+              data-testid="tool-editor-unsaved-save-close"
               onClick={async () => {
                 if (await handleSave()) closeToolDetail();
               }}
@@ -430,7 +438,7 @@ export function ToolEditor() {
         <div className="flex items-center gap-2 bg-red-500/10 px-4 py-2 text-xs text-red-400">
           <AlertCircle size="0.8125rem" />
           <span className="flex-1">{saveError}</span>
-          <button onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20">
+          <button data-testid="tool-editor-save-error-close" onClick={() => setSaveError(null)} className="rounded-lg px-2 py-0.5 hover:bg-red-500/20">
             <X size="0.75rem" />
           </button>
         </div>
@@ -453,6 +461,7 @@ export function ToolEditor() {
             help={localizeUi("ui.agents.tooleditor.tellTheAiWhatThisToolDoesBeDescriptive")}
           >
             <input
+              data-testid="tool-editor-description"
               value={localDesc}
               onChange={(e) => {
                 setLocalDesc(e.target.value);
@@ -481,6 +490,7 @@ export function ToolEditor() {
                   <div className="flex-1 space-y-2">
                     <div className="flex gap-2">
                       <input
+                        data-testid={`tool-editor-param-name-${idx}`}
                         value={param.name}
                         onChange={(e) => {
                           const next = [...localParams];
@@ -492,6 +502,7 @@ export function ToolEditor() {
                         className="w-32 rounded-lg bg-[var(--secondary)] px-2 py-1.5 font-mono text-xs ring-1 ring-[var(--border)] focus:outline-none focus:ring-[var(--ring)]"
                       />
                       <select
+                        data-testid={`tool-editor-param-type-${idx}`}
                         value={param.type}
                         onChange={(e) => {
                           const next = [...localParams];
@@ -508,6 +519,7 @@ export function ToolEditor() {
                         <option value="object">{localizeUi("ui.agents.tooleditor.object")}</option>
                       </select>
                       <SettingsSwitch
+                        testId={`tool-editor-param-required-${idx}`}
                         label={localizeUi("ui.agents.tooleditor.required")}
                         checked={param.required}
                         onChange={(checked) => {
@@ -521,6 +533,7 @@ export function ToolEditor() {
                       />
                     </div>
                     <input
+                      data-testid={`tool-editor-param-description-${idx}`}
                       value={param.description}
                       onChange={(e) => {
                         const next = [...localParams];
@@ -533,6 +546,7 @@ export function ToolEditor() {
                     />
                   </div>
                   <button
+                    data-testid={`tool-editor-param-remove-${idx}`}
                     onClick={() => {
                       setLocalParams(localParams.filter((_, i) => i !== idx));
                       markDirty();
@@ -544,6 +558,7 @@ export function ToolEditor() {
                 </div>
               ))}
               <button
+                data-testid="tool-editor-add-parameter"
                 onClick={() => {
                   setLocalParams([...localParams, { name: "", type: "string", description: "", required: false }]);
                   markDirty();
@@ -569,6 +584,7 @@ export function ToolEditor() {
                   <button
                     key={et.value}
                     type="button"
+                    data-testid={`tool-editor-exec-type-${et.value}`}
                     disabled={isDisabledScript}
                     title={isDisabledScript ? scriptToolsDisabledMessage : et.description}
                     onClick={() => {
@@ -615,6 +631,7 @@ export function ToolEditor() {
             help={localizeUi("ui.agents.tooleditor.addsASeparateServerProvidedContextObjectToWebhook")}
           >
             <SettingsSwitch
+              testId="tool-editor-hidden-context"
               label={
                 <span className="block font-medium text-[var(--foreground)]">
                   {localizeUi("ui.agents.tooleditor.includeHiddenChatContext")}
@@ -649,6 +666,7 @@ export function ToolEditor() {
               icon={<FileText size="0.875rem" className="text-[var(--primary)]" />}
             >
               <textarea
+                data-testid="tool-editor-static-result"
                 value={localStaticResult}
                 onChange={(e) => {
                   setLocalStaticResult(e.target.value);
@@ -670,6 +688,7 @@ export function ToolEditor() {
               icon={<Globe size="0.875rem" className="text-[var(--primary)]" />}
             >
               <input
+                data-testid="tool-editor-webhook-url"
                 value={localWebhookUrl}
                 onChange={(e) => {
                   setLocalWebhookUrl(e.target.value);
@@ -692,6 +711,7 @@ export function ToolEditor() {
               icon={<Code2 size="0.875rem" className="text-[var(--primary)]" />}
             >
               <textarea
+                data-testid="tool-editor-script-body"
                 value={localScriptBody}
                 onChange={(e) => {
                   setLocalScriptBody(e.target.value);

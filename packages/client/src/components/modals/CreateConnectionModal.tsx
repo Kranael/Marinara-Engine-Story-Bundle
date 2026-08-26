@@ -83,6 +83,7 @@ export function CreateConnectionModal({ open, onClose }: Props) {
               if (e.key === "Enter") handleCreate();
             }}
             className="w-full rounded-lg bg-[var(--secondary)] px-3 py-2 text-sm outline-none ring-1 ring-transparent transition-shadow focus:ring-[var(--primary)]"
+            data-testid="create-connection-modal-name-input"
           />
         </label>
 
@@ -97,6 +98,7 @@ export function CreateConnectionModal({ open, onClose }: Props) {
                 type="button"
                 onClick={() => setProvider(key)}
                 aria-pressed={provider === key}
+                data-testid={`create-connection-modal-provider-${key}`}
                 className={cn(
                   "rounded-md px-2.5 py-2 text-left text-[0.6875rem] font-medium transition-all",
                   provider === key
@@ -122,6 +124,7 @@ export function CreateConnectionModal({ open, onClose }: Props) {
               reset();
             }}
             className="rounded-lg px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)]"
+            data-testid="create-connection-modal-cancel-button"
           >
             {localizeUi("chat.delete.dialog.cancel")}
           </button>
@@ -129,6 +132,7 @@ export function CreateConnectionModal({ open, onClose }: Props) {
             onClick={handleCreate}
             disabled={!name.trim() || createConnection.isPending}
             className="flex items-center gap-1.5 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-medium text-[var(--primary-foreground)] transition-all hover:opacity-90 disabled:opacity-50"
+            data-testid="create-connection-modal-create-button"
           >
             {createConnection.isPending ? <Loader2 size="0.75rem" className="animate-spin" /> : <Link size="0.75rem" />}
             {localizeUi("ui.modals.createcharactermodal.create")}

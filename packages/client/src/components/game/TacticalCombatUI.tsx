@@ -1164,6 +1164,7 @@ export function TacticalCombatUI({
             persistSnapshot(null);
             onCombatEnd("flee", { outcome: "flee", rounds: 0, party: [], enemies: [] });
           }}
+          data-testid="tactical-combat-retreat-button"
           className="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
         >
           {localizeUi("ui.game.tacticalcombatui.retreatToStory")}
@@ -1236,6 +1237,7 @@ export function TacticalCombatUI({
           <button
             type="button"
             onClick={() => setShowThreat((v) => !v)}
+            data-testid="tactical-combat-threat-toggle-button"
             className={cn(
               "flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-semibold transition-colors",
               showThreat
@@ -1250,6 +1252,7 @@ export function TacticalCombatUI({
           <button
             type="button"
             onClick={() => setLogOpen((v) => !v)}
+            data-testid="tactical-combat-log-toggle-button"
             className="flex items-center gap-1 rounded-lg border border-white/15 bg-white/5 px-2 py-1 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10"
             title={localizeUi("ui.game.tacticalcombatui.combatLog")}
           >
@@ -1261,6 +1264,7 @@ export function TacticalCombatUI({
             type="button"
             onClick={() => setRestartConfirm(true)}
             disabled={animating}
+            data-testid="tactical-combat-restart-button"
             className={cn(
               "flex items-center gap-1 rounded-lg border border-white/15 bg-white/5 px-2 py-1 text-xs font-semibold text-white/70 transition-colors hover:bg-white/10",
               animating && "cursor-not-allowed opacity-40 hover:bg-white/5",
@@ -1276,6 +1280,7 @@ export function TacticalCombatUI({
                 type="button"
                 onClick={endTurn}
                 disabled={animating}
+                data-testid="tactical-combat-end-turn-button"
                 className={cn(
                   "rounded-lg border border-[var(--primary)]/40 bg-[var(--primary)]/20 px-2.5 py-1 text-xs font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/30",
                   animating && "cursor-not-allowed opacity-40 hover:bg-[var(--primary)]/20",
@@ -1287,6 +1292,7 @@ export function TacticalCombatUI({
                 type="button"
                 onClick={() => setFleeConfirm(true)}
                 disabled={animating}
+                data-testid="tactical-combat-flee-button"
                 className={cn(
                   "flex items-center gap-1 rounded-lg border border-white/15 bg-white/5 px-2 py-1 text-xs font-semibold text-white/60 transition-colors hover:bg-white/10",
                   animating && "cursor-not-allowed opacity-40 hover:bg-white/5",
@@ -1335,6 +1341,7 @@ export function TacticalCombatUI({
                     type="button"
                     key={key}
                     onClick={() => onTileClick(x, y)}
+                    data-testid={`tactical-combat-tile-${x}-${y}`}
                     className={cn(
                       "group relative overflow-hidden rounded-[3px] transition-all duration-150",
                       isInspected && "ring-1 ring-white/70",
@@ -1418,6 +1425,7 @@ export function TacticalCombatUI({
                   forecastTarget={isForecastTarget}
                   preview={staged}
                   ready={ready}
+                  testId={`tactical-combat-unit-${unit.id}`}
                   onClick={() => {
                     if (isTarget && ui.kind === "target" && ui.action !== "attack") {
                       const isSupport = ui.action === "item" || (ui.action === "skill" && ui.skill?.type !== "attack");
@@ -1511,7 +1519,7 @@ export function TacticalCombatUI({
                 {selectedUnit.isPlayer && <Crown className="mr-1 inline h-3.5 w-3.5 shrink-0 text-amber-300" />}
                 <span className="truncate">{selectedUnit.name}</span>
               </span>
-              <button type="button" onClick={resetSelection} className="text-white/50 hover:text-white">
+              <button type="button" onClick={resetSelection} data-testid="tactical-combat-reset-selection-button" className="text-white/50 hover:text-white">
                 <X size={16} />
               </button>
             </div>
@@ -1533,6 +1541,7 @@ export function TacticalCombatUI({
                       color="text-[var(--primary)]"
                       onClick={commitMove}
                       disabled={animating}
+                      testId="tactical-combat-action-confirm-move"
                     />
                   )}
                   {getTargetsInRange(stagedState ?? liveState, selectedUnit.id, stagedMove ?? undefined).length > 0 && (
@@ -1542,6 +1551,7 @@ export function TacticalCombatUI({
                       color="text-[var(--destructive)]"
                       onClick={() => chooseAction("attack")}
                       disabled={animating}
+                      testId="tactical-combat-action-attack"
                     />
                   )}
                   {selectedUnit.skills.length > 0 && (
@@ -1551,6 +1561,7 @@ export function TacticalCombatUI({
                       color="text-[var(--primary)]"
                       onClick={() => chooseAction("skills")}
                       disabled={animating}
+                      testId="tactical-combat-action-skills"
                     />
                   )}
                   <ActionButton
@@ -1559,6 +1570,7 @@ export function TacticalCombatUI({
                     color="text-emerald-300"
                     onClick={() => chooseAction("item")}
                     disabled={animating}
+                    testId="tactical-combat-action-item"
                   />
                   <ActionButton
                     icon={Shield}
@@ -1566,6 +1578,7 @@ export function TacticalCombatUI({
                     color="text-amber-300"
                     onClick={() => chooseAction("defend")}
                     disabled={animating}
+                    testId="tactical-combat-action-defend"
                   />
                   <ActionButton
                     icon={Hourglass}
@@ -1573,6 +1586,7 @@ export function TacticalCombatUI({
                     color="text-white/70"
                     onClick={() => chooseAction("wait")}
                     disabled={animating}
+                    testId="tactical-combat-action-wait"
                   />
                   {stagedMove && (
                     <ActionButton
@@ -1581,6 +1595,7 @@ export function TacticalCombatUI({
                       color="text-white/60"
                       onClick={() => setStagedMove(null)}
                       disabled={animating}
+                      testId="tactical-combat-action-reset-move"
                     />
                   )}
                 </div>
@@ -1599,6 +1614,7 @@ export function TacticalCombatUI({
                       key={skill.id ?? skill.name}
                       disabled={!ready}
                       onClick={() => chooseSkill(skill)}
+                      data-testid={`tactical-combat-skill-${skill.id ?? skill.name}`}
                       className={cn(
                         "flex items-center justify-between rounded-lg border px-2.5 py-2 text-left text-xs transition-colors",
                         ready
@@ -1626,6 +1642,7 @@ export function TacticalCombatUI({
                 <button
                   type="button"
                   onClick={() => setUi({ kind: "unit", unitId: selectedUnit.id })}
+                  data-testid="tactical-combat-skill-back-button"
                   className="mt-1 text-center text-xs text-white/50 hover:text-white"
                 >
                   {localizeUi("ui.game.tacticalcombatui.back")}
@@ -1681,6 +1698,7 @@ export function TacticalCombatUI({
                       type="button"
                       onClick={confirmTarget}
                       disabled={animating}
+                      data-testid="tactical-combat-confirm-target-button"
                       className={cn(
                         "flex-1 rounded-lg border border-[var(--destructive)]/50 bg-[var(--destructive)]/80 px-3 py-2 text-sm font-bold text-white transition-colors hover:bg-[var(--destructive)]",
                         animating && "cursor-not-allowed opacity-40 hover:bg-[var(--destructive)]/80",
@@ -1695,6 +1713,7 @@ export function TacticalCombatUI({
                       setForecastTargetId(null);
                       setUi({ kind: "unit", unitId: selectedUnit.id });
                     }}
+                    data-testid="tactical-combat-target-back-button"
                     className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/10"
                   >
                     {localizeUi("ui.noodle.noodlerframe.back")}
@@ -1715,7 +1734,7 @@ export function TacticalCombatUI({
           >
             <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
               <span className="text-sm font-bold">{localizeUi("ui.game.gamecombatui.combatLog")}</span>
-              <button type="button" onClick={() => setLogOpen(false)} className="text-white/50 hover:text-white">
+              <button type="button" onClick={() => setLogOpen(false)} data-testid="tactical-combat-log-close-button" className="text-white/50 hover:text-white">
                 <X size={18} />
               </button>
             </div>
@@ -1752,6 +1771,7 @@ export function TacticalCombatUI({
               <button
                 type="button"
                 onClick={confirmFlee}
+                data-testid="tactical-combat-flee-confirm-button"
                 className="flex-1 rounded-lg border border-[var(--primary)]/40 bg-[var(--primary)]/20 px-3 py-2 text-sm font-bold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/30"
               >
                 {localizeUi("ui.game.tacticalcombatui.flee")}
@@ -1759,6 +1779,7 @@ export function TacticalCombatUI({
               <button
                 type="button"
                 onClick={() => setFleeConfirm(false)}
+                data-testid="tactical-combat-flee-cancel-button"
                 className="flex-1 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/10"
               >
                 {localizeUi("ui.game.tacticalcombatui.stay")}
@@ -1783,6 +1804,7 @@ export function TacticalCombatUI({
                   setRestartConfirm(false);
                   restartBattle();
                 }}
+                data-testid="tactical-combat-restart-confirm-button"
                 className="flex-1 rounded-lg border border-[var(--destructive)]/40 bg-[var(--destructive)]/20 px-3 py-2 text-sm font-bold text-[var(--destructive)] transition-colors hover:bg-[var(--destructive)]/30"
               >
                 {localizeUi("ui.game.tacticalcombatui.restart")}
@@ -1790,6 +1812,7 @@ export function TacticalCombatUI({
               <button
                 type="button"
                 onClick={() => setRestartConfirm(false)}
+                data-testid="tactical-combat-restart-cancel-button"
                 className="flex-1 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/10"
               >
                 {localizeUi("ui.game.tacticalcombatui.keepFighting")}
@@ -1825,6 +1848,7 @@ export function TacticalCombatUI({
               <button
                 type="button"
                 onClick={restartBattle}
+                data-testid="tactical-combat-retry-battle-button"
                 className="rounded-lg border border-[var(--primary)]/40 bg-[var(--primary)]/20 px-4 py-2 text-sm font-bold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/30"
               >
                 {localizeUi("ui.game.tacticalcombatui.retryBattle")}
@@ -1836,6 +1860,7 @@ export function TacticalCombatUI({
                   persistSnapshot(null);
                   onCombatEnd(summary.outcome, summary);
                 }}
+                data-testid="tactical-combat-continue-button"
                 className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition-colors hover:bg-white/10"
               >
                 {localizeUi("ui.noodle.wizardfooter.continue")}
@@ -1866,6 +1891,7 @@ interface UnitTokenProps {
   preview: boolean;
   ready: boolean;
   onClick: () => void;
+  testId?: string;
 }
 
 function UnitToken({
@@ -1881,6 +1907,7 @@ function UnitToken({
   preview,
   ready,
   onClick,
+  testId,
 }: UnitTokenProps) {
   const left = ((x + 0.5) / gridW) * 100;
   const top = ((y + 0.5) / gridH) * 100;
@@ -1902,6 +1929,7 @@ function UnitToken({
     <motion.button
       type="button"
       onClick={onClick}
+      data-testid={testId}
       initial={false}
       // Opacity lives HERE (inline) — framer would override a Tailwind opacity
       // class anyway. Exit is opacity-only: a scale would drop the centering
@@ -1977,18 +2005,21 @@ function ActionButton({
   color,
   onClick,
   disabled,
+  testId,
 }: {
   icon: typeof Sword;
   label: string;
   color: string;
   onClick: () => void;
   disabled?: boolean;
+  testId?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      data-testid={testId}
       className={cn(
         "flex flex-col items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-1 py-2.5 text-[0.68rem] font-semibold text-white/85 transition-colors hover:bg-white/15 active:scale-95",
         disabled && "cursor-not-allowed opacity-40 hover:bg-white/5 active:scale-100",
@@ -2142,7 +2173,7 @@ function TileInspect({
           <GripVertical className="h-3 w-3 text-white/40" />
           {info.label}
         </span>
-        <button type="button" onClick={onClose} className="text-white/40 hover:text-white">
+        <button type="button" onClick={onClose} data-testid="tactical-combat-tile-inspect-close-button" className="text-white/40 hover:text-white">
           <X size={13} />
         </button>
       </div>

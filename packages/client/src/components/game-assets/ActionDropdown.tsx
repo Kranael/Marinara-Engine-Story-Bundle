@@ -74,6 +74,7 @@ export function ActionDropdown({
           type="button"
           role="menuitem"
           disabled={item.disabled}
+          data-testid={item.testId}
           onClick={() => {
             if (item.disabled) return;
             item.onSelect();

@@ -171,6 +171,7 @@ export function StatIconPicker({
       <button
         ref={triggerRef}
         type="button"
+        data-testid="stat-icon-picker-trigger"
         onClick={() => setOpen((current) => !current)}
         aria-label={triggerLabel}
         aria-haspopup="dialog"
@@ -211,6 +212,7 @@ export function StatIconPicker({
                 <input
                   ref={searchRef}
                   type="search"
+                  data-testid="stat-icon-picker-search-input"
                   value={search}
                   onChange={(event) => {
                     setSearch(event.target.value);
@@ -229,6 +231,7 @@ export function StatIconPicker({
                 {allowInherit ? (
                   <button
                     type="button"
+                    data-testid="stat-icon-picker-inherit-button"
                     onClick={() => select(undefined)}
                     aria-pressed={isInheriting}
                     className={cn(
@@ -252,6 +255,7 @@ export function StatIconPicker({
                   }}
                   type="button"
                   role="option"
+                  data-testid="stat-icon-picker-none-button"
                   onClick={() => select(null)}
                   onKeyDown={(event) => handleOptionKeyDown(event, 0)}
                   aria-label={localizeUi("ui.ui.staticonpicker.none")}
@@ -276,6 +280,7 @@ export function StatIconPicker({
                       }}
                       type="button"
                       role="option"
+                      data-testid={`stat-icon-picker-icon-${icon}`}
                       onClick={() => select(icon)}
                       onKeyDown={(event) => handleOptionKeyDown(event, index + 1)}
                       aria-label={localizeUi("ui.ui.staticonpicker.selectValue1", { value1: label })}

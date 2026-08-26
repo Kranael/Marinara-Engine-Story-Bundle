@@ -199,6 +199,7 @@ export function DirectionEngine({
         <button
           type="button"
           onClick={clearAll}
+          data-testid="direction-engine-skip-effects-button"
           className="marinara-chat-toolbar-button absolute bottom-4 right-4 z-50 rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-3 py-1.5 text-xs font-medium text-[var(--marinara-chat-chrome-button-text)] backdrop-blur-md transition-all hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)]"
         >
           {localizeUi("ui.game.directionengine.skipEffects")}

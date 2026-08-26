@@ -1240,6 +1240,7 @@ function ProfessorMariAttachedFiles({
               <button
                 type="button"
                 onClick={() => onRemove(index)}
+                data-testid={`professor-mari-chat-remove-image-attachment-${index}-button`}
                 className="absolute right-1 top-1 rounded bg-[var(--background)]/80 p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)] focus-visible:text-[var(--primary)]"
                 aria-label={localizeUi("ui.chat.homeprofessormarichat.removeAttachment")}
                 title={localizeUi("ui.chat.homeprofessormarichat.removeAttachment")}
@@ -1268,6 +1269,7 @@ function ProfessorMariAttachedFiles({
               <button
                 type="button"
                 onClick={() => onRemove(index)}
+                data-testid={`professor-mari-chat-remove-file-attachment-${index}-button`}
                 className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--primary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--primary)] focus-visible:text-[var(--primary)]"
                 aria-label={localizeUi("ui.chat.homeprofessormarichat.removeAttachment")}
                 title={localizeUi("ui.chat.homeprofessormarichat.removeAttachment")}
@@ -1318,6 +1320,7 @@ function ProfessorMariAttachmentPreviews({
           <button
             type="button"
             onClick={() => onRemove(index)}
+            data-testid={`professor-mari-chat-remove-preview-attachment-${index}-button`}
             className="absolute right-1.5 top-1.5 rounded-md p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             aria-label={localizeUi("ui.chat.professormariattachmentpreviews.removeValue1", { value1: attachment.name })}
             title={localizeUi("ui.chat.professormariattachmentpreviews.removeFile")}
@@ -1599,6 +1602,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
               ariaLabel={localizeUi("ui.chat.homeprofessormarichat.editMessage")}
               showMacroReference={false}
               showMarkdownPreview={false}
+              testId={`professor-mari-chat-edit-message-${message.id}-textarea`}
               className="w-full"
             />
             <div className="mt-1 flex gap-2">
@@ -1609,6 +1613,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
                   onEdit?.(message.id, editContent);
                   setIsEditing(false);
                 }}
+                data-testid={`professor-mari-chat-edit-message-${message.id}-save-button`}
                 className="rounded bg-[var(--primary)] px-2 py-1 text-xs text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {localizeUi("ui.noodle.noodlehome.save")}
@@ -1616,6 +1621,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
+                data-testid={`professor-mari-chat-edit-message-${message.id}-cancel-button`}
                 className="rounded px-2 py-1 text-xs text-[var(--muted-foreground)] hover:bg-[var(--accent)]"
               >
                 {localizeUi("ui.chat.homeprofessormarichat.cancelSelection")}
@@ -1638,6 +1644,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
                   setEditContent(content);
                   setIsEditing(true);
                 }}
+                data-testid={`professor-mari-chat-message-${message.id}-edit-button`}
                 className={MARI_MESSAGE_ACTION_BUTTON_CLASS}
                 aria-label={localizeUi("ui.chat.homeprofessormarichat.editMessage")}
                 title={localizeUi("ui.chat.homeprofessormarichat.editMessage")}
@@ -1649,6 +1656,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
               <button
                 type="button"
                 onClick={() => onDelete(message.id)}
+                data-testid={`professor-mari-chat-message-${message.id}-delete-button`}
                 className={MARI_MESSAGE_ACTION_BUTTON_CLASS}
                 aria-label={localizeUi("ui.chat.homeprofessormarichat.deleteMessage")}
                 title={localizeUi("ui.chat.homeprofessormarichat.deleteMessage")}
@@ -1673,6 +1681,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
               <button
                 type="button"
                 onClick={() => onRegenerate(message.id)}
+                data-testid={`professor-mari-chat-message-${message.id}-regenerate-button`}
                 className={MARI_MESSAGE_ACTION_BUTTON_CLASS}
                 aria-label={localizeUi("ui.chat.chatmessage.regenerate")}
                 title={localizeUi("ui.chat.chatmessage.regenerate")}
@@ -1684,6 +1693,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
               <button
                 type="button"
                 onClick={() => onDelete(message.id)}
+                data-testid={`professor-mari-chat-message-${message.id}-delete-button`}
                 className={MARI_MESSAGE_ACTION_BUTTON_CLASS}
                 aria-label={localizeUi("lorebook.editor.batch.delete")}
                 title={localizeUi("lorebook.editor.batch.delete")}
@@ -1707,6 +1717,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
               <button
                 type="button"
                 onClick={() => onRegenerate(message.id)}
+                data-testid={`professor-mari-chat-message-${message.id}-regenerate-button`}
                 className={MARI_MESSAGE_ACTION_BUTTON_CLASS}
                 aria-label={localizeUi("ui.chat.chatmessage.regenerate")}
                 title={localizeUi("ui.chat.chatmessage.regenerate")}
@@ -1718,6 +1729,7 @@ const CompactMariMessage = memo(function CompactMariMessage({
               <button
                 type="button"
                 onClick={() => onDelete(message.id)}
+                data-testid={`professor-mari-chat-message-${message.id}-delete-button`}
                 className={MARI_MESSAGE_ACTION_BUTTON_CLASS}
                 aria-label={localizeUi("lorebook.editor.batch.delete")}
                 title={localizeUi("lorebook.editor.batch.delete")}
@@ -1995,6 +2007,7 @@ function DatabaseWorkspaceApprovalCard({
               type="button"
               onClick={() => changeViewMode("easy")}
               aria-pressed={viewMode === "easy"}
+              data-testid={`professor-mari-chat-approval-${approval.id}-easy-view-button`}
               className={cn(
                 "rounded px-1.5 py-0.5 text-[0.625rem] font-medium transition-colors",
                 viewMode === "easy"
@@ -2008,6 +2021,7 @@ function DatabaseWorkspaceApprovalCard({
               type="button"
               onClick={() => changeViewMode("raw")}
               aria-pressed={viewMode === "raw"}
+              data-testid={`professor-mari-chat-approval-${approval.id}-raw-view-button`}
               className={cn(
                 "rounded px-1.5 py-0.5 text-[0.625rem] font-medium transition-colors",
                 viewMode === "raw"
@@ -2137,6 +2151,7 @@ function DatabaseWorkspaceApprovalCard({
             type="button"
             onClick={() => onRestore(approval.id)}
             disabled={busy || disabled}
+            data-testid={`professor-mari-chat-approval-${approval.id}-restore-button`}
             className="rounded-md border border-[var(--border)] px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-45"
           >
             <span className="inline-flex items-center gap-1">
@@ -2149,6 +2164,7 @@ function DatabaseWorkspaceApprovalCard({
               type="button"
               onClick={() => onKeepEnable(approval.id)}
               disabled={busy || disabled}
+              data-testid={`professor-mari-chat-approval-${approval.id}-keep-enable-button`}
               className="rounded-md border border-[var(--primary)]/50 bg-[var(--primary)]/10 px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/20 disabled:cursor-not-allowed disabled:opacity-45"
             >
               <span className="inline-flex items-center gap-1">
@@ -2161,6 +2177,7 @@ function DatabaseWorkspaceApprovalCard({
             type="button"
             onClick={() => onKeep(approval.id)}
             disabled={busy || disabled}
+            data-testid={`professor-mari-chat-approval-${approval.id}-keep-button`}
             className="rounded-md bg-[var(--primary)] px-2.5 py-1 text-[0.6875rem] font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
           >
             <span className="inline-flex items-center gap-1">
@@ -2250,6 +2267,7 @@ function DependencyWorkspaceApprovalCard({
             type="button"
             onClick={() => onDiscard(approval.id)}
             disabled={busy || disabled}
+            data-testid={`professor-mari-chat-dependency-approval-${approval.id}-discard-button`}
             className="min-h-9 rounded-md border border-[var(--border)] px-3 py-1.5 text-[0.6875rem] font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-45"
           >
             {localizeUi("ui.chat.dependencyworkspaceapprovalcard.notNow")}
@@ -2258,6 +2276,7 @@ function DependencyWorkspaceApprovalCard({
             type="button"
             onClick={() => onApprove(approval.id)}
             disabled={busy || disabled}
+            data-testid={`professor-mari-chat-dependency-approval-${approval.id}-approve-button`}
             className="min-h-9 rounded-md bg-[var(--primary)] px-3 py-1.5 text-[0.6875rem] font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
           >
             <span className="inline-flex items-center justify-center gap-1">
@@ -2326,6 +2345,7 @@ function SensitiveFileWorkspaceApprovalCard({
             type="button"
             onClick={() => onDiscard(approval.id)}
             disabled={busy || disabled}
+            data-testid={`professor-mari-chat-sensitive-file-approval-${approval.id}-discard-button`}
             className="min-h-9 rounded-md border border-[var(--border)] px-3 py-1.5 text-[0.6875rem] font-semibold text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-45"
           >
             {localizeUi("ui.agents.agenteditor.discard")}
@@ -2334,6 +2354,7 @@ function SensitiveFileWorkspaceApprovalCard({
             type="button"
             onClick={() => onApprove(approval.id)}
             disabled={busy || disabled}
+            data-testid={`professor-mari-chat-sensitive-file-approval-${approval.id}-approve-button`}
             className="min-h-9 rounded-md bg-[var(--primary)] px-3 py-1.5 text-[0.6875rem] font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
           >
             <span className="inline-flex items-center justify-center gap-1">
@@ -2452,6 +2473,7 @@ function MariPanelSortSelect({
       onChange={(event) => onChange(event.target.value as MariPanelSortMode)}
       aria-label={localizeUi("ui.chat.homeprofessormarichat.sortLabel")}
       title={localizeUi("ui.chat.homeprofessormarichat.sortLabel")}
+      data-testid="professor-mari-chat-panel-sort-select"
       className="h-8 shrink-0 rounded-md border border-[var(--border)] bg-[var(--card)] px-1.5 text-[0.6875rem] text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55"
     >
       {MARI_PANEL_SORT_OPTIONS.map((mode) => (
@@ -2557,6 +2579,7 @@ function ProfessorMariSkillsMenu({
         <button
           type="button"
           onClick={onClose}
+          data-testid="professor-mari-chat-skills-close-button"
           className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           aria-label={t("home.professorMari.skills.close")}
           title={t("home.professorMari.skills.close")}
@@ -2573,6 +2596,7 @@ function ProfessorMariSkillsMenu({
             onNew();
           }}
           disabled={saving}
+          data-testid="professor-mari-chat-skills-new-button"
           className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-[0.6875rem] font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus size="0.78rem" />
@@ -2582,6 +2606,7 @@ function ProfessorMariSkillsMenu({
           type="button"
           onClick={onUploadClick}
           disabled={saving}
+          data-testid="professor-mari-chat-skills-upload-button"
           className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-[0.6875rem] font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <FileUp size="0.78rem" />
@@ -2591,6 +2616,7 @@ function ProfessorMariSkillsMenu({
           ref={fileInputRef}
           type="file"
           accept=".md,.txt,text/markdown,text/plain"
+          data-testid="professor-mari-chat-skills-file-input"
           className="hidden"
           onChange={onFileChange}
         />
@@ -2609,6 +2635,7 @@ function ProfessorMariSkillsMenu({
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={localizeUi("ui.chat.professormariskillsmenu.searchPlaceholder")}
                 aria-label={localizeUi("ui.chat.professormariskillsmenu.searchPlaceholder")}
+                data-testid="professor-mari-chat-skills-search-input"
                 className="h-8 w-full rounded-md border border-[var(--border)] bg-[var(--card)] pl-7 pr-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55"
               />
             </div>
@@ -2651,6 +2678,7 @@ function ProfessorMariSkillsMenu({
                       type="button"
                       onClick={() => onSelect(active ? null : skill.id)}
                       aria-expanded={active}
+                      data-testid={`professor-mari-chat-skill-${skill.id}-toggle-button`}
                       className="flex min-w-0 flex-1 items-center gap-1.5 px-2 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--ring)]"
                     >
                       <ChevronRight
@@ -2686,6 +2714,7 @@ function ProfessorMariSkillsMenu({
                         checked={skill.enabled}
                         onChange={() => onToggle(skill)}
                         disabled={saving}
+                        testId={`professor-mari-chat-skill-${skill.id}-enabled-switch`}
                         className="p-0 hover:bg-transparent"
                       />
                     </span>
@@ -2701,6 +2730,7 @@ function ProfessorMariSkillsMenu({
                           value={draft.name}
                           onChange={(event) => onDraftChange({ ...draft, name: event.target.value })}
                           disabled={saving}
+                          data-testid={`professor-mari-chat-skill-${skill.id}-name-input`}
                           className="mt-1 h-8 w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55 disabled:cursor-not-allowed disabled:opacity-70"
                         />
                       </label>
@@ -2710,6 +2740,7 @@ function ProfessorMariSkillsMenu({
                           value={draft.description}
                           onChange={(event) => onDraftChange({ ...draft, description: event.target.value })}
                           disabled={saving}
+                          data-testid={`professor-mari-chat-skill-${skill.id}-description-input`}
                           className="mt-1 h-8 w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55 disabled:cursor-not-allowed disabled:opacity-70"
                         />
                       </label>
@@ -2720,6 +2751,7 @@ function ProfessorMariSkillsMenu({
                           onChange={(event) => onDraftChange({ ...draft, content: event.target.value })}
                           disabled={saving}
                           rows={9}
+                          data-testid={`professor-mari-chat-skill-${skill.id}-content-textarea`}
                           className="mt-1 min-h-40 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--card)] px-2 py-2 font-mono text-[0.6875rem] leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55 disabled:cursor-not-allowed disabled:opacity-70"
                         />
                       </label>
@@ -2728,6 +2760,7 @@ function ProfessorMariSkillsMenu({
                           type="button"
                           onClick={() => onDelete(skill.id)}
                           disabled={saving}
+                          data-testid={`professor-mari-chat-skill-${skill.id}-delete-button`}
                           className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[0.6875rem] font-semibold text-[var(--destructive)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-45"
                         >
                           <Trash2 size="0.75rem" />
@@ -2737,6 +2770,7 @@ function ProfessorMariSkillsMenu({
                           type="button"
                           onClick={onSave}
                           disabled={saving}
+                          data-testid={`professor-mari-chat-skill-${skill.id}-save-button`}
                           className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[var(--primary)] px-2.5 text-[0.6875rem] font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
                         >
                           {saving ? <Loader2 size="0.75rem" className="animate-spin" /> : <Save size="0.75rem" />}
@@ -2860,6 +2894,7 @@ function ProfessorMariMemoriesMenu({
         <button
           type="button"
           onClick={onClose}
+          data-testid="professor-mari-chat-memories-close-button"
           className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           aria-label={localizeUi("ui.chat.professormarimemoriesmenu.close")}
           title={localizeUi("ui.chat.professormarimemoriesmenu.close")}
@@ -2876,6 +2911,7 @@ function ProfessorMariMemoriesMenu({
             onNew();
           }}
           disabled={saving}
+          data-testid="professor-mari-chat-memories-new-button"
           className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-[0.6875rem] font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus size="0.78rem" />
@@ -2885,6 +2921,7 @@ function ProfessorMariMemoriesMenu({
           type="button"
           onClick={onUploadClick}
           disabled={saving}
+          data-testid="professor-mari-chat-memories-upload-button"
           className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-[0.6875rem] font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <FileUp size="0.78rem" />
@@ -2894,6 +2931,7 @@ function ProfessorMariMemoriesMenu({
           ref={fileInputRef}
           type="file"
           accept=".md,.txt,text/markdown,text/plain"
+          data-testid="professor-mari-chat-memories-file-input"
           className="hidden"
           onChange={onFileChange}
         />
@@ -2912,6 +2950,7 @@ function ProfessorMariMemoriesMenu({
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={localizeUi("ui.chat.professormarimemoriesmenu.searchPlaceholder")}
                 aria-label={localizeUi("ui.chat.professormarimemoriesmenu.searchPlaceholder")}
+                data-testid="professor-mari-chat-memories-search-input"
                 className="h-8 w-full rounded-md border border-[var(--border)] bg-[var(--card)] pl-7 pr-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55"
               />
             </div>
@@ -2954,6 +2993,7 @@ function ProfessorMariMemoriesMenu({
                       type="button"
                       onClick={() => onSelect(active ? null : memory.id)}
                       aria-expanded={active}
+                      data-testid={`professor-mari-chat-memory-${memory.id}-toggle-button`}
                       className="flex min-w-0 flex-1 items-center gap-1.5 px-2 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--ring)]"
                     >
                       {memory.persistent && (
@@ -2996,6 +3036,7 @@ function ProfessorMariMemoriesMenu({
                         checked={memory.enabled}
                         onChange={() => onToggleEnabled(memory)}
                         disabled={saving}
+                        testId={`professor-mari-chat-memory-${memory.id}-enabled-switch`}
                         className="p-0 hover:bg-transparent"
                       />
                     </span>
@@ -3016,6 +3057,7 @@ function ProfessorMariMemoriesMenu({
                           value={draft.name}
                           onChange={(event) => onDraftChange({ ...draft, name: event.target.value })}
                           disabled={saving}
+                          data-testid={`professor-mari-chat-memory-${memory.id}-name-input`}
                           className="mt-1 h-8 w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55 disabled:cursor-not-allowed disabled:opacity-70"
                         />
                       </label>
@@ -3025,6 +3067,7 @@ function ProfessorMariMemoriesMenu({
                           value={draft.description}
                           onChange={(event) => onDraftChange({ ...draft, description: event.target.value })}
                           disabled={saving}
+                          data-testid={`professor-mari-chat-memory-${memory.id}-description-input`}
                           className="mt-1 h-8 w-full rounded-md border border-[var(--border)] bg-[var(--card)] px-2 text-xs text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55 disabled:cursor-not-allowed disabled:opacity-70"
                         />
                       </label>
@@ -3035,6 +3078,7 @@ function ProfessorMariMemoriesMenu({
                           onChange={(event) => onDraftChange({ ...draft, content: event.target.value })}
                           disabled={saving}
                           rows={9}
+                          data-testid={`professor-mari-chat-memory-${memory.id}-content-textarea`}
                           className="mt-1 min-h-40 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--card)] px-2 py-2 font-mono text-[0.6875rem] leading-relaxed text-[var(--foreground)] outline-none transition-colors focus:border-[var(--primary)]/55 disabled:cursor-not-allowed disabled:opacity-70"
                         />
                       </label>
@@ -3055,6 +3099,7 @@ function ProfessorMariMemoriesMenu({
                           checked={memory.persistent}
                           onChange={() => onTogglePersistent(memory)}
                           disabled={saving}
+                          testId={`professor-mari-chat-memory-${memory.id}-persistent-switch`}
                           className="shrink-0 p-0 hover:bg-transparent"
                         />
                       </div>
@@ -3063,6 +3108,7 @@ function ProfessorMariMemoriesMenu({
                           type="button"
                           onClick={() => onDelete(memory.id)}
                           disabled={saving}
+                          data-testid={`professor-mari-chat-memory-${memory.id}-delete-button`}
                           className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-[0.6875rem] font-semibold text-[var(--destructive)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-45"
                         >
                           <Trash2 size="0.75rem" />
@@ -3072,6 +3118,7 @@ function ProfessorMariMemoriesMenu({
                           type="button"
                           onClick={onSave}
                           disabled={saving}
+                          data-testid={`professor-mari-chat-memory-${memory.id}-save-button`}
                           className="inline-flex h-8 items-center gap-1.5 rounded-md bg-[var(--primary)] px-2.5 text-[0.6875rem] font-semibold text-[var(--primary-foreground)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
                         >
                           {saving ? <Loader2 size="0.75rem" className="animate-spin" /> : <Save size="0.75rem" />}
@@ -5178,6 +5225,7 @@ export function HomeProfessorMariChat({
           type="file"
           accept={PROFESSOR_MARI_ATTACHMENT_ACCEPT}
           multiple
+          data-testid="professor-mari-chat-attachment-input"
           className="hidden"
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
             void handleAttachmentUpload(event.target.files);
@@ -5217,6 +5265,7 @@ export function HomeProfessorMariChat({
             ref={connectionButtonRef}
             type="button"
             onClick={() => setConnectionMenuOpen((current) => !current)}
+            data-testid="professor-mari-chat-connection-menu-button"
             className={cn(
               "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all",
               connectionMenuOpen
@@ -5249,6 +5298,7 @@ export function HomeProfessorMariChat({
                         key={connection.id}
                         type="button"
                         onClick={() => handleConnectionChange(connection.id)}
+                        data-testid={`professor-mari-chat-connection-${connection.id}-option-button`}
                         className={cn(
                           "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-[var(--accent)]",
                           isActive && "font-semibold text-[var(--foreground)]",
@@ -5275,6 +5325,7 @@ export function HomeProfessorMariChat({
                       setConnectionMenuOpen(false);
                       useUIStore.getState().openRightPanel("connections");
                     }}
+                    data-testid="professor-mari-chat-add-connection-button"
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                   >
                     <Link size="0.875rem" />
@@ -5302,12 +5353,14 @@ export function HomeProfessorMariChat({
             }}
             rows={1}
             placeholder={t("home.professorMari.placeholder")}
+            data-testid="professor-mari-chat-input-textarea"
             className="mari-chat-input-textarea min-h-8 max-h-32 flex-1 resize-none overflow-y-auto bg-transparent px-1 py-1.5 text-sm leading-normal text-foreground/90 outline-hidden placeholder:text-foreground/30 disabled:cursor-not-allowed disabled:opacity-40"
             disabled={isBusy}
           />
           <button
             type="submit"
             disabled={!canSubmitMessage || isBusy}
+            data-testid="professor-mari-chat-send-button"
             className={cn(
               "mari-chat-send-btn inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white transition-all duration-200",
               canSubmitMessage && !isBusy ? "hover:text-white active:scale-90" : "cursor-not-allowed opacity-40",
@@ -5341,6 +5394,7 @@ export function HomeProfessorMariChat({
           <button
             type="button"
             onClick={handleFloatingButtonClick}
+            data-testid="professor-mari-chat-floating-open-button"
             className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-[var(--primary)]/40 bg-[var(--background)] shadow-lg shadow-black/35 ring-1 ring-black/20"
             aria-label={t("home.professorMari.open")}
           >
@@ -5356,6 +5410,7 @@ export function HomeProfessorMariChat({
             data-professor-mari-floating-action
             type="button"
             onClick={onFloatingDismiss}
+            data-testid="professor-mari-chat-floating-dismiss-button"
             className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] shadow-lg"
             aria-label={t("home.professorMari.dismiss")}
             title={t("home.professorMari.dismiss")}
@@ -5380,6 +5435,7 @@ export function HomeProfessorMariChat({
             <button
               type="button"
               onClick={closeChatWindow}
+              data-testid="professor-mari-chat-floating-mobile-close-button"
               className="mari-chrome-control mari-chrome-control--small mari-accent-animated inline-flex h-8 w-8 items-center justify-center rounded-md p-0"
               aria-label={t("home.professorMari.close")}
               title={t("home.professorMari.close")}
@@ -5415,6 +5471,7 @@ export function HomeProfessorMariChat({
             data-professor-mari-floating-action
             type="button"
             onClick={onFloatingDismiss}
+            data-testid="professor-mari-chat-floating-desktop-dismiss-button"
             className="mari-chrome-control mari-chrome-control--small mari-accent-animated h-7 w-7 shrink-0 p-0"
             aria-label={t("home.professorMari.dismiss")}
             title={t("home.professorMari.dismiss")}
@@ -5481,6 +5538,7 @@ export function HomeProfessorMariChat({
             <button
               type="button"
               onClick={openChatWindow}
+              data-testid="professor-mari-chat-welcome-open-button"
               className="mari-chrome-control mari-chrome-control--primary w-full justify-center gap-2 text-xs"
             >
               <MessageCircle size="0.9rem" />
@@ -5540,6 +5598,7 @@ export function HomeProfessorMariChat({
                                 }
                               }}
                               disabled={chatHistory.length === 0 || chatHistoryLoading}
+                              data-testid="professor-mari-chat-history-selection-toggle-button"
                               className="mari-chrome-control mari-chrome-control--small h-8 px-2 text-[0.625rem]"
                               aria-pressed={chatHistorySelectionMode}
                             >
@@ -5553,6 +5612,7 @@ export function HomeProfessorMariChat({
                             <button
                               type="button"
                               onClick={() => setChatHistoryOpen(false)}
+                              data-testid="professor-mari-chat-history-close-button"
                               className="mari-chrome-control mari-chrome-control--small h-8 w-8 p-0"
                               aria-label={t("home.professorMari.closeChats")}
                               title={t("home.professorMari.closeChats")}
@@ -5599,11 +5659,13 @@ export function HomeProfessorMariChat({
                                           value={renameDraft}
                                           onChange={(event) => setRenameDraft(event.target.value)}
                                           aria-label={localizeUi("ui.chat.homeprofessormarichat.renameChatInput")}
+                                          data-testid={`professor-mari-chat-history-${item.id}-rename-input`}
                                           className="min-w-0 flex-1 rounded-md bg-[var(--background)] px-2 py-1.5 text-xs outline-none ring-1 ring-[var(--border)] focus:ring-[var(--primary)]"
                                           autoFocus
                                         />
                                         <button
                                           type="submit"
+                                          data-testid={`professor-mari-chat-history-${item.id}-rename-save-button`}
                                           className="mari-chrome-control mari-chrome-control--primary mari-chrome-control--small h-8 px-2 text-[0.625rem]"
                                         >
                                           {localizeUi("ui.noodle.noodlehome.save")}
@@ -5614,6 +5676,7 @@ export function HomeProfessorMariChat({
                                             setRenamingChatId(null);
                                             setRenameDraft("");
                                           }}
+                                          data-testid={`professor-mari-chat-history-${item.id}-rename-cancel-button`}
                                           className="mari-chrome-control mari-chrome-control--small h-8 px-2 text-[0.625rem]"
                                         >
                                           {localizeUi("chat.delete.dialog.cancel")}
@@ -5635,6 +5698,7 @@ export function HomeProfessorMariChat({
                                           }
                                           disabled={isBusy}
                                           aria-pressed={chatHistorySelectionMode ? selected : undefined}
+                                          data-testid={`professor-mari-chat-history-${item.id}-select-button`}
                                           className="min-w-0 flex-1 text-left disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                           <div className="truncate text-xs font-semibold text-[var(--foreground)]">
@@ -5655,6 +5719,7 @@ export function HomeProfessorMariChat({
                                                 setRenamingChatId(item.id);
                                                 setRenameDraft(item.name || "");
                                               }}
+                                              data-testid={`professor-mari-chat-history-${item.id}-rename-button`}
                                               className="mari-chrome-control mari-chrome-control--small h-8 px-2 text-[0.625rem]"
                                             >
                                               {localizeUi("ui.chat.homeprofessormarichat.renameChat")}
@@ -5662,6 +5727,7 @@ export function HomeProfessorMariChat({
                                             <button
                                               type="button"
                                               onClick={() => void handleDeleteProfessorChat(item.id)}
+                                              data-testid={`professor-mari-chat-history-${item.id}-delete-button`}
                                               className="mari-chrome-control mari-chrome-control--danger mari-chrome-control--small h-8 px-2 text-[0.625rem]"
                                             >
                                               {localizeUi("lorebook.editor.batch.delete")}
@@ -5687,6 +5753,7 @@ export function HomeProfessorMariChat({
                               type="button"
                               onClick={() => void handleBulkDeleteProfessorChats()}
                               disabled={selectedChatHistoryIds.size === 0}
+                              data-testid="professor-mari-chat-history-bulk-delete-button"
                               className="mari-chrome-control mari-chrome-control--primary mari-chrome-control--small h-8 px-3 text-[0.625rem]"
                             >
                               <Trash2 size="0.75rem" />
@@ -5792,6 +5859,7 @@ export function HomeProfessorMariChat({
                               type="button"
                               onClick={toggleChatHistory}
                               disabled={isBusy && !chatHistoryOpen}
+                              data-testid="professor-mari-chat-window-history-button"
                               className={cn(
                                 "inline-flex h-8 items-center gap-1 rounded-md px-2 text-[0.6875rem] font-semibold transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50",
                                 "mari-chrome-accent-text-muted mari-accent-animated hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
@@ -5805,6 +5873,7 @@ export function HomeProfessorMariChat({
                             <button
                               type="button"
                               onClick={toggleSkillsMenu}
+                              data-testid="professor-mari-chat-window-skills-button"
                               className={cn(
                                 "inline-flex h-8 items-center gap-1 rounded-md px-2 text-[0.6875rem] font-semibold transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50",
                                 "mari-chrome-accent-text-muted mari-accent-animated hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
@@ -5825,6 +5894,7 @@ export function HomeProfessorMariChat({
                             <button
                               type="button"
                               onClick={toggleMemoriesMenu}
+                              data-testid="professor-mari-chat-window-memories-button"
                               className={cn(
                                 "inline-flex h-8 items-center gap-1 rounded-md px-2 text-[0.6875rem] font-semibold transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50",
                                 "mari-chrome-accent-text-muted mari-accent-animated hover:text-[var(--marinara-chat-chrome-button-text-hover)]",
@@ -5846,6 +5916,7 @@ export function HomeProfessorMariChat({
                               <button
                                 type="button"
                                 onClick={() => void stopWorkspace()}
+                                data-testid="professor-mari-chat-window-stop-workspace-button"
                                 className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.6875rem] text-[var(--destructive)] transition-colors hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
                                 title={localizeUi("ui.chat.homeprofessormarichat.stopProfessorMariWorkspaceAgent")}
                               >
@@ -5856,6 +5927,7 @@ export function HomeProfessorMariChat({
                               type="button"
                               onClick={() => void runRestart()}
                               disabled={isBusy}
+                              data-testid="professor-mari-chat-window-restart-button"
                               className="mari-chrome-accent-text-muted mari-accent-animated inline-flex items-center gap-1 rounded-md px-2 py-1 text-[0.6875rem] transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                               aria-label={t("home.professorMari.restart")}
                               title={t("home.professorMari.restart")}
@@ -5869,6 +5941,7 @@ export function HomeProfessorMariChat({
                               <button
                                 type="button"
                                 onClick={closeChatWindow}
+                                data-testid="professor-mari-chat-window-close-button"
                                 className="mari-editor-action mari-accent-animated inline-flex shrink-0"
                                 aria-label={t("home.professorMari.close")}
                                 title={t("home.professorMari.close")}
@@ -5941,6 +6014,7 @@ export function HomeProfessorMariChat({
                             type="file"
                             accept={PROFESSOR_MARI_ATTACHMENT_ACCEPT}
                             multiple
+                            data-testid="professor-mari-chat-window-attachment-input"
                             className="hidden"
                             onChange={(event: ChangeEvent<HTMLInputElement>) => {
                               void handleAttachmentUpload(event.target.files);
@@ -5987,6 +6061,7 @@ export function HomeProfessorMariChat({
                               ref={connectionButtonRef}
                               type="button"
                               onClick={() => setConnectionMenuOpen((current) => !current)}
+                              data-testid="professor-mari-chat-window-connection-menu-button"
                               className={cn(
                                 "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all",
                                 connectionMenuOpen
@@ -6021,6 +6096,7 @@ export function HomeProfessorMariChat({
                                           key={connection.id}
                                           type="button"
                                           onClick={() => handleConnectionChange(connection.id)}
+                                          data-testid={`professor-mari-chat-window-connection-${connection.id}-option-button`}
                                           className={cn(
                                             "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors hover:bg-[var(--accent)]",
                                             isActive && "font-semibold text-[var(--foreground)]",
@@ -6049,6 +6125,7 @@ export function HomeProfessorMariChat({
                                         setConnectionMenuOpen(false);
                                         useUIStore.getState().openRightPanel("connections");
                                       }}
+                                      data-testid="professor-mari-chat-window-add-connection-button"
                                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                                     >
                                       <Link size="0.875rem" />
@@ -6078,12 +6155,14 @@ export function HomeProfessorMariChat({
                               }}
                               rows={1}
                               placeholder={t("home.professorMari.placeholder")}
+                              data-testid="professor-mari-chat-window-input-textarea"
                               className="mari-chat-input-textarea min-h-8 max-h-32 flex-1 resize-none overflow-y-auto bg-transparent px-1 py-1.5 text-sm leading-normal text-foreground/90 outline-hidden placeholder:text-foreground/30 disabled:cursor-not-allowed disabled:opacity-40"
                               disabled={isBusy}
                             />
                             <button
                               type="submit"
                               disabled={!canSubmitMessage || isBusy}
+                              data-testid="professor-mari-chat-window-send-button"
                               className={cn(
                                 "mari-chat-send-btn inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-white transition-all duration-200",
                                 canSubmitMessage && !isBusy

@@ -28,6 +28,7 @@ export function CombatStyleSection({ style, combatStyle, onCombatStyleChange }: 
           <select
             value={combatStyle}
             onChange={(event) => onCombatStyleChange(event.target.value as GameCombatStyle)}
+            data-testid="combat-style-select"
             className="mari-preset-native-select w-full truncate rounded-lg bg-[var(--secondary)] px-3 py-2 pr-8 text-xs text-[var(--foreground)] outline-none ring-1 ring-[var(--border)] transition-shadow focus:ring-[var(--primary)]/40"
           >
             <option value="classic">

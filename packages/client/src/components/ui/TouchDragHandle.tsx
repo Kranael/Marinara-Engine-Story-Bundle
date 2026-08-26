@@ -18,6 +18,7 @@ export function TouchDragHandle({
   return (
     <button
       type="button"
+      data-testid="touch-drag-handle"
       aria-hidden="true"
       tabIndex={-1}
       title={label}

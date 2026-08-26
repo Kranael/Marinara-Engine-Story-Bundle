@@ -439,6 +439,7 @@ function SidecarCard() {
               event.stopPropagation();
               openLocalModelSettings();
             }}
+            data-testid="sidecar-open-settings-button"
             className="mari-chrome-control mari-chrome-control--small h-8 min-h-0 w-8 p-0"
             title={localizeUi("ui.panels.sidecarcard.openLocalModelSettings")}
           >
@@ -450,6 +451,7 @@ function SidecarCard() {
               event.stopPropagation();
               setExpanded((v) => !v);
             }}
+            data-testid="sidecar-toggle-expand-button"
             className="mari-chrome-control mari-chrome-control--small h-8 min-h-0 w-8 p-0"
             title={
               expanded ? localizeUi("ui.panels.ttsconfigcard.collapse") : localizeUi("ui.panels.ttsconfigcard.expand")
@@ -496,6 +498,7 @@ function SidecarCard() {
                         type="button"
                         onClick={() => void handleDeleteSpeechModel()}
                         disabled={deletingSpeechModel}
+                        data-testid="sidecar-delete-speech-model-button"
                         className="mari-chrome-control mari-chrome-control--small p-1"
                         title={localizeUi("ui.panels.sidecarcard.deleteLocalWhisper")}
                       >
@@ -526,6 +529,7 @@ function SidecarCard() {
                       <select
                         value={speechModelChoice}
                         onChange={(event) => setSpeechModelChoice(event.target.value as SidecarSpeechModelId)}
+                        data-testid="sidecar-speech-model-select"
                         className="mari-chrome-field h-8 text-xs"
                         disabled={speechDownloading || speechModels.length === 0}
                       >
@@ -547,6 +551,7 @@ function SidecarCard() {
                         type="button"
                         onClick={handleDownloadWhisper}
                         disabled={speechDownloading || !activeSpeechModel}
+                        data-testid="sidecar-download-whisper-button"
                         className="mari-chrome-control w-full justify-center px-3 py-2 text-xs"
                       >
                         {speechDownloading ? (
@@ -602,6 +607,7 @@ function SidecarCard() {
                 type="button"
                 onClick={() => void handleModelLoadToggle()}
                 disabled={changingModelLoadState || status === "starting_server"}
+                data-testid="sidecar-model-load-toggle-button"
                 className="mari-chrome-control w-full justify-center gap-2 px-3 py-2 text-xs"
               >
                 {changingModelLoadState || status === "starting_server" ? (
@@ -621,6 +627,7 @@ function SidecarCard() {
                 type="button"
                 onClick={() => void handleAssignTrackersToLocal()}
                 disabled={assigningTrackers}
+                data-testid="sidecar-assign-trackers-button"
                 className="mari-chrome-control w-full justify-between gap-3 px-3 py-2 text-left"
               >
                 <div className="min-w-0 flex-1">
@@ -663,6 +670,7 @@ function SidecarCard() {
                 type="button"
                 onClick={handleDownloadNow}
                 disabled={isDownloading}
+                data-testid="sidecar-download-now-button"
                 className="mari-chrome-control w-full px-3 py-2 text-xs"
               >
                 {isDownloading
@@ -672,6 +680,7 @@ function SidecarCard() {
               <button
                 type="button"
                 onClick={openLocalModelSettings}
+                data-testid="sidecar-choose-model-options-button"
                 className="mari-chrome-control mari-chrome-control--compact w-full text-center"
               >
                 {localizeUi("ui.panels.sidecarcard.chooseModelOptions")}
@@ -695,6 +704,7 @@ function SidecarCard() {
                 onClick={() => {
                   openLocalModelSettings();
                 }}
+                data-testid="sidecar-retry-settings-button"
                 className="mari-chrome-control mari-chrome-control--small mt-2 text-[0.6875rem]"
               >
                 {localizeUi("ui.game.gamesurfacecomponent.openLocalAiModel")}
@@ -883,6 +893,7 @@ function ConnectionDefaultPair({
                 value={localSidecarSelected ? LOCAL_SIDECAR_CONNECTION_ID : (primaryConnection?.id ?? "")}
                 onChange={(event) => handleRoleChange(primaryField, primaryConnection, event)}
                 disabled={updateConnection.isPending || (!hasConnections && !primaryConnection && !offerLocalSidecar)}
+                data-testid={`connection-default-primary-select-${primaryField}`}
                 className="mari-chrome-field h-9 min-w-0 flex-1 px-2 py-0 text-[0.6875rem]"
                 aria-label={localizeUi("ui.panels.connectiondefaultpair.defaultConnectionForValue1", { value1: title })}
               >
@@ -908,6 +919,7 @@ function ConnectionDefaultPair({
                 <button
                   type="button"
                   onClick={() => openFreshConnectionDetail(primaryConnection.id)}
+                  data-testid={`connection-default-open-primary-button-${primaryField}`}
                   className="mari-chrome-control h-9 min-h-9 w-9 shrink-0 p-0"
                   title={localizeUi("ui.panels.connectiondefaultpair.openDefaultConnectionForValue1", {
                     value1: title,
@@ -930,6 +942,7 @@ function ConnectionDefaultPair({
                 value={fallbackConnection?.id ?? ""}
                 onChange={(event) => handleRoleChange(fallbackField, fallbackConnection, event)}
                 disabled={updateConnection.isPending || (!hasConnections && !fallbackConnection)}
+                data-testid={`connection-default-fallback-select-${fallbackField}`}
                 className="mari-chrome-field h-9 min-w-0 flex-1 px-2 py-0 text-[0.6875rem]"
                 aria-label={localizeUi("ui.panels.connectiondefaultpair.fallbackConnectionForValue1", {
                   value1: title,
@@ -948,6 +961,7 @@ function ConnectionDefaultPair({
                 <button
                   type="button"
                   onClick={() => openFreshConnectionDetail(fallbackConnection.id)}
+                  data-testid={`connection-default-open-fallback-button-${fallbackField}`}
                   className="mari-chrome-control h-9 min-h-9 w-9 shrink-0 p-0"
                   title={localizeUi("ui.panels.connectiondefaultpair.openFallbackConnectionForValue1", {
                     value1: title,
@@ -1015,6 +1029,7 @@ function ConnectionDefaultsSection({ connectionsList }: { connectionsList: Conne
         <button
           type="button"
           onClick={() => setOpen((current) => !current)}
+          data-testid="connection-defaults-toggle-button"
           className="mari-chrome-control mari-chrome-control--small h-8 min-h-0 w-8 p-0"
           title={open ? localizeUi("ui.panels.ttsconfigcard.collapse") : localizeUi("ui.panels.ttsconfigcard.expand")}
           aria-label={
@@ -1178,6 +1193,7 @@ function ConnectionRow({
           if (suppressClickRef?.current) return;
           onImagePick();
         }}
+        data-testid={`connection-image-button-${conn.id}`}
         className={cn(
           "relative flex h-10 w-10 shrink-0 items-center justify-center overflow-visible rounded-xl text-white",
           "transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--marinara-chat-chrome-focus-ring)]",
@@ -1234,6 +1250,7 @@ function ConnectionRow({
               e.stopPropagation();
               updateConnection.mutate({ id: conn.id, useForRandom: !inRandomPool });
             }}
+            data-testid={`connection-random-toggle-button-${conn.id}`}
             className={cn(
               "rounded-lg p-1.5 transition-all active:scale-90",
               inRandomPool
@@ -1258,6 +1275,7 @@ function ConnectionRow({
               },
             });
           }}
+          data-testid={`connection-duplicate-button-${conn.id}`}
           className="mari-chrome-control mari-chrome-control--small p-1.5"
           title={localizeUi("ui.presets.sectionstab.duplicate")}
         >
@@ -1278,6 +1296,7 @@ function ConnectionRow({
             }
             deleteConnection.mutate(conn.id);
           }}
+          data-testid={`connection-delete-button-${conn.id}`}
           className="mari-chrome-control mari-chrome-control--small p-1.5"
           title={localizeUi("lorebook.editor.batch.delete")}
         >
@@ -1407,6 +1426,7 @@ function ConnectionFolderRow({
             autoFocus
             value={renameValue}
             onClick={(e) => e.stopPropagation()}
+            data-testid={`connection-folder-name-input-${folder.id}`}
             onChange={(e) => setRenameValue(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -1443,6 +1463,7 @@ function ConnectionFolderRow({
               e.stopPropagation();
               onDelete(folder);
             }}
+            data-testid={`connection-delete-folder-button-${folder.id}`}
             className="mari-chrome-control mari-chrome-control--small pointer-events-none shrink-0 p-1 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 [@media(pointer:fine)]:group-focus-within:pointer-events-auto [@media(pointer:fine)]:group-focus-within:opacity-100 max-md:pointer-events-auto max-md:opacity-100 [@media(pointer:coarse)]:pointer-events-auto [@media(pointer:coarse)]:opacity-100"
             title={localizeUi("ui.panels.backgroundpicker.deleteFolder")}
           >
@@ -1912,6 +1933,7 @@ export function ConnectionsPanel() {
         type="file"
         accept="image/*"
         className="hidden"
+        data-testid="connections-panel-image-input"
         onChange={handleConnectionImageSelected}
       />
 
@@ -1920,6 +1942,7 @@ export function ConnectionsPanel() {
         <button
           type="button"
           onClick={() => openModal("create-connection")}
+          data-testid="connections-panel-create-connection-button"
           className="mari-panel-gradient-button mari-panel-gradient--connections flex-1 text-xs"
           aria-label={localizeUi("ui.panels.connectionspanel.createConnection")}
           title={localizeUi("ui.lorebooks.lorebookassignmentsection.new")}
@@ -1929,6 +1952,7 @@ export function ConnectionsPanel() {
         <button
           type="button"
           onClick={() => openModal("import-connection")}
+          data-testid="connections-panel-import-connection-button"
           className="mari-chrome-control mari-chrome-control--primary flex-1 text-xs"
           aria-label={localizeUi("ui.panels.connectionspanel.importConnection")}
           title={localizeUi("ui.chat.chatbranchselector.import")}
@@ -1939,6 +1963,7 @@ export function ConnectionsPanel() {
           type="button"
           onClick={() => (selectionMode ? exitSelectionMode() : setSelectionMode(true))}
           disabled={connectionsList.length === 0}
+          data-testid="connections-panel-select-button"
           className={cn(
             "mari-chrome-control mari-chrome-control--primary flex-1 text-xs",
             selectionMode && "mari-chrome-control--selected",
@@ -1966,6 +1991,7 @@ export function ConnectionsPanel() {
             placeholder={localize("Search connections")}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
+            data-testid="connections-panel-search-input"
             className="mari-chrome-field h-10 w-full py-0 pl-8 pr-3 text-xs md:h-9"
           />
         </div>
@@ -1973,6 +1999,7 @@ export function ConnectionsPanel() {
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as ConnectionPanelSort)}
+            data-testid="connections-panel-sort-select"
             className="mari-chrome-field mari-chrome-sort-field mari-accent-animated h-10 appearance-none py-0 pl-2.5 pr-7 text-[0.6875rem] md:h-9"
             title={localizeUi("ui.panels.agentspanel.sortOrder")}
             aria-label={localizeUi("ui.panels.connectionspanel.sortConnections")}
@@ -1994,6 +2021,7 @@ export function ConnectionsPanel() {
         <div className="flex items-center gap-1">
           <button
             onClick={handleCreateFolder}
+            data-testid="connections-panel-create-folder-button"
             className="mari-chrome-control mari-chrome-control--small flex-1 justify-start text-[0.6875rem]"
           >
             <FolderPlus size="0.75rem" />
@@ -2071,6 +2099,7 @@ export function ConnectionsPanel() {
             </a>
             <button
               onClick={dismissLinkApiBanner}
+              data-testid="connections-panel-dismiss-linkapi-banner-button"
               className="mari-chrome-control mari-chrome-control--small w-full px-2 text-xs"
             >
               <X size="0.75rem" className="shrink-0" />

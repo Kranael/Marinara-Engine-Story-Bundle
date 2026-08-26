@@ -146,6 +146,7 @@ export function GameSetupSummary({
           <button
             type="button"
             onClick={() => void handleCopy()}
+            data-testid="game-setup-summary-copy-button"
             className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] px-3 text-xs font-medium text-[var(--marinara-chat-chrome-button-text)] transition-colors hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-highlight-bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)] sm:flex-none"
           >
             <Copy size={13} />
@@ -154,6 +155,7 @@ export function GameSetupSummary({
           <button
             type="button"
             onClick={handleDownload}
+            data-testid="game-setup-summary-download-button"
             className="flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-[var(--primary)] px-3 text-xs font-semibold text-[var(--primary-foreground)] transition-[filter,transform] hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)] sm:flex-none"
           >
             <Download size={13} />

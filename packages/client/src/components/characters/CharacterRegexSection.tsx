@@ -358,6 +358,7 @@ export function CharacterRegexSection({
             <button
               type="button"
               onClick={handleCreate}
+              data-testid="character-regex-create-button"
               className="mari-chrome-accent-text-muted mari-accent-animated rounded-lg p-1.5 transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
               title={localizeUi("ui.characters.characterregexsection.createRegex")}
             >
@@ -367,13 +368,14 @@ export function CharacterRegexSection({
               className="mari-chrome-accent-text-muted mari-accent-animated inline-flex cursor-pointer items-center justify-center rounded-lg p-1.5 transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
               title={localizeUi("ui.characters.characterregexsection.importRegexesFromJson")}
             >
-              <input type="file" accept="application/json" className="hidden" onChange={handleImport} />
+              <input type="file" accept="application/json" className="hidden" onChange={handleImport} data-testid="character-regex-import-input" />
               <Upload size="0.8125rem" />
             </label>
             <button
               type="button"
               onClick={handleExport}
               disabled={scopedScripts.length === 0}
+              data-testid="character-regex-export-button"
               className="mari-chrome-accent-text-muted mari-accent-animated rounded-lg p-1.5 transition-colors hover:bg-[var(--marinara-chat-chrome-highlight-bg)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] disabled:cursor-not-allowed disabled:opacity-35"
               title={localizeUi("ui.characters.characterregexsection.exportRegexesToJson")}
             >
@@ -418,6 +420,7 @@ export function CharacterRegexSection({
                       type="button"
                       className="min-w-0 flex-1 text-left"
                       onClick={() => void openEditorGuarded(script.id)}
+                      data-testid={`character-regex-open-${script.id}`}
                     >
                       <div className="text-xs font-medium">{script.name}</div>
                       <div className="mt-0.5 flex items-center gap-1">
@@ -445,6 +448,7 @@ export function CharacterRegexSection({
                       }
                       checked={enabled}
                       onChange={(checked) => updateRegex.mutate({ id: script.id, enabled: checked })}
+                      testId={`character-regex-toggle-${script.id}`}
                       className="mt-0.5 shrink-0 p-0 hover:bg-transparent"
                     />
                     <button
@@ -452,6 +456,7 @@ export function CharacterRegexSection({
                       className="mari-chrome-accent-text-muted mari-accent-animated mt-1.5 shrink-0 transition-colors hover:text-[var(--marinara-chat-chrome-button-text-hover)]"
                       title={localizeUi("ui.characters.characterregexsection.editRegex")}
                       onClick={() => void openEditorGuarded(script.id)}
+                      data-testid={`character-regex-edit-${script.id}`}
                     >
                       <Pencil size="0.8125rem" />
                     </button>
@@ -460,6 +465,7 @@ export function CharacterRegexSection({
                       className="mt-1.5 shrink-0 text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                       title={localizeUi("ui.characters.characterregexsection.deleteRegex")}
                       onClick={() => handleDelete(script)}
+                      data-testid={`character-regex-delete-${script.id}`}
                     >
                       <Trash2 size="0.8125rem" />
                     </button>

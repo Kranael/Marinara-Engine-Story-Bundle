@@ -272,6 +272,7 @@ function ReplayStoryboardMedia({
                   <button
                     type="button"
                     onClick={handleReplay}
+                    data-testid="game-session-replay-replay-button"
                     className={REPLAY_STORYBOARD_CONTROL_BUTTON}
                     title={localizeUi("ui.game.gamesurfacecomponent.replayStoryboardVideo")}
                     aria-label={localizeUi("ui.game.gamesurfacecomponent.replayStoryboardVideo")}
@@ -281,6 +282,7 @@ function ReplayStoryboardMedia({
                   <button
                     type="button"
                     onClick={handlePlaybackToggle}
+                    data-testid="game-session-replay-playback-toggle-button"
                     className={REPLAY_STORYBOARD_CONTROL_BUTTON}
                     title={
                       playing
@@ -298,6 +300,7 @@ function ReplayStoryboardMedia({
                   <button
                     type="button"
                     onClick={() => setMuted((current) => !current)}
+                    data-testid="game-session-replay-mute-toggle-button"
                     className={REPLAY_STORYBOARD_CONTROL_BUTTON}
                     title={
                       muted
@@ -323,6 +326,7 @@ function ReplayStoryboardMedia({
                     return next;
                   })
                 }
+                data-testid="game-session-replay-viewer-size-button"
                 className={REPLAY_STORYBOARD_CONTROL_BUTTON}
                 title={localizeUi("ui.game.replaystoryboardmedia.changeStoryboardViewerSizeCurrentValue1", {
                   value1: viewerSize,
@@ -363,6 +367,7 @@ function ReplayStoryboardMedia({
       </aside>
       <button
         type="button"
+        data-testid="game-session-replay-resize-handle"
         className="absolute -bottom-2 -left-2 z-20 flex h-7 w-7 cursor-nesw-resize items-center justify-center rounded-lg border border-[var(--marinara-chat-chrome-button-border)] bg-[var(--marinara-chat-chrome-button-bg)] text-[var(--marinara-chat-chrome-button-text)] shadow-lg transition-colors hover:border-[var(--marinara-chat-chrome-button-border-hover)] hover:bg-[var(--marinara-chat-chrome-button-bg-hover)] hover:text-[var(--marinara-chat-chrome-button-text-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marinara-chat-chrome-focus-ring)] active:scale-95"
         aria-label={localizeUi("ui.game.replaystoryboardmedia.resizeReplayStoryboardViewer")}
         title={localizeUi("ui.game.replaystoryboardmedia.resizeReplayStoryboardViewer")}
@@ -553,6 +558,7 @@ export function GameSessionReplay({
           <button
             type="button"
             onClick={exitReplay}
+            data-testid="game-session-replay-unavailable-exit-button"
             className="mari-chrome-control mari-chrome-control--primary mt-4 px-4 py-2 text-xs"
           >
             {localizeUi("ui.game.gamesessionreplay.returnToCurrentSession")}
@@ -588,13 +594,14 @@ export function GameSessionReplay({
           {localizeUi("ui.game.gamesessionreplay.sessionReplayComplete")}
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={restart} className="mari-chrome-control px-3 py-1.5 text-xs">
+          <button type="button" onClick={restart} data-testid="game-session-replay-watch-again-button" className="mari-chrome-control px-3 py-1.5 text-xs">
             <RotateCcw size={12} />
             {localizeUi("ui.game.gamesessionreplay.watchAgain")}
           </button>
           <button
             type="button"
             onClick={exitReplay}
+            data-testid="game-session-replay-return-button"
             className="mari-chrome-control mari-chrome-control--primary px-3 py-1.5 text-xs"
           >
             {localizeUi("ui.game.gamesessionreplay.returnToCurrentSession")}
@@ -607,7 +614,7 @@ export function GameSessionReplay({
           <span className="text-xs text-amber-300/80">
             {localizeUi("ui.game.gamesessionreplay.theOriginalChoiceWasNotRecordedForThisTurn")}
           </span>
-          <button type="button" onClick={advance} className="mari-chrome-control px-3 py-1.5 text-xs">
+          <button type="button" onClick={advance} data-testid="game-session-replay-continue-button" className="mari-chrome-control px-3 py-1.5 text-xs">
             {localizeUi("ui.game.gamesessionreplay.continueReplay")}
             <ChevronRight size={12} />
           </button>
@@ -618,6 +625,7 @@ export function GameSessionReplay({
         <button
           type="button"
           onClick={advance}
+          data-testid="game-session-replay-next-turn-button"
           className="mari-chrome-control mari-chrome-control--primary px-3 py-1.5 text-xs"
         >
           {turnIndex >= turns.length - 1
@@ -653,6 +661,7 @@ export function GameSessionReplay({
         <button
           type="button"
           onClick={exitReplay}
+          data-testid="game-session-replay-exit-button"
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-black/70 text-white/70 shadow-lg backdrop-blur-md transition-colors hover:bg-black/85 hover:text-white"
           title={localizeUi("ui.game.gamesessionreplay.returnToCurrentSession")}
           aria-label={localizeUi("ui.game.gamesessionreplay.returnToCurrentSession")}

@@ -183,6 +183,7 @@ export function Toolbar({
                 ) : (
                   <button
                     onClick={() => onBreadcrumbClick(pathUpToHere)}
+                    data-testid={`game-assets-breadcrumb-${pathUpToHere || "root"}`}
                     className="text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
                   >
                     {part || "Game Assets"}
@@ -196,6 +197,7 @@ export function Toolbar({
           <button
             type="button"
             onClick={onClose}
+            data-testid="game-assets-close-button"
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
             title={localizeUi("ui.gameAssets.toolbar.closeAssets")}
             aria-label={localizeUi("ui.gameAssets.toolbar.closeAssets")}
@@ -211,6 +213,7 @@ export function Toolbar({
         <div className="flex items-center gap-0.5 rounded-lg border border-[var(--border)] bg-[var(--background)] p-0.5">
           <button
             onClick={() => onViewMode("grid")}
+            data-testid="game-assets-view-grid-button"
             className={cn(
               "rounded-md p-1.5 transition-colors",
               viewMode === "grid"
@@ -223,6 +226,7 @@ export function Toolbar({
           </button>
           <button
             onClick={() => onViewMode("list")}
+            data-testid="game-assets-view-list-button"
             className={cn(
               "rounded-md p-1.5 transition-colors",
               viewMode === "list"
@@ -241,6 +245,7 @@ export function Toolbar({
             <button
               ref={colsBtnRef}
               onClick={openCols}
+              data-testid="game-assets-columns-toggle-button"
               className={cn(
                 "rounded-lg border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]",
                 colsOpen && "bg-[var(--accent)]",
@@ -258,6 +263,7 @@ export function Toolbar({
                     type="checkbox"
                     checked={listColumns.size}
                     onChange={() => onToggleColumn("size")}
+                    data-testid="game-assets-column-size-checkbox"
                     className="rounded border-[var(--border)]"
                   />
                   {localizeUi("ui.gameAssets.assetgrid.size")}
@@ -267,6 +273,7 @@ export function Toolbar({
                     type="checkbox"
                     checked={listColumns.modified}
                     onChange={() => onToggleColumn("modified")}
+                    data-testid="game-assets-column-modified-checkbox"
                     className="rounded border-[var(--border)]"
                   />
                   {localizeUi("ui.gameAssets.assetgrid.modified")}
@@ -281,6 +288,7 @@ export function Toolbar({
           <button
             type="button"
             onClick={assetSelection.onToggle}
+            data-testid="game-assets-asset-selection-toggle-button"
             className={cn(
               "flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
               assetSelection.active
@@ -307,6 +315,7 @@ export function Toolbar({
 
         <button
           onClick={onUploadClick}
+          data-testid="game-assets-upload-button"
           className="flex items-center gap-1.5 rounded-lg bg-[var(--secondary)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition-colors hover:bg-[var(--accent)]"
         >
           <Upload size="0.875rem" />
@@ -316,6 +325,7 @@ export function Toolbar({
         <button
           ref={newBtnRef}
           onClick={openNew}
+          data-testid="game-assets-new-button"
           className={cn(
             "flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]",
             newOpen && "bg-[var(--accent)]",
@@ -333,6 +343,7 @@ export function Toolbar({
                 onNewFolder();
                 setNewOpen(false);
               }}
+              data-testid="game-assets-new-folder-button"
               className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
             >
               <Folder size="0.875rem" />
@@ -343,6 +354,7 @@ export function Toolbar({
                 onNewTextFile();
                 setNewOpen(false);
               }}
+              data-testid="game-assets-new-text-file-button"
               className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
             >
               <FileText size="0.875rem" />
@@ -353,6 +365,7 @@ export function Toolbar({
                 onNewMarkdownFile();
                 setNewOpen(false);
               }}
+              data-testid="game-assets-new-markdown-file-button"
               className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
             >
               <FilePlus size="0.875rem" />
@@ -364,6 +377,7 @@ export function Toolbar({
 
         <button
           onClick={onRescan}
+          data-testid="game-assets-rescan-button"
           className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
           title={localizeUi("ui.panels.gameassetssettings.rescan")}
         >
@@ -371,6 +385,7 @@ export function Toolbar({
         </button>
         <button
           onClick={onOpenFolder}
+          data-testid="game-assets-open-folder-button"
           className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
           title={localizeUi("ui.gameAssets.toolbar.openInSystemFolder")}
         >

@@ -200,6 +200,7 @@ export function AnimatedDiceRoll({
           onClick={onDismiss}
           className="dice-roll-dismiss"
           aria-label={localizeUi("ui.dice.animateddiceroll.dismissDiceRollResult")}
+          data-testid="dice-roll-dismiss-button"
         >
           <X size={14} />
         </button>

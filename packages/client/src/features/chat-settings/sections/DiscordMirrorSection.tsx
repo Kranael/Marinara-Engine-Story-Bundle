@@ -33,6 +33,7 @@ export function DiscordMirrorControls({
         onChange={(e) => onWebhookUrlChange(e.target.value.trim())}
         aria-invalid={hasInvalidWebhook}
         aria-describedby={hasInvalidWebhook ? webhookErrorId : undefined}
+        data-testid="discord-mirror-webhook-input"
         className="mari-chrome-field w-full !rounded-md px-3 py-2.5 text-[0.6875rem]"
       />
       {hasInvalidWebhook && (

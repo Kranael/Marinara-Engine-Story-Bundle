@@ -509,7 +509,7 @@ export function PresetEditor() {
           </p>
           {stockCopyError ? <p className="text-sm text-[var(--destructive)]">{stockCopyError}</p> : null}
           <div className="flex flex-wrap justify-center gap-2">
-            <button type="button" onClick={closePresetDetail} className="mari-editor-action inline-flex px-3 py-2">
+            <button type="button" onClick={closePresetDetail} className="mari-editor-action inline-flex px-3 py-2" data-testid="preset-editor-stock-back-button">
               <ArrowLeft size="0.875rem" />
               {localizeUi("ui.presets.preseteditor.backToPresets")}
             </button>
@@ -518,6 +518,7 @@ export function PresetEditor() {
               onClick={() => void handleCreateStockCopy()}
               disabled={stockCopyPending}
               className="mari-editor-action mari-editor-action--primary inline-flex px-3 py-2 disabled:opacity-50"
+              data-testid="preset-editor-create-stock-copy-button"
             >
               {stockCopyPending ? <Loader2 size="0.875rem" className="animate-spin" /> : <Copy size="0.875rem" />}
               {localizeUi(
@@ -539,7 +540,7 @@ export function PresetEditor() {
       {/* ── Header ── */}
       <div className="mari-editor-header mari-editor-header--with-nav">
         <div className="mari-editor-header-main">
-          <button onClick={handleClose} className="mari-editor-action inline-flex">
+          <button onClick={handleClose} className="mari-editor-action inline-flex" data-testid="preset-editor-back-button">
             <ArrowLeft size="1.125rem" />
           </button>
           <div className="mari-editor-icon-tile mari-panel-gradient-surface mari-panel-gradient--presets overflow-hidden">
@@ -558,6 +559,7 @@ export function PresetEditor() {
             }}
             className="mari-editor-title-input min-w-0 flex-1 placeholder:text-[var(--marinara-editor-muted)]"
             placeholder={localizeUi("ui.presets.preseteditor.presetName")}
+            data-testid="preset-editor-name-input"
           />
         </div>
 
@@ -570,6 +572,7 @@ export function PresetEditor() {
             className="mari-editor-action mari-editor-action--primary inline-flex disabled:opacity-50"
             aria-label={localizeUi("ui.noodle.noodlehome.save")}
             title={localizeUi("ui.noodle.noodlehome.save")}
+            data-testid="preset-editor-save-button"
           >
             <Save size="0.8125rem" />
             <span className="mari-editor-save-label">{localizeUi("ui.noodle.noodlehome.save")}</span>
@@ -577,6 +580,7 @@ export function PresetEditor() {
           <button
             onClick={handleExportPreset}
             className="mari-editor-action inline-flex"
+            data-testid="preset-editor-export-button"
             title={
               dirty
                 ? localizeUi("ui.presets.preseteditor.saveCurrentEditsBeforeExporting")
@@ -600,7 +604,7 @@ export function PresetEditor() {
               <rect x="3" y="15" width="14" height="2" rx="1" fill="currentColor" />
             </svg>
           </button>
-          <button onClick={handleDelete} className="mari-editor-action inline-flex">
+          <button onClick={handleDelete} className="mari-editor-action inline-flex" data-testid="preset-editor-delete-button">
             <Trash2 size="0.9375rem" />
           </button>
         </div>
@@ -621,12 +625,14 @@ export function PresetEditor() {
             <button
               onClick={() => setShowUnsavedWarning(false)}
               className="mari-editor-action mari-editor-action--compact px-3 py-1"
+              data-testid="preset-editor-unsaved-keep-editing-button"
             >
               {localizeUi("ui.presets.preseteditor.keepEditing")}
             </button>
             <button
               onClick={() => closePresetDetail()}
               className="rounded-lg px-3 py-1 text-[var(--destructive)] hover:bg-[var(--destructive)]/15"
+              data-testid="preset-editor-unsaved-discard-button"
             >
               {localizeUi("ui.presets.preseteditor.discard")}
             </button>
@@ -640,6 +646,7 @@ export function PresetEditor() {
                 }
               }}
               className="mari-editor-action mari-editor-action--primary mari-editor-action--compact px-3 py-1"
+              data-testid="preset-editor-unsaved-save-close-button"
             >
               {localizeUi("ui.presets.preseteditor.saveClose")}
             </button>
@@ -841,6 +848,7 @@ export function QuickPresetSectionsEditor({
           onClick={() => void handleCreateQuickCopy()}
           disabled={quickCopyPending}
           className="mari-editor-action mari-editor-action--primary inline-flex px-3 py-2 disabled:opacity-50"
+          data-testid="preset-quick-editor-create-copy-button"
         >
           {quickCopyPending ? <Loader2 size="0.875rem" className="animate-spin" /> : <Copy size="0.875rem" />}
           {t(
@@ -923,6 +931,7 @@ function OverviewTab({
           onChange={(e) => onNameChange(e.target.value)}
           placeholder={localizeUi("ui.presets.preseteditor.presetName")}
           className="mari-editor-field w-full p-3 text-sm"
+          data-testid="preset-editor-overview-name-input"
         />
       </FieldGroup>
 
@@ -936,6 +945,7 @@ function OverviewTab({
           onChange={(e) => onDescriptionChange(e.target.value)}
           placeholder={localizeUi("ui.presets.overviewtab.whatDoesThisPresetDo")}
           className="mari-editor-field min-h-[5rem] w-full p-3 text-sm"
+          data-testid="preset-editor-overview-description-textarea"
         />
       </FieldGroup>
 
@@ -950,6 +960,7 @@ function OverviewTab({
               type="button"
               onClick={() => onWrapFormatChange(fmt)}
               aria-pressed={wrapFormat === fmt}
+              data-testid={`preset-editor-wrap-format-${fmt}`}
               className={cn(
                 "flex items-center gap-2 rounded-md px-4 py-2.5 text-xs font-medium transition-all",
                 wrapFormat === fmt
@@ -987,6 +998,7 @@ function OverviewTab({
           onChange={(e) => onAuthorChange(e.target.value)}
           placeholder={localizeUi("ui.presets.overviewtab.yourNameOptional")}
           className="mari-editor-field w-full p-2.5 text-sm"
+          data-testid="preset-editor-overview-author-input"
         />
       </FieldGroup>
 
@@ -1043,7 +1055,7 @@ function PresetPictureField({ preset }: { preset: PromptPreset }) {
       label={localizeUi("ui.presets.overviewtab.picture")}
       help={localizeUi("ui.presets.overviewtab.pictureHelp")}
     >
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelected} />
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelected} data-testid="preset-editor-picture-file-input" />
       <button
         type="button"
         data-preset-overview-picture
@@ -1056,6 +1068,7 @@ function PresetPictureField({ preset }: { preset: PromptPreset }) {
         className="mari-panel-gradient-surface mari-panel-gradient--presets group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl shadow-sm transition-transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-[var(--marinara-chat-chrome-focus-ring)] disabled:opacity-60"
         title={pictureLabel}
         aria-label={pictureLabel}
+        data-testid="preset-editor-picture-upload-button"
       >
         {artwork ? (
           <img src={artwork} alt="" className="h-full w-full object-cover" draggable={false} />
@@ -1459,6 +1472,7 @@ function SectionsTab({
           <button
             onClick={() => setShowAddMenu(!showAddMenu)}
             className="mari-editor-action mari-editor-action--primary inline-flex"
+            data-testid="preset-sections-add-menu-toggle"
           >
             <Plus size="0.8125rem" /> {localizeUi("ui.presets.sectionstab.addSection")}
           </button>
@@ -1467,6 +1481,7 @@ function SectionsTab({
               <button
                 onClick={() => handleAddSection()}
                 className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-[var(--marinara-editor-text)] hover:bg-[var(--marinara-editor-control-bg-hover)]"
+                data-testid="preset-sections-add-prompt-block-button"
               >
                 <MessageSquare size="0.8125rem" /> {localizeUi("ui.presets.sectionstab.promptBlock")}
               </button>
@@ -1481,6 +1496,7 @@ function SectionsTab({
                     key={type}
                     onClick={() => handleAddSection({ isMarker: true, markerType: type })}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-[var(--marinara-editor-text)] hover:bg-[var(--marinara-editor-control-bg-hover)]"
+                    data-testid={`preset-sections-add-marker-${type}`}
                   >
                     <Layers size="0.8125rem" className="mari-chrome-accent-icon mari-accent-animated" />{" "}
                     {markerLabel(type)}
@@ -1497,6 +1513,7 @@ function SectionsTab({
                       key={agent.id}
                       onClick={() => handleAddSection({ agentType: agent.type, agentName: agent.name })}
                       className="flex w-full items-center justify-start gap-2 rounded-lg px-3 py-2 text-left text-xs text-[var(--marinara-editor-text)] hover:bg-[var(--marinara-editor-control-bg-hover)]"
+                      data-testid={`preset-sections-add-agent-${agent.id}`}
                     >
                       <Sparkles size="0.8125rem" className="mari-chrome-accent-icon mari-accent-animated" />{" "}
                       {agent.name} {localizeUi("ui.presets.sectionstab.agent")}
@@ -1510,6 +1527,7 @@ function SectionsTab({
         <button
           onClick={() => setShowGroupsPanel(!showGroupsPanel)}
           aria-expanded={showGroupsPanel}
+          data-testid="preset-sections-groups-toggle"
           className={cn(
             "mari-editor-action mari-editor-action--primary inline-flex",
             showGroupsPanel && "mari-chrome-accent-surface mari-accent-animated",
@@ -1528,6 +1546,7 @@ function SectionsTab({
               className="ml-0.5 rounded-md p-0.5 text-[var(--marinara-editor-muted)] transition-colors hover:bg-[var(--warning)]/15 hover:text-[var(--warning)]"
               title={localizeUi("ui.presets.sectionstab.dismissWarning")}
               aria-label={localizeUi("ui.presets.sectionstab.dismissWarning")}
+              data-testid="preset-sections-dismiss-lorebook-warning-button"
             >
               <X size="0.6875rem" />
             </button>
@@ -1545,6 +1564,7 @@ function SectionsTab({
             <button
               onClick={handleAddGroup}
               className="mari-editor-action mari-editor-action--compact flex items-center gap-1 px-2 py-1 text-[0.625rem]"
+              data-testid="preset-sections-add-group-button"
             >
               <Plus size="0.625rem" /> {localizeUi("ui.presets.sectionstab.newGroup")}
             </button>
@@ -1579,6 +1599,7 @@ function SectionsTab({
                       }}
                       className="mari-editor-field flex-1 px-1.5 py-0.5 text-xs"
                       autoFocus
+                      data-testid={`preset-group-rename-input-${g.id}`}
                     />
                   ) : (
                     <span
@@ -1588,6 +1609,7 @@ function SectionsTab({
                         setEditingGroupName(g.name);
                       }}
                       title={localizeUi("ui.presets.sectionstab.clickToRename")}
+                      data-testid={`preset-group-name-${g.id}`}
                     >
                       {g.name}
                     </span>
@@ -1612,6 +1634,7 @@ function SectionsTab({
                       }
                     }}
                     className="rounded p-0.5 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+                    data-testid={`preset-group-delete-button-${g.id}`}
                   >
                     <Trash2 size="0.625rem" />
                   </button>
@@ -1709,6 +1732,7 @@ function SectionsTab({
                         className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:pointer-events-none disabled:opacity-30"
                         title={localizeUi("ui.presets.sectionstab.moveUp")}
                         aria-label={localizeUi("ui.presets.sectionstab.moveValue1Up", { value1: section.name })}
+                        data-testid={`preset-section-move-up-${section.id}`}
                       >
                         <ArrowUp size="0.75rem" />
                       </button>
@@ -1719,6 +1743,7 @@ function SectionsTab({
                         className="rounded p-0.5 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:pointer-events-none disabled:opacity-30"
                         title={localizeUi("ui.presets.sectionstab.moveDown")}
                         aria-label={localizeUi("ui.presets.sectionstab.moveValue1Down", { value1: section.name })}
+                        data-testid={`preset-section-move-down-${section.id}`}
                       >
                         <ArrowDown size="0.75rem" />
                       </button>
@@ -1727,6 +1752,7 @@ function SectionsTab({
                       data-preset-section-toggle
                       onClick={() => toggleExpanded(section.id)}
                       className="shrink-0 rounded p-0.5 hover:bg-[var(--accent)]"
+                      data-testid={`preset-section-toggle-expand-${section.id}`}
                     >
                       {isExpanded ? (
                         <ChevronDown size="0.875rem" className="text-[var(--muted-foreground)]" />
@@ -1779,6 +1805,7 @@ function SectionsTab({
                         className="rounded-lg p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] disabled:pointer-events-none disabled:opacity-30"
                         title={localizeUi("ui.presets.sectionstab.duplicate")}
                         aria-label={localizeUi("ui.presets.sectionstab.duplicateValue1", { value1: section.name })}
+                        data-testid={`preset-section-duplicate-${section.id}`}
                       >
                         <Copy size="0.75rem" />
                       </button>
@@ -1791,6 +1818,7 @@ function SectionsTab({
                           })
                         }
                         className="rounded-lg p-1 hover:bg-[var(--accent)]"
+                        data-testid={`preset-section-toggle-enabled-${section.id}`}
                         title={
                           isEnabled
                             ? localizeUi("ui.presets.sectionstab.disable")
@@ -1821,6 +1849,7 @@ function SectionsTab({
                         }}
                         className="rounded-lg p-1 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                         title={localizeUi("lorebook.editor.batch.delete")}
+                        data-testid={`preset-section-delete-${section.id}`}
                       >
                         <Trash2 size="0.75rem" />
                       </button>
@@ -1846,6 +1875,7 @@ function SectionsTab({
                               name,
                             })
                           }
+                          testId={`preset-section-name-input-${section.id}`}
                         />
                         <select
                           value={role}
@@ -1857,6 +1887,7 @@ function SectionsTab({
                             })
                           }
                           data-preset-section-role
+                          data-testid={`preset-section-role-select-${section.id}`}
                           className={cn(
                             "mari-editor-field px-2 py-1.5 text-xs",
                             compact &&
@@ -1881,6 +1912,7 @@ function SectionsTab({
                               content,
                             })
                           }
+                          testId={`preset-section-content-textarea-${section.id}`}
                         />
                       )}
 
@@ -1969,6 +2001,7 @@ function SectionsTab({
                             })
                           }
                           data-preset-section-position
+                          data-testid={`preset-section-position-select-${section.id}`}
                           className={cn(
                             "mari-editor-field px-2 py-1 text-xs",
                             compact &&
@@ -1996,6 +2029,7 @@ function SectionsTab({
                                   injectionDepth: nextValue,
                                 })
                               }
+                              testId={`preset-section-depth-input-${section.id}`}
                               className={cn(
                                 "mari-editor-field w-16 px-2 py-1 text-xs",
                                 compact && "max-sm:h-7 max-sm:w-12 max-sm:px-1.5 max-sm:text-[0.6875rem]",
@@ -2033,6 +2067,7 @@ function SectionsTab({
                             })
                           }
                           data-preset-section-group
+                          data-testid={`preset-section-group-select-${section.id}`}
                           className={cn(
                             "mari-editor-field px-2 py-1 text-xs",
                             compact &&
@@ -2234,6 +2269,7 @@ function PresetVariablesEditor({
             "mari-editor-action mari-editor-action--primary mari-editor-action--compact flex items-center gap-1.5 px-2.5 py-1.5 text-[0.6875rem]",
             compact && "max-sm:ml-auto",
           )}
+          data-testid="preset-variables-add-button"
         >
           <Plus size="0.6875rem" /> {localizeUi("ui.presets.presetvariableseditor.addVariable")}
         </button>
@@ -2497,6 +2533,7 @@ function VariableCard({
             aria-label={localizeUi("ui.presets.sectionstab.moveValue1Up", {
               value1: varName || localizeUi("ui.presets.variablecard.variable"),
             })}
+            data-testid={`preset-variable-move-up-${variable.id}`}
           >
             <ArrowUp size="0.75rem" />
           </button>
@@ -2509,11 +2546,12 @@ function VariableCard({
             aria-label={localizeUi("ui.presets.sectionstab.moveValue1Down", {
               value1: varName || localizeUi("ui.presets.variablecard.variable"),
             })}
+            data-testid={`preset-variable-move-down-${variable.id}`}
           >
             <ArrowDown size="0.75rem" />
           </button>
         </div>
-        <button onClick={onToggle} className="shrink-0 rounded p-0.5 hover:bg-[var(--accent)]">
+        <button onClick={onToggle} className="shrink-0 rounded p-0.5 hover:bg-[var(--accent)]" data-testid={`preset-variable-toggle-${variable.id}`}>
           {isExpanded ? (
             <ChevronDown size="0.875rem" className="text-[var(--muted-foreground)]" />
           ) : (
@@ -2556,6 +2594,7 @@ function VariableCard({
           }}
           className="shrink-0 rounded-lg p-1 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
           title={localizeUi("ui.presets.variablecard.deleteVariable")}
+          data-testid={`preset-variable-delete-${variable.id}`}
         >
           <Trash2 size="0.75rem" />
         </button>
@@ -2569,7 +2608,7 @@ function VariableCard({
             <label className="text-[0.625rem] font-medium text-[var(--muted-foreground)]">
               {localizeUi("ui.presets.variablecard.variableName")}
             </label>
-            <VariableNameInput value={varName} onCommit={(v) => update({ variableName: v })} />
+            <VariableNameInput value={varName} onCommit={(v) => update({ variableName: v })} testId={`preset-variable-name-input-${variable.id}`} />
             <p className="text-[0.5625rem] text-[var(--muted-foreground)]">
               {localizeUi("ui.presets.variablecard.use")}{" "}
               <code className="mari-chrome-accent-text mari-accent-animated">{`{{${varName}}}`}</code>{" "}
@@ -2582,7 +2621,7 @@ function VariableCard({
             <label className="text-[0.625rem] font-medium text-[var(--muted-foreground)]">
               {localizeUi("ui.presets.variablecard.questionShownToUser")}
             </label>
-            <VariableQuestionInput value={question} onCommit={(v) => update({ question: v })} />
+            <VariableQuestionInput value={question} onCommit={(v) => update({ question: v })} testId={`preset-variable-question-input-${variable.id}`} />
           </div>
 
           {/* Multi-Select & Random Pick (not shown for single-option/boolean variables) */}
@@ -2612,6 +2651,7 @@ function VariableCard({
                   checked={isMultiSelect}
                   onChange={(checked) => update({ multiSelect: checked })}
                   className="p-0 hover:bg-transparent"
+                  testId={`preset-variable-multiselect-switch-${variable.id}`}
                 />
               </div>
               <p className="text-[0.5625rem] text-[var(--muted-foreground)]">
@@ -2633,6 +2673,7 @@ function VariableCard({
                       checked={isRandomPick}
                       onChange={(checked) => update({ randomPick: checked })}
                       className="p-0 hover:bg-transparent"
+                      testId={`preset-variable-randompick-switch-${variable.id}`}
                     />
                   </div>
                   <p className="text-[0.5625rem] text-[var(--muted-foreground)]">
@@ -2652,6 +2693,7 @@ function VariableCard({
                         onCommit={(value) => update({ separator: value })}
                         className="mari-editor-field w-20 px-1.5 py-0.5 text-center font-mono text-xs"
                         placeholder=", "
+                        testId={`preset-variable-separator-input-${variable.id}`}
                       />
                       <span className="text-[0.5625rem] text-[var(--muted-foreground)]">
                         {localizeUi("ui.presets.variablecard.eGBecomesRomanceFantasyAction")}
@@ -2684,6 +2726,7 @@ function VariableCard({
                     key={mode}
                     type="button"
                     onClick={() => update({ displayMode: mode })}
+                    data-testid={`preset-variable-display-mode-${variable.id}-${mode}`}
                     className={cn(
                       "rounded-md px-2 py-1 text-[0.625rem] font-medium transition-colors",
                       displayMode === mode
@@ -2714,6 +2757,7 @@ function VariableCard({
                 checked={optionOrderIsAlphabetical}
                 onChange={(checked) => update({ optionSort: checked ? "alphabetical" : "manual" })}
                 className="p-0 hover:bg-transparent"
+                testId={`preset-variable-alphabetical-switch-${variable.id}`}
               />
             </div>
           </div>
@@ -2800,6 +2844,7 @@ function VariableCard({
                         aria-label={localizeUi("ui.presets.sectionstab.moveValue1Up", {
                           value1: opt.label || localizeUi("ui.presets.variablecard.optionValue1", { value1: oi + 1 }),
                         })}
+                        data-testid={`preset-variable-option-move-up-${opt.id}`}
                       >
                         <ArrowUp size="0.625rem" />
                       </button>
@@ -2812,6 +2857,7 @@ function VariableCard({
                         aria-label={localizeUi("ui.presets.sectionstab.moveValue1Down", {
                           value1: opt.label || localizeUi("ui.presets.variablecard.optionValue1", { value1: oi + 1 }),
                         })}
+                        data-testid={`preset-variable-option-move-down-${opt.id}`}
                       >
                         <ArrowDown size="0.625rem" />
                       </button>
@@ -2824,17 +2870,20 @@ function VariableCard({
                       onCommit={(v) => updateOptionField(opt.id, "label", v)}
                       className="mari-editor-field min-w-[7rem] flex-[1_1_7rem] px-1.5 py-0.5 text-xs sm:min-w-0 sm:flex-1"
                       placeholder={localizeUi("ui.presets.variablecard.label")}
+                      testId={`preset-variable-option-label-input-${opt.id}`}
                     />
                     <OptionFieldInput
                       value={opt.value}
                       onCommit={(v) => updateOptionField(opt.id, "value", v)}
                       className="mari-editor-field min-w-[7rem] flex-[1_1_7rem] rounded px-1.5 py-0.5 font-mono text-xs focus:outline-none focus:ring-1 sm:min-w-0 sm:flex-1"
                       placeholder={localizeUi("ui.presets.variablecard.value")}
+                      testId={`preset-variable-option-value-input-${opt.id}`}
                     />
                     <button
                       onClick={() => setExpandedOptId(opt.id)}
                       className="shrink-0 rounded p-0.5 text-[var(--muted-foreground)] hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
                       title={localizeUi("ui.presets.variablecard.expandValueEditor")}
+                      data-testid={`preset-variable-option-expand-${opt.id}`}
                     >
                       <Maximize2 size="0.625rem" />
                     </button>
@@ -2846,6 +2895,7 @@ function VariableCard({
                       }}
                       className="shrink-0 rounded p-0.5 hover:bg-[var(--destructive)]/15"
                       title={localizeUi("ui.presets.variablecard.removeOption")}
+                      data-testid={`preset-variable-option-remove-${opt.id}`}
                     >
                       <X size="0.625rem" className="text-[var(--destructive)]" />
                     </button>
@@ -2871,6 +2921,7 @@ function VariableCard({
                 updateOpts([...currentOpts(), newOpt]);
               }}
               className="mari-editor-action mari-editor-action--compact flex items-center gap-1 px-2 py-1 text-[0.625rem]"
+              data-testid={`preset-variable-add-option-${variable.id}`}
             >
               <Plus size="0.625rem" /> {localizeUi("ui.noodle.noodlehome.addOption")}
             </button>
@@ -2894,7 +2945,15 @@ function VariableCard({
 }
 
 // ── Variable Name Input (local state, commits on blur/Enter) ──
-function VariableNameInput({ value, onCommit }: { value: string; onCommit: (v: string) => void }) {
+function VariableNameInput({
+  value,
+  onCommit,
+  testId,
+}: {
+  value: string;
+  onCommit: (v: string) => void;
+  testId?: string;
+}) {
   const { t: localizeUi } = useUiTranslation();
   const [local, setLocal] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -2930,6 +2989,7 @@ function VariableNameInput({ value, onCommit }: { value: string; onCommit: (v: s
       }}
       className="mari-editor-field w-full px-2 py-1 font-mono text-xs"
       placeholder={localizeUi("ui.presets.variablenameinput.variableName")}
+      data-testid={testId}
     />
   );
 }
@@ -2940,11 +3000,13 @@ function OptionFieldInput({
   onCommit,
   className,
   placeholder,
+  testId,
 }: {
   value: string;
   onCommit: (v: string) => void;
   className?: string;
   placeholder?: string;
+  testId?: string;
 }) {
   const [local, setLocal] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -2997,12 +3059,21 @@ function OptionFieldInput({
       }}
       className={className}
       placeholder={placeholder}
+      data-testid={testId}
     />
   );
 }
 
 // ── Variable Question Input (local state, commits on blur/Enter) ──
-function VariableQuestionInput({ value, onCommit }: { value: string; onCommit: (v: string) => void }) {
+function VariableQuestionInput({
+  value,
+  onCommit,
+  testId,
+}: {
+  value: string;
+  onCommit: (v: string) => void;
+  testId?: string;
+}) {
   const { t: localizeUi } = useUiTranslation();
   const [local, setLocal] = useState(value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -3039,6 +3110,7 @@ function VariableQuestionInput({ value, onCommit }: { value: string; onCommit: (
       }}
       className="mari-editor-field w-full px-2 py-1 text-xs"
       placeholder={localizeUi("ui.presets.variablequestioninput.whatShouldTheUserChoose")}
+      data-testid={testId}
     />
   );
 }
@@ -3048,10 +3120,12 @@ function SectionContentTextarea({
   value,
   sectionName,
   onCommit,
+  testId,
 }: {
   value: string;
   sectionName?: string;
   onCommit: (v: string) => void;
+  testId?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const [local, setLocal] = useState(value);
@@ -3116,6 +3190,7 @@ function SectionContentTextarea({
       showMarkdownPreview
       className="mari-editor-field min-h-[7.5rem] w-full p-2.5 font-mono text-xs"
       placeholder={localizeUi("ui.presets.sectioncontenttextarea.promptContentSupportsUserCharCommentTrimMacros")}
+      testId={testId}
     />
   );
 }
@@ -3203,12 +3278,12 @@ function ExpandedEditorModal({
         data-chat-floating-panel
         className="fixed inset-0 z-50 flex items-center justify-center p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-[max(0.75rem,env(safe-area-inset-top))] sm:p-6"
       >
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={handleClose} data-testid="preset-expanded-editor-backdrop" />
         <div className="mari-editor-shell mari-editor-legacy-bridge relative flex h-[80vh] max-h-[calc(100vh-1.5rem)] w-full max-w-3xl flex-col rounded-2xl border border-[var(--marinara-editor-border)] bg-[var(--marinara-editor-surface-bg)] shadow-2xl shadow-black/50 supports-[height:100dvh]:h-[80dvh] supports-[height:100dvh]:max-h-[calc(100dvh-1.5rem)]">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
             <h3 className="text-sm font-semibold">{title}</h3>
-            <button onClick={handleClose} className="rounded-lg p-1.5 hover:bg-[var(--accent)]">
+            <button onClick={handleClose} className="rounded-lg p-1.5 hover:bg-[var(--accent)]" data-testid="preset-expanded-editor-close-button">
               <X size="1rem" />
             </button>
           </div>
@@ -3228,6 +3303,7 @@ function ExpandedEditorModal({
               onKeyDown={handleTextareaTab}
               className="mari-editor-field h-full w-full resize-none p-4 font-mono text-sm"
               placeholder={localizeUi("ui.presets.expandededitormodal.promptContentSupportsMacrosLikeUserCharEtc")}
+              data-testid="preset-expanded-editor-textarea"
             />
           </div>
           {/* Footer */}
@@ -3238,6 +3314,7 @@ function ExpandedEditorModal({
             <button
               onClick={handleClose}
               className="mari-editor-action mari-editor-action--primary mari-editor-action--compact inline-flex px-4 py-1.5"
+              data-testid="preset-expanded-editor-done-button"
             >
               {localizeUi("lorebook.editor.batch.done")}
             </button>
@@ -3249,7 +3326,15 @@ function ExpandedEditorModal({
 }
 
 // ── Locally-controlled section name input (commits on blur / Enter) ──
-function SectionNameInput({ value, onCommit }: { value: string; onCommit: (v: string) => void }) {
+function SectionNameInput({
+  value,
+  onCommit,
+  testId,
+}: {
+  value: string;
+  onCommit: (v: string) => void;
+  testId?: string;
+}) {
   const { t: localizeUi } = useUiTranslation();
   const [local, setLocal] = useState(value);
 
@@ -3278,6 +3363,7 @@ function SectionNameInput({ value, onCommit }: { value: string; onCommit: (v: st
       }}
       className="mari-editor-field flex-1 px-2.5 py-1.5 text-xs"
       placeholder={localizeUi("ui.presets.sectionnameinput.sectionName")}
+      data-testid={testId}
     />
   );
 }

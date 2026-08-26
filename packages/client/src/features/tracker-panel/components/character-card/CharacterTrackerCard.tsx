@@ -294,6 +294,7 @@ export function CharacterTrackerCard({
           <button
             type="button"
             onClick={onRemove}
+            data-testid="character-tracker-card-remove-button"
             className={CHARACTER_REMOVE_BUTTON_CLASS}
             title={localizeUi("ui.trackerPanel.charactertrackercard.removeCharacter")}
             aria-label={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", {
@@ -326,6 +327,7 @@ export function CharacterTrackerCard({
       <button
         type="button"
         onClick={onToggleFeatured}
+        data-testid="character-tracker-card-toggle-featured"
         title={localizeUi("ui.trackerPanel.charactertrackercard.featureCharacterCard")}
         aria-label={localizeUi("ui.trackerPanel.charactertrackercard.featureCharacterCard")}
         aria-pressed={false}
@@ -497,6 +499,7 @@ export function CharacterTrackerCard({
                 <button
                   type="button"
                   onClick={() => removeCustomField(name)}
+                  data-testid={`character-tracker-card-remove-custom-field-${name}`}
                   title={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", { value1: name })}
                   aria-label={localizeUi("ui.trackerPanel.charactertrackercard.removeValue1", { value1: name })}
                   className="flex h-5 w-5 items-center justify-center justify-self-end rounded text-[var(--destructive)] transition-all hover:bg-[var(--destructive)]/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--border)] active:scale-90 [@media(pointer:coarse)]:h-6 [@media(pointer:coarse)]:w-6"
