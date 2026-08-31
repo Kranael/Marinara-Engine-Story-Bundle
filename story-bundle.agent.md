@@ -21,16 +21,19 @@ New field/feature = always touch all three layers + barrel exports + en.json.
 
 | File | Role |
 |---|---|
-| `packages/shared/src/types/story-bundle.ts` | Interface `StoryBundle { id, name, description, imagePath, avatarCrop, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, agentIds, intros, createdAt, updatedAt }` + `StoryBundleIntro { id, name, text }` |
-| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `storyBundleIntroSchema`, `createStoryBundleSchema` (name trim min1 max200, all other fields optional), `updateStoryBundleSchema` (all fields optional) |
+| `packages/shared/src/types/story-bundle.ts` | Interfaces `StoryBundle { id, name, description, imagePath, avatarCrop, comment, creator, version, tags, characterIds, personaIds, lorebookIds, presetIds, agentIds, scenarios, createdAt, updatedAt }` + `StoryBundleScenario { id, title, openingMessage, imagePath?, avatarCrop? }` |
+| `packages/shared/src/schemas/story-bundle.schema.ts` | Zod: `storyBundleIdParamsSchema`, `storyBundleScenarioSchema`, `createStoryBundleSchema` (name trim min1 max200, all other fields optional), `updateStoryBundleSchema` (all fields optional) |
 | `packages/shared/src/index.ts` | Barrel — both export lines must stay |
 | `packages/server/src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` |
 | `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` (registration, else `Unsupported table`) |
+| `packages/server/src/db/story-bundle-scenario-migration.ts` | `migrateLegacyStoryBundleScenariosRow()` — converts legacy `intros` (`name`/`text`) rows to `scenarios` (`title`/`openingMessage`) on read |
 | `packages/server/src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)`: list/getById/create/update/remove |
 | `packages/server/src/routes/story-bundles.routes.ts` | REST under `/api/story-bundles` (GET/POST/PATCH/DELETE) + image endpoints (`POST/DELETE /:id/image`, `GET /images/file/:filename`) + `GET /:id/export` |
 | `packages/client/src/hooks/use-story-bundles.ts` | `storyBundleKeys` + query/mutation hooks (incl. image upload/remove) |
-| `packages/client/src/components/panels/StoryBundlesPanel.tsx` | List panel (right side, with per-row Play button) |
-| `packages/client/src/components/story-bundles/StoryBundleEditor.tsx` | Full-page editor (detail view) — shell with tab rail; Play uses the current draft state |
+| `packages/client/src/hooks/use-story-bundle-actions.ts` | `useStoryBundleActions()` — shared `play` (RP), `startConversation` (CONVO), `exportBundle`, `remove` + busy state (`playingId`, `startingConversationId`, `exportingId`); used by panel, gallery, and editor |
+| `packages/client/src/components/panels/StoryBundlesPanel.tsx` | List panel (right side) — toolbar with Gallery/Import/New buttons; rows have export + delete only (no Play) |
+| `packages/client/src/components/story-bundles/StoryBundleGalleryView.tsx` | Full-page overlay gallery (search, sort, cards, detail card, CONVO/RP/GM mode buttons, edit/export/delete) |
+| `packages/client/src/components/story-bundles/StoryBundleEditor.tsx` | Full-page editor (detail view) — shell with tab rail; header mode buttons CONVO / RP / GM (GM disabled "Coming soon"); Play uses the current draft state |
 | `packages/client/src/components/story-bundles/StoryBundleMetadata.tsx` | Metadata tab (avatar/image upload, bundle ID, name, comment, creator, version, tags) |
 | `packages/client/src/components/story-bundles/StoryBundleDescription.tsx` | Description tab (HTML description with preview toggle) |
 | `packages/client/src/components/story-bundles/StoryBundleCharacters.tsx` | Characters tab (search/random/load-more, groups dropdown, selected list) |
@@ -38,17 +41,57 @@ New field/feature = always touch all three layers + barrel exports + en.json.
 | `packages/client/src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks tab (search/random/load-more, selected list; no groups) |
 | `packages/client/src/components/story-bundles/StoryBundlePresets.tsx` | Presets tab (search/random/load-more, selected list; no groups) |
 | `packages/client/src/components/story-bundles/StoryBundleAgents.tsx` | Agents tab (search/random/load-more, selected list; no groups) |
-| `packages/client/src/components/story-bundles/StoryBundleIntros.tsx` | Intros tab (inline intros: name + text, add/edit/delete) |
+| `packages/client/src/components/story-bundles/StoryBundleScenarios.tsx` | Scenarios tab (inline scenarios: title + opening message + optional image, add/edit/delete) |
+| `packages/client/src/lib/app-dialogs.ts` | `showScenarioDialog(options)` + `CUSTOM_SCENARIO_CHOICE_PREFIX` — scenario picker with optional Custom Scenario free-text |
+| `packages/client/src/lib/story-bundle-html.ts` | `sanitizeStoryBundleDescription()` — DOMPurify sanitization for gallery/description HTML |
 | `packages/shared/src/types/export.ts` | `ExportType` extended with `"marinara_story_bundle"` |
-| `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — import handler + `case` in the switch |
+| `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — import handler + `case` in the switch (accepts `scenarios` and legacy `intros`) |
 | `packages/server/src/services/export/export-image-helpers.ts` | Shared image helpers: `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` |
 | `tests/story-bundle/helpers/story-bundle-fixture.ts` | Test helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
 | `tests/story-bundle/helpers/story-bundle-api.ts` | Test helper: `StoryBundleAPI` class (create/delete/import/export) |
 | `tests/story-bundle/helpers/fresh-client.ts` | Test helper: `prepareFreshClient()` (client state before each test) |
 | `tests/story-bundle/data/*.json` | Fixture files (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
 | `tests/story-bundle/data/test-data.html` | HTML test data for the description preview |
-| `tests/story-bundle/tests/*.test.ts` | Playwright e2e tests (panel, editor, metadata, description, pickers, intros, play, import/export) |
-| `tests/story-bundle/pages/*.page.ts` | Page objects for panel, dialogs, editor shell, and each tab |
+| `tests/story-bundle/tests/*.test.ts` | Playwright e2e tests (panel, editor, metadata, description, pickers, scenarios, play, gallery, import/export) |
+| `tests/story-bundle/pages/*.page.ts` | Page objects for panel, dialogs, editor shell, gallery, and each tab |
+
+Interfaces:
+
+```ts
+export interface StoryBundle {
+  id: string;
+  name: string;
+  description: string | null;
+  imagePath: string | null;
+  avatarCrop?: AvatarCrop | null;
+  comment: string;
+  creator: string;
+  version: string;
+  tags: string[];
+  characterIds: string[];
+  personaIds: string[];      // max 1
+  lorebookIds: string[];
+  presetIds: string[];       // Prompt-Presets (max 1)
+  agentIds: string[];
+  scenarios: StoryBundleScenario[]; // renamed from `intros`; auto-migrated on read
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StoryBundleScenario {
+  id: string;
+  title: string;
+  openingMessage: string;
+  imagePath?: string | null;   // base64 data URL, scenario thumbnail/card art
+  avatarCrop?: AvatarCrop | null;
+}
+```
+
+> **Rename note:** the `intros` field (`StoryBundleIntro { id, name, text }`) was
+> renamed to `scenarios` (`StoryBundleScenario { id, title, openingMessage, … }`).
+> `migrateLegacyStoryBundleScenariosRow()` converts legacy `intros` rows to
+> `scenarios` on read, and the importer accepts both fields — so existing bundles
+> and older exports keep their content.
 
 ## 3. Touched Infrastructure Files (Wiring)
 
@@ -57,12 +100,12 @@ New field/feature = always touch all three layers + barrel exports + en.json.
 | `packages/server/src/db/schema/index.ts` | `export * from "./story-bundles.js";` |
 | `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` |
 | `packages/server/src/routes/index.ts` | `app.register(storyBundlesRoutes, { prefix: "/api/story-bundles" })` |
-| `packages/client/src/stores/ui.store.ts` | Panel type `"story-bundles"`, `storyBundleDetailId`, `openStoryBundleDetail`/`closeStoryBundleDetail`, mutual exclusion in all `open*Detail` actions (`storyBundleDetailId: null`), `hasAnyDetailOpen`, `closeAllDetails` |
-| `packages/client/src/components/layout/AppShell.tsx` | Lazy import `StoryBundleEditor` + `detailView` chain (`storyBundleDetailId ? <StoryBundleEditor />`) |
+| `packages/client/src/stores/ui.store.ts` | Panel type `"story-bundles"`, `storyBundleDetailId`, `openStoryBundleDetail`/`closeStoryBundleDetail`, mutual exclusion in all `open*Detail` actions (`storyBundleDetailId: null`), `hasAnyDetailOpen`, `closeAllDetails`; **gallery state**: `storyBundleGalleryOpen`, `storyBundleGallerySelectedId`, `storyBundleGallerySort`, `storyBundleGalleryScrollTop` + `openStoryBundleGallery`/`closeStoryBundleGallery`/`setStoryBundleGallerySelectedId`/`setStoryBundleGallerySort`/`setStoryBundleGalleryScrollTop` |
+| `packages/client/src/components/layout/AppShell.tsx` | Lazy import `StoryBundleEditor` + `detailView` chain (`storyBundleDetailId ? <StoryBundleEditor />`); lazy import `StoryBundleGalleryView` + `storyBundleGalleryOpen ? <StoryBundleGalleryView />` |
 | `packages/client/src/components/layout/RightPanel.tsx` | Lazy import `StoryBundlesPanel` + `PANEL_CONFIG["story-bundles"]` + `PANELS["story-bundles"]` |
-| `packages/client/src/components/layout/TopBar.tsx` | `RightPanelButtonPanel` union, `RIGHT_PANEL_BUTTONS` entry, `panelContextActive["story-bundles"]`, `!storyBundleDetailId` in `isHomeActive` |
+| `packages/client/src/components/layout/TopBar.tsx` | `RightPanelButtonPanel` union, `RIGHT_PANEL_BUTTONS` entry, `panelContextActive["story-bundles"]`, `!storyBundleDetailId` in `isHomeActive`, `storyBundleGalleryOpen` in the active-state checks |
 | `packages/client/src/styles/globals.css` | `.mari-panel-gradient--story-bundles` (pink `#f472b6` → violet `#a855f7`) + `.mari-description-preview` (HTML preview styling) |
-| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + `storyBundles.*` block + `storyBundles.metadata.*` sub-block (see `story-bundle.md` § 4 Localization for the full key list) |
+| `packages/client/src/localization/locales/en.json` | `navigation.topbar.storyBundles` + `storyBundles.*` block + `storyBundles.metadata.*` sub-block (see `story-bundle.technical.md` § 4 Localization for the full key list) |
 
 ## 4. Reference Files: How Other Entities Do It
 
@@ -98,7 +141,7 @@ For extensions, read these neighbors as templates:
 - **Register new tables:** every new `fileTable` must be added to `FILE_BACKED_TABLES` (`packages/server/src/db/file-backed-store.ts`), otherwise the file store throws `Unsupported table: <name>` on every insert/select (exactly what happened on the first story-bundle create — the error only surfaced on the actual API call, not at server start).
 - **Cascade rules:** when a table references another via FK, a cascade rule must be added to `CASCADES` (`file-backed-store.ts`) so deleting the parent also deletes child rows.
 - **Styling:** only CSS variables (`var(--border)`, `var(--card)`, `var(--destructive)` …) + `mari-panel-gradient-surface mari-panel-gradient--<name>`; no hard-coded hex colors outside `globals.css`.
-- **data-testid:** every new component/interactive element gets one; catalog in `story-bundle.md` § 5.
+- **data-testid:** every new component/interactive element gets one; catalog in `story-bundle.technical.md` § 5.
 - **Test files:** Playwright e2e tests live in `tests/story-bundle/tests/` and are versioned via a `.gitignore` exception (`!tests/**/*.test.ts`). Page objects in `tests/story-bundle/pages/`. New tests follow the existing pattern (page object + data-testid + `prepareFreshClient`).
 - **Editor draft state:** the editor keeps a local draft (`presetIds`, `characterIds`, …) synced from the loaded bundle via `useLayoutEffect`. Play reads the draft, not the server state — keep it that way so unsaved changes are honored when playing.
 - **Branches:** changes against `staging`, not `main` (currently working on `story-bundle-dev`).
@@ -137,13 +180,14 @@ Every new tab in the StoryBundleEditor follows this pattern (see `StoryBundleCha
 - **data-testid**: `story-bundle-editor-<tabname>`, `story-bundle-editor-<tabname>-search`, `story-bundle-editor-<tabname>-random`, `story-bundle-editor-<tabname>-load-more`, `story-bundle-editor-<tabname>-empty`, `story-bundle-editor-<tabname>-group-select`, `story-bundle-editor-<tabname>-add-group`
 - **Lorebooks/Presets/Agents tabs**: no Groups section (those entities have no folder groups). Only two sections: Add + Selected.
 - **Personas tab**: single-select — picking a persona replaces the previous one.
+- **Scenarios tab** (`StoryBundleScenarios.tsx`): inline 1:n data, no references to other entities. Pattern: "Add Scenario" button opens an inline form (title input + opening-message textarea + optional image upload with crop), saving creates/updates a scenario in the draft's `scenarios` array; the selected list shows title + message preview + optional image with edit/delete buttons. No search/random/pagination.
 
 ## 10. Import/Export Pattern
 
 Story Bundles follow the established Marinara export/import pattern:
 
-- **Export**: `GET /api/story-bundles/:id/export` → `ExportEnvelope` with `type: "marinara_story_bundle"`, `version: 1`, `data: { name, description, characterIds, personaIds, lorebookIds, presetIds, agentIds, intros, embeddedCharacters, embeddedPersonas, embeddedLorebooks, embeddedPresets }`. Characters and personas are embedded with avatars, sprites, and gallery as base64 data URLs — the JSON is fully self-contained for PC-to-PC transfer. Served as a `.marinara.json` download.
-- **Import**: `POST /api/import/marinara` with the envelope → dispatcher in `importMarinara()` routes to `importStoryBundle()`. Validates `name` (required), filters ID arrays to strings, creates the bundle via `createStoryBundlesStorage`. Import deduplicates by name (case-insensitive): existing characters/personas/lorebooks/presets are skipped, only new ones are created. Binary data (avatars, sprites, gallery) is restored from the base64 data URLs. Referenced agents that are not installed are surfaced in the import dialog with an install option for the providing capability package.
+- **Export**: `GET /api/story-bundles/:id/export` → `ExportEnvelope` with `type: "marinara_story_bundle"`, `version: 1`, `data: { name, description, characterIds, personaIds, lorebookIds, presetIds, agentIds, scenarios, embeddedCharacters, embeddedPersonas, embeddedLorebooks, embeddedPresets }`. Characters and personas are embedded with avatars, sprites, and gallery as base64 data URLs — the JSON is fully self-contained for PC-to-PC transfer. Served as a `.marinara.json` download.
+- **Import**: `POST /api/import/marinara` with the envelope → dispatcher in `importMarinara()` routes to `importStoryBundle()`. Validates `name` (required), filters ID arrays to strings, creates the bundle via `createStoryBundlesStorage`. Import deduplicates by name (case-insensitive): existing characters/personas/lorebooks/presets are skipped, only new ones are created. Binary data (avatars, sprites, gallery) is restored from the base64 data URLs. Scenarios are inline data — parsed and validated with new IDs generated for each; older exports carrying the legacy `intros` field (`name`/`text`) are accepted and migrated. Referenced agents that are not installed are surfaced in the import dialog with an install option for the providing capability package.
 - **Image helpers**: `packages/server/src/services/export/export-image-helpers.ts` — `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` read binary data from disk and return base64 data URLs. Shared by character export and story-bundle export.
 - **Test helpers**: `importStoryBundleFixture(page, filePath)` in `tests/story-bundle/helpers/story-bundle-fixture.ts` reads a fixture JSON, POSTs it to `/api/import/marinara`, and returns the created `StoryBundle`. `buildStoryBundleEnvelope(input)` builds an envelope inline (for programmatic tests). `StoryBundleAPI` in `tests/story-bundle/helpers/story-bundle-api.ts` offers create/delete/import/export.
 - **Fixtures**: `tests/story-bundle/data/` contains JSON files in various states (empty, with-description, with-characters, with-personas, with-lorebooks, full).

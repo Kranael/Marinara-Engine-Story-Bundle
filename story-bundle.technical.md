@@ -1,14 +1,14 @@
 # Story Bundle
 
 > Development documentation for the new **Story Bundle** object in Marinara Engine.
-> Branch: `story-bundle-dev` · Status: current iteration (Metadata tab + image support + Agents tab + Play flow).
+> Branch: `story-bundle-dev` · Status: current iteration (Scenarios + Gallery + RP/CONVO modes + Custom Scenario).
 
 ## 1. Overview & Scope
 
 A **Story Bundle** is a new, self-contained data object in Marinara Engine.
 It carries a **title** (`name`) and an optional **HTML description** (`description`),
 plus assignments to characters, personas, lorebooks, presets, agents, and inline
-intro messages. Further fields (chapters, scenes, …) are intentionally not
+scenarios. Further fields (chapters, scenes, …) are intentionally not
 implemented yet — but the architecture is designed so later iterations can
 extend it without rebuilding existing layers.
 
@@ -28,17 +28,24 @@ interface StoryBundle {
   lorebookIds: string[];  // Assigned lorebook IDs (JSON array in the DB)
   presetIds: string[];    // Assigned prompt-preset IDs (JSON array in the DB)
   agentIds: string[];     // Pre-configured agent IDs (JSON array in the DB)
-  intros: StoryBundleIntro[]; // Inline intros (name + text), JSON array in the DB
+  scenarios: StoryBundleScenario[]; // Inline scenarios (title + opening message + optional image), JSON array in the DB
   createdAt: string;      // ISO-8601 timestamp
   updatedAt: string;      // ISO-8601 timestamp
 }
 
-interface StoryBundleIntro {
-  id: string;   // generated client-side via crypto.randomUUID()
-  name: string; // Intro name (1–200 chars)
-  text: string; // Message text (min 1 char)
+interface StoryBundleScenario {
+  id: string;             // generated client-side via generateClientId()
+  title: string;          // Scenario title (1–200 chars)
+  openingMessage: string; // Opening chat message (min 1 char)
+  imagePath?: string | null; // Optional scenario picture (thumbnail + card artwork)
+  avatarCrop?: AvatarCrop | null; // Crop settings for the scenario image
 }
 ```
+
+> **Rename note:** the `intros` field (with `name`/`text`) was renamed to
+> `scenarios` (with `title`/`openingMessage` + optional `imagePath`/`avatarCrop`).
+> A server-side migration (`story-bundle-scenario-migration.ts`) converts legacy
+> `intros` rows into `scenarios` on read, so existing bundles keep their content.
 
 The object follows the repo's established end-to-end pattern exactly:
 
@@ -50,7 +57,7 @@ Shared (types + Zod) → Server (DB schema + storage + REST routes) → Client (
 
 | File | Purpose |
 |---|---|
-| `src/types/story-bundle.ts` | TypeScript interfaces `StoryBundle` (with comment, creator, version, tags, imagePath, avatarCrop, agentIds) and `StoryBundleIntro` |
+| `src/types/story-bundle.ts` | TypeScript interfaces `StoryBundle` (with comment, creator, version, tags, imagePath, avatarCrop, agentIds, scenarios) and `StoryBundleScenario` |
 | `src/schemas/story-bundle.schema.ts` | Zod schemas for API input |
 | `src/index.ts` | Barrel exports (`export * from ...`) |
 
@@ -59,8 +66,8 @@ Shared (types + Zod) → Server (DB schema + storage + REST routes) → Client (
 | Schema | Rule |
 |---|---|
 | `storyBundleIdParamsSchema` | `{ id: string, min 1 }` — URL params |
-| `storyBundleIntroSchema` | `{ id: string min 1, name: string trimmed min 1 max 200, text: string min 1 }` |
-| `createStoryBundleSchema` | `{ name: string, description?: string \| null, imagePath?: string \| null, avatarCrop?: unknown \| null, comment?: string, creator?: string, version?: string, tags?: string[], characterIds?: string[], personaIds?: string[], lorebookIds?: string[], presetIds?: string[], agentIds?: string[], intros?: StoryBundleIntro[] }` — name trimmed, min 1, max 200 |
+| `storyBundleScenarioSchema` | `{ id: string min 1, title: string trimmed min 1 max 200, openingMessage: string min 1, imagePath?: string \| null, avatarCrop?: unknown \| null }` |
+| `createStoryBundleSchema` | `{ name: string, description?: string \| null, imagePath?: string \| null, avatarCrop?: unknown \| null, comment?: string, creator?: string, version?: string, tags?: string[], characterIds?: string[], personaIds?: string[], lorebookIds?: string[], presetIds?: string[], agentIds?: string[], scenarios?: StoryBundleScenario[] }` — name trimmed, min 1, max 200 |
 | `updateStoryBundleSchema` | Same fields as create, all optional |
 
 Derived types: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
@@ -72,6 +79,7 @@ Derived types: `CreateStoryBundleInput`, `UpdateStoryBundleInput`.
 | `src/db/schema/story-bundles.ts` | `fileTable("story_bundles", …)` — table definition |
 | `src/db/schema/index.ts` | Barrel export added |
 | `src/db/file-backed-store.ts` | `"story_bundles"` registered in `FILE_BACKED_TABLES` |
+| `src/db/story-bundle-scenario-migration.ts` | `migrateLegacyStoryBundleScenariosRow()` — converts legacy `intros` rows to `scenarios` on read |
 | `src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)` — CRUD access |
 | `src/routes/story-bundles.routes.ts` | REST endpoints under `/api/story-bundles` |
 | `src/services/export/export-image-helpers.ts` | Shared image helpers: `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` |
@@ -81,9 +89,9 @@ The `story_bundles` table is a file-native JSON table like all other entities
 (lorebooks, presets, personas …). IDs are generated via `newId()` (nanoid),
 timestamps via `now()` (ISO) from `utils/id-generator.ts`.
 
-`characterIds`, `personaIds`, `lorebookIds`, `presetIds`, and `agentIds` are
-stored as JSON strings in text columns and serialized on read/write via
-`JSON.stringify`/`JSON.parse` (same pattern as Character Groups).
+`characterIds`, `personaIds`, `lorebookIds`, `presetIds`, `agentIds`, and
+`scenarios` are stored as JSON strings in text columns and serialized on
+read/write via `JSON.stringify`/`JSON.parse` (same pattern as Character Groups).
 
 > **Important:** Every new `fileTable` must additionally be registered in
 > `FILE_BACKED_TABLES` (`src/db/file-backed-store.ts`), otherwise the store
@@ -116,6 +124,7 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
 | File | Purpose |
 |---|---|
 | `src/hooks/use-story-bundles.ts` | TanStack Query hooks |
+| `src/hooks/use-story-bundle-actions.ts` | Shared Play / CONVO / Export / Delete actions (reused by panel, editor, gallery) |
 
 - `storyBundleKeys` — query-key factory (`all`, `list`, `detail(id)`)
 - `useStoryBundles()` — list (`staleTime` 2 min, `placeholderData`)
@@ -123,22 +132,32 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
 - `useCreateStoryBundle()` / `useUpdateStoryBundle()` / `useDeleteStoryBundle()`
   — mutations, invalidate `storyBundleKeys.all` on success
 - `useUploadStoryBundleImage()` / `useRemoveStoryBundleImage()` — image mutations
+- `useStoryBundleActions()` — returns `play`, `startConversation`, `exportBundle`,
+  `remove`, plus per-bundle busy state (`playingId`, `startingConversationId`,
+  `exportingId`). Single implementation shared by the panel, editor, and gallery.
 
 ### Navigation & State (`src/stores/ui.store.ts`)
 
 - New panel type: `"story-bundles"` in the `Panel` union.
 - New detail-surface field: `storyBundleDetailId: string | null`.
-- Actions: `openStoryBundleDetail(id)` / `closeStoryBundleDetail()`.
+- New gallery state: `storyBundleGalleryOpen: boolean`,
+  `storyBundleGallerySelectedId: string | null`, `storyBundleGallerySort`,
+  `storyBundleGalleryScrollTop`.
+- Actions: `openStoryBundleDetail(id)` / `closeStoryBundleDetail()`,
+  `openStoryBundleGallery()` / `closeStoryBundleGallery()`,
+  `setStoryBundleGallerySelectedId/Sort/ScrollTop`.
 - Mutual exclusion: every `open*Detail` action sets `storyBundleDetailId: null`
-  (and vice versa), so exactly one detail view is ever open. `hasAnyDetailOpen`,
-  `closeAllDetails`, and `requestChatModeShortcut` account for the new field too.
+  and `storyBundleGalleryOpen: false` (and vice versa), so exactly one detail
+  view is ever open. `hasAnyDetailOpen`, `closeAllDetails`, and
+  `requestChatModeShortcut` account for both new fields too.
 
 ### UI Components
 
 | File | Purpose |
 |---|---|
-| `src/components/panels/StoryBundlesPanel.tsx` | List panel in the right panel (with per-row Play button) |
-| `src/components/story-bundles/StoryBundleEditor.tsx` | Full-page editor (detail view) — shell with tab rail |
+| `src/components/panels/StoryBundlesPanel.tsx` | List panel in the right panel (Open Gallery / New Bundle / Import toolbar + per-row Export/Delete) |
+| `src/components/story-bundles/StoryBundleGalleryView.tsx` | Full-page card gallery (mirrors CharacterLibraryView) with detail card + mode/action buttons |
+| `src/components/story-bundles/StoryBundleEditor.tsx` | Full-page editor (detail view) — shell with tab rail + CONVO/RP/GM mode buttons |
 | `src/components/story-bundles/StoryBundleMetadata.tsx` | Metadata tab (avatar/image upload, bundle ID, name, comment, creator, version, tags) |
 | `src/components/story-bundles/StoryBundleDescription.tsx` | Description tab (HTML description with preview toggle) |
 | `src/components/story-bundles/StoryBundleCharacters.tsx` | Characters tab (search/random/load-more, groups dropdown, selected list) |
@@ -146,10 +165,11 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
 | `src/components/story-bundles/StoryBundleLorebooks.tsx` | Lorebooks tab (search/random/load-more, selected list; no groups) |
 | `src/components/story-bundles/StoryBundlePresets.tsx` | Presets tab (search/random/load-more, selected list; no groups) |
 | `src/components/story-bundles/StoryBundleAgents.tsx` | Agents tab (search/random/load-more, selected list; no groups) |
-| `src/components/story-bundles/StoryBundleIntros.tsx` | Intros tab (inline intros: name + text, add/edit/delete) |
+| `src/components/story-bundles/StoryBundleScenarios.tsx` | Scenarios tab (inline scenarios: title + opening message + optional image, add/edit/delete) |
+| `src/lib/story-bundle-html.ts` | `sanitizeStoryBundleDescription()` — shared DOMPurify sanitizer for the HTML description |
 | `src/components/layout/RightPanel.tsx` | Panel registered (`PANEL_CONFIG` + `PANELS`) |
 | `src/components/layout/TopBar.tsx` | TopBar button (`BookMarked` icon, gradient) |
-| `src/components/layout/AppShell.tsx` | Lazy import + `detailView` chain |
+| `src/components/layout/AppShell.tsx` | Lazy import + `detailView` chain (editor + gallery) |
 | `src/styles/globals.css` | Gradient `.mari-panel-gradient--story-bundles` (pink → violet) |
 | `packages/shared/src/types/export.ts` | `ExportType` extended with `"marinara_story_bundle"` |
 | `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — import handler for story-bundle envelopes |
@@ -162,15 +182,19 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
 
 **UI workflow:**
 1. The TopBar button "Story Bundles" opens the right panel.
-2. "New Bundle" opens a prompt dialog (title "Create Story Bundle") with exactly
+2. The panel toolbar has **Open Gallery** (switches to the full-page gallery),
+   **New Bundle**, and **Import** buttons.
+3. "New Bundle" opens a prompt dialog (title "Create Story Bundle") with exactly
    one field (title). After confirming, the bundle is created and the editor opens.
-3. The editor has eight tabs (via `EditorTabRail`): **Metadata** (avatar, bundle ID,
+4. The editor has eight tabs (via `EditorTabRail`): **Metadata** (avatar, bundle ID,
    name, comment, creator, version, tags), **Description** (HTML description with
    preview toggle), **Characters** (character assignment), **Personas**
    (single-select persona), **Lorebooks** (lorebook assignment), **Presets**
-   (preset assignment), **Agents** (agent assignment), **Intros** (inline intros:
-   name + text). Each tab is extracted into its own component under
-   `src/components/story-bundles/`.
+   (preset assignment), **Agents** (agent assignment), **Scenarios** (inline
+   scenarios: title + opening message + optional image). Each tab is extracted
+   into its own component under `src/components/story-bundles/`.
+5. The editor header has three mode buttons: **CONVO** (start a conversation),
+   **RP** (start a roleplay), and **GM** (coming soon, disabled).
 4. The **Metadata** tab contains:
    - **Avatar/image upload**: drag & drop or file picker for a bundle picture.
      Supports JPG, PNG, WebP. Preview with crop support.
@@ -221,81 +245,103 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
       remove button.
     - **Add Agents**: search field, random button, paginated list with a plus
       button. Loading state while the agent list resolves.
-12. The **Intros** tab manages 1:n inline intros (no references to external
-    entities):
-    - **Add Intro**: button opens an inline form with a name input and a text
-      textarea. Saving creates a new intro with `crypto.randomUUID()`.
-    - **Selected Intros**: list of all intros with MessageSquare icon, name,
-      text preview, edit button (Pencil), and delete button (X).
+12. The **Scenarios** tab manages 1:n inline scenarios (no references to
+    external entities):
+    - **Add Scenario**: button opens an inline form with a title input, an
+      opening-message textarea, and an optional image upload (with crop).
+      Saving creates a new scenario with `generateClientId()`.
+    - **Selected Scenarios**: list of all scenarios with MessageSquare icon,
+      title, message preview, optional image, edit button (Pencil), and delete
+      button (X).
     - **Edit**: opens the form with the existing values, saving updates the
-      intro in place.
-    - **Delete**: removes the intro immediately from the list.
-    - **Empty state**: dashed placeholder box when no intros exist.
-    - **Play flow**: when clicking "Play", if intros exist, a choice dialog
-      (`showChoiceDialog`) shows the intro names. The chosen intro is inserted
-      as the first assistant message into the chat
-      (`POST /api/chats/:id/messages` with `role: "assistant"`). Cancelling
-      stops the play flow.
-13. **Play**: both the panel row and the editor header expose a Play button.
-    Playing creates a new roleplay chat (`POST /api/chats`) seeded with the
-    bundle's characters, first persona, first prompt preset, and first
-    connection; then activates the bundle's lorebooks and agents on the chat
-    via `PATCH /api/chats/:id/metadata`, inserts the selected intro, and tags
-    the chat with `storyBundleId` so the chat sidebar shows the bundle picture.
-    The editor plays the **current draft state** (what the user sees), so
-    unsaved changes are honored. If the selected preset has configurable
-    variables, the ChoiceSelectionModal opens instead of the full setup wizard.
-14. Deleting goes through a destructive confirmation dialog.
-15. **Export**: `GET /api/story-bundles/:id/export` returns an `ExportEnvelope`
+      scenario in place.
+    - **Delete**: removes the scenario immediately from the list.
+    - **Empty state**: dashed placeholder box when no scenarios exist.
+    - **Play flow**: when clicking "RP", if scenarios exist, a choice dialog
+      (`showScenarioDialog`) shows the scenario cards (title + optional image).
+      The chosen scenario's `openingMessage` is inserted as the first assistant
+      message into the chat (`POST /api/chats/:id/messages` with
+      `role: "assistant"`). The dialog also offers a **Custom Scenario** option
+      (free-text description → AI-generated opening message via the narrator
+      generation guide). Cancelling stops the play flow.
+13. **RP (Play)**: the gallery cards/detail and the editor header expose an RP
+    button (the panel no longer has a Play button). Playing creates a new
+    roleplay chat (`POST /api/chats`) seeded with the bundle's characters,
+    first persona, first prompt preset, and first connection; then activates
+    the bundle's lorebooks and agents on the chat via
+    `PATCH /api/chats/:id/metadata`, inserts the selected scenario's opening
+    message (or generates one from a custom description), and tags the chat
+    with `storyBundleId` so the chat sidebar shows the bundle picture. The
+    editor plays the **current draft state** (what the user sees), so unsaved
+    changes are honored. If the selected preset has configurable variables,
+    the ChoiceSelectionModal opens instead of the full setup wizard.
+14. **CONVO (Conversation)**: the gallery cards/detail and the editor header
+    expose a CONVO button. It creates a `mode: "conversation"` chat with
+    `personaId`/`connectionId`/`promptPresetId` pre-filled from the bundle,
+    tags `metadata.storyBundleId` + `metadata.storyBundleCharacterIds` (the
+    bundle's characterIds), patches `activeLorebookIds` from the bundle, and
+    opens the existing Conversation setup wizard restricted to the bundle's
+    characters (persona/connection/preset steps skipped). It also calls
+    `closeAllDetails()` so the wizard is visible over any open gallery/editor
+    overlay.
+15. Deleting goes through a destructive confirmation dialog.
+16. **Export**: `GET /api/story-bundles/:id/export` returns an `ExportEnvelope`
     with `type: "marinara_story_bundle"` as a JSON download (`.marinara.json`).
     The envelope contains `name`, `description`, `characterIds`, `personaIds`,
-    `lorebookIds`, `presetIds`, `agentIds`, `intros`, plus `embeddedCharacters`,
-    `embeddedPersonas`, `embeddedLorebooks`, `embeddedPresets` with full entity
-    data. Characters and personas are embedded with avatars, sprites, and
-    gallery as base64 data URLs — the JSON is fully self-contained for
-    PC-to-PC transfer.
-16. **Import**: `POST /api/import/marinara` with a story-bundle envelope creates
+    `lorebookIds`, `presetIds`, `agentIds`, `scenarios`, plus
+    `embeddedCharacters`, `embeddedPersonas`, `embeddedLorebooks`,
+    `embeddedPresets` with full entity data. Characters and personas are
+    embedded with avatars, sprites, and gallery as base64 data URLs — the JSON
+    is fully self-contained for PC-to-PC transfer.
+17. **Import**: `POST /api/import/marinara` with a story-bundle envelope creates
     a new bundle. The import handler (`importStoryBundle`) validates the name
     (required), filters ID arrays to strings, and imports embedded
     characters/personas/lorebooks/presets. Import deduplicates by name
     (case-insensitive): existing entities are skipped, only new ones are
     created. Binary data (avatars, sprites, gallery) is restored from the
-    base64 data URLs. Referenced agents that are not installed are surfaced in
-    the import dialog with an option to install the providing capability
-    package. For tests there are the helpers `importStoryBundleFixture(page,
-    filePath)` and `buildStoryBundleEnvelope(input)` in
+    base64 data URLs. Scenarios are inline data — parsed and validated with new
+    IDs generated for each; older exports carrying the legacy `intros` field
+    (`name`/`text`) are accepted and migrated. Referenced agents that are not
+    installed are surfaced in the import dialog with an option to install the
+    providing capability package. For tests there are the helpers
+    `importStoryBundleFixture(page, filePath)` and
+    `buildStoryBundleEnvelope(input)` in
     `tests/story-bundle/helpers/story-bundle-fixture.ts`.
 
 ### Localization (`src/localization/locales/en.json`)
 
 New semantic keys: `navigation.topbar.storyBundles` plus the `storyBundles.*`
-block (add, addAgents, addCharacters, addFromGroup, addIntros, addLorebooks,
-addPersona, addPreset, agentRandomHint, agentsEmpty, allAdded, allAgentsAdded,
-allCharactersAdded, allLorebooksAdded, back, cancel,
-charactersEmpty, close, count, create, createDialogTitle, createFailed,
-createPromptMessage, delete, deleteConfirmBody, deleteConfirmTitle, deleteFailed,
-descriptionEdit, descriptionEmpty, descriptionHint, descriptionLabel,
-descriptionPlaceholder, descriptionPreview, editorTitle, embeddedFound,
-embeddedFoundHint, empty, export, exportFailed, exportSuccess, groups,
-imageReadFailed, imageRemoveFailed, imageRemoved, imageUpdated,
-imageUploadFailed, invalidImageType, import, importDropHint, importedAs,
-importedWithEmbedded, importEmbedded, importFailed, importFailedCount,
-importFormat, importing, importNotAStoryBundle, importParseFailed,
-importSucceeded, importTitle, introAddHint, introEdit, introNamePlaceholder,
-introPickMessage, introPickTitle, introRemove, introSave, introSaveEdit,
-introsEmpty, introTextPlaceholder, loadingAgents, loadMore, lorebookRandomHint,
-lorebooksEmpty, missingAgentInstall, missingAgentInstalled,
+block (add, addAgents, addCharacters, addFromGroup, addLorebooks, addPersona,
+addPreset, addScenario, agentRandomHint, agentsEmpty, allAdded, allAgentsAdded,
+allCharactersAdded, allLorebooksAdded, back, cancel, charactersEmpty, close,
+convoFailed, convoTitle, count, create, createDialogTitle, createFailed,
+createPromptMessage, customScenario, customScenarioGenerating,
+customScenarioPlaceholder, customScenarioStart, delete, deleteConfirmBody,
+deleteConfirmTitle, deleteFailed, descriptionEdit, descriptionEmpty,
+descriptionHint, descriptionLabel, descriptionPlaceholder, descriptionPreview,
+editorTitle, embeddedFound, embeddedFoundHint, empty, export, exportFailed,
+exportSuccess, groups, imageReadFailed, imageRemoveFailed, imageRemoved,
+imageUpdated, imageUploadFailed, invalidImageType, import, importDropHint,
+importedAs, importedWithEmbedded, importEmbedded, importFailed,
+importFailedCount, importFormat, importing, importNotAStoryBundle,
+importParseFailed, importSucceeded, importTitle, loadingAgents, loadMore,
+lorebookRandomHint, lorebooksEmpty, missingAgentInstall, missingAgentInstalled,
 missingAgentInstallFailed, missingAgentInstalling, missingAgentNoPackage,
-missingAgentsFound, missingAgentsFoundHint, nameLabel, namePlaceholder,
-newBundle, noAgentsMatch, noCharactersMatch, noLorebooksMatch,
-noPersonasAvailable, noPersonasMatch, noPresetsAvailable, noPresetsMatch, of,
-personaAlreadySelected, personaEmpty, personaRandomHint, play, playFailed,
-playStarted, playTitle, presetAlreadySelected, presetEmpty, presetRandomHint,
-random, randomHint, removeAgent, removeCharacter,
-removeLorebook, removePersona, removePreset, save, saveFailed, saveSuccess,
-searchAgents, searchCharacters, searchLorebooks, searchPersonas, searchPresets,
-selectedAgents, selectedCharacters, selectedIntros, selectedLorebooks,
-selectedPersona, selectedPreset, skipEmbedded) and the `storyBundles.metadata.*`
+missingAgentsFound, missingAgentsFoundHint, modeComingSoon, modeConvo, modeGm,
+modeRp, nameLabel, namePlaceholder, newBundle, noAgentsMatch, noCharactersMatch,
+noLorebooksMatch, noPersonasAvailable, noPersonasMatch, noPresetsAvailable,
+noPresetsMatch, of, openGallery, personaAlreadySelected, personaEmpty,
+personaRandomHint, play, playFailed, playStarted, playTitle,
+presetAlreadySelected, presetEmpty, presetRandomHint, random, randomHint,
+removeAgent, removeCharacter, removeLorebook, removePersona, removePreset,
+save, saveFailed, saveSuccess, scenarioAddHint, scenarioEdit,
+scenarioImageRemove, scenarioImageUpload, scenarioMessagePlaceholder,
+scenarioPickMessage, scenarioPickTitle, scenarioRemove, scenarioSave,
+scenarioSaveEdit, scenariosEmpty, scenarioTitlePlaceholder, searchAgents,
+searchCharacters, searchLorebooks, searchPersonas, searchPresets,
+selectedAgents, selectedCharacters, selectedLorebooks, selectedPersona,
+selectedPreset, selectedScenarios, skipEmbedded) and the
+`storyBundles.metadata.*`
 sub-block (add, addTag, avatar, bundleId, changeImage, comment,
 commentPlaceholder, creator, creatorPlaceholder, name, removeAll, removeImageConfirm,
 removeImageMessage, removeImageTitle, removeTag, tags, uploading, uploadImage,
@@ -316,12 +362,37 @@ smoke/regression tests:
 | testid | Element |
 |---|---|
 | `story-bundles-panel` | Panel root |
+| `story-bundles-gallery-button` | "Open Gallery" button |
 | `story-bundles-import-button` | Import button |
 | `story-bundles-create-button` | "New Bundle" button |
 | `story-bundle-row-${bundle.id}` | List row of a bundle |
-| `story-bundle-play-button-${bundle.id}` | Play button in the row action pill |
 | `story-bundle-export-button-${bundle.id}` | Export button in the row |
 | `story-bundle-delete-button-${bundle.id}` | Delete button in the row |
+
+### `StoryBundleGalleryView`
+| testid | Element |
+|---|---|
+| `story-bundle-gallery` | Gallery root |
+| `story-bundle-gallery-close-button` | Close/back button |
+| `story-bundle-gallery-create-button` | "New Bundle" button |
+| `story-bundle-gallery-import-button` | Import button |
+| `story-bundle-gallery-search` | Search field |
+| `story-bundle-gallery-sort` | Sort control |
+| `story-bundle-gallery-detail` | Detail card container |
+| `story-bundle-gallery-detail-mobile` | Mobile inline detail slot |
+| `story-bundle-gallery-mode-conversation-${bundle.id}` | CONVO button (detail card) |
+| `story-bundle-gallery-play-${bundle.id}` | RP button (detail card) |
+| `story-bundle-gallery-mode-game-${bundle.id}` | GM button (detail card, coming soon) |
+| `story-bundle-gallery-edit-${bundle.id}` | Edit button (detail card) |
+| `story-bundle-gallery-export-${bundle.id}` | Export button (detail card) |
+| `story-bundle-gallery-delete-${bundle.id}` | Delete button (detail card) |
+| `story-bundle-gallery-card-mode-conversation-${bundle.id}` | CONVO button (card) |
+| `story-bundle-gallery-card-play-${bundle.id}` | RP button (card) |
+| `story-bundle-gallery-card-mode-game-${bundle.id}` | GM button (card, coming soon) |
+
+> Note: the detail card renders twice (mobile inline slot + desktop aside), so
+> detail-card testids match two nodes; page objects scope via `visible=true` or
+> `aside`.
 
 ### `StoryBundleEditor`
 | testid | Element |
@@ -330,10 +401,12 @@ smoke/regression tests:
 | `story-bundle-editor-loading` | Loading state |
 | `story-bundle-editor-header` | Sticky header |
 | `story-bundle-editor-back-button` | Back button |
-| `story-bundle-editor-play-button` | Play button |
+| `story-bundle-editor-mode-conversation` | CONVO button |
+| `story-bundle-editor-play-button` | RP button |
+| `story-bundle-editor-mode-game` | GM button (coming soon) |
 | `story-bundle-editor-save-button` | Save button |
 | `story-bundle-editor-delete-button` | Delete button |
-| `story-bundle-editor-tab-${tabId}` | Tab rail buttons (metadata, description, characters, personas, lorebooks, presets, agents, intros) |
+| `story-bundle-editor-tab-${tabId}` | Tab rail buttons (metadata, description, characters, personas, lorebooks, presets, agents, scenarios) |
 
 ### `StoryBundleDescription`
 | testid | Element |
@@ -432,18 +505,21 @@ smoke/regression tests:
 | `story-bundle-editor-agents-remove-${id}` | Remove button of a selected agent |
 | `story-bundle-editor-agents-selected-empty` | Selected empty-state text |
 
-### `StoryBundleIntros`
+### `StoryBundleScenarios`
 | testid | Element |
 |---|---|
-| `story-bundle-editor-intros` | Intros tab container |
-| `story-bundle-editor-intros-add-button` | "Add Intro" button |
-| `story-bundle-editor-intros-name-input` | Name input field |
-| `story-bundle-editor-intros-text-input` | Text textarea |
-| `story-bundle-editor-intros-save-button` | Save button |
-| `story-bundle-editor-intros-cancel-button` | Cancel button |
-| `story-bundle-editor-intros-edit-button` | Edit button (Pencil) |
-| `story-bundle-editor-intros-delete-button` | Delete button (X) |
-| `story-bundle-editor-intros-empty` | Empty-state text |
+| `story-bundle-editor-scenarios` | Scenarios tab container |
+| `story-bundle-editor-scenarios-add-button` | "Add Scenario" button |
+| `story-bundle-editor-scenarios-title-input` | Title input field |
+| `story-bundle-editor-scenarios-message-input` | Opening-message textarea |
+| `story-bundle-editor-scenarios-image-preview` | Scenario image preview |
+| `story-bundle-editor-scenarios-image-upload-button` | Image upload button |
+| `story-bundle-editor-scenarios-image-input` | Hidden file input |
+| `story-bundle-editor-scenarios-save-button` | Save button |
+| `story-bundle-editor-scenarios-cancel-button` | Cancel button |
+| `story-bundle-editor-scenarios-edit-button` | Edit button (Pencil) |
+| `story-bundle-editor-scenarios-delete-button` | Delete button (X) |
+| `story-bundle-editor-scenarios-empty` | Empty-state text |
 
 ### App Dialogs (`Modal` / `AppDialogRenderer`)
 | testid | Element |
@@ -453,10 +529,17 @@ smoke/regression tests:
 | `app-dialog-prompt-input` | Text input of the prompt dialog |
 | `app-dialog-cancel-button` | Cancel button (prompt and confirm dialogs) |
 | `app-dialog-confirm-button` | Confirm button (prompt and confirm dialogs) |
+| `app-dialog-scenario-${scenario.key}` | Scenario choice card in the scenario dialog |
+| `app-dialog-custom-scenario-button` | "Custom Scenario" option button |
+| `app-dialog-custom-scenario-input` | Custom-scenario free-text input |
+| `app-dialog-custom-scenario-back-button` | Back button (custom-scenario view) |
+| `app-dialog-custom-scenario-confirm-button` | Confirm button (custom-scenario view) |
 | `${testId}-close-button` | X close button of the modal panel (if `testId` is set) |
 
 > Note: `Modal` accepts an optional `testId` prop; the `AppDialog` state field
 > `testId` is passed through to the `Modal` component by `AppDialogRenderer`.
+> The scenario dialog is rendered by `AppDialogRenderer` from the
+> `showScenarioDialog(options)` state (see §4).
 
 ## 6. Validation
 
@@ -480,7 +563,7 @@ pnpm regression:story-bundle   # all story-bundle tests (desktop + mobile)
 
 The script invokes `playwright test -c playwright.config.ts tests/story-bundle/tests/`
 and starts the web servers (desktop 5178/7971, mobile 5179/7972) automatically
-via `config.webServer`. Current status: **214 passed** (107 tests × 2 projects).
+via `config.webServer`. Current status: **246 passed** (123 tests × 2 projects).
 
 **Test files:**
 | File | Tests | Content |
@@ -497,13 +580,16 @@ via `config.webServer`. Current status: **214 passed** (107 tests × 2 projects)
 | `tests/story-bundle/tests/story-bundle-characters-picker.test.ts` | 7 | Characters tab (search/random/load-more) |
 | `tests/story-bundle/tests/story-bundle-personas-picker.test.ts` | 7 | Personas tab |
 | `tests/story-bundle/tests/story-bundle-lorebooks-picker.test.ts` | 5 | Lorebooks tab |
-| `tests/story-bundle/tests/story-bundle-preset.test.ts` | 3 | Presets tab |
+| `tests/story-bundle/tests/story-bundle-preset.test.ts` | 6 | Presets tab + variable-preset play flow |
 | `tests/story-bundle/tests/story-bundle-presets-picker.test.ts` | 5 | Presets picker |
 | `tests/story-bundle/tests/story-bundle-agents-picker.test.ts` | 5 | Agents tab |
 | `tests/story-bundle/tests/story-bundle-agent.test.ts` | 2 | Agent assignment |
-| `tests/story-bundle/tests/story-bundle-intro.test.ts` | 6 | Intros tab (add/edit/delete) |
-| `tests/story-bundle/tests/story-bundle-intro-extra.test.ts` | 3 | Intros extra behavior |
-| `tests/story-bundle/tests/story-bundle-play.test.ts` | 11 | Play flow (intro selection, chat start, sidebar image, preset loading) |
+| `tests/story-bundle/tests/story-bundle-scenario.test.ts` | 6 | Scenarios tab (add/edit/delete) |
+| `tests/story-bundle/tests/story-bundle-scenario-extra.test.ts` | 3 | Scenarios extra behavior |
+| `tests/story-bundle/tests/story-bundle-play.test.ts` | 10 | RP flow (chat start, sidebar image, preset loading) |
+| `tests/story-bundle/tests/story-bundle-play-scenario.test.ts` | 2 | RP scenario picker + custom scenario |
+| `tests/story-bundle/tests/story-bundle-gallery.test.ts` | 11 | Gallery (open/close, search, sort, detail, mode buttons, edit/export/delete) |
+| `tests/story-bundle/tests/story-bundle-happy-path.test.ts` | 1 | End-to-end happy path |
 
 **Page objects:**
 | File | Purpose |
@@ -513,7 +599,7 @@ via `config.webServer`. Current status: **214 passed** (107 tests × 2 projects)
 | `tests/story-bundle/pages/create-story-bundle-dialog.page.ts` | Create dialog |
 | `tests/story-bundle/pages/delete-story-bundle-dialog.page.ts` | Delete dialog |
 | `tests/story-bundle/pages/import-story-bundle-modal.page.ts` | Import modal |
-| `tests/story-bundle/pages/story-bundle-editor.page.ts` | Editor shell (tab navigation, play/save/delete buttons) |
+| `tests/story-bundle/pages/story-bundle-editor.page.ts` | Editor shell (tab navigation, mode/play/save/delete buttons) |
 | `tests/story-bundle/pages/story-bundle-metadata-tab.page.ts` | Metadata tab (all fields, tags) |
 | `tests/story-bundle/pages/story-bundle-description-tab.page.ts` | Description tab (textarea, preview toggle) |
 | `tests/story-bundle/pages/story-bundle-characters-tab.page.ts` | Characters tab |
@@ -521,7 +607,8 @@ via `config.webServer`. Current status: **214 passed** (107 tests × 2 projects)
 | `tests/story-bundle/pages/story-bundle-lorebooks-tab.page.ts` | Lorebooks tab |
 | `tests/story-bundle/pages/story-bundle-presets-tab.page.ts` | Presets tab |
 | `tests/story-bundle/pages/story-bundle-agents-tab.page.ts` | Agents tab |
-| `tests/story-bundle/pages/story-bundle-intros-tab.page.ts` | Intros tab (add/edit/delete forms) |
+| `tests/story-bundle/pages/story-bundle-scenarios-tab.page.ts` | Scenarios tab (add/edit/delete forms) |
+| `tests/story-bundle/pages/story-bundle-gallery.page.ts` | Gallery (search, sort, detail, mode buttons) |
 
 Execution notes:
 

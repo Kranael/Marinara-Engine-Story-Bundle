@@ -2,12 +2,13 @@
 
 A **Story Bundle** packages everything you need for a story into one place: a
 title, an optional description, characters, a persona, lorebooks, a prompt
-preset, agents, and intro messages. Instead of setting up a roleplay piece by
-piece every time, you build the setup once in a bundle and start it with a
-single click.
+preset, agents, and scenarios. Instead of setting up a roleplay piece by piece
+every time, you build the setup once in a bundle and start it with a single
+click — either as a **roleplay** (RP) or as a **conversation** (CONVO).
 
-This guide walks through the everyday flows: opening the panel, creating a
-bundle, filling it with content, playing it, sharing it, and deleting it.
+This guide walks through the everyday flows: opening the panel, browsing the
+gallery, creating a bundle, filling it with content, playing it, sharing it,
+and deleting it.
 
 ---
 
@@ -16,27 +17,45 @@ bundle, filling it with content, playing it, sharing it, and deleting it.
 1. In the top bar, click the **Story Bundles** button (the bookmark icon).
 2. The Story Bundles panel opens on the right side and lists all your bundles.
 
-Each bundle row shows its picture (if it has one), its name, and its comment.
-Hovering over a row reveals the action buttons: **Play**, **Export**, and
-**Delete**.
+Each bundle row shows its picture (if it has one), its name, and its comment
+(or creation date). Clicking a row opens the bundle in the full-page editor.
+Hovering over a row reveals the action buttons: **Export** and **Delete**.
+
+The panel toolbar also has an **Open Gallery** button that switches to the
+full-page card gallery (see § 2), plus **New Bundle** and **Import** buttons.
 
 ---
 
-## 2. Create a new bundle
+## 2. Browse the Story Bundle gallery
 
-1. In the Story Bundles panel, click **New Bundle**.
+The gallery is a full-page card view (like the Character Library) that shows
+every bundle as a card with its artwork, title, and description.
+
+- The toolbar has **New Bundle**, **Import**, a **search** field, and a
+  **sort** control.
+- Clicking a card opens a detail view with the bundle's artwork, name,
+  comment, creator/version, and rendered description.
+- The detail view (and each card) exposes the action buttons: **CONVO**
+  (start a conversation), **RP** (start a roleplay), **GM** (coming soon),
+  **Edit**, **Export**, and **Delete**.
+
+---
+
+## 3. Create a new bundle
+
+1. In the Story Bundles panel or the gallery, click **New Bundle**.
 2. A small dialog appears asking for the bundle title.
 3. Enter a title and confirm.
 4. The bundle is created and its editor opens right away.
 
 ---
 
-## 3. Edit a bundle
+## 4. Edit a bundle
 
 The editor is a full-page view with a row of tabs along the top. Everything
 you change stays a draft until you click **Save** in the header. The header
-also has **Play** and **Delete** buttons, and a back arrow that returns you to
-the panel.
+also has the mode buttons (**CONVO**, **RP**, **GM**), a **Save** button, a
+**Delete** button, and a back arrow that returns you to the panel.
 
 ### Metadata tab
 
@@ -94,13 +113,16 @@ Assign the agents (for example an illustrator) that should be active in the
 story. The tab offers a search field, a **Random** button, and a paginated
 list with add and remove controls.
 
-### Intros tab
+### Scenarios tab
 
-Write intro messages directly inside the bundle — no separate files needed:
+A **scenario** is a starting situation for the story: a title, an opening
+message, and an optional picture. Write scenarios directly inside the bundle —
+no separate files needed:
 
-1. Click the add button under **Add Intro**.
-2. Give the intro a name and write its message text.
-3. Click **Add Intro**; it appears in the **Intros** list, where you can
+1. Click the add button under **Add Scenario**.
+2. Give the scenario a title, write its opening message, and optionally add a
+   picture (with crop support).
+3. Click **Add Scenario**; it appears in the **Scenarios** list, where you can
    edit or delete it.
 
 ### Save
@@ -109,20 +131,22 @@ Click **Save** in the editor header to store your changes.
 
 ---
 
-## 4. Play a bundle
+## 5. Play a bundle (RP)
 
-Playing turns the bundle into a fresh roleplay chat. You can start from two
+Playing turns the bundle into a fresh roleplay chat. You can start from three
 places:
 
-- **From the panel:** hover over the bundle row and click the **Play** button.
-- **From the editor:** click **Play** in the editor header. Playing from the
+- **From the gallery:** click **RP** on a card or in the detail view.
+- **From the editor:** click **RP** in the editor header. Playing from the
   editor uses exactly what you currently see in the editor, including unsaved
   changes.
 
 What happens when you play:
 
-1. If the bundle has intros, a dialog asks you to pick one. Your choice
-   becomes the first message of the new chat.
+1. If the bundle has scenarios, a dialog asks you to pick one — or to describe
+   a **Custom Scenario** in free text. Your choice becomes the first message
+   of the new chat (a custom scenario is turned into an AI-generated opening
+   message).
 2. A new roleplay chat is created with the bundle's characters, persona,
    prompt preset, and your first active connection.
 3. The bundle's lorebooks and agents are activated on the chat.
@@ -135,9 +159,20 @@ you can recognize bundle-started stories at a glance.
 
 ---
 
-## 5. Export a bundle
+## 6. Start a conversation (CONVO)
 
-1. In the panel, hover over the bundle row and click **Export**.
+The **CONVO** button starts a conversation-mode chat from the bundle instead
+of a roleplay. The persona, connection, prompt preset, lorebooks, and agents
+all come directly from the bundle — the only choice left to you is which of
+the bundle's characters to message, via the existing conversation setup
+wizard (restricted to the bundle's characters).
+
+---
+
+## 7. Export a bundle
+
+1. In the panel, hover over the bundle row and click **Export** — or use
+   **Export** in the gallery detail view.
 2. A `.marinara.json` file downloads.
 
 The export is fully self-contained: the bundle's characters, personas,
@@ -146,9 +181,9 @@ You can move it to another PC and import it there.
 
 ---
 
-## 6. Import a bundle
+## 8. Import a bundle
 
-1. In the Story Bundles panel, click **Import**.
+1. In the Story Bundles panel or the gallery, click **Import**.
 2. Select a `.marinara.json` story bundle file.
 3. If the file contains embedded content, a dialog shows what was found
    (characters, personas, lorebooks, presets, and how many agents are
@@ -161,9 +196,10 @@ You can move it to another PC and import it there.
 
 ---
 
-## 7. Delete a bundle
+## 9. Delete a bundle
 
 1. In the panel, hover over the bundle row and click **Delete** — or open the
-   bundle in the editor and click **Delete** in the header.
+   bundle in the editor and click **Delete** in the header, or use **Delete**
+   in the gallery detail view.
 2. A confirmation dialog appears.
 3. Confirm, and the bundle is removed from your list.
