@@ -30,6 +30,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { StoryBundle } from "@marinara-engine/shared";
+import { isStoryBundleGameConfigComplete } from "@marinara-engine/shared";
 import { useCreateStoryBundle, useStoryBundles } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
 import { useStartStoryBundleAdventure } from "../../lib/story-bundle-direct-inject";
@@ -205,9 +206,16 @@ function StoryBundleGalleryDetailCard({
             <button
               data-testid={`story-bundle-gallery-export-${bundle.id}`}
               onClick={() => void exportBundle(bundle.id, bundle.name)}
-              disabled={exportingId === bundle.id}
+              disabled={exportingId === bundle.id || !isStoryBundleGameConfigComplete(bundle)}
               className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs sm:text-sm"
-              title={t("storyBundles.export", "Export")}
+              title={
+                isStoryBundleGameConfigComplete(bundle)
+                  ? t("storyBundles.export", "Export")
+                  : t(
+                      "storyBundles.exportBlockedGameConfig",
+                      "Fill in Genre, Setting, and Tone in the Metadata tab before exporting.",
+                    )
+              }
             >
               {exportingId === bundle.id ? (
                 <Loader2 size="0.875rem" className="animate-spin" />

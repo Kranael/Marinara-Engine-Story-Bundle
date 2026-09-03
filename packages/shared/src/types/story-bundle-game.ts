@@ -75,6 +75,17 @@ export function getStoryBundleNpcCharacterIds(
   return bundle.characterIds.filter((id) => !party.has(id));
 }
 
+/**
+ * True when the bundle's Game Config has all three creator-required fields
+ * (genre/setting/tone) filled in. End-users never set these — the Bundle
+ * Builder's Export action stays disabled until the creator has, so every
+ * exported `.storybundle` carries deterministic, non-empty values.
+ */
+export function isStoryBundleGameConfigComplete(bundle: Pick<StoryBundle, "gameConfig">): boolean {
+  const config = bundle.gameConfig;
+  return !!config && !!config.genre.trim() && !!config.setting.trim() && !!config.tone.trim();
+}
+
 /** Shape of a `format: "marinara-game-setup"` export, as produced by GameSetupSummary's "Download Setup". */
 export interface NativeGameSetupExport {
   format: "marinara-game-setup";

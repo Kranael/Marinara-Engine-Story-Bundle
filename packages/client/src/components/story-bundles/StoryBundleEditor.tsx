@@ -23,9 +23,9 @@ import {
 } from "lucide-react";
 import { useStoryBundle, useUpdateStoryBundle, useDeleteStoryBundle } from "../../hooks/use-story-bundles";
 import { useCharacters, useCharacterGroups, usePersonas } from "../../hooks/use-characters";
-import { useLorebooks } from "../../hooks/use-lorebooks";
+import { useLorebooks, useEntriesAcrossLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
-import type { Lorebook, PromptPreset, StoryBundleScenario } from "@marinara-engine/shared";
+import type { Lorebook, PromptPreset, StoryBundleGameConfig, StoryBundleScenario } from "@marinara-engine/shared";
 import { buildNarratorInstructionMessage } from "@marinara-engine/shared";
 import { useCreateChat, useUpdateChatMetadata, chatKeys } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
@@ -41,6 +41,7 @@ import { ChatModeIcon } from "../chat/ChatModeIcon";
 import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 import { StoryBundleDescription } from "./StoryBundleDescription";
 import { StoryBundleMetadata } from "./StoryBundleMetadata";
+import { StoryBundleGameConfigForm } from "./StoryBundleGameConfigForm";
 import { StoryBundleCharacters } from "./StoryBundleCharacters";
 import { StoryBundlePersonas } from "./StoryBundlePersonas";
 import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
@@ -152,6 +153,7 @@ export function StoryBundleEditor() {
   const [partyCharacterIds, setPartyCharacterIds] = useState<string[]>([]);
   const [excludedAssetFolders, setExcludedAssetFolders] = useState<string[]>([]);
   const [scenarios, setScenarios] = useState<StoryBundleScenario[]>([]);
+  const [gameConfig, setGameConfig] = useState<StoryBundleGameConfig | null>(null);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("metadata");
   const [saving, setSaving] = useState(false);
@@ -195,8 +197,40 @@ export function StoryBundleEditor() {
       setPartyCharacterIds(bundle.partyCharacterIds ?? []);
       setExcludedAssetFolders(bundle.gameAssetSelection?.excludedFolders ?? []);
       setScenarios(bundle.scenarios ?? []);
+      setGameConfig(bundle.gameConfig ?? null);
     }
   }, [bundle]);
+
+  /** Sets one genre/setting/tone field, filling in the schema-required remaining
+   * gameConfig fields with the same defaults DirectInject already falls back to
+   * (Normal / standalone / sfw) the first time a creator touches this form. */
+  const updateGameConfigField = useCallback((field: "genre" | "setting" | "tone", value: string) => {
+    setGameConfig((prev) => ({
+      genre: "",
+      setting: "",
+      tone: "",
+      difficulty: "Normal",
+      playerGoals: "",
+      gmMode: "standalone",
+      rating: "sfw",
+      ...prev,
+      [field]: value,
+    }));
+  }, []);
+
+  const assignedCharactersForGeneration = useMemo(
+    () => characters.filter((c) => characterIds.includes(c.id)).map((c) => ({ id: c.id, data: c.data as unknown })),
+    [characters, characterIds],
+  );
+  const { entries: assignedLorebookEntries } = useEntriesAcrossLorebooks(lorebookIds);
+  const gameConfigGenerationEntries = useMemo(
+    () => (assignedLorebookEntries ?? []).map((entry) => ({ name: entry.name, content: entry.content })),
+    [assignedLorebookEntries],
+  );
+  const gameConfigGenerationConnectionId = useMemo(() => {
+    const conns = (connections ?? []) as Array<{ id: string; isDefault?: boolean | string }>;
+    return conns.find((c) => c.isDefault === true || c.isDefault === "true")?.id ?? conns[0]?.id ?? null;
+  }, [connections]);
 
   const nameDirty = bundle ? name.trim() !== bundle.name && name.trim().length > 0 : false;
   const descriptionDirty = bundle ? description !== (bundle.description ?? "") : false;
@@ -231,6 +265,7 @@ export function StoryBundleEditor() {
     : false;
   const scenariosDirty = bundle ? JSON.stringify(scenarios) !== JSON.stringify(bundle.scenarios ?? []) : false;
   const avatarCropDirty = bundle ? JSON.stringify(avatarCrop) !== JSON.stringify(bundle.avatarCrop ?? null) : false;
+  const gameConfigDirty = bundle ? JSON.stringify(gameConfig) !== JSON.stringify(bundle.gameConfig ?? null) : false;
   const isDirty =
     nameDirty ||
     descriptionDirty ||
@@ -246,7 +281,8 @@ export function StoryBundleEditor() {
     partyCharacterIdsDirty ||
     assetSelectionDirty ||
     scenariosDirty ||
-    avatarCropDirty;
+    avatarCropDirty ||
+    gameConfigDirty;
 
   const sanitizedDescription = useMemo(
     () => (description ? sanitizeStoryBundleDescription(description) : ""),
@@ -273,6 +309,7 @@ export function StoryBundleEditor() {
         scenarios?: StoryBundleScenario[];
         partyCharacterIds?: string[];
         gameAssetSelection?: { excludedFolders: string[] } | null;
+        gameConfig?: StoryBundleGameConfig | null;
       } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
@@ -291,6 +328,7 @@ export function StoryBundleEditor() {
       if (assetSelectionDirty) {
         payload.gameAssetSelection = excludedAssetFolders.length > 0 ? { excludedFolders: excludedAssetFolders } : null;
       }
+      if (gameConfigDirty) payload.gameConfig = gameConfig;
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
@@ -747,22 +785,35 @@ export function StoryBundleEditor() {
         <div className="mari-editor-content @max-5xl:p-4">
           <div className="mari-editor-content-inner">
             {activeTab === "metadata" && (
-              <StoryBundleMetadata
-                bundleId={storyBundleDetailId ?? ""}
-                name={name}
-                onNameChange={setName}
-                comment={comment}
-                onCommentChange={setComment}
-                creator={creator}
-                onCreatorChange={setCreator}
-                version={version}
-                onVersionChange={setVersion}
-                tags={tags}
-                onTagsChange={setTags}
-                imagePath={imagePath}
-                avatarCrop={avatarCrop}
-                onAvatarCropChange={setAvatarCrop}
-              />
+              <div className="space-y-6">
+                <StoryBundleMetadata
+                  bundleId={storyBundleDetailId ?? ""}
+                  name={name}
+                  onNameChange={setName}
+                  comment={comment}
+                  onCommentChange={setComment}
+                  creator={creator}
+                  onCreatorChange={setCreator}
+                  version={version}
+                  onVersionChange={setVersion}
+                  tags={tags}
+                  onTagsChange={setTags}
+                  imagePath={imagePath}
+                  avatarCrop={avatarCrop}
+                  onAvatarCropChange={setAvatarCrop}
+                />
+                <StoryBundleGameConfigForm
+                  genre={gameConfig?.genre ?? ""}
+                  onGenreChange={(value) => updateGameConfigField("genre", value)}
+                  setting={gameConfig?.setting ?? ""}
+                  onSettingChange={(value) => updateGameConfigField("setting", value)}
+                  tone={gameConfig?.tone ?? ""}
+                  onToneChange={(value) => updateGameConfigField("tone", value)}
+                  characters={assignedCharactersForGeneration}
+                  lorebookEntries={gameConfigGenerationEntries}
+                  connectionId={gameConfigGenerationConnectionId}
+                />
+              </div>
             )}
 
             {activeTab === "description" && (

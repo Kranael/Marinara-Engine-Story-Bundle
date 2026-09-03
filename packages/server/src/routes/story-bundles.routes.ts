@@ -10,6 +10,9 @@ import { pipeline } from "node:stream/promises";
 import { createStoryBundleSchema, storyBundleIdParamsSchema, updateStoryBundleSchema } from "@marinara-engine/shared";
 import type { StoryBundle, StoryBundleScenario } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
+import { createConnectionsStorage } from "../services/storage/connections.storage.js";
+import { createLLMProvider } from "../services/llm/provider-registry.js";
+import { resolveBaseUrl } from "../services/generation/connection-base-url.js";
 import { logger } from "../lib/logger.js";
 import { DATA_DIR } from "../utils/data-dir.js";
 import { assertInsideDir, extensionFromImageMime, isAllowedImageBuffer } from "../utils/security.js";
@@ -218,6 +221,47 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       .header("Content-Type", imageInfo.mimeType)
       .header("Cache-Control", "public, max-age=31536000, immutable")
       .send(buffer);
+  });
+
+  // ── Bundle Builder: generate genre/setting/tone from the bundle's attached
+  // characters/lorebooks ── One-off, non-streaming completion; no chat or
+  // session is created or touched. See lib/story-bundle-game-config-generation.ts.
+  app.post("/generate-game-config", async (req, reply) => {
+    const body = req.body as { connectionId?: string; prompt?: string };
+    if (!body?.connectionId || !body.prompt) {
+      return reply.status(400).send({ error: "connectionId and prompt are required" });
+    }
+
+    const conn = await createConnectionsStorage(app.db).getWithKey(body.connectionId);
+    if (!conn) return reply.status(404).send({ error: "Connection not found" });
+    if (!conn.model) return reply.status(400).send({ error: "The selected connection has no model configured" });
+
+    try {
+      const provider = createLLMProvider(
+        conn.provider,
+        resolveBaseUrl(conn),
+        conn.apiKey,
+        conn.maxContext,
+        conn.openrouterProvider,
+        conn.maxTokensOverride,
+        conn.claudeFastMode === "true",
+        conn.treatAsLocalEndpoint === "true",
+        conn.defaultParameters,
+        conn.id,
+      );
+      let text = "";
+      for await (const chunk of provider.chat([{ role: "user", content: body.prompt }], {
+        model: conn.model,
+        maxTokens: 300,
+        stream: false,
+      })) {
+        text += chunk;
+      }
+      return reply.send({ text });
+    } catch (err) {
+      logger.error(err, "[story-bundles/generate-game-config] Generation failed");
+      return reply.status(502).send({ error: err instanceof Error ? err.message : "Generation failed" });
+    }
   });
 
   // ── Export a story bundle as a maximally-compressed .storybundle ZIP ──
