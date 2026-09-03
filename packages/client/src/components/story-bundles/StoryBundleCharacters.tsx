@@ -1,7 +1,7 @@
 // ──────────────────────────────────────────────
 // Story Bundle Characters Tab
 // ──────────────────────────────────────────────
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { Fragment, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { Dices, Plus, Search, X } from "lucide-react";
 import type { AvatarCrop } from "@marinara-engine/shared";
@@ -291,18 +291,35 @@ export function StoryBundleCharacters({
                 {t("storyBundles.gmSettingsLabel", "GM Settings")}
               </span>
             </div>
-            <div className="space-y-1 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1.5 pl-1.5">
-              {selectedCharacters.map((char) => {
+            <div className="grid grid-cols-[1fr_auto] gap-x-1.5 gap-y-1 rounded-lg border border-[var(--border)] bg-[var(--card)] p-1.5">
+              {/* Single frame spanning every row's NPC/Party + remove controls, instead of a
+                  per-row fill — a clean 1px border reads as a "GM Settings" zone without the
+                  heavy table-row look a solid background gave it. */}
+              <div
+                aria-hidden="true"
+                style={{ gridRow: `1 / ${selectedCharacters.length + 1}` }}
+                className="pointer-events-none col-start-2 rounded-lg border border-[var(--home-chat-mode-accent)]/70 bg-[var(--home-chat-mode-accent)]/[0.03]"
+              />
+              {selectedCharacters.map((char, index) => {
                 const name = getCharacterName(char);
                 const title = getCharacterTitle(char);
+                // Explicit row numbers: the spanning frame above occupies every
+                // row of column 2, so auto-placement can't find free cells for
+                // these columns anymore — pin both columns to the same row.
+                const rowStyle = { gridRow: index + 1 };
                 return (
-                  <div key={char.id} className="flex items-center gap-2.5 py-1.5 pl-2">
-                    <CroppedAvatarImage avatarPath={char.avatarPath} alt={name} className="h-7 w-7" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-[var(--foreground)]">{name}</div>
-                      {title && <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>}
+                  <Fragment key={char.id}>
+                    <div
+                      style={rowStyle}
+                      className="col-start-1 flex min-w-0 items-center gap-2.5 rounded-md px-2 py-1.5"
+                    >
+                      <CroppedAvatarImage avatarPath={char.avatarPath} alt={name} className="h-7 w-7" />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-[var(--foreground)]">{name}</div>
+                        {title && <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>}
+                      </div>
                     </div>
-                    <div className="-my-1.5 flex items-center gap-1.5 self-stretch bg-[var(--home-chat-mode-accent)]/[0.14] py-1.5 pl-2 pr-2">
+                    <div style={rowStyle} className="col-start-2 flex items-center gap-1.5 px-2 py-1.5">
                       <StoryBundlePartyMemberToggle
                         isPartyMember={partyIds.has(char.id)}
                         onToggle={() => handleTogglePartyMember(char.id)}
@@ -317,7 +334,7 @@ export function StoryBundleCharacters({
                         <X size="0.875rem" />
                       </button>
                     </div>
-                  </div>
+                  </Fragment>
                 );
               })}
             </div>

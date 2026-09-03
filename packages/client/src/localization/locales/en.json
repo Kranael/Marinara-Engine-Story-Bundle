@@ -1305,7 +1305,7 @@
   "storyBundles.gameConfig.setting": "Setting",
   "storyBundles.gameConfig.settingPlaceholder": "e.g. A war-torn kingdom of ancient ruins",
   "storyBundles.gameConfig.settingRequired": "Setting is required before this bundle can be exported.",
-  "storyBundles.gameConfig.title": "Game Config",
+  "storyBundles.gameConfig.title": "GM Settings",
   "storyBundles.gameConfig.tone": "Tone",
   "storyBundles.gameConfig.tonePlaceholder": "e.g. Heroic and hopeful",
   "storyBundles.gameConfig.toneRequired": "Tone is required before this bundle can be exported.",

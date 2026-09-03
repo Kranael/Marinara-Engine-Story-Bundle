@@ -5,7 +5,7 @@
 // export. DirectInject reads them at play time; export is blocked until all
 // three are non-empty (see StoryBundlesPanel/StoryBundleGalleryView export
 // button disabled state).
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2, Sparkles } from "lucide-react";
 import {
@@ -13,6 +13,7 @@ import {
   type GameConfigSourceCharacter,
   type GameConfigSourceLorebookEntry,
 } from "../../lib/story-bundle-game-config-generation";
+import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 
 export interface StoryBundleGameConfigFormProps {
   genre: string;
@@ -78,11 +79,15 @@ export function StoryBundleGameConfigForm({
   };
 
   return (
-    <div data-testid="story-bundle-editor-gameconfig" className="space-y-3">
+    <div
+      data-testid="story-bundle-editor-gameconfig"
+      style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}
+      className="space-y-3 rounded-lg border border-[var(--home-chat-mode-accent)]/70 bg-[var(--home-chat-mode-accent)]/[0.03] p-3"
+    >
       <div className="flex items-center justify-between gap-2">
         <div>
           <h4 className="text-xs font-semibold text-[var(--foreground)]">
-            {t("storyBundles.gameConfig.title", "Game Config")}
+            {t("storyBundles.gameConfig.title", "GM Settings")}
           </h4>
           <p className="text-[0.6875rem] text-[var(--muted-foreground)]">
             {t(
