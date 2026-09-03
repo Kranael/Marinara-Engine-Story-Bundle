@@ -18,6 +18,31 @@ export const storyBundleIdParamsSchema = z.object({
   id: nonEmptyIdSchema,
 });
 
+export const storyBundleGameConfigSchema = z.object({
+  genre: z.string(),
+  setting: z.string(),
+  tone: z.string(),
+  difficulty: z.string(),
+  playerGoals: z.string(),
+  gmMode: z.enum(["standalone", "character"]),
+  rating: z.enum(["sfw", "nsfw"]),
+  combatStyle: z.enum(["classic", "tactical"]).optional(),
+  gameWorldMapMode: z.enum(["standard", "hierarchical"]).optional(),
+  language: z.string().optional(),
+  enableCustomWidgets: z.boolean().optional(),
+  enableSpriteGeneration: z.boolean().optional(),
+  enableGameSoundEffects: z.boolean().optional(),
+  enableGameMusic: z.boolean().optional(),
+  promptPresetId: z.string().nullable().optional(),
+  gameGmPromptTemplateId: z.string().nullable().optional(),
+  gameSystemPrompt: z.string().nullable().optional(),
+  gameSpecialInstructions: z.string().nullable().optional(),
+});
+
+export const storyBundleAssetSelectionSchema = z.object({
+  excludedFolders: z.array(z.string()),
+});
+
 export const createStoryBundleSchema = z.object({
   name: storyBundleNameSchema,
   description: z.string().nullable().optional(),
@@ -33,6 +58,9 @@ export const createStoryBundleSchema = z.object({
   presetIds: z.array(z.string()).optional(),
   agentIds: z.array(z.string()).optional(),
   scenarios: z.array(storyBundleScenarioSchema).optional(),
+  partyCharacterIds: z.array(z.string()).optional(),
+  gameConfig: storyBundleGameConfigSchema.nullable().optional(),
+  gameAssetSelection: storyBundleAssetSelectionSchema.nullable().optional(),
 });
 
 export const updateStoryBundleSchema = z.object({
@@ -50,6 +78,9 @@ export const updateStoryBundleSchema = z.object({
   presetIds: z.array(z.string()).optional(),
   agentIds: z.array(z.string()).optional(),
   scenarios: z.array(storyBundleScenarioSchema).optional(),
+  partyCharacterIds: z.array(z.string()).optional(),
+  gameConfig: storyBundleGameConfigSchema.nullable().optional(),
+  gameAssetSelection: storyBundleAssetSelectionSchema.nullable().optional(),
 });
 
 export type CreateStoryBundleInput = z.input<typeof createStoryBundleSchema>;

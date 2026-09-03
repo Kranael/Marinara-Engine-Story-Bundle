@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Dices, Plus, Search, X } from "lucide-react";
 import type { AvatarCrop } from "@marinara-engine/shared";
 import { cn, getAvatarCropStyle } from "../../lib/utils";
+import { StoryBundlePartyMemberToggle } from "./StoryBundlePartyMemberToggle";
 
 const CHARACTER_PICKER_PAGE_SIZE = 20;
 
@@ -25,6 +26,8 @@ interface CharacterFolder {
 export interface StoryBundleCharactersProps {
   characterIds: string[];
   onCharacterIdsChange: (ids: string[]) => void;
+  partyCharacterIds: string[];
+  onPartyCharacterIdsChange: (ids: string[]) => void;
   characters: Character[];
   characterFolders: CharacterFolder[];
   validCharacterIds: Set<string>;
@@ -80,6 +83,8 @@ function CroppedAvatarImage({
 export function StoryBundleCharacters({
   characterIds,
   onCharacterIdsChange,
+  partyCharacterIds,
+  onPartyCharacterIdsChange,
   characters,
   characterFolders,
   validCharacterIds,
@@ -114,14 +119,23 @@ export function StoryBundleCharacters({
     [characters, selectedIds, validCharacterIds],
   );
 
+  const partyIds = useMemo(() => new Set(partyCharacterIds), [partyCharacterIds]);
+
   const handleToggle = (id: string) => {
     const next = new Set(selectedIds);
     if (next.has(id)) {
       next.delete(id);
+      if (partyIds.has(id)) onPartyCharacterIdsChange(partyCharacterIds.filter((partyId) => partyId !== id));
     } else {
       next.add(id);
     }
     onCharacterIdsChange([...next]);
+  };
+
+  const handleTogglePartyMember = (id: string) => {
+    onPartyCharacterIdsChange(
+      partyIds.has(id) ? partyCharacterIds.filter((partyId) => partyId !== id) : [...partyCharacterIds, id],
+    );
   };
 
   const handleRandom = () => {
@@ -278,6 +292,10 @@ export function StoryBundleCharacters({
                     <div className="truncate text-sm font-medium text-[var(--foreground)]">{name}</div>
                     {title && <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>}
                   </div>
+                  <StoryBundlePartyMemberToggle
+                    isPartyMember={partyIds.has(char.id)}
+                    onToggle={() => handleTogglePartyMember(char.id)}
+                  />
                   <button
                     data-testid={`story-bundle-editor-characters-remove-${char.id}`}
                     onClick={() => handleToggle(char.id)}

@@ -2,6 +2,7 @@
 // Story Bundle Types
 // ──────────────────────────────────────────────
 import type { AvatarCrop } from "./avatar-crop.js";
+import type { StoryBundleGameModeFields } from "./story-bundle-game.js";
 
 /**
  * A Scenario is only a starting situation: a title, an opening chat message,
@@ -22,7 +23,7 @@ export interface StoryBundleScenario {
  * A Story Bundle is a named container that groups characters, personas,
  * lorebooks, presets, and scenarios into a ready-to-play story.
  */
-export interface StoryBundle {
+export interface StoryBundle extends StoryBundleGameModeFields {
   id: string;
   /** The bundle's title. */
   name: string;

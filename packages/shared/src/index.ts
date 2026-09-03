@@ -36,6 +36,7 @@ export * from "./types/capability-runtime.js";
 export * from "./types/localization.js";
 export * from "./types/personal-extension.js";
 export * from "./types/story-bundle.js";
+export * from "./types/story-bundle-game.js";
 export * from "./types/home-feed.js";
 
 // Schemas

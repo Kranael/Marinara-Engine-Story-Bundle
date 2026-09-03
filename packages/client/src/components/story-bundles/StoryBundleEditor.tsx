@@ -13,6 +13,7 @@ import {
   Info,
   Loader2,
   MessageSquare,
+  Music,
   Save,
   SlidersHorizontal,
   Sparkles,
@@ -45,6 +46,7 @@ import { StoryBundlePersonas } from "./StoryBundlePersonas";
 import { StoryBundleLorebooks } from "./StoryBundleLorebooks";
 import { StoryBundlePresets } from "./StoryBundlePresets";
 import { StoryBundleAgents } from "./StoryBundleAgents";
+import { StoryBundleAssets } from "./StoryBundleAssets";
 import { StoryBundleScenarios } from "./StoryBundleScenarios";
 
 /** Parse a JSON string or array into a string[] of character IDs. */
@@ -71,6 +73,7 @@ const TABS = [
   { id: "lorebooks", label: "Lorebooks", icon: BookOpen },
   { id: "presets", label: "Presets", icon: SlidersHorizontal },
   { id: "agents", label: "Agents", icon: Sparkles },
+  { id: "assets", label: "Assets", icon: Music },
   { id: "scenarios", label: "Scenarios", icon: MessageSquare },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
@@ -144,6 +147,8 @@ export function StoryBundleEditor() {
   const [lorebookIds, setLorebookIds] = useState<string[]>([]);
   const [presetIds, setPresetIds] = useState<string[]>([]);
   const [agentIds, setAgentIds] = useState<string[]>([]);
+  const [partyCharacterIds, setPartyCharacterIds] = useState<string[]>([]);
+  const [excludedAssetFolders, setExcludedAssetFolders] = useState<string[]>([]);
   const [scenarios, setScenarios] = useState<StoryBundleScenario[]>([]);
   const [previewDescription, setPreviewDescription] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("metadata");
@@ -177,6 +182,8 @@ export function StoryBundleEditor() {
       setLorebookIds(bundle.lorebookIds ?? []);
       setPresetIds(bundle.presetIds ?? []);
       setAgentIds(bundle.agentIds ?? []);
+      setPartyCharacterIds(bundle.partyCharacterIds ?? []);
+      setExcludedAssetFolders(bundle.gameAssetSelection?.excludedFolders ?? []);
       setScenarios(bundle.scenarios ?? []);
     }
   }, [bundle]);
@@ -204,6 +211,14 @@ export function StoryBundleEditor() {
   const agentIdsDirty = bundle
     ? JSON.stringify([...(agentIds ?? [])].sort()) !== JSON.stringify([...(bundle.agentIds ?? [])].sort())
     : false;
+  const partyCharacterIdsDirty = bundle
+    ? JSON.stringify([...(partyCharacterIds ?? [])].sort()) !==
+      JSON.stringify([...(bundle.partyCharacterIds ?? [])].sort())
+    : false;
+  const assetSelectionDirty = bundle
+    ? JSON.stringify([...(excludedAssetFolders ?? [])].sort()) !==
+      JSON.stringify([...(bundle.gameAssetSelection?.excludedFolders ?? [])].sort())
+    : false;
   const scenariosDirty = bundle ? JSON.stringify(scenarios) !== JSON.stringify(bundle.scenarios ?? []) : false;
   const avatarCropDirty = bundle ? JSON.stringify(avatarCrop) !== JSON.stringify(bundle.avatarCrop ?? null) : false;
   const isDirty =
@@ -218,6 +233,8 @@ export function StoryBundleEditor() {
     lorebookIdsDirty ||
     presetIdsDirty ||
     agentIdsDirty ||
+    partyCharacterIdsDirty ||
+    assetSelectionDirty ||
     scenariosDirty ||
     avatarCropDirty;
 
@@ -244,6 +261,8 @@ export function StoryBundleEditor() {
         presetIds?: string[];
         agentIds?: string[];
         scenarios?: StoryBundleScenario[];
+        partyCharacterIds?: string[];
+        gameAssetSelection?: { excludedFolders: string[] } | null;
       } = {};
       if (nameDirty) payload.name = name.trim();
       if (descriptionDirty) payload.description = description || null;
@@ -258,6 +277,10 @@ export function StoryBundleEditor() {
       if (presetIdsDirty) payload.presetIds = presetIds;
       if (agentIdsDirty) payload.agentIds = agentIds;
       if (scenariosDirty) payload.scenarios = scenarios;
+      if (partyCharacterIdsDirty) payload.partyCharacterIds = partyCharacterIds;
+      if (assetSelectionDirty) {
+        payload.gameAssetSelection = excludedAssetFolders.length > 0 ? { excludedFolders: excludedAssetFolders } : null;
+      }
       await updateMutation.mutateAsync({ id: storyBundleDetailId, ...payload });
       toast.success(t("storyBundles.saveSuccess", "Story bundle saved."));
     } catch {
@@ -281,6 +304,8 @@ export function StoryBundleEditor() {
     lorebookIdsDirty,
     presetIdsDirty,
     agentIdsDirty,
+    partyCharacterIdsDirty,
+    assetSelectionDirty,
     scenariosDirty,
     updateMutation,
     name,
@@ -295,6 +320,8 @@ export function StoryBundleEditor() {
     lorebookIds,
     presetIds,
     agentIds,
+    partyCharacterIds,
+    excludedAssetFolders,
     scenarios,
     t,
   ]);
@@ -707,6 +734,8 @@ export function StoryBundleEditor() {
               <StoryBundleCharacters
                 characterIds={characterIds}
                 onCharacterIdsChange={setCharacterIds}
+                partyCharacterIds={partyCharacterIds}
+                onPartyCharacterIdsChange={setPartyCharacterIds}
                 characters={characters}
                 characterFolders={characterFolders}
                 validCharacterIds={validCharacterIds}
@@ -741,6 +770,13 @@ export function StoryBundleEditor() {
             )}
 
             {activeTab === "agents" && <StoryBundleAgents agentIds={agentIds} onAgentIdsChange={setAgentIds} />}
+
+            {activeTab === "assets" && (
+              <StoryBundleAssets
+                excludedFolders={excludedAssetFolders}
+                onExcludedFoldersChange={setExcludedAssetFolders}
+              />
+            )}
 
             {activeTab === "scenarios" && (
               <StoryBundleScenarios scenarios={scenarios} onScenariosChange={setScenarios} />

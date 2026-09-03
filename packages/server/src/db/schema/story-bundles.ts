@@ -19,6 +19,9 @@ export const storyBundles = fileTable("story_bundles", {
   presetIds: text("preset_ids"),
   agentIds: text("agent_ids"),
   scenarios: text("scenarios"),
+  partyCharacterIds: text("party_character_ids"),
+  gameConfig: text("game_config"),
+  gameAssetSelection: text("game_asset_selection"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

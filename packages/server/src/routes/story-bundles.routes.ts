@@ -112,6 +112,9 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
     presetIds: parseJsonArray(row.presetIds),
     agentIds: parseJsonArray(row.agentIds),
     scenarios: parseScenarioArray(row.scenarios),
+    partyCharacterIds: parseJsonArray(row.partyCharacterIds),
+    gameConfig: parseJsonObject(row.gameConfig) as StoryBundle["gameConfig"],
+    gameAssetSelection: parseJsonObject(row.gameAssetSelection) as StoryBundle["gameAssetSelection"],
     createdAt: row.createdAt as string,
     updatedAt: row.updatedAt as string,
   };

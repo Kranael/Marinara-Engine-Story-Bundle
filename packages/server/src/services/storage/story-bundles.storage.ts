@@ -37,6 +37,9 @@ export function createStoryBundlesStorage(db: DB) {
         presetIds: JSON.stringify(input.presetIds ?? []),
         agentIds: JSON.stringify(input.agentIds ?? []),
         scenarios: JSON.stringify(input.scenarios ?? []),
+        partyCharacterIds: JSON.stringify(input.partyCharacterIds ?? []),
+        gameConfig: input.gameConfig != null ? JSON.stringify(input.gameConfig) : null,
+        gameAssetSelection: input.gameAssetSelection != null ? JSON.stringify(input.gameAssetSelection) : null,
         createdAt: timestamp,
         updatedAt: timestamp,
       });
@@ -63,6 +66,15 @@ export function createStoryBundlesStorage(db: DB) {
           ...(data.presetIds !== undefined && { presetIds: JSON.stringify(data.presetIds) }),
           ...(data.agentIds !== undefined && { agentIds: JSON.stringify(data.agentIds) }),
           ...(data.scenarios !== undefined && { scenarios: JSON.stringify(data.scenarios) }),
+          ...(data.partyCharacterIds !== undefined && {
+            partyCharacterIds: JSON.stringify(data.partyCharacterIds),
+          }),
+          ...(data.gameConfig !== undefined && {
+            gameConfig: data.gameConfig != null ? JSON.stringify(data.gameConfig) : null,
+          }),
+          ...(data.gameAssetSelection !== undefined && {
+            gameAssetSelection: data.gameAssetSelection != null ? JSON.stringify(data.gameAssetSelection) : null,
+          }),
           updatedAt: now(),
         })
         .where(eq(storyBundles.id, id));
