@@ -36,6 +36,7 @@ import { createLorebooksStorage } from "../storage/lorebooks.storage.js";
 import { createPromptsStorage } from "../storage/prompts.storage.js";
 import { createAgentsStorage } from "../storage/agents.storage.js";
 import { resolveStoredGalleryFile } from "../image/gallery-file-lifecycle.js";
+import { optimizeArchiveImages } from "./story-bundle-asset-optimizer.js";
 import { serializeBundle } from "../../routes/story-bundles.routes.js";
 import {
   BUNDLE_MANIFEST_FORMAT,
@@ -46,10 +47,16 @@ import {
   type BundleManifestScenario,
 } from "@marinara-engine/shared";
 
-/** One binary file copied into the archive verbatim (STORE — no benefit re-deflating an already-compressed image/audio file). */
-interface ArchiveFileEntry {
+/**
+ * One binary file copied into the archive verbatim (STORE — no benefit
+ * re-deflating an already-compressed image/audio file). Either a real file on
+ * disk, or an in-memory buffer (e.g. a WebP re-encode from the asset
+ * optimizer — see story-bundle-asset-optimizer.ts) — never both.
+ */
+export interface ArchiveFileEntry {
   zipPath: string;
-  diskPath: string;
+  diskPath?: string;
+  buffer?: Buffer;
 }
 
 /** One small text/JSON payload, DEFLATEd at max compression. */
@@ -348,17 +355,19 @@ export function packBundleArchive(sources: BundleArchiveSources, destination: Wr
     archive.append(JSON.stringify(sources.manifest, null, 2), { name: "manifest.json" });
     for (const text of sources.texts) archive.append(text.content, { name: text.zipPath });
     for (const file of sources.files) {
-      archive.append(createReadStream(file.diskPath), { name: file.zipPath, store: true });
+      const content = file.buffer ?? (file.diskPath ? createReadStream(file.diskPath) : null);
+      if (content) archive.append(content, { name: file.zipPath, store: true });
     }
 
     archive.finalize().catch(fail);
   });
 }
 
-/** Gather + pack in one call — the export route's entry point. */
+/** Gather + optimize + pack in one call — the export route's entry point. */
 export async function buildBundleArchive(bundleId: string, db: DB, destination: Writable): Promise<boolean> {
   const sources = await gatherBundleArchiveSources(bundleId, db);
   if (!sources) return false;
+  sources.files = await optimizeArchiveImages(sources.files);
   await packBundleArchive(sources, destination);
   return true;
 }
