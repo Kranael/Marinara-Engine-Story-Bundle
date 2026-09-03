@@ -11,7 +11,7 @@ import {
   updateStoryBundleSchema,
   BUILT_IN_AGENT_MANIFESTS,
 } from "@marinara-engine/shared";
-import type { ExportEnvelope, StoryBundle, StoryBundleScenario } from "@marinara-engine/shared";
+import type { StoryBundle, StoryBundleScenario } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
 import { createCharactersStorage } from "../services/storage/characters.storage.js";
 import { createCharacterGalleryStorage } from "../services/storage/character-gallery.storage.js";
@@ -29,6 +29,36 @@ import {
 } from "../services/export/export-image-helpers.js";
 
 const STORY_BUNDLE_IMAGES_DIR = join(DATA_DIR, "story-bundles", "images");
+
+/**
+ * Writes a JSON object's fields to a stream one value at a time instead of
+ * via a single JSON.stringify() over the whole object. A bundle with many
+ * embedded characters can carry hundreds of MB of avatars/sprites/gallery —
+ * concatenating that into one JS string can exceed V8's ~512 MB max string
+ * length and crash the whole export with an opaque 500.
+ */
+function createJsonObjectStreamer(res: NodeJS.WritableStream) {
+  let first = true;
+  const comma = () => {
+    const prefix = first ? "" : ",";
+    first = false;
+    return prefix;
+  };
+  return {
+    field(key: string, value: unknown) {
+      res.write(`${comma()}${JSON.stringify(key)}:${JSON.stringify(value)}`);
+    },
+    /** Streams each array item through its own JSON.stringify() call. */
+    arrayField(key: string, items: unknown[]) {
+      res.write(`${comma()}${JSON.stringify(key)}:[`);
+      items.forEach((item, index) => {
+        if (index > 0) res.write(",");
+        res.write(JSON.stringify(item));
+      });
+      res.write("]");
+    },
+  };
+}
 
 function parseImageUpload(image: string): { buffer: Buffer; hintedExt: string } {
   let base64 = image;
@@ -351,39 +381,47 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       }
     }
 
-    const envelope: ExportEnvelope = {
-      type: "marinara_story_bundle",
-      version: 1,
-      exportedAt: new Date().toISOString(),
-      data: {
-        name: serialized.name,
-        description: serialized.description,
-        imagePath: serialized.imagePath,
-        avatarCrop: serialized.avatarCrop,
-        comment: serialized.comment,
-        creator: serialized.creator,
-        version: serialized.version,
-        tags: serialized.tags,
-        characterIds: serialized.characterIds,
-        personaIds: serialized.personaIds,
-        lorebookIds: serialized.lorebookIds,
-        presetIds: serialized.presetIds,
-        agentIds: serialized.agentIds,
-        scenarios: serialized.scenarios,
-        embeddedCharacters,
-        embeddedPersonas,
-        embeddedLorebooks,
-        embeddedPresets,
-        ...(embeddedAgents.length > 0 ? { embeddedAgents } : {}),
-        ...(bundleImage ? { bundleImage } : {}),
-      },
-    };
-    return reply
-      .header("Content-Type", "application/json")
-      .header(
-        "Content-Disposition",
-        `attachment; filename="${serialized.name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json"`,
-      )
-      .send(envelope);
+    // Stream the envelope instead of building one ExportEnvelope object and
+    // JSON.stringify()-ing it whole — see createJsonObjectStreamer() above.
+    reply.hijack();
+    const res = reply.raw;
+    res.writeHead(200, {
+      "Content-Type": "application/json",
+      "Content-Disposition": `attachment; filename="${serialized.name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json"`,
+    });
+    try {
+      res.write("{");
+      const envelopeJson = createJsonObjectStreamer(res);
+      envelopeJson.field("type", "marinara_story_bundle");
+      envelopeJson.field("version", 1);
+      envelopeJson.field("exportedAt", new Date().toISOString());
+      res.write(',"data":{');
+      const dataJson = createJsonObjectStreamer(res);
+      dataJson.field("name", serialized.name);
+      dataJson.field("description", serialized.description);
+      dataJson.field("imagePath", serialized.imagePath);
+      dataJson.field("avatarCrop", serialized.avatarCrop);
+      dataJson.field("comment", serialized.comment);
+      dataJson.field("creator", serialized.creator);
+      dataJson.field("version", serialized.version);
+      dataJson.arrayField("tags", serialized.tags);
+      dataJson.arrayField("characterIds", serialized.characterIds);
+      dataJson.arrayField("personaIds", serialized.personaIds);
+      dataJson.arrayField("lorebookIds", serialized.lorebookIds);
+      dataJson.arrayField("presetIds", serialized.presetIds);
+      dataJson.arrayField("agentIds", serialized.agentIds);
+      dataJson.arrayField("scenarios", serialized.scenarios);
+      dataJson.arrayField("embeddedCharacters", embeddedCharacters);
+      dataJson.arrayField("embeddedPersonas", embeddedPersonas);
+      dataJson.arrayField("embeddedLorebooks", embeddedLorebooks);
+      dataJson.arrayField("embeddedPresets", embeddedPresets);
+      if (embeddedAgents.length > 0) dataJson.arrayField("embeddedAgents", embeddedAgents);
+      if (bundleImage) dataJson.field("bundleImage", bundleImage);
+      res.write("}}");
+      res.end();
+    } catch (err) {
+      logger.error(err, "[story-bundles/export] Failed to stream export");
+      if (!res.writableEnded) res.destroy();
+    }
   });
 }

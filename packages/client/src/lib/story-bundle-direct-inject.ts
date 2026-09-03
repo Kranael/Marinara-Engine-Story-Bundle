@@ -70,6 +70,17 @@ export interface DirectInjectResult {
   sessionChatId: string;
 }
 
+/** Steps the DirectInject flow moves through, in order — drives the modal's progress bar. */
+export type DirectInjectStep = "creating" | "tagging" | "world-setup" | "done";
+
+/** Progress-bar percentage for each step, so the modal never hardcodes its own numbers. */
+export const DIRECT_INJECT_STEP_PERCENT: Record<DirectInjectStep, number> = {
+  creating: 15,
+  tagging: 35,
+  "world-setup": 60,
+  done: 100,
+};
+
 /**
  * The DirectInject bootstrapper. Given an already-loaded StoryBundle and the
  * persona the player picked, this performs the entire "Click 2" commit:
@@ -96,6 +107,7 @@ export function useDirectInjectStoryBundle() {
   const gameSetup = useGameSetup();
   const updateChatMetadata = useUpdateChatMetadata();
   const { data: connections } = useConnections();
+  const [step, setStep] = useState<DirectInjectStep | null>(null);
 
   const start = useCallback(
     async (bundle: StoryBundle, personaId: string | null): Promise<DirectInjectResult> => {
@@ -103,6 +115,7 @@ export function useDirectInjectStoryBundle() {
       const conns = (connections ?? []) as Array<{ id: string }>;
       const connectionId = conns[0]?.id;
 
+      setStep("creating");
       const { gameId, sessionChat } = await createGame.mutateAsync({
         name: bundle.name,
         setupConfig,
@@ -110,12 +123,14 @@ export function useDirectInjectStoryBundle() {
         promptPresetId: setupConfig.promptPresetId ?? undefined,
       });
 
+      setStep("tagging");
       await updateChatMetadata.mutateAsync({
         id: sessionChat.id,
         storyBundleId: bundle.id,
         gameAssetSelection: bundle.gameAssetSelection,
       });
 
+      setStep("world-setup");
       await gameSetup.mutateAsync({
         chatId: sessionChat.id,
         connectionId,
@@ -123,6 +138,7 @@ export function useDirectInjectStoryBundle() {
         preferences: "",
       });
 
+      setStep("done");
       useUIStore.getState().closeAllDetails();
       useChatStore.getState().setActiveChatId(sessionChat.id);
 
@@ -131,7 +147,9 @@ export function useDirectInjectStoryBundle() {
     [createGame, gameSetup, updateChatMetadata, connections],
   );
 
-  return { start, isStarting: createGame.isPending || gameSetup.isPending };
+  const reset = useCallback(() => setStep(null), []);
+
+  return { start, reset, step, isStarting: step !== null && step !== "done" };
 }
 
 /**
@@ -142,13 +160,17 @@ export function useDirectInjectStoryBundle() {
  */
 export function useStartStoryBundleAdventure() {
   const { t } = useTranslation();
-  const { start, isStarting } = useDirectInjectStoryBundle();
+  const { start, reset, step, isStarting } = useDirectInjectStoryBundle();
   const [pendingBundle, setPendingBundle] = useState<StoryBundle | null>(null);
 
   /** Click 1 — "Start Adventure" on the Bundle Card. */
-  const requestStart = useCallback((bundle: StoryBundle) => {
-    setPendingBundle(bundle);
-  }, []);
+  const requestStart = useCallback(
+    (bundle: StoryBundle) => {
+      reset();
+      setPendingBundle(bundle);
+    },
+    [reset],
+  );
 
   const cancel = useCallback(() => setPendingBundle(null), []);
 
@@ -173,6 +195,7 @@ export function useStartStoryBundleAdventure() {
     /** Non-null while the persona picker modal should be open. */
     pendingBundle,
     isStarting,
+    step,
     requestStart,
     cancel,
     confirmPersona,

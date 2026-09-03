@@ -262,6 +262,7 @@ export function StoryBundleGalleryView() {
   const {
     pendingBundle: pendingGmBundle,
     isStarting: isStartingGm,
+    step: gmStep,
     requestStart,
     cancel,
     confirmPersona,
@@ -721,6 +722,7 @@ export function StoryBundleGalleryView() {
       <StoryBundlePersonaPickerModal
         bundle={pendingGmBundle}
         isConfirming={isStartingGm}
+        step={gmStep}
         onConfirm={confirmPersona}
         onCancel={cancel}
       />

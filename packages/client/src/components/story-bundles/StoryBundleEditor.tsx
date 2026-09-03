@@ -167,6 +167,7 @@ export function StoryBundleEditor() {
   const {
     pendingBundle: pendingGmBundle,
     isStarting: isStartingGm,
+    step: gmStep,
     requestStart: requestStartGm,
     cancel: cancelGm,
     confirmPersona: confirmGmPersona,
@@ -832,6 +833,7 @@ export function StoryBundleEditor() {
       <StoryBundlePersonaPickerModal
         bundle={pendingGmBundle}
         isConfirming={isStartingGm}
+        step={gmStep}
         onConfirm={confirmGmPersona}
         onCancel={cancelGm}
       />
