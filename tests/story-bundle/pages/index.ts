@@ -13,4 +13,6 @@ export { StoryBundlePersonasTabPage } from "./story-bundle-personas-tab.page.js"
 export { StoryBundleLorebooksTabPage } from "./story-bundle-lorebooks-tab.page.js";
 export { StoryBundlePresetsTabPage } from "./story-bundle-presets-tab.page.js";
 export { StoryBundleAgentsTabPage } from "./story-bundle-agents-tab.page.js";
+export { StoryBundleAssetsTabPage } from "./story-bundle-assets-tab.page.js";
 export { StoryBundleScenariosTabPage } from "./story-bundle-scenarios-tab.page.js";
+export { StoryBundlePersonaPickerModalPage } from "./story-bundle-persona-picker-modal.page.js";

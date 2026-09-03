@@ -295,6 +295,7 @@ export function StoryBundleCharacters({
                   <StoryBundlePartyMemberToggle
                     isPartyMember={partyIds.has(char.id)}
                     onToggle={() => handleTogglePartyMember(char.id)}
+                    testId={`story-bundle-editor-characters-party-toggle-${char.id}`}
                   />
                   <button
                     data-testid={`story-bundle-editor-characters-remove-${char.id}`}

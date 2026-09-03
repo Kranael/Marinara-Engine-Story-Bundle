@@ -15,7 +15,9 @@
  *   story-bundle-editor-tab-lorebooks
  *   story-bundle-editor-tab-presets
  *   story-bundle-editor-tab-agents
+ *   story-bundle-editor-tab-assets
  *   story-bundle-editor-tab-scenarios
+ *   story-bundle-editor-mode-game
  */
 import { type Locator, type Page } from "@playwright/test";
 import { switchEditorTab } from "../helpers/editor-tabs.js";
@@ -26,6 +28,7 @@ export class StoryBundleEditorPage {
   readonly header: Locator;
   readonly backButton: Locator;
   readonly playButton: Locator;
+  readonly gmButton: Locator;
   readonly saveButton: Locator;
   readonly deleteButton: Locator;
   readonly metadataTab: Locator;
@@ -35,6 +38,7 @@ export class StoryBundleEditorPage {
   readonly lorebooksTab: Locator;
   readonly presetsTab: Locator;
   readonly agentsTab: Locator;
+  readonly assetsTab: Locator;
   readonly scenariosTab: Locator;
 
   constructor(page: Page) {
@@ -43,6 +47,7 @@ export class StoryBundleEditorPage {
     this.header = page.getByTestId("story-bundle-editor-header");
     this.backButton = page.getByTestId("story-bundle-editor-back-button");
     this.playButton = page.getByTestId("story-bundle-editor-play-button");
+    this.gmButton = page.getByTestId("story-bundle-editor-mode-game");
     this.saveButton = page.getByTestId("story-bundle-editor-save-button");
     this.deleteButton = page.getByTestId("story-bundle-editor-delete-button");
     this.metadataTab = page.getByTestId("story-bundle-editor-tab-metadata");
@@ -52,6 +57,7 @@ export class StoryBundleEditorPage {
     this.lorebooksTab = page.getByTestId("story-bundle-editor-tab-lorebooks");
     this.presetsTab = page.getByTestId("story-bundle-editor-tab-presets");
     this.agentsTab = page.getByTestId("story-bundle-editor-tab-agents");
+    this.assetsTab = page.getByTestId("story-bundle-editor-tab-assets");
     this.scenariosTab = page.getByTestId("story-bundle-editor-tab-scenarios");
   }
 
@@ -95,6 +101,11 @@ export class StoryBundleEditorPage {
   /** Switch to the Agents tab. */
   async switchToAgents(): Promise<void> {
     await switchEditorTab(this.page, "story-bundle-editor-tab-agents");
+  }
+
+  /** Switch to the Assets tab. */
+  async switchToAssets(): Promise<void> {
+    await switchEditorTab(this.page, "story-bundle-editor-tab-assets");
   }
 
   /** Switch to the Scenarios tab. */

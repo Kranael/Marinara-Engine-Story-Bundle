@@ -34,10 +34,13 @@ import { useUIStore } from "../stores/ui.store";
 export function buildGameSetupConfigFromBundle(bundle: StoryBundle, personaId: string | null): GameSetupConfig {
   const gameConfig = bundle.gameConfig;
   return {
-    genre: gameConfig?.genre ?? "",
-    setting: gameConfig?.setting ?? "",
-    tone: gameConfig?.tone ?? "",
-    difficulty: gameConfig?.difficulty ?? "",
+    // /game/create requires non-empty genre/setting/tone/difficulty — fall
+    // back to the native GameSetupWizard's own defaults so a bundle without
+    // an imported gameConfig can still start a game.
+    genre: gameConfig?.genre || "Fantasy",
+    setting: gameConfig?.setting || "A fantasy world",
+    tone: gameConfig?.tone || "Heroic",
+    difficulty: gameConfig?.difficulty || "Normal",
     playerGoals: gameConfig?.playerGoals ?? "",
     gmMode: gameConfig?.gmMode ?? "standalone",
     rating: gameConfig?.rating ?? "sfw",

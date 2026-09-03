@@ -13,6 +13,7 @@
  *   story-bundle-editor-characters-selected-empty
  *   story-bundle-editor-characters-add-{id}
  *   story-bundle-editor-characters-remove-{id}
+ *   story-bundle-editor-characters-party-toggle-{id}
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -75,6 +76,16 @@ export class StoryBundleCharactersTabPage {
   /** Locator for the remove (X) button of a specific selected character. */
   removeButtonLocator(id: string): Locator {
     return this.page.getByTestId(`story-bundle-editor-characters-remove-${id}`);
+  }
+
+  /** Locator for the Party/NPC toggle pill of a specific selected character. */
+  partyToggleLocator(id: string): Locator {
+    return this.page.getByTestId(`story-bundle-editor-characters-party-toggle-${id}`);
+  }
+
+  /** Click a character's Party/NPC toggle, flipping its party membership. */
+  async togglePartyMember(id: string): Promise<void> {
+    await this.partyToggleLocator(id).click();
   }
 
   /** Add a character to the bundle via its add button. */

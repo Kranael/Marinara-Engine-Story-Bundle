@@ -76,7 +76,15 @@ export class StoryBundleGalleryPage {
   editButton(): Locator {
     return this.visibleDetailAction("story-bundle-gallery-edit-");
   }
+  /** Locator for the GM button inside the visible detail card. */
+  gmButton(): Locator {
+    return this.visibleDetailAction("story-bundle-gallery-mode-game-");
+  }
 
+  /** Locator for the compact GM button on a gallery card by bundle id. */
+  cardGmButton(bundleId: string): Locator {
+    return this.gallery.getByTestId(`story-bundle-gallery-card-mode-game-${bundleId}`);
+  }
   // ── Actions ───────────────────────────────────────────────
 
   /** Wait for the gallery to become visible. */

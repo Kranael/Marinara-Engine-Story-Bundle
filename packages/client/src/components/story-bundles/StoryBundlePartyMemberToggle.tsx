@@ -10,15 +10,16 @@ import { cn } from "../../lib/utils";
 export interface StoryBundlePartyMemberToggleProps {
   isPartyMember: boolean;
   onToggle: () => void;
+  testId?: string;
 }
 
-export function StoryBundlePartyMemberToggle({ isPartyMember, onToggle }: StoryBundlePartyMemberToggleProps) {
+export function StoryBundlePartyMemberToggle({ isPartyMember, onToggle, testId }: StoryBundlePartyMemberToggleProps) {
   const { t } = useTranslation();
 
   return (
     <button
       type="button"
-      data-testid="story-bundle-party-member-toggle"
+      data-testid={testId ?? "story-bundle-party-member-toggle"}
       onClick={onToggle}
       aria-pressed={isPartyMember}
       title={
