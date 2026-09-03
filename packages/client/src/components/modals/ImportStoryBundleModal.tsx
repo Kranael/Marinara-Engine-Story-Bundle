@@ -1,8 +1,13 @@
 // ──────────────────────────────────────────────
-// Modal: Import Story Bundle (JSON)
+// Modal: Import Story Bundle
 // ──────────────────────────────────────────────
-// Detects embedded characters, personas, and lorebooks in the export and
-// offers to import them — same pattern as character → embedded lorebook.
+// Accepts two file formats:
+//  - .storybundle: a ZIP archive (see services/import/story-bundle-archive-import.ts)
+//    uploaded via multipart to /story-bundles/import-archive. Self-contained,
+//    no embedded-content choice, bootstrapped silently server-side.
+//  - .marinara.json: the legacy base64 JSON envelope, parsed client-side and
+//    posted to /import/marinara. Detects embedded characters/personas/lorebooks
+//    and offers to import them — same pattern as character → embedded lorebook.
 // ──────────────────────────────────────────────
 import { useState, useRef } from "react";
 import { Modal } from "../ui/Modal";
@@ -122,6 +127,29 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
     };
   };
 
+  /** Upload a .storybundle ZIP archive via multipart to the new archive endpoint. */
+  const importArchiveFile = async (file: File): Promise<{ filename: string; success: boolean; message: string }> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const data = await api.upload<{ id?: string; name?: string }>("/story-bundles/import-archive", formData);
+      return {
+        filename: file.name,
+        success: true,
+        message: t("storyBundles.importedAs", {
+          name: data.name ?? "Story Bundle",
+          defaultValue: "Imported “{{name}}”",
+        }),
+      };
+    } catch (error) {
+      return {
+        filename: file.name,
+        success: false,
+        message: error instanceof Error ? error.message : t("storyBundles.importFailed", "Import failed"),
+      };
+    }
+  };
+
   const handleFiles = async (files: File[], importEmbedded?: boolean) => {
     if (files.length === 0) return;
     setStatus("loading");
@@ -130,10 +158,18 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
     setMissingAgents([]);
     setAgentInstallStates({});
 
-    const nextResults: Array<{ filename: string; success: boolean; message: string }> = [];
+    const isArchive = (file: File) => file.name.toLowerCase().endsWith(".storybundle");
+    const archiveFiles = files.filter(isArchive);
+    const jsonFiles = files.filter((file) => !isArchive(file));
+
+    // .storybundle archives are self-contained — upload + bootstrap immediately,
+    // no embedded-content choice to make.
+    const nextResults: Array<{ filename: string; success: boolean; message: string }> = await Promise.all(
+      archiveFiles.map(importArchiveFile),
+    );
     const nextMissingAgents: MissingAgent[] = [];
 
-    for (const file of files) {
+    for (const file of jsonFiles) {
       try {
         const text = await file.text();
         const json = JSON.parse(text);
@@ -176,8 +212,9 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
             }
           }
           if (previews.length > 0) {
-            setPendingEmbeddedChoice({ files, previews });
-            setStatus("idle");
+            setResults(nextResults);
+            setPendingEmbeddedChoice({ files: jsonFiles, previews });
+            setStatus(nextResults.length > 0 ? "done" : "idle");
             return;
           }
         }
@@ -358,7 +395,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
               {t("storyBundles.importDropHint", "Drop one or more story bundle files here or click to browse")}
             </p>
             <span className="flex items-center gap-1 rounded-full bg-[var(--secondary)] px-2.5 py-1 text-xs text-[var(--muted-foreground)]">
-              <FileJson size="0.75rem" /> {t("storyBundles.importFormat", ".marinara.json")}
+              <FileJson size="0.75rem" /> {t("storyBundles.importFormat", ".storybundle · .marinara.json")}
             </span>
           </div>
         )}
@@ -366,7 +403,7 @@ export function ImportStoryBundleModal({ open, onClose }: Props) {
         <input
           ref={fileRef}
           type="file"
-          accept=".json"
+          accept=".json,.storybundle"
           multiple
           className="hidden"
           data-testid="story-bundle-import-file-input"

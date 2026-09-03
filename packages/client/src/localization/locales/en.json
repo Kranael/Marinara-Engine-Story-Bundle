@@ -1308,7 +1308,7 @@
   "storyBundles.importEmbedded": "Import everything",
   "storyBundles.importFailed": "Import failed",
   "storyBundles.importFailedCount": "failed",
-  "storyBundles.importFormat": ".marinara.json",
+  "storyBundles.importFormat": ".storybundle · .marinara.json",
   "storyBundles.importing": "Importing…",
   "storyBundles.importNotAStoryBundle": "Not a valid story bundle file.",
   "storyBundles.importParseFailed": "Failed to parse file",

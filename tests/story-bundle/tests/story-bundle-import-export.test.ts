@@ -172,15 +172,16 @@ test.describe("Story Bundle Import/Export — Positive", () => {
     const exportResponse = await page.request.get(`/api/story-bundles/${bundle.id}/export`);
     expect(exportResponse.status()).toBe(200);
 
-    const body = await exportResponse.json();
-    expect(body).toHaveProperty("type", "marinara_story_bundle");
-    expect(body).toHaveProperty("version", 1);
-    expect(body.data).toHaveProperty("name");
+    // Exports are .storybundle ZIP archives (no base64 JSON envelope) — verify
+    // the ZIP magic bytes rather than parsing as JSON.
+    const body = await exportResponse.body();
+    expect(body.length).toBeGreaterThan(0);
+    expect(body.subarray(0, 2).toString("latin1")).toBe("PK");
 
     // Also verify the Content-Disposition header is set for download.
     const disposition = exportResponse.headers()["content-disposition"];
     expect(disposition).toContain("attachment");
-    expect(disposition).toContain(".marinara.json");
+    expect(disposition).toContain(".storybundle");
 
     await api.delete(bundle.id);
   });
