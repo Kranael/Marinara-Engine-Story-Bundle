@@ -3,18 +3,11 @@
  *
  * Data test IDs:
  *   story-bundle-import-modal
- *   story-bundle-import-modal-close-button
  *   story-bundle-import-drop-zone
  *   story-bundle-import-file-input
  *   story-bundle-import-loading
  *   story-bundle-import-results
- *   story-bundle-import-skip-embedded
- *   story-bundle-import-import-all
  *   story-bundle-import-close-button
- *   story-bundle-import-missing-agents
- *   story-bundle-import-missing-agent-row
- *   story-bundle-import-install-agent
- *   story-bundle-import-embedded-agent-count
  */
 import { type Locator, type Page } from "@playwright/test";
 
@@ -25,13 +18,7 @@ export class ImportStoryBundleModalPage {
   readonly fileInput: Locator;
   readonly loadingIndicator: Locator;
   readonly results: Locator;
-  readonly skipEmbeddedButton: Locator;
-  readonly importAllButton: Locator;
   readonly closeButton: Locator;
-  readonly missingAgentsSection: Locator;
-  readonly missingAgentRows: Locator;
-  readonly installAgentButtons: Locator;
-  readonly embeddedAgentCount: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -40,13 +27,7 @@ export class ImportStoryBundleModalPage {
     this.fileInput = page.getByTestId("story-bundle-import-file-input");
     this.loadingIndicator = page.getByTestId("story-bundle-import-loading");
     this.results = page.getByTestId("story-bundle-import-results");
-    this.skipEmbeddedButton = page.getByTestId("story-bundle-import-skip-embedded");
-    this.importAllButton = page.getByTestId("story-bundle-import-import-all");
     this.closeButton = page.getByTestId("story-bundle-import-close-button");
-    this.missingAgentsSection = page.getByTestId("story-bundle-import-missing-agents");
-    this.missingAgentRows = page.getByTestId("story-bundle-import-missing-agent-row");
-    this.installAgentButtons = page.getByTestId("story-bundle-import-install-agent");
-    this.embeddedAgentCount = page.getByTestId("story-bundle-import-embedded-agent-count");
   }
 
   // ── Actions ───────────────────────────────────────────────

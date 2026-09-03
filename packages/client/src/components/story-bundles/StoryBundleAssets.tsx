@@ -9,7 +9,7 @@
 // and the same tree query, so the resulting `excludedFolders` list behaves
 // identically to the native "Adjust Game Assets for this Game" selector once
 // DirectInject copies it onto the new game's chat metadata.
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronRight, FolderOpen, Loader2 } from "lucide-react";
 import { useGameAssetTree, type TreeNode } from "../../hooks/use-game-assets";
@@ -19,6 +19,7 @@ import {
   includeGameAssetFolder,
   type GameAssetSelectionStatus,
 } from "../../lib/game-asset-selection";
+import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 import { cn } from "../../lib/utils";
 
 export interface StoryBundleAssetsProps {
@@ -117,10 +118,19 @@ export function StoryBundleAssets({ excludedFolders, onExcludedFoldersChange }: 
 
   return (
     <div data-testid="story-bundle-editor-assets" className="flex flex-col gap-4">
-      <section>
-        <h3 className="mari-chrome-text-strong mb-1.5 text-sm font-semibold">
-          {t("storyBundles.assets", "Game Assets")}
-        </h3>
+      <section
+        style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}
+        className="rounded-lg border border-[var(--home-chat-mode-accent)]/70 bg-[var(--home-chat-mode-accent)]/[0.03] p-3"
+      >
+        <div className="mb-1.5 flex items-center justify-between gap-2">
+          <h3 className="mari-chrome-text-strong text-sm font-semibold">{t("storyBundles.assets", "Game Assets")}</h3>
+          <span
+            data-testid="story-bundle-editor-assets-gm-settings-label"
+            className="rounded-full bg-[var(--home-chat-mode-accent)]/15 px-2 py-0.5 text-[0.625rem] font-semibold text-[var(--home-chat-mode-accent)]"
+          >
+            {t("storyBundles.gmSettingsLabel", "GM Settings")}
+          </span>
+        </div>
         <p className="mb-3 text-xs text-[var(--muted-foreground)]">
           {t(
             "storyBundles.assetsHint",
