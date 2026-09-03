@@ -2,63 +2,21 @@
 // Routes: Story Bundles
 // ──────────────────────────────────────────────
 import type { FastifyInstance } from "fastify";
-import { existsSync } from "node:fs";
-import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
+import { createWriteStream, existsSync } from "node:fs";
+import { mkdir, mkdtemp, readFile, rm, unlink, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { extname, join } from "node:path";
-import {
-  createStoryBundleSchema,
-  storyBundleIdParamsSchema,
-  updateStoryBundleSchema,
-  BUILT_IN_AGENT_MANIFESTS,
-} from "@marinara-engine/shared";
+import { pipeline } from "node:stream/promises";
+import { createStoryBundleSchema, storyBundleIdParamsSchema, updateStoryBundleSchema } from "@marinara-engine/shared";
 import type { StoryBundle, StoryBundleScenario } from "@marinara-engine/shared";
 import { createStoryBundlesStorage } from "../services/storage/story-bundles.storage.js";
-import { createCharactersStorage } from "../services/storage/characters.storage.js";
-import { createCharacterGalleryStorage } from "../services/storage/character-gallery.storage.js";
-import { createLorebooksStorage } from "../services/storage/lorebooks.storage.js";
-import { createPromptsStorage } from "../services/storage/prompts.storage.js";
-import { createAgentsStorage } from "../services/storage/agents.storage.js";
 import { logger } from "../lib/logger.js";
 import { DATA_DIR } from "../utils/data-dir.js";
 import { assertInsideDir, extensionFromImageMime, isAllowedImageBuffer } from "../utils/security.js";
-import {
-  readAvatarDataUrl,
-  readGalleryForCharacter,
-  readImageAsDataUrl,
-  readSpritesForId,
-} from "../services/export/export-image-helpers.js";
+import { buildBundleArchive } from "../services/export/story-bundle-archive.js";
+import { unpackAndBootstrapBundle } from "../services/import/story-bundle-archive-import.js";
 
 const STORY_BUNDLE_IMAGES_DIR = join(DATA_DIR, "story-bundles", "images");
-
-/**
- * Writes a JSON object's fields to a stream one value at a time instead of
- * via a single JSON.stringify() over the whole object. A bundle with many
- * embedded characters can carry hundreds of MB of avatars/sprites/gallery —
- * concatenating that into one JS string can exceed V8's ~512 MB max string
- * length and crash the whole export with an opaque 500.
- */
-function createJsonObjectStreamer(res: NodeJS.WritableStream) {
-  let first = true;
-  const comma = () => {
-    const prefix = first ? "" : ",";
-    first = false;
-    return prefix;
-  };
-  return {
-    field(key: string, value: unknown) {
-      res.write(`${comma()}${JSON.stringify(key)}:${JSON.stringify(value)}`);
-    },
-    /** Streams each array item through its own JSON.stringify() call. */
-    arrayField(key: string, items: unknown[]) {
-      res.write(`${comma()}${JSON.stringify(key)}:[`);
-      items.forEach((item, index) => {
-        if (index > 0) res.write(",");
-        res.write(JSON.stringify(item));
-      });
-      res.write("]");
-    },
-  };
-}
 
 function parseImageUpload(image: string): { buffer: Buffer; hintedExt: string } {
   let base64 = image;
@@ -125,7 +83,7 @@ function parseJsonObject(value: unknown): Record<string, unknown> | null {
 }
 
 /** Parse the JSON columns into typed arrays for the API response. */
-function serializeBundle(row: Record<string, unknown>): StoryBundle {
+export function serializeBundle(row: Record<string, unknown>): StoryBundle {
   return {
     id: row.id as string,
     name: row.name as string,
@@ -152,11 +110,6 @@ function serializeBundle(row: Record<string, unknown>): StoryBundle {
 
 export async function storyBundlesRoutes(app: FastifyInstance) {
   const storage = createStoryBundlesStorage(app.db);
-  const charactersStorage = createCharactersStorage(app.db);
-  const characterGalleryStorage = createCharacterGalleryStorage(app.db);
-  const lorebooksStorage = createLorebooksStorage(app.db);
-  const promptsStorage = createPromptsStorage(app.db);
-  const agentsStorage = createAgentsStorage(app.db);
 
   // ── List all story bundles ──
   app.get("/", async (_req, reply) => {
@@ -267,161 +220,49 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
       .send(buffer);
   });
 
-  // ── Export a story bundle as .marinara.json ──
-  // Embeds full character, persona, and lorebook data so the exported JSON is
-  // self-contained. On import, missing entities are detected and offered for
-  // creation — same pattern as character → embedded lorebook.
+  // ── Export a story bundle as a maximally-compressed .storybundle ZIP ──
+  // Every binary (avatars, sprites, gallery images) is a raw archive entry —
+  // no base64, no single combined JSON. See services/export/story-bundle-archive.ts.
   app.get("/:id/export", async (req, reply) => {
     const { id } = storyBundleIdParamsSchema.parse(req.params);
-    const bundle = await storage.getById(id);
-    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
-    const serialized = serializeBundle(bundle);
+    const bundleRow = await storage.getById(id);
+    if (!bundleRow) return reply.status(404).send({ error: "Story bundle not found" });
+    const name = serializeBundle(bundleRow).name;
 
-    // Fetch full data for all referenced entities, including binary assets
-    // (avatars, sprites, gallery) as base64 so the export is truly
-    // self-contained for PC-to-PC transfer.
-    const embeddedCharacters: Record<string, unknown>[] = [];
-    for (const charId of serialized.characterIds) {
-      const char = await charactersStorage.getById(charId);
-      if (char) {
-        const charRow = char as Record<string, unknown>;
-        const charData = JSON.parse(charRow.data as string);
-        const [avatar, sprites, gallery] = await Promise.all([
-          readAvatarDataUrl(charRow.avatarPath as string | null | undefined),
-          readSpritesForId(charId),
-          readGalleryForCharacter(charId, characterGalleryStorage),
-        ]);
-        embeddedCharacters.push({
-          id: charId,
-          name: charRow.name,
-          data: charData,
-          ...(avatar ? { avatar } : {}),
-          ...(sprites.length > 0 ? { sprites } : {}),
-          ...(gallery.length > 0 ? { gallery } : {}),
-        });
-      }
-    }
-
-    const embeddedPersonas: Record<string, unknown>[] = [];
-    for (const personaId of serialized.personaIds) {
-      const persona = await charactersStorage.getPersona(personaId);
-      if (persona) {
-        const personaRow = persona as Record<string, unknown>;
-        const [avatar, sprites] = await Promise.all([
-          readAvatarDataUrl(personaRow.avatarPath as string | null | undefined),
-          readSpritesForId(personaId),
-        ]);
-        embeddedPersonas.push({
-          ...personaRow,
-          ...(avatar ? { avatar } : {}),
-          ...(sprites.length > 0 ? { sprites } : {}),
-        });
-      }
-    }
-
-    const embeddedLorebooks: Record<string, unknown>[] = [];
-    for (const lorebookId of serialized.lorebookIds) {
-      const lb = await lorebooksStorage.getById(lorebookId);
-      if (lb) {
-        const entries = await lorebooksStorage.listEntries(lorebookId);
-        const folders = await lorebooksStorage.listFolders(lorebookId);
-        embeddedLorebooks.push({
-          id: lorebookId,
-          lorebook: lb,
-          entries,
-          folders,
-        });
-      }
-    }
-
-    const embeddedPresets: Record<string, unknown>[] = [];
-    for (const presetId of serialized.presetIds) {
-      const preset = await promptsStorage.getById(presetId);
-      if (preset) {
-        const sections = await promptsStorage.listSections(presetId);
-        const groups = await promptsStorage.listGroups(presetId);
-        const choiceBlocks = await promptsStorage.listChoiceBlocksForPreset(presetId);
-        embeddedPresets.push({
-          id: presetId,
-          preset,
-          sections,
-          groups,
-          choiceBlocks,
-        });
-      }
-    }
-
-    // Read the bundle image as a base64 data URL for self-contained export.
-    let bundleImage: string | null = null;
-    if (serialized.imagePath) {
-      const imageFilename = serialized.imagePath.split("?")[0]!.split("/").pop();
-      if (imageFilename) {
-        bundleImage = await readImageAsDataUrl(STORY_BUNDLE_IMAGES_DIR, imageFilename);
-      }
-    }
-
-    // Carry lightweight agent metadata (id → display name) so an importing
-    // machine can label missing agents in the install prompt. Agents are
-    // provided by capability packages, so they are referenced by id rather
-    // than embedded.
-    const embeddedAgents: Array<{ id: string; name: string }> = [];
-    if (serialized.agentIds.length > 0) {
-      const agentConfigs = await agentsStorage.list();
-      const configNameByType = new Map<string, string>();
-      for (const config of agentConfigs) {
-        const row = config as Record<string, unknown>;
-        if (typeof row.type === "string" && typeof row.name === "string" && row.name.trim()) {
-          configNameByType.set(row.type, row.name.trim());
-        }
-      }
-      for (const agentId of serialized.agentIds) {
-        const manifest = BUILT_IN_AGENT_MANIFESTS.find((candidate) => candidate.id === agentId);
-        const displayName = manifest?.name ?? configNameByType.get(agentId) ?? agentId;
-        embeddedAgents.push({ id: agentId, name: displayName });
-      }
-    }
-
-    // Stream the envelope instead of building one ExportEnvelope object and
-    // JSON.stringify()-ing it whole — see createJsonObjectStreamer() above.
     reply.hijack();
-    const res = reply.raw;
-    res.writeHead(200, {
-      "Content-Type": "application/json",
-      "Content-Disposition": `attachment; filename="${serialized.name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json"`,
+    reply.raw.writeHead(200, {
+      "Content-Type": "application/octet-stream",
+      "Content-Disposition": `attachment; filename="${name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.storybundle"`,
     });
     try {
-      res.write("{");
-      const envelopeJson = createJsonObjectStreamer(res);
-      envelopeJson.field("type", "marinara_story_bundle");
-      envelopeJson.field("version", 1);
-      envelopeJson.field("exportedAt", new Date().toISOString());
-      res.write(',"data":{');
-      const dataJson = createJsonObjectStreamer(res);
-      dataJson.field("name", serialized.name);
-      dataJson.field("description", serialized.description);
-      dataJson.field("imagePath", serialized.imagePath);
-      dataJson.field("avatarCrop", serialized.avatarCrop);
-      dataJson.field("comment", serialized.comment);
-      dataJson.field("creator", serialized.creator);
-      dataJson.field("version", serialized.version);
-      dataJson.arrayField("tags", serialized.tags);
-      dataJson.arrayField("characterIds", serialized.characterIds);
-      dataJson.arrayField("personaIds", serialized.personaIds);
-      dataJson.arrayField("lorebookIds", serialized.lorebookIds);
-      dataJson.arrayField("presetIds", serialized.presetIds);
-      dataJson.arrayField("agentIds", serialized.agentIds);
-      dataJson.arrayField("scenarios", serialized.scenarios);
-      dataJson.arrayField("embeddedCharacters", embeddedCharacters);
-      dataJson.arrayField("embeddedPersonas", embeddedPersonas);
-      dataJson.arrayField("embeddedLorebooks", embeddedLorebooks);
-      dataJson.arrayField("embeddedPresets", embeddedPresets);
-      if (embeddedAgents.length > 0) dataJson.arrayField("embeddedAgents", embeddedAgents);
-      if (bundleImage) dataJson.field("bundleImage", bundleImage);
-      res.write("}}");
-      res.end();
+      await buildBundleArchive(id, app.db, reply.raw);
     } catch (err) {
-      logger.error(err, "[story-bundles/export] Failed to stream export");
-      if (!res.writableEnded) res.destroy();
+      logger.error(err, "[story-bundles/export] Failed to build .storybundle archive");
+      if (!reply.raw.writableEnded) reply.raw.destroy();
+    }
+  });
+
+  // ── Import a .storybundle ZIP (multipart upload) ──
+  // Streams the upload straight to a temp file (never buffered as one JS
+  // string/value), then unpacks + bootstraps it. See
+  // services/import/story-bundle-archive-import.ts.
+  app.post("/import-archive", async (req, reply) => {
+    const uploadDir = await mkdtemp(join(tmpdir(), "marinara-storybundle-upload-"));
+    const archivePath = join(uploadDir, "bundle.storybundle");
+    try {
+      const file = await req.file();
+      if (!file) return reply.status(400).send({ error: "No .storybundle file uploaded" });
+      const fileStream = file.file as typeof file.file & { truncated?: boolean };
+      await pipeline(fileStream, createWriteStream(archivePath));
+      if (fileStream.truncated) return reply.status(413).send({ error: "Story bundle archive upload was truncated" });
+
+      const { bundle } = await unpackAndBootstrapBundle(archivePath, app.db);
+      return reply.status(201).send(bundle);
+    } catch (err) {
+      logger.error(err, "[story-bundles/import-archive] Failed to import .storybundle archive");
+      return reply.status(400).send({ error: err instanceof Error ? err.message : "Failed to import story bundle" });
+    } finally {
+      await rm(uploadDir, { recursive: true, force: true }).catch(() => {});
     }
   });
 }

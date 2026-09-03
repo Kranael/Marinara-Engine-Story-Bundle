@@ -143,7 +143,7 @@ async function saveAvatarFromDataUrl(dataUrl: unknown, prefix: string, id: strin
 // it as a real image, and write it under data/story-bundles/images/. Returns
 // the public API path so the imported bundle keeps its picture across
 // machines. Returns null when the payload is absent or invalid.
-async function saveStoryBundleImageFromDataUrl(dataUrl: unknown, id: string): Promise<string | null> {
+export async function saveStoryBundleImageFromDataUrl(dataUrl: unknown, id: string): Promise<string | null> {
   if (dataUrl === undefined || dataUrl === null || dataUrl === "") return null;
   const decoded = decodeImageDataUrl(dataUrl);
   if (!decoded) {
@@ -459,7 +459,7 @@ export function normalizeNativeCharacterData(data: unknown): CharacterData | nul
   return parsed.success ? parsed.data : null;
 }
 
-async function importCharacter(data: unknown, db: DB) {
+export async function importCharacter(data: unknown, db: DB) {
   const storage = createCharactersStorage(db);
   const galleryStorage = createCharacterGalleryStorage(db);
   const d = data as {
@@ -627,7 +627,7 @@ function parseNativePersonaInput(input: Record<string, unknown>) {
   return personaCreateInputSchema.parse(candidate);
 }
 
-async function importPersona(data: unknown, db: DB) {
+export async function importPersona(data: unknown, db: DB) {
   const storage = createCharactersStorage(db);
   const galleryStorage = createPersonaGalleryStorage(db);
   if (!isJsonRecord(data)) {
@@ -720,7 +720,7 @@ async function importLorebook(data: unknown, db: DB) {
   return importLorebookPayload(data, db);
 }
 
-async function importLorebookPayload(data: unknown, db: DB) {
+export async function importLorebookPayload(data: unknown, db: DB) {
   const storage = createLorebooksStorage(db);
   const d = data as {
     lorebook?: Record<string, unknown>;
@@ -885,7 +885,7 @@ async function importLorebookPayload(data: unknown, db: DB) {
 
 // ── Preset ───────────────────────────────────
 
-async function importPreset(data: unknown, db: DB) {
+export async function importPreset(data: unknown, db: DB) {
   const storage = createPromptsStorage(db);
   const d = data as {
     preset?: Record<string, unknown>;

@@ -283,7 +283,7 @@ export function useStoryBundleActions() {
       if (exportingId) return;
       setExportingId(id);
       try {
-        await api.download(`/story-bundles/${id}/export`, `${name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.marinara.json`);
+        await api.download(`/story-bundles/${id}/export`, `${name.replace(/[^a-zA-Z0-9_\- ]/g, "_")}.storybundle`);
         toast.success(t("storyBundles.exportSuccess", "Story bundle exported."));
       } catch {
         toast.error(t("storyBundles.exportFailed", "Failed to export the story bundle."));
