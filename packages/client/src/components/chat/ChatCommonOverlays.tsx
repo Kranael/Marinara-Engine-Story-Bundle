@@ -388,7 +388,7 @@ export function ChatCommonOverlays({
       {chat && (
         <Suspense fallback={null}>{wizardOpen && <ChatSetupWizard chat={chat} onFinish={onWizardFinish} />}</Suspense>
       )}
-      {chat && presetVariablesPrompt && (
+      {chat && presetVariablesPrompt && presetVariablesPrompt.chatId === chat.id && (
         <Suspense fallback={null}>
           <ChoiceSelectionModal
             open

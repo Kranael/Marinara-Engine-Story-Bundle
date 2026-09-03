@@ -84,6 +84,7 @@ const BACKUP_DIRS = [
   "prompts/images",
   "agents/images",
   "connections/images",
+  "story-bundles/images",
   "long-term-memory",
 ];
 const ENCRYPTION_KEY_FILENAME = ".encryption-key";
@@ -106,6 +107,7 @@ const PROFILE_IMAGE_ASSET_PREFIXES = [
   "prompts/images/",
   "agents/images/",
   "connections/images/",
+  "story-bundles/images/",
   "sprites/",
   "game-assets/backgrounds/",
   "game-assets/sprites/",

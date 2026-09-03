@@ -158,6 +158,30 @@ export async function saveStoryBundleImageFromDataUrl(dataUrl: unknown, id: stri
   return `/api/story-bundles/images/file/${filename}`;
 }
 
+const STORY_BUNDLE_IMAGE_PATH_RE = /^\/api\/story-bundles\/images\/file\/([^/?#]+)$/;
+
+/**
+ * A legacy `.marinara.json` export's `imagePath` (bundle cover or scenario
+ * picture) points at a file on the EXPORTING machine — trusting it verbatim
+ * would let a shared export set an arbitrary `<img src>` (including a remote
+ * URL) on import. Only accept it back when it resolves to a real, existing
+ * file already inside our own story-bundle image store (re-importing an
+ * export taken from this same machine); otherwise treat it as absent.
+ */
+async function resolveTrustedStoryBundleImagePath(rawPath: unknown): Promise<string | null> {
+  if (typeof rawPath !== "string") return null;
+  const match = rawPath.match(STORY_BUNDLE_IMAGE_PATH_RE);
+  if (!match) return null;
+  const imagesDir = join(DATA_DIR, "story-bundles", "images");
+  try {
+    const filepath = assertInsideDir(imagesDir, join(imagesDir, match[1]!));
+    await access(filepath);
+    return rawPath;
+  } catch {
+    return null;
+  }
+}
+
 function readLorebookScope(value: unknown): { mode: "all" | "disabled" | "specific"; chatIds: string[] } {
   if (!value || typeof value !== "object") return { mode: "all", chatIds: [] };
   const raw = value as Record<string, unknown>;
@@ -1278,21 +1302,24 @@ async function importStoryBundle(data: unknown, db: DB) {
   // each. Older exports carry the legacy `intros` field with `name`/`text`;
   // accept both shapes so bundles exported before the rename still import.
   const legacyOrCurrentScenarios = Array.isArray(d.scenarios) ? d.scenarios : Array.isArray(d.intros) ? d.intros : [];
-  const finalScenarios = legacyOrCurrentScenarios
-    .filter((entry): entry is Record<string, unknown> => typeof entry === "object" && entry !== null)
-    .map((entry) => ({
-      id: typeof entry.id === "string" && entry.id.length > 0 ? entry.id : newId(),
-      title: typeof entry.title === "string" ? entry.title : typeof entry.name === "string" ? entry.name : "",
-      openingMessage:
-        typeof entry.openingMessage === "string"
-          ? entry.openingMessage
-          : typeof entry.text === "string"
-            ? entry.text
-            : "",
-      imagePath: typeof entry.imagePath === "string" ? entry.imagePath : null,
-      avatarCrop: entry.avatarCrop ?? null,
-    }))
-    .filter((entry) => entry.title.length > 0 && entry.openingMessage.length > 0);
+  const finalScenarios = (
+    await Promise.all(
+      legacyOrCurrentScenarios
+        .filter((entry): entry is Record<string, unknown> => typeof entry === "object" && entry !== null)
+        .map(async (entry) => ({
+          id: typeof entry.id === "string" && entry.id.length > 0 ? entry.id : newId(),
+          title: typeof entry.title === "string" ? entry.title : typeof entry.name === "string" ? entry.name : "",
+          openingMessage:
+            typeof entry.openingMessage === "string"
+              ? entry.openingMessage
+              : typeof entry.text === "string"
+                ? entry.text
+                : "",
+          imagePath: await resolveTrustedStoryBundleImagePath(entry.imagePath),
+          avatarCrop: entry.avatarCrop ?? null,
+        })),
+    )
+  ).filter((entry) => entry.title.length > 0 && entry.openingMessage.length > 0);
 
   const result = await storage.create({
     name,
@@ -1314,10 +1341,11 @@ async function importStoryBundle(data: unknown, db: DB) {
   }
 
   // Restore the bundle picture from the embedded data URL. The exported
-  // imagePath points at the source machine's file, so it is only kept when no
-  // embedded image is available.
+  // imagePath points at the source machine's file, so it is only kept when it
+  // resolves back to a real file already in our own image store (re-import on
+  // the same machine) and no embedded image is available.
   const importedId = result.id as string;
-  let imagePath: string | null = typeof d.imagePath === "string" ? d.imagePath : null;
+  let imagePath: string | null = await resolveTrustedStoryBundleImagePath(d.imagePath);
   if (d.bundleImage !== undefined && d.bundleImage !== null && d.bundleImage !== "") {
     const restored = await saveStoryBundleImageFromDataUrl(d.bundleImage, importedId);
     if (restored) imagePath = restored;

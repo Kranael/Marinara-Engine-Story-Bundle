@@ -27,6 +27,14 @@ export function isConnectionFlagTrue(value: unknown): boolean {
   return value === true || value === "true";
 }
 
+/** The starred/default connection if one is set, else the first in the list, else null. */
+export function getPreferredConnectionId<T extends { id?: string | null; isDefault?: boolean | string | null }>(
+  connections: readonly T[] | null | undefined,
+): string | null {
+  const list = connections ?? [];
+  return list.find((connection) => isConnectionFlagTrue(connection.isDefault))?.id ?? list[0]?.id ?? null;
+}
+
 export function isLanguageGenerationConnection(connection: ConnectionProviderLike): boolean {
   return (
     connection.provider !== "image_generation" &&

@@ -52,7 +52,8 @@ function profileAssetImagePolicy(path: string): { allowSvg?: boolean } | null {
     normalized.startsWith("lorebooks/images/") ||
     normalized.startsWith("prompts/images/") ||
     normalized.startsWith("agents/images/") ||
-    normalized.startsWith("connections/images/")
+    normalized.startsWith("connections/images/") ||
+    normalized.startsWith("story-bundles/images/")
   ) {
     return {};
   }

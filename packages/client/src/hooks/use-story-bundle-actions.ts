@@ -16,6 +16,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { buildNarratorInstructionMessage } from "@marinara-engine/shared";
 import { useCreateChat, useUpdateChatMetadata, chatKeys } from "./use-chats";
 import { useConnections } from "./use-connections";
+import { getPreferredConnectionId } from "../lib/connection-filters";
 import { useDeleteStoryBundle } from "./use-story-bundles";
 import { useGenerate } from "./use-generate";
 import { useChatStore } from "../stores/chat.store";
@@ -103,46 +104,32 @@ export function useStoryBundleActions() {
           );
         }
 
-        const conns = (connections ?? []) as Array<{ id: string }>;
+        const conns = (connections ?? []) as Array<{ id: string; isDefault?: boolean | string }>;
 
         const chat = await createChat.mutateAsync({
           name: bundle.name,
           mode: "roleplay",
           characterIds: bundle.characterIds ?? [],
           personaId: bundle.personaIds?.[0] ?? null,
-          connectionId: conns[0]?.id,
+          connectionId: getPreferredConnectionId(conns) ?? undefined,
           promptPresetId: bundle.presetIds?.[0] ?? null,
         });
 
-        // Tag the chat with the story bundle it was started from so the
-        // chat sidebar can show the bundle's picture on this RP's row.
+        // Tag the chat with the story bundle it was started from (so the
+        // chat sidebar can show the bundle's picture on this RP's row) and
+        // activate its lorebooks/agents in the same call, routed through
+        // useUpdateChatMetadata so the cache merge/rollback behavior applies.
+        const lorebookIds = bundle.lorebookIds ?? [];
+        const agentIds = bundle.agentIds ?? [];
         try {
-          await updateChatMetadata.mutateAsync({ id: chat.id, storyBundleId: bundle.id });
+          await updateChatMetadata.mutateAsync({
+            id: chat.id,
+            storyBundleId: bundle.id,
+            ...(lorebookIds.length > 0 ? { activeLorebookIds: lorebookIds } : {}),
+            ...(agentIds.length > 0 ? { enableAgents: true, activeAgentIds: agentIds } : {}),
+          });
         } catch (err) {
           console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
-        }
-
-        // Activate the bundle's lorebooks on the new chat.
-        const lorebookIds = bundle.lorebookIds ?? [];
-        if (lorebookIds.length > 0) {
-          try {
-            await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
-          } catch (err) {
-            console.error("[playStoryBundle] Failed to activate lorebooks:", err);
-          }
-        }
-
-        // Activate the bundle's pre-configured agents on the new chat.
-        const agentIds = bundle.agentIds ?? [];
-        if (agentIds.length > 0) {
-          try {
-            await api.patch(`/chats/${chat.id}/metadata`, {
-              enableAgents: true,
-              activeAgentIds: agentIds,
-            });
-          } catch (err) {
-            console.error("[playStoryBundle] Failed to activate agents:", err);
-          }
         }
 
         // If a scenario was selected, insert its opening message as the first

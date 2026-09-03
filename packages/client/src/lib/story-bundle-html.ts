@@ -71,5 +71,8 @@ export function sanitizeStoryBundleDescription(html: string): string {
       "start",
       "type",
     ],
+    ALLOW_DATA_ATTR: false,
+    ALLOW_UNKNOWN_PROTOCOLS: false,
+    FORBID_ATTR: ["onerror", "onload", "onclick", "srcdoc"],
   });
 }

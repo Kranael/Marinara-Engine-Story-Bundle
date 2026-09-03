@@ -255,6 +255,13 @@ export async function gatherBundleArchiveSources(bundleId: string, db: DB): Prom
   for (const presetId of bundle.presetIds) {
     const preset = await promptsStorage.getById(presetId);
     if (!preset) continue;
+    // Same fields the repo's own preset exporter strips (prompts.routes.ts
+    // buildPresetExportEnvelope): parameters can carry sampler/API-key-shaped
+    // overrides, and systemKey identifies Engine-owned stock presets that a
+    // re-import must never be able to claim.
+    const exportedPreset = { ...preset } as Record<string, unknown>;
+    delete exportedPreset.parameters;
+    delete exportedPreset.systemKey;
     const [sections, groups, choiceBlocks] = await Promise.all([
       promptsStorage.listSections(presetId),
       promptsStorage.listGroups(presetId),
@@ -262,7 +269,7 @@ export async function gatherBundleArchiveSources(bundleId: string, db: DB): Prom
     ]);
     texts.push({
       zipPath: `presets/${presetId}/preset.json`,
-      content: JSON.stringify({ preset, sections, groups, choiceBlocks }),
+      content: JSON.stringify({ preset: exportedPreset, sections, groups, choiceBlocks }),
     });
   }
 

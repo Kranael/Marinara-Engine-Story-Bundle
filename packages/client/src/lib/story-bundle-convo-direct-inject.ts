@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useCreateChat, useUpdateChatMetadata } from "../hooks/use-chats";
 import { useConnections } from "../hooks/use-connections";
+import { getPreferredConnectionId } from "./connection-filters";
 import { useChatStore } from "../stores/chat.store";
 import { useUIStore } from "../stores/ui.store";
 
@@ -50,13 +51,13 @@ export function useDirectInjectStoryBundleConversation() {
     async (bundle: ConvoDirectInjectBundle, characterId: string): Promise<ConvoDirectInjectResult> => {
       setIsStarting(true);
       try {
-        const conns = (connections ?? []) as Array<{ id: string }>;
+        const conns = (connections ?? []) as Array<{ id: string; isDefault?: boolean | string }>;
         const chat = await createChat.mutateAsync({
           name: bundle.name,
           mode: "conversation",
           characterIds: [characterId],
           personaId: bundle.personaIds?.[0] ?? null,
-          connectionId: conns[0]?.id,
+          connectionId: getPreferredConnectionId(conns) ?? undefined,
           promptPresetId: bundle.presetIds?.[0] ?? null,
         });
 

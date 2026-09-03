@@ -43,6 +43,19 @@ function getSafeStoryBundleImagePath(filename: string): string | null {
   }
 }
 
+/** Delete a previously-stored bundle/scenario image file, tolerating a missing or already-gone file. */
+async function deleteStoryBundleImageFile(imagePath: string | null | undefined): Promise<void> {
+  if (!imagePath) return;
+  const filename = imagePath.split("?")[0]!.split("/").pop() ?? "";
+  const filepath = getSafeStoryBundleImagePath(filename);
+  if (!filepath || !existsSync(filepath)) return;
+  try {
+    await unlink(filepath);
+  } catch (error) {
+    logger.warn("Failed to delete story bundle image file %s: %s", filepath, error);
+  }
+}
+
 /** Parse a JSON text column into a string array. */
 function parseJsonArray(value: unknown): string[] {
   if (typeof value !== "string") return [];
@@ -159,6 +172,10 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     const existing = await storage.getById(id);
     if (!existing) return reply.status(404).send({ error: "Story bundle not found" });
     await storage.remove(id);
+    await deleteStoryBundleImageFile(existing.imagePath as string | null);
+    for (const scenario of parseScenarioArray(existing.scenarios)) {
+      await deleteStoryBundleImageFile(scenario.imagePath);
+    }
     return reply.send({ ok: true });
   });
 
@@ -182,6 +199,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
 
     const updated = await storage.update(req.params.id, { imagePath: `/api/story-bundles/images/file/${filename}` });
     if (!updated) return reply.status(404).send({ error: "Story bundle not found" });
+    await deleteStoryBundleImageFile(bundle.imagePath as string | null);
     return reply.send(serializeBundle(updated));
   });
 
@@ -190,18 +208,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
     const bundle = await storage.getById(req.params.id);
     if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
 
-    const existingPath = (bundle.imagePath as string) ?? null;
-    if (existingPath) {
-      const filename = existingPath.split("?")[0]!.split("/").pop() ?? "";
-      const filepath = getSafeStoryBundleImagePath(filename);
-      if (filepath && existsSync(filepath)) {
-        try {
-          await unlink(filepath);
-        } catch (error) {
-          logger.warn("Failed to delete story bundle image file %s: %s", filepath, error);
-        }
-      }
-    }
+    await deleteStoryBundleImageFile(bundle.imagePath as string | null);
 
     const updated = await storage.update(req.params.id, { imagePath: null, avatarCrop: null });
     if (!updated) return reply.status(404).send({ error: "Story bundle not found" });

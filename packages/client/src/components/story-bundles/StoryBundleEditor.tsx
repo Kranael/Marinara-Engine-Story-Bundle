@@ -1,7 +1,7 @@
 // ──────────────────────────────────────────────
 // Story Bundle Editor — Full-page detail view
 // ──────────────────────────────────────────────
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -29,6 +29,7 @@ import type { Lorebook, PromptPreset, StoryBundleGameConfig, StoryBundleScenario
 import { buildNarratorInstructionMessage } from "@marinara-engine/shared";
 import { useCreateChat, useUpdateChatMetadata, chatKeys } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
+import { getPreferredConnectionId } from "../../lib/connection-filters";
 import { useGenerate } from "../../hooks/use-generate";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
@@ -186,7 +187,9 @@ export function StoryBundleEditor() {
   // Keep the local draft in sync with the loaded bundle. useLayoutEffect so
   // the draft is populated synchronously before paint — Play must never read
   // an empty draft in the window between the editor rendering and a passive
-  // effect running.
+  // effect running. Keyed on bundle.id only (not the whole bundle object) so
+  // a background refetch of the SAME bundle (e.g. after the image mutation
+  // below) never silently discards unsaved edits to every other field.
   useLayoutEffect(() => {
     if (bundle) {
       setName(bundle.name);
@@ -207,7 +210,18 @@ export function StoryBundleEditor() {
       setScenarios(bundle.scenarios ?? []);
       setGameConfig(bundle.gameConfig ?? null);
     }
-  }, [bundle]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bundle?.id]);
+
+  // The image upload/remove mutations (StoryBundleMetadata.tsx) write straight
+  // to the server and never touch any other draft field — mirror only the
+  // image fields when the bundle's own copy of them changes, instead of
+  // re-running the full reset above (which would wipe unrelated unsaved edits).
+  useEffect(() => {
+    if (!bundle) return;
+    setImagePath(bundle.imagePath ?? null);
+    setAvatarCrop((bundle.avatarCrop as unknown as Record<string, unknown>) ?? null);
+  }, [bundle?.imagePath, bundle?.avatarCrop]);
 
   /** Sets one genre/setting/tone field, filling in the schema-required remaining
    * gameConfig fields with the same defaults DirectInject already falls back to
@@ -235,10 +249,10 @@ export function StoryBundleEditor() {
     () => (assignedLorebookEntries ?? []).map((entry) => ({ name: entry.name, content: entry.content })),
     [assignedLorebookEntries],
   );
-  const gameConfigGenerationConnectionId = useMemo(() => {
-    const conns = (connections ?? []) as Array<{ id: string; isDefault?: boolean | string }>;
-    return conns.find((c) => c.isDefault === true || c.isDefault === "true")?.id ?? conns[0]?.id ?? null;
-  }, [connections]);
+  const gameConfigGenerationConnectionId = useMemo(
+    () => getPreferredConnectionId(connections as Array<{ id: string; isDefault?: boolean | string }> | undefined),
+    [connections],
+  );
 
   const nameDirty = bundle ? name.trim() !== bundle.name && name.trim().length > 0 : false;
   const descriptionDirty = bundle ? description !== (bundle.description ?? "") : false;
@@ -470,43 +484,30 @@ export function StoryBundleEditor() {
         );
       }
 
-      const conns = (connections ?? []) as Array<{ id: string }>;
+      const conns = (connections ?? []) as Array<{ id: string; isDefault?: boolean | string }>;
       const chat = await createChat.mutateAsync({
         name: draftName,
         mode: "roleplay",
         characterIds: draftCharacterIds,
         personaId: draftPersonaId,
-        connectionId: conns[0]?.id,
+        connectionId: getPreferredConnectionId(conns) ?? undefined,
         promptPresetId: draftPresetId,
       });
 
-      // Tag the chat with the story bundle it was started from so the
-      // chat sidebar can show the bundle's picture on this RP's row.
+      // Tag the chat with the story bundle it was started from (so the chat
+      // sidebar can show the bundle's picture on this RP's row) and activate
+      // its lorebooks/agents in the same call, routed through
+      // useUpdateChatMetadata so the cache merge/rollback behavior applies
+      // here too, not just to the initial tagging.
       try {
-        await updateChatMetadata.mutateAsync({ id: chat.id, storyBundleId: bundle.id });
+        await updateChatMetadata.mutateAsync({
+          id: chat.id,
+          storyBundleId: bundle.id,
+          ...(draftLorebookIds.length > 0 ? { activeLorebookIds: draftLorebookIds } : {}),
+          ...(draftAgentIds.length > 0 ? { enableAgents: true, activeAgentIds: draftAgentIds } : {}),
+        });
       } catch (err) {
         console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
-      }
-
-      // Activate the bundle's lorebooks on the new chat.
-      if (draftLorebookIds.length > 0) {
-        try {
-          await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: draftLorebookIds });
-        } catch (err) {
-          console.error("[playStoryBundle] Failed to activate lorebooks:", err);
-        }
-      }
-
-      // Activate the bundle's pre-configured agents on the new chat.
-      if (draftAgentIds.length > 0) {
-        try {
-          await api.patch(`/chats/${chat.id}/metadata`, {
-            enableAgents: true,
-            activeAgentIds: draftAgentIds,
-          });
-        } catch (err) {
-          console.error("[playStoryBundle] Failed to activate agents:", err);
-        }
       }
 
       // If a scenario was selected, insert its opening message as the first

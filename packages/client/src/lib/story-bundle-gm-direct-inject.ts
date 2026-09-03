@@ -18,6 +18,7 @@ import { useCreateGame, useGameSetup } from "../hooks/use-game";
 import { useCharacters } from "../hooks/use-characters";
 import { useUpdateChatMetadata } from "../hooks/use-chats";
 import { useConnections } from "../hooks/use-connections";
+import { getPreferredConnectionId } from "./connection-filters";
 import { useChatStore } from "../stores/chat.store";
 import { useUIStore } from "../stores/ui.store";
 import { useGameModeStore } from "../stores/game-mode.store";
@@ -168,8 +169,8 @@ export function useDirectInjectStoryBundle() {
   const start = useCallback(
     async (bundle: StoryBundle, personaId: string | null): Promise<DirectInjectResult> => {
       const setupConfig = buildGameSetupConfigFromBundle(bundle, personaId);
-      const conns = (connections ?? []) as Array<{ id: string }>;
-      const connectionId = conns[0]?.id;
+      const conns = (connections ?? []) as Array<{ id: string; isDefault?: boolean | string }>;
+      const connectionId = getPreferredConnectionId(conns) ?? undefined;
 
       setStep("creating");
       const { gameId, sessionChat } = await createGame.mutateAsync({

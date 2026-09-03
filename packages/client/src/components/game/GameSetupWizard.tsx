@@ -64,6 +64,7 @@ import {
 import { getCharacterTitle } from "../../lib/character-display";
 import { api } from "../../lib/api-client";
 import { cn, getAvatarCropStyle } from "../../lib/utils";
+import { getPreferredConnectionId } from "../../lib/connection-filters";
 import {
   GenerationParametersFields,
   getEditableGenerationParameters,
@@ -331,14 +332,6 @@ const GAME_SPOTIFY_SOURCE_OPTIONS: Array<{ id: GameSpotifySourceType; label: str
 ];
 
 type LearnedOptionGroup = "genres" | "tones" | "settings" | "goals" | "preferences";
-
-function getPreferredConnectionId(connections: WizardConnection[]): string | null {
-  return (
-    connections.find((connection) => connection.isDefault === true || connection.isDefault === "true")?.id ??
-    connections[0]?.id ??
-    null
-  );
-}
 
 function optionKey(value: string) {
   return value.trim().toLowerCase();
