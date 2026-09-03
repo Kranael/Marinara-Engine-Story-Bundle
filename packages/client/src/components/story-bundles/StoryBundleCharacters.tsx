@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Dices, Plus, Search, X } from "lucide-react";
 import type { AvatarCrop } from "@marinara-engine/shared";
 import { cn, getAvatarCropStyle } from "../../lib/utils";
+import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 import { StoryBundlePartyMemberToggle } from "./StoryBundlePartyMemberToggle";
 
 const CHARACTER_PICKER_PAGE_SIZE = 20;
@@ -281,33 +282,45 @@ export function StoryBundleCharacters({
         </h3>
 
         {selectedCharacters.length > 0 ? (
-          <div className="space-y-1 rounded-lg border border-[var(--border)] bg-[var(--card)] p-1.5">
-            {selectedCharacters.map((char) => {
-              const name = getCharacterName(char);
-              const title = getCharacterTitle(char);
-              return (
-                <div key={char.id} className="flex items-center gap-2.5 rounded-md px-2 py-1.5">
-                  <CroppedAvatarImage avatarPath={char.avatarPath} alt={name} className="h-7 w-7" />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-[var(--foreground)]">{name}</div>
-                    {title && <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>}
+          <div style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}>
+            <div className="mb-1 flex justify-end">
+              <span
+                data-testid="story-bundle-editor-characters-gm-settings-label"
+                className="rounded-full bg-[var(--home-chat-mode-accent)]/15 px-2 py-0.5 text-[0.625rem] font-semibold text-[var(--home-chat-mode-accent)]"
+              >
+                {t("storyBundles.gmSettingsLabel", "GM Settings")}
+              </span>
+            </div>
+            <div className="space-y-1 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--card)] py-1.5 pl-1.5">
+              {selectedCharacters.map((char) => {
+                const name = getCharacterName(char);
+                const title = getCharacterTitle(char);
+                return (
+                  <div key={char.id} className="flex items-center gap-2.5 py-1.5 pl-2">
+                    <CroppedAvatarImage avatarPath={char.avatarPath} alt={name} className="h-7 w-7" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-[var(--foreground)]">{name}</div>
+                      {title && <div className="truncate text-xs text-[var(--muted-foreground)]">{title}</div>}
+                    </div>
+                    <div className="-my-1.5 flex items-center gap-1.5 self-stretch bg-[var(--home-chat-mode-accent)]/[0.14] py-1.5 pl-2 pr-2">
+                      <StoryBundlePartyMemberToggle
+                        isPartyMember={partyIds.has(char.id)}
+                        onToggle={() => handleTogglePartyMember(char.id)}
+                        testId={`story-bundle-editor-characters-party-toggle-${char.id}`}
+                      />
+                      <button
+                        data-testid={`story-bundle-editor-characters-remove-${char.id}`}
+                        onClick={() => handleToggle(char.id)}
+                        className="shrink-0 rounded p-1 text-[var(--muted-foreground)] transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]"
+                        title={t("storyBundles.removeCharacter", "Remove")}
+                      >
+                        <X size="0.875rem" />
+                      </button>
+                    </div>
                   </div>
-                  <StoryBundlePartyMemberToggle
-                    isPartyMember={partyIds.has(char.id)}
-                    onToggle={() => handleTogglePartyMember(char.id)}
-                    testId={`story-bundle-editor-characters-party-toggle-${char.id}`}
-                  />
-                  <button
-                    data-testid={`story-bundle-editor-characters-remove-${char.id}`}
-                    onClick={() => handleToggle(char.id)}
-                    className="shrink-0 rounded p-1 text-[var(--muted-foreground)] transition-all hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]"
-                    title={t("storyBundles.removeCharacter", "Remove")}
-                  >
-                    <X size="0.875rem" />
-                  </button>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         ) : (
           <div

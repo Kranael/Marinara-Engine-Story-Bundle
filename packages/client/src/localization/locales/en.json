@@ -1311,6 +1311,7 @@
   "storyBundles.gameConfig.toneRequired": "Tone is required before this bundle can be exported.",
   "storyBundles.gmElapsedSeconds": "{{count}}s",
   "storyBundles.gmFailed": "Failed to start the game from this story bundle.",
+  "storyBundles.gmSettingsLabel": "GM Settings",
   "storyBundles.gmStarting": "Starting…",
   "storyBundles.gmStepCreating": "Creating game session…",
   "storyBundles.gmStepDone": "Ready!",

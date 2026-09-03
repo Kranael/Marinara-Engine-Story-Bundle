@@ -2,7 +2,7 @@
  * Story Bundle GM (Game Mode) — Playwright E2E Tests
  *
  * Covers: the GM button and DirectInject bootstrapper in the Gallery and
- * the Editor (story-bundle-direct-inject.ts)
+ * the Editor (story-bundle-gm-direct-inject.ts)
  * - GM button is visible and enabled in the gallery detail card and the
  *   editor header (no longer "Coming soon")
  * - Clicking GM opens the "Who are you?" persona picker, defaulting to the

@@ -1,7 +1,7 @@
 // ──────────────────────────────────────────────
 // Story Bundle → Conversation DirectInject bootstrapper
 // ──────────────────────────────────────────────
-// Mirrors story-bundle-direct-inject.ts's Game Mode pattern for Conversation
+// Mirrors story-bundle-gm-direct-inject.ts's Game Mode pattern for Conversation
 // mode: creates the chat, tags it, and navigates in directly — no
 // ChatSetupWizard ever mounts. The only remaining ambiguity for a bundle is
 // WHICH of its characters to start messaging first; a bundle with zero or

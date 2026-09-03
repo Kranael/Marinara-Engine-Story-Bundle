@@ -136,7 +136,7 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
   per-bundle busy state (`playingId`, `exportingId`). Single implementation
   shared by the panel, editor, and gallery. CONVO's DirectInject flow (see
   `story-bundle-convo-direct-inject.ts`) lives separately, mirroring GM's
-  `story-bundle-direct-inject.ts`.
+  `story-bundle-gm-direct-inject.ts`.
 
 ### Navigation & State (`src/stores/ui.store.ts`)
 

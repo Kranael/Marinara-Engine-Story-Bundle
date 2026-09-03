@@ -51,7 +51,7 @@ import { StoryBundleAssets } from "./StoryBundleAssets";
 import { StoryBundleScenarios } from "./StoryBundleScenarios";
 import { StoryBundlePersonaPickerModal } from "./StoryBundlePersonaPickerModal";
 import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";
-import { useStartStoryBundleAdventure } from "../../lib/story-bundle-direct-inject";
+import { useStartStoryBundleAdventure } from "../../lib/story-bundle-gm-direct-inject";
 import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
 
 /** Parse a JSON string or array into a string[] of character IDs. */

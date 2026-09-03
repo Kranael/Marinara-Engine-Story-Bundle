@@ -33,7 +33,7 @@ import type { StoryBundle } from "@marinara-engine/shared";
 import { isStoryBundleGameConfigComplete } from "@marinara-engine/shared";
 import { useCreateStoryBundle, useStoryBundles } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
-import { useStartStoryBundleAdventure } from "../../lib/story-bundle-direct-inject";
+import { useStartStoryBundleAdventure } from "../../lib/story-bundle-gm-direct-inject";
 import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
 import { StoryBundlePersonaPickerModal } from "./StoryBundlePersonaPickerModal";
 import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";

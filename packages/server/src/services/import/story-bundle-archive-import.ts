@@ -7,7 +7,7 @@
 //   - unpackAndBootstrapBundle() takes that extracted directory and silently
 //     inserts characters/personas/lorebooks/presets, maps isPartyMember into
 //     partyCharacterIds, and creates the StoryBundle row — ready for the
-//     "Who are you?" modal and DirectInject (see story-bundle-direct-inject.ts
+//     "Who are you?" modal and DirectInject (see story-bundle-gm-direct-inject.ts
 //     on the client).
 import AdmZip from "adm-zip";
 import { existsSync } from "node:fs";

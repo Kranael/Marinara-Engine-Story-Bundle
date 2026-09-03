@@ -12,7 +12,7 @@ import type { StoryBundle } from "@marinara-engine/shared";
 import { Modal } from "../ui/Modal";
 import { usePersonas } from "../../hooks/use-characters";
 import { cn } from "../../lib/utils";
-import { DIRECT_INJECT_STEP_PERCENT, type DirectInjectStep } from "../../lib/story-bundle-direct-inject";
+import { DIRECT_INJECT_STEP_PERCENT, type DirectInjectStep } from "../../lib/story-bundle-gm-direct-inject";
 
 export interface StoryBundlePersonaPickerModalProps {
   bundle: StoryBundle | null;
