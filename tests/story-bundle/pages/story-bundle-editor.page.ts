@@ -18,6 +18,7 @@
  *   story-bundle-editor-tab-assets
  *   story-bundle-editor-tab-scenarios
  *   story-bundle-editor-mode-game
+ *   story-bundle-editor-mode-conversation
  */
 import { type Locator, type Page } from "@playwright/test";
 import { switchEditorTab } from "../helpers/editor-tabs.js";
@@ -29,6 +30,7 @@ export class StoryBundleEditorPage {
   readonly backButton: Locator;
   readonly playButton: Locator;
   readonly gmButton: Locator;
+  readonly convoButton: Locator;
   readonly saveButton: Locator;
   readonly deleteButton: Locator;
   readonly metadataTab: Locator;
@@ -48,6 +50,7 @@ export class StoryBundleEditorPage {
     this.backButton = page.getByTestId("story-bundle-editor-back-button");
     this.playButton = page.getByTestId("story-bundle-editor-play-button");
     this.gmButton = page.getByTestId("story-bundle-editor-mode-game");
+    this.convoButton = page.getByTestId("story-bundle-editor-mode-conversation");
     this.saveButton = page.getByTestId("story-bundle-editor-save-button");
     this.deleteButton = page.getByTestId("story-bundle-editor-delete-button");
     this.metadataTab = page.getByTestId("story-bundle-editor-tab-metadata");

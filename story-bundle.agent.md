@@ -30,7 +30,7 @@ New field/feature = always touch all three layers + barrel exports + en.json.
 | `packages/server/src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)`: list/getById/create/update/remove |
 | `packages/server/src/routes/story-bundles.routes.ts` | REST under `/api/story-bundles` (GET/POST/PATCH/DELETE) + image endpoints (`POST/DELETE /:id/image`, `GET /images/file/:filename`) + `GET /:id/export` |
 | `packages/client/src/hooks/use-story-bundles.ts` | `storyBundleKeys` + query/mutation hooks (incl. image upload/remove) |
-| `packages/client/src/hooks/use-story-bundle-actions.ts` | `useStoryBundleActions()` — shared `play` (RP), `startConversation` (CONVO), `exportBundle`, `remove` + busy state (`playingId`, `startingConversationId`, `exportingId`); used by panel, gallery, and editor |
+| `packages/client/src/hooks/use-story-bundle-actions.ts` | `useStoryBundleActions()` — shared `play` (RP), `exportBundle`, `remove` + busy state (`playingId`, `exportingId`); used by panel, gallery, and editor |
 | `packages/client/src/components/panels/StoryBundlesPanel.tsx` | List panel (right side) — toolbar with Gallery/Import/New buttons; rows have export + delete only (no Play) |
 | `packages/client/src/components/story-bundles/StoryBundleGalleryView.tsx` | Full-page overlay gallery (search, sort, cards, detail card, CONVO/RP/GM mode buttons, edit/export/delete) |
 | `packages/client/src/components/story-bundles/StoryBundleEditor.tsx` | Full-page editor (detail view) — shell with tab rail; header mode buttons CONVO / RP / GM (GM disabled "Coming soon"); Play uses the current draft state |

@@ -34,7 +34,9 @@ import { isStoryBundleGameConfigComplete } from "@marinara-engine/shared";
 import { useCreateStoryBundle, useStoryBundles } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
 import { useStartStoryBundleAdventure } from "../../lib/story-bundle-direct-inject";
+import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
 import { StoryBundlePersonaPickerModal } from "./StoryBundlePersonaPickerModal";
+import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";
 import { ChatModeIcon } from "../chat/ChatModeIcon";
 import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 import { showPromptDialog } from "../../lib/app-dialogs";
@@ -77,15 +79,18 @@ function StoryBundleGalleryDetailCard({
   onEdit,
   onStartGm,
   startingGmId,
+  onStartConvo,
+  startingConvoId,
 }: {
   bundle: StoryBundle;
   onEdit: (id: string) => void;
   onStartGm: (bundle: StoryBundle) => void;
   startingGmId: string | null;
+  onStartConvo: (bundle: StoryBundle) => void;
+  startingConvoId: string | null;
 }) {
   const { t } = useTranslation();
-  const { play, startConversation, exportBundle, remove, playingId, startingConversationId, exportingId } =
-    useStoryBundleActions();
+  const { play, exportBundle, remove, playingId, exportingId } = useStoryBundleActions();
   const meta = formatCardLibraryMeta(bundle.creator, bundle.version);
   const sanitizedDescription = useMemo(
     () => (bundle.description ? sanitizeStoryBundleDescription(bundle.description) : ""),
@@ -150,12 +155,12 @@ function StoryBundleGalleryDetailCard({
             <button
               type="button"
               data-testid={`story-bundle-gallery-mode-conversation-${bundle.id}`}
-              onClick={() => void startConversation(bundle)}
-              disabled={startingConversationId === bundle.id}
+              onClick={() => onStartConvo(bundle)}
+              disabled={startingConvoId === bundle.id}
               className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs sm:text-sm"
               title={t("storyBundles.convoTitle", "Start a conversation from this story bundle")}
             >
-              {startingConversationId === bundle.id ? (
+              {startingConvoId === bundle.id ? (
                 <Loader2 size="0.875rem" className="animate-spin" />
               ) : (
                 <ChatModeIcon mode="conversation" size="0.875rem" />
@@ -266,7 +271,7 @@ export function StoryBundleGalleryView() {
   const [creating, setCreating] = useState(false);
   const { data: bundles, isLoading } = useStoryBundles();
   const createMutation = useCreateStoryBundle();
-  const { play, startConversation, playingId, startingConversationId } = useStoryBundleActions();
+  const { play, playingId } = useStoryBundleActions();
   const {
     pendingBundle: pendingGmBundle,
     isStarting: isStartingGm,
@@ -275,6 +280,14 @@ export function StoryBundleGalleryView() {
     cancel,
     confirmPersona,
   } = useStartStoryBundleAdventure();
+  const {
+    pendingBundle: pendingConvoBundle,
+    isStarting: isStartingConvo,
+    requestStart: requestStartConvo,
+    cancel: cancelConvo,
+    confirmCharacter: confirmConvoCharacter,
+  } = useStartStoryBundleConversation();
+  const startingConvoId = isStartingConvo ? (pendingConvoBundle?.id ?? null) : null;
   const startingGmId = isStartingGm ? (pendingGmBundle?.id ?? null) : null;
   const galleryRootScrollRef = useRef<HTMLDivElement | null>(null);
   const galleryListScrollRef = useRef<HTMLElement | null>(null);
@@ -614,14 +627,14 @@ export function StoryBundleGalleryView() {
                             data-testid={`story-bundle-gallery-card-mode-conversation-${bundle.id}`}
                             onClick={(event) => {
                               event.stopPropagation();
-                              void startConversation(bundle);
+                              requestStartConvo(bundle);
                             }}
-                            disabled={startingConversationId === bundle.id}
+                            disabled={startingConvoId === bundle.id}
                             style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.conversation } as CSSProperties}
                             className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
                             title={t("storyBundles.convoTitle", "Start a conversation from this story bundle")}
                           >
-                            {startingConversationId === bundle.id ? (
+                            {startingConvoId === bundle.id ? (
                               <Loader2 size="0.6875rem" className="shrink-0 animate-spin" />
                             ) : (
                               <ChatModeIcon
@@ -691,6 +704,8 @@ export function StoryBundleGalleryView() {
                           onEdit={openEditorFromGallery}
                           onStartGm={requestStart}
                           startingGmId={startingGmId}
+                          onStartConvo={requestStartConvo}
+                          startingConvoId={startingConvoId}
                         />
                       </div>
                     )}
@@ -709,6 +724,8 @@ export function StoryBundleGalleryView() {
                 onEdit={openEditorFromGallery}
                 onStartGm={requestStart}
                 startingGmId={startingGmId}
+                onStartConvo={requestStartConvo}
+                startingConvoId={startingConvoId}
               />
             ) : (
               <div className="flex min-h-[18rem] flex-col items-center justify-center gap-3 rounded-[2rem] border border-dashed border-[var(--marinara-chat-chrome-panel-border)] bg-[var(--background)]/65 p-6 text-center">
@@ -733,6 +750,12 @@ export function StoryBundleGalleryView() {
         step={gmStep}
         onConfirm={confirmPersona}
         onCancel={cancel}
+      />
+      <StoryBundleConvoCharacterPickerModal
+        bundle={pendingConvoBundle}
+        isConfirming={isStartingConvo}
+        onConfirm={confirmConvoCharacter}
+        onCancel={cancelConvo}
       />
     </div>
   );

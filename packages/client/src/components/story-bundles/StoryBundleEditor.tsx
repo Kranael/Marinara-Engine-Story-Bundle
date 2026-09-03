@@ -50,7 +50,9 @@ import { StoryBundleAgents } from "./StoryBundleAgents";
 import { StoryBundleAssets } from "./StoryBundleAssets";
 import { StoryBundleScenarios } from "./StoryBundleScenarios";
 import { StoryBundlePersonaPickerModal } from "./StoryBundlePersonaPickerModal";
+import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";
 import { useStartStoryBundleAdventure } from "../../lib/story-bundle-direct-inject";
+import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
 
 /** Parse a JSON string or array into a string[] of character IDs. */
 function parseCharacterFolderIds(value: unknown): string[] {
@@ -158,7 +160,6 @@ export function StoryBundleEditor() {
   const [activeTab, setActiveTab] = useState<TabId>("metadata");
   const [saving, setSaving] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [startingConversation, setStartingConversation] = useState(false);
 
   // RP chat creation hook for the Play button
   const createChat = useCreateChat();
@@ -174,6 +175,13 @@ export function StoryBundleEditor() {
     cancel: cancelGm,
     confirmPersona: confirmGmPersona,
   } = useStartStoryBundleAdventure();
+  const {
+    pendingBundle: pendingConvoBundle,
+    isStarting: isStartingConvo,
+    requestStart: requestStartConvo,
+    cancel: cancelConvo,
+    confirmCharacter: confirmConvoCharacter,
+  } = useStartStoryBundleConversation();
 
   // Keep the local draft in sync with the loaded bundle. useLayoutEffect so
   // the draft is populated synchronously before paint — Play must never read
@@ -581,75 +589,21 @@ export function StoryBundleEditor() {
   ]);
 
   // Start a Conversation chat from this bundle's current draft: persona,
-  // connection, preset, lorebooks, and agents are applied directly — the
-  // Conversation setup wizard then only asks which of the bundle's
-  // characters to message, restricted via storyBundleCharacterIds.
-  const handleStartConversation = useCallback(async () => {
-    if (!bundle || startingConversation) return;
-    setStartingConversation(true);
-    try {
-      const draftName = name.trim() || bundle.name;
-      const conns = (connections ?? []) as Array<{ id: string }>;
-      const chat = await createChat.mutateAsync({
-        name: draftName,
-        mode: "conversation",
-        characterIds: [],
-        personaId: personaIds[0] ?? null,
-        connectionId: conns[0]?.id,
-        promptPresetId: presetIds[0] ?? null,
-      });
-
-      try {
-        await updateChatMetadata.mutateAsync({
-          id: chat.id,
-          storyBundleId: bundle.id,
-          storyBundleCharacterIds: characterIds,
-        });
-      } catch (err) {
-        console.error("[startStoryBundleConversation] Failed to tag chat with story bundle:", err);
-      }
-
-      if (lorebookIds.length > 0) {
-        try {
-          await api.patch(`/chats/${chat.id}/metadata`, { activeLorebookIds: lorebookIds });
-        } catch (err) {
-          console.error("[startStoryBundleConversation] Failed to activate lorebooks:", err);
-        }
-      }
-
-      if (agentIds.length > 0) {
-        try {
-          await api.patch(`/chats/${chat.id}/metadata`, { enableAgents: true, activeAgentIds: agentIds });
-        } catch (err) {
-          console.error("[startStoryBundleConversation] Failed to activate agents:", err);
-        }
-      }
-
-      useChatStore.getState().setActiveChatId(chat.id);
-      useChatStore.getState().setShouldOpenSettings(true);
-      useChatStore.getState().setShouldOpenWizard(true);
-      closeStoryBundleDetail();
-    } catch (err) {
-      console.error("[startStoryBundleConversation]", err);
-      toast.error(t("storyBundles.convoFailed", "Failed to start the conversation."));
-    } finally {
-      setStartingConversation(false);
-    }
-  }, [
-    bundle,
-    startingConversation,
-    connections,
-    createChat,
-    updateChatMetadata,
-    closeStoryBundleDetail,
-    t,
-    name,
-    personaIds,
-    presetIds,
-    characterIds,
-    lorebookIds,
-    agentIds,
-  ]);
+  // connection, preset, lorebooks, and agents are applied directly via
+  // DirectInject — an unsaved preset/party change should be honored, not
+  // silently dropped, same as GM.
+  const handleStartConvo = useCallback(() => {
+    if (!bundle) return;
+    requestStartConvo({
+      ...bundle,
+      name: name.trim() || bundle.name,
+      characterIds,
+      personaIds,
+      lorebookIds,
+      presetIds,
+      agentIds,
+    });
+  }, [bundle, name, characterIds, personaIds, lorebookIds, presetIds, agentIds, requestStartConvo]);
 
   const handleDelete = useCallback(async () => {
     if (!storyBundleDetailId || !bundle) return;
@@ -713,12 +667,12 @@ export function StoryBundleEditor() {
           <button
             type="button"
             data-testid="story-bundle-editor-mode-conversation"
-            onClick={handleStartConversation}
-            disabled={startingConversation}
+            onClick={handleStartConvo}
+            disabled={isStartingConvo}
             className="mari-editor-action inline-flex gap-1 px-2.5 text-[0.6875rem] font-semibold"
             title={t("storyBundles.convoTitle", "Start a conversation from this story bundle")}
           >
-            {startingConversation ? (
+            {isStartingConvo ? (
               <Loader2 size="0.75rem" className="animate-spin" />
             ) : (
               <ChatModeIcon mode="conversation" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.conversation }} />
@@ -887,6 +841,12 @@ export function StoryBundleEditor() {
         step={gmStep}
         onConfirm={confirmGmPersona}
         onCancel={cancelGm}
+      />
+      <StoryBundleConvoCharacterPickerModal
+        bundle={pendingConvoBundle}
+        isConfirming={isStartingConvo}
+        onConfirm={confirmConvoCharacter}
+        onCancel={cancelConvo}
       />
     </div>
   );

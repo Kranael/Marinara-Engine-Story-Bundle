@@ -85,6 +85,16 @@ export class StoryBundleGalleryPage {
   cardGmButton(bundleId: string): Locator {
     return this.gallery.getByTestId(`story-bundle-gallery-card-mode-game-${bundleId}`);
   }
+
+  /** Locator for the CONVO button inside the visible detail card. */
+  convoButton(): Locator {
+    return this.visibleDetailAction("story-bundle-gallery-mode-conversation-");
+  }
+
+  /** Locator for the compact CONVO button on a gallery card by bundle id. */
+  cardConvoButton(bundleId: string): Locator {
+    return this.gallery.getByTestId(`story-bundle-gallery-card-mode-conversation-${bundleId}`);
+  }
   // ── Actions ───────────────────────────────────────────────
 
   /** Wait for the gallery to become visible. */

@@ -132,9 +132,11 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
 - `useCreateStoryBundle()` / `useUpdateStoryBundle()` / `useDeleteStoryBundle()`
   — mutations, invalidate `storyBundleKeys.all` on success
 - `useUploadStoryBundleImage()` / `useRemoveStoryBundleImage()` — image mutations
-- `useStoryBundleActions()` — returns `play`, `startConversation`, `exportBundle`,
-  `remove`, plus per-bundle busy state (`playingId`, `startingConversationId`,
-  `exportingId`). Single implementation shared by the panel, editor, and gallery.
+- `useStoryBundleActions()` — returns `play`, `exportBundle`, `remove`, plus
+  per-bundle busy state (`playingId`, `exportingId`). Single implementation
+  shared by the panel, editor, and gallery. CONVO's DirectInject flow (see
+  `story-bundle-convo-direct-inject.ts`) lives separately, mirroring GM's
+  `story-bundle-direct-inject.ts`.
 
 ### Navigation & State (`src/stores/ui.store.ts`)
 

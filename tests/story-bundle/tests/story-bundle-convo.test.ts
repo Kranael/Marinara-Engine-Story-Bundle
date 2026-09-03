@@ -1,0 +1,290 @@
+/**
+ * Story Bundle CONVO (Conversation Mode) — Playwright E2E Tests
+ *
+ * Covers: the CONVO button and DirectInject bootstrapper in the Gallery and
+ * the Editor (story-bundle-convo-direct-inject.ts)
+ * - CONVO button is visible and enabled in the gallery detail card and the
+ *   editor header
+ * - A bundle with 0-1 characters commits immediately — no picker modal
+ * - A bundle with 2+ characters opens the "Who do you want to message?"
+ *   character picker, defaulting to the bundle's first assigned character
+ * - Canceling the picker closes it without creating anything
+ * - Confirming creates a conversation chat with only the chosen character,
+ *   tagged with the story bundle and every assigned character id
+ * - The Conversation setup wizard never mounts at any point (this is the
+ *   whole point of DirectInject — no `ChatSetupWizard` UI coupling)
+ *
+ * Unlike GM's DirectInject, CONVO's flow makes no AI call at all, so these
+ * tests assert full success — including with no connection configured.
+ *
+ * Each test imports its own data via importStoryBundleFixture and cleans up.
+ */
+import { expect, test, type Page } from "@playwright/test";
+import path from "node:path";
+import { BasePage } from "../pages/base.page.js";
+import { HomePage } from "../../pages/home.page.js";
+import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
+import { StoryBundleGalleryPage } from "../pages/story-bundle-gallery.page.js";
+import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
+import { StoryBundleConvoCharacterPickerModalPage } from "../pages/story-bundle-convo-character-picker-modal.page.js";
+import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
+import { createCharacter, deleteCharacter, entitySuffix, type EntityRef } from "../helpers/story-bundle-entities.js";
+
+const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
+
+interface CreatedChat {
+  id: string;
+  name: string;
+  mode: string;
+  characterIds: string[];
+  personaId: string | null;
+  metadata: Record<string, unknown>;
+}
+
+/** Open the Story Bundles panel, then the gallery, and return the gallery PO. */
+async function openGallery(page: Page): Promise<StoryBundleGalleryPage> {
+  const base = new BasePage(page);
+  const home = new HomePage(page);
+  const panel = new StoryBundlesPanelPage(page);
+  const gallery = new StoryBundleGalleryPage(page);
+
+  await base.goto();
+  await home.openStoryBundlesPanel();
+  await panel.waitFor();
+  await gallery.openFromPanel();
+  return gallery;
+}
+
+/** Navigate to the app, open the panel, and click a bundle row to open its editor. */
+async function openEditorForBundle(page: Page, bundleName: string) {
+  const base = new BasePage(page);
+  const home = new HomePage(page);
+  const panel = new StoryBundlesPanelPage(page);
+
+  await base.goto();
+  await home.openStoryBundlesPanel();
+  await panel.waitFor();
+  await panel.clickRow(bundleName);
+
+  const editor = new StoryBundleEditorPage(page);
+  await editor.waitFor();
+  return editor;
+}
+
+/** Find the conversation chat created from a bundle by name, for assertions and cleanup. */
+async function findConvoChatByName(page: Page, name: string): Promise<CreatedChat | null> {
+  const response = await page.request.get("/api/chats");
+  const chats = (await response.json()) as CreatedChat[];
+  return chats.find((chat) => chat.name === name && chat.mode === "conversation") ?? null;
+}
+
+test.describe("Story Bundle CONVO — Positive", () => {
+  test("CONVO button is visible and enabled in the gallery detail card", async ({ page }) => {
+    const api = new StoryBundleAPI(page);
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      const gallery = await openGallery(page);
+      await gallery.clickCard(bundle.name);
+
+      await expect(gallery.convoButton()).toBeVisible();
+      await expect(gallery.convoButton()).toBeEnabled();
+    } finally {
+      await api.delete(bundle.id);
+    }
+  });
+
+  test("CONVO button is visible and enabled in the editor header", async ({ page }) => {
+    const api = new StoryBundleAPI(page);
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      const editor = await openEditorForBundle(page, bundle.name);
+
+      await expect(editor.convoButton).toBeVisible();
+      await expect(editor.convoButton).toBeEnabled();
+    } finally {
+      await api.delete(bundle.id);
+    }
+  });
+
+  test("clicking CONVO on a single-character bundle commits immediately, no picker modal", async ({ page }) => {
+    const suffix = entitySuffix(test.info().title);
+    const seeded: EntityRef[] = [];
+    const api = new StoryBundleAPI(page);
+    let chatId: string | null = null;
+
+    const onlyCharacter = await createCharacter(page.request, `Convo Solo Character ${suffix}`);
+    seeded.push(onlyCharacter);
+
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: { characterIds: [onlyCharacter.id] },
+      });
+
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.convoButton.click();
+
+      const modal = new StoryBundleConvoCharacterPickerModalPage(page);
+      await expect(modal.modal).toBeHidden();
+
+      const chat = await findConvoChatByName(page, bundle.name);
+      expect(chat).not.toBeNull();
+      chatId = chat!.id;
+      expect(chat!.characterIds).toEqual([onlyCharacter.id]);
+      expect(chat!.metadata?.storyBundleId).toBe(bundle.id);
+    } finally {
+      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+      for (const entity of seeded) await deleteCharacter(page.request, entity.id);
+    }
+  });
+
+  test("clicking CONVO on a multi-character bundle opens the picker, defaulting to the first character", async ({
+    page,
+  }) => {
+    const suffix = entitySuffix(test.info().title);
+    const seeded: EntityRef[] = [];
+    const api = new StoryBundleAPI(page);
+
+    const first = await createCharacter(page.request, `Convo Multi First ${suffix}`);
+    seeded.push(first);
+    const second = await createCharacter(page.request, `Convo Multi Second ${suffix}`);
+    seeded.push(second);
+
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: { characterIds: [first.id, second.id] },
+      });
+
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.convoButton.click();
+
+      const modal = new StoryBundleConvoCharacterPickerModalPage(page);
+      await modal.waitFor();
+
+      await expect(modal.optionLocator(first.id)).toBeVisible();
+      await expect(modal.optionLocator(second.id)).toBeVisible();
+    } finally {
+      await api.delete(bundle.id);
+      for (const entity of seeded) await deleteCharacter(page.request, entity.id);
+    }
+  });
+
+  test("canceling the character picker closes it without creating a chat", async ({ page }) => {
+    const suffix = entitySuffix(test.info().title);
+    const seeded: EntityRef[] = [];
+    const api = new StoryBundleAPI(page);
+
+    const first = await createCharacter(page.request, `Convo Cancel First ${suffix}`);
+    seeded.push(first);
+    const second = await createCharacter(page.request, `Convo Cancel Second ${suffix}`);
+    seeded.push(second);
+
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: { characterIds: [first.id, second.id] },
+      });
+
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.convoButton.click();
+
+      const modal = new StoryBundleConvoCharacterPickerModalPage(page);
+      await modal.waitFor();
+      await modal.cancel();
+
+      await expect(modal.modal).toBeHidden();
+      expect(await findConvoChatByName(page, bundle.name)).toBeNull();
+    } finally {
+      await api.delete(bundle.id);
+      for (const entity of seeded) await deleteCharacter(page.request, entity.id);
+    }
+  });
+
+  test("confirming the picker creates a conversation chat with only the chosen character and tags the bundle", async ({
+    page,
+  }) => {
+    const suffix = entitySuffix(test.info().title);
+    const seeded: EntityRef[] = [];
+    const api = new StoryBundleAPI(page);
+    let chatId: string | null = null;
+
+    const first = await createCharacter(page.request, `Convo Confirm First ${suffix}`);
+    seeded.push(first);
+    const second = await createCharacter(page.request, `Convo Confirm Second ${suffix}`);
+    seeded.push(second);
+
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: { characterIds: [first.id, second.id] },
+      });
+
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.convoButton.click();
+
+      const modal = new StoryBundleConvoCharacterPickerModalPage(page);
+      await modal.waitFor();
+      await modal.selectCharacter(second.id);
+      await modal.confirm();
+
+      await expect(modal.modal).toBeHidden();
+
+      const chat = await findConvoChatByName(page, bundle.name);
+      expect(chat).not.toBeNull();
+      chatId = chat!.id;
+
+      expect(chat!.characterIds).toEqual([second.id]);
+      expect(chat!.metadata?.storyBundleId).toBe(bundle.id);
+      expect(chat!.metadata?.storyBundleCharacterIds).toEqual([first.id, second.id]);
+
+      // The whole point of DirectInject: the Conversation setup wizard never mounts.
+      await expect(page.getByRole("dialog", { name: "New Conversation" })).toHaveCount(0);
+    } finally {
+      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+      for (const entity of seeded) await deleteCharacter(page.request, entity.id);
+    }
+  });
+});
+
+test.describe("Story Bundle CONVO — Negative", () => {
+  test("CONVO button on a gallery card is enabled even when no connection is configured", async ({ page }) => {
+    // CONVO's DirectInject makes no AI call at all, unlike GM — this proves
+    // the button and the whole flow never depend on a configured connection.
+    const api = new StoryBundleAPI(page);
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      const gallery = await openGallery(page);
+      await gallery.clickCard(bundle.name);
+
+      await expect(gallery.cardConvoButton(bundle.id)).toBeEnabled();
+    } finally {
+      await api.delete(bundle.id);
+    }
+  });
+
+  test("clicking CONVO on a bundle with no characters shows an error and creates nothing", async ({ page }) => {
+    const api = new StoryBundleAPI(page);
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.convoButton.click();
+
+      await expect(page.getByText("This story bundle has no characters to message.")).toBeVisible();
+      expect(await findConvoChatByName(page, bundle.name)).toBeNull();
+    } finally {
+      await api.delete(bundle.id);
+    }
+  });
+});
