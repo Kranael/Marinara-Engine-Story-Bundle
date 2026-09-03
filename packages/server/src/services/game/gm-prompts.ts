@@ -568,7 +568,7 @@ export function buildGmSystemPrompt(ctx: GmPromptContext): string {
   if (knownNpcCards.length > 0) {
     sections.push(
       `<known_npcs>`,
-      `The following characters are fully realized individuals in the world. Portray their personalities and voices faithfully according to their cards. However, THEY ARE NOT PARTY MEMBERS. Do not assume player control over them, and do not expect them to take independent turns in combat unless explicitly engaged.`,
+      `The following characters are fully realized individuals in the world. Portray their personalities and voices faithfully according to their cards. However, THEY ARE NOT PARTY MEMBERS. Do not assume player control over them, and do not expect them to take independent turns in combat unless explicitly engaged. Respect each character's stated role/tags (e.g. student, teacher, director) when deciding who plausibly performs an action — a student would not deliver an authority figure's speech, sign off on official rules, or otherwise act outside their standing unless the scene explicitly justifies it.`,
       ...knownNpcCards.map((npc) => npc.card),
       `</known_npcs>`,
     );

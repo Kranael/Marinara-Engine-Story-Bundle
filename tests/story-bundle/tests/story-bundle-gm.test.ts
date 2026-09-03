@@ -209,6 +209,62 @@ test.describe("Story Bundle GM — Positive", () => {
     }
   });
 
+  test("confirming tags NPC-assigned characters as library-linked known NPCs (Option A)", async ({ page }) => {
+    const suffix = entitySuffix(test.info().title);
+    const seeded: EntityRef[] = [];
+    const api = new StoryBundleAPI(page);
+    let chatId: string | null = null;
+
+    const partyMember = await createCharacter(page.request, `GM Fidelity Party ${suffix}`);
+    seeded.push(partyMember);
+    const npc = await createCharacter(page.request, `GM Fidelity NPC ${suffix}`);
+    seeded.push(npc);
+
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: {
+          characterIds: [partyMember.id, npc.id],
+          partyCharacterIds: [partyMember.id],
+        },
+      });
+
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.gmButton.click();
+
+      const modal = new StoryBundlePersonaPickerModalPage(page);
+      await modal.waitFor();
+      await modal.confirm();
+
+      // Tagging (which writes gameNpcs) runs before the world-setup AI call
+      // that always fails in this connection-less test environment.
+      await expect(page.getByText("Failed to start the game from this story bundle.")).toBeVisible({
+        timeout: 10_000,
+      });
+
+      const chat = await findGameChatByName(page, bundle.name);
+      expect(chat).not.toBeNull();
+      chatId = chat!.id;
+
+      const gameNpcs = (chat!.metadata?.gameNpcs ?? []) as Array<{
+        name: string;
+        characterId?: string | null;
+        cardSource?: string;
+      }>;
+      const trackedNpc = gameNpcs.find((candidate) => candidate.name === npc.name);
+      expect(trackedNpc).toBeTruthy();
+      expect(trackedNpc!.characterId).toBe(npc.id);
+      expect(trackedNpc!.cardSource).toBe("library");
+      // The party member is never written into gameNpcs — only assigned NPCs are.
+      expect(gameNpcs.find((candidate) => candidate.name === partyMember.name)).toBeUndefined();
+    } finally {
+      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      await api.delete(bundle.id);
+      for (const entity of seeded) await deleteCharacter(page.request, entity.id);
+    }
+  });
+
   test("confirming copies the bundle's excluded asset folders onto the new session chat", async ({ page }) => {
     const api = new StoryBundleAPI(page);
     let chatId: string | null = null;

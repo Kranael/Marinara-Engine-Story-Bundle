@@ -109,11 +109,13 @@ function buildLibraryCardParts(data: any, fallbackName = "Unknown"): { name: str
   const backstory = cardPromptText(data.extensions?.backstory || data.backstory);
   const appearance = cardPromptText(data.extensions?.appearance || data.appearance);
   const systemPrompt = cardPromptText(data.system_prompt);
+  const tags = Array.isArray(data.tags) ? data.tags.map(String).filter(Boolean) : [];
   if (description) parts.push(`Description: ${description}`);
   if (personality) parts.push(`Personality: ${personality}`);
   if (backstory) parts.push(`Backstory: ${backstory}`);
   if (appearance) parts.push(`Appearance: ${appearance}`);
   if (systemPrompt) parts.push(`Character System Instructions: ${systemPrompt}`);
+  if (tags.length > 0) parts.push(`Role/Tags: ${tags.join(", ")}`);
   return { name, parts };
 }
 
