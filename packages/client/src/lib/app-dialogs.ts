@@ -23,9 +23,9 @@ export const CUSTOM_SCENARIO_CHOICE_PREFIX = "__marinara_custom_scenario__:";
 
 /**
  * Resolved key for the scenario dialog's always-present "Surprise Me" card
- * (see AppDialogRenderer.tsx). There is no more "None"/empty scenario state —
- * dismissing the dialog resolves to this key instead of null, so a Story
- * Bundle session always gets an opening (AI-improvised by default).
+ * (see AppDialogRenderer.tsx) — an explicit, always-available option for an
+ * AI-improvised opening. Dismissing/canceling the dialog still resolves to
+ * null like every other dialog; Surprise Me only fires when actually clicked.
  */
 export const SURPRISE_ME_CHOICE_KEY = "__marinara_surprise_me__";
 
@@ -33,7 +33,7 @@ function resolveFallback(kind: AppDialogState["kind"]) {
   if (kind === "confirm") return false;
   if (kind === "prompt") return null;
   if (kind === "choice") return null;
-  if (kind === "scenario") return SURPRISE_ME_CHOICE_KEY;
+  if (kind === "scenario") return null;
   return undefined;
 }
 
@@ -110,12 +110,12 @@ export function showChoiceDialog(options: Omit<ChoiceDialogState, "kind">): Prom
 }
 
 /**
- * A visual-card scenario picker. Always resolves a non-null `key` — dismissing
- * the dialog resolves to `SURPRISE_ME_CHOICE_KEY` rather than null, since
- * "Surprise Me" is the default, never-empty starting state.
+ * A visual-card scenario picker, including an always-present "Surprise Me"
+ * card. Resolves the chosen `key`, or null if dismissed/canceled — canceling
+ * must always be possible and must not start anything.
  */
-export function showScenarioDialog(options: Omit<ScenarioDialogState, "kind">): Promise<string> {
-  return openDialog<string>({
+export function showScenarioDialog(options: Omit<ScenarioDialogState, "kind">): Promise<string | null> {
+  return openDialog<string | null>({
     kind: "scenario",
     cancelLabel: "Cancel",
     ...options,

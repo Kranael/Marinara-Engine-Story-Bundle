@@ -69,10 +69,11 @@ export function useStoryBundleActions() {
       let loadingToastId: string | number | undefined;
       try {
         // If the bundle has scenarios, let the user pick one — a saved one, a
-        // custom free-text one, or the default "Surprise Me" AI-improvised
-        // opening (no more "None"/cancel-to-nothing outcome). A bundle with
-        // no saved scenarios keeps the existing instant-Play behavior —
-        // nothing configured to choose from, so the dialog is skipped.
+        // custom free-text one, or the always-present "Surprise Me"
+        // AI-improvised opening. A bundle with no saved scenarios keeps the
+        // existing instant-Play behavior — nothing configured to choose
+        // from, so the dialog is skipped. Canceling the dialog aborts Play —
+        // it must always be possible to back out without starting anything.
         let selectedOpeningMessage: string | null = null;
         let openingGenerationDirection: string | null = null;
         const bundleScenarios = bundle.scenarios ?? [];
@@ -94,6 +95,10 @@ export function useStoryBundleActions() {
             ),
             customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
           });
+          if (!choice) {
+            setPlayingId(null);
+            return;
+          }
           if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
             openingGenerationDirection = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
           } else if (choice === SURPRISE_ME_CHOICE_KEY) {

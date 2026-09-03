@@ -157,6 +157,37 @@ test.describe("Story Bundle GM — Positive", () => {
     }
   });
 
+  test("confirming persona then canceling the scenario dialog aborts — no game is created", async ({ page }) => {
+    const api = new StoryBundleAPI(page);
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: { scenarios: [{ id: "gm-cancel-start", title: "GM Cancel Start", openingMessage: "Never used." }] },
+      });
+
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.gmButton.click();
+
+      const modal = new StoryBundlePersonaPickerModalPage(page);
+      await modal.waitFor();
+      await modal.confirm();
+
+      const scenarioCard = page.getByTestId("app-dialog-scenario-gm-cancel-start");
+      await expect(scenarioCard).toBeVisible();
+      await page.getByTestId("app-dialog-scenario-cancel-button").click();
+      await expect(scenarioCard).not.toBeVisible();
+
+      // Canceling here must abort the whole flow, same as canceling the
+      // persona picker — no game session chat, back to the editor.
+      await expect(modal.modal).toBeHidden();
+      expect(await findGameChatByName(page, bundle.name)).toBeNull();
+      await expect(editor.gmButton).toBeVisible();
+    } finally {
+      await api.delete(bundle.id);
+    }
+  });
+
   test("confirming creates a game session using only party members and tags the story bundle", async ({ page }) => {
     const suffix = entitySuffix(test.info().title);
     const seeded: EntityRef[] = [];

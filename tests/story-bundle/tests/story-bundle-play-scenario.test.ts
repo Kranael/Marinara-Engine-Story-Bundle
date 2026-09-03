@@ -94,4 +94,40 @@ test.describe("Story Bundle Play — Scenario First Message", () => {
       await page.request.delete(`/api/story-bundles/${bundle.id}`);
     }
   });
+
+  test("canceling the scenario dialog aborts Play — no chat is created", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
+    const api = new StoryBundleAPI(page);
+
+    const bundle = await api.create({ name: `Cancel Scenario Test ${test.info().title}` });
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: { scenarios: [{ id: "cancel-start", title: "Cancel Start", openingMessage: "Never inserted." }] },
+      });
+
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+
+      await editor.playButton.click();
+
+      const scenarioCard = page.getByTestId("app-dialog-scenario-cancel-start");
+      await expect(scenarioCard).toBeVisible();
+      await page.getByTestId("app-dialog-scenario-cancel-button").click();
+      await expect(scenarioCard).not.toBeVisible();
+
+      // The editor stays put — no chat was created for this bundle.
+      await expect(editor.playButton).toBeVisible();
+      const chatsResp = await page.request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{ name: string }>;
+      expect(chats.some((chat) => chat.name === bundle.name)).toBe(false);
+    } finally {
+      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+    }
+  });
 });

@@ -449,10 +449,11 @@ export function StoryBundleEditor() {
       const draftScenarios = scenarios;
 
       // If the bundle has scenarios, let the user pick one — a saved one, a
-      // custom free-text one, or the default "Surprise Me" AI-improvised
-      // opening (no more "None"/cancel-to-nothing outcome). A bundle with no
-      // saved scenarios keeps the existing instant-Play behavior — nothing
-      // configured to choose from, so the dialog is skipped entirely.
+      // custom free-text one, or the always-present "Surprise Me" AI-improvised
+      // opening. A bundle with no saved scenarios keeps the existing
+      // instant-Play behavior — nothing configured to choose from, so the
+      // dialog is skipped entirely. Canceling the dialog aborts Play — it
+      // must always be possible to back out without starting anything.
       let selectedOpeningMessage: string | null = null;
       let openingGenerationDirection: string | null = null;
       if (draftScenarios.length > 0) {
@@ -474,6 +475,10 @@ export function StoryBundleEditor() {
           ),
           customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
         });
+        if (!choice) {
+          setPlaying(false);
+          return;
+        }
         if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
           openingGenerationDirection = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
         } else if (choice === SURPRISE_ME_CHOICE_KEY) {

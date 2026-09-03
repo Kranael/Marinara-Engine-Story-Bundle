@@ -143,18 +143,25 @@ function buildGameStartOpeningGuideOverride(direction: string): string {
 /**
  * Click 1.5 — shown between the persona picker and DirectInject's commit.
  * Reuses the same scenario dialog RP's Play flow uses (same Surprise Me
- * default, same Custom Scenario option), but maps the choice to a one-shot
+ * card, same Custom Scenario option), but maps the choice to a one-shot
  * `gameOpeningGuideOverride` instead of inserting a chat message: GM always
  * generates its first turn via an AI-guided instruction (see
  * GameSurface.tsx's generateInitialGameTurn), there is no static-message path
  * like RP has. "Surprise Me" needs no override at all — GAME_START_GENERATION_GUIDE
- * already is an AI-improvised opening by default.
+ * already is an AI-improvised opening by default. Canceling the dialog must
+ * abort the whole "Start Adventure" flow — no game is created, distinct from
+ * picking Surprise Me (which still starts the game, just uninstructed).
  */
-async function resolveStoryBundleOpeningGuideOverride(bundle: StoryBundle, t: TFunction): Promise<string | null> {
+type OpeningGuideResolution = { cancelled: true } | { cancelled: false; override: string | null };
+
+async function resolveStoryBundleOpeningGuideOverride(
+  bundle: StoryBundle,
+  t: TFunction,
+): Promise<OpeningGuideResolution> {
   // Nothing configured to choose from — keep the existing instant-confirm
   // behavior and let the default GAME_START_GENERATION_GUIDE (already an
   // AI-improvised opening) run unmodified.
-  if (bundle.scenarios.length === 0) return null;
+  if (bundle.scenarios.length === 0) return { cancelled: false, override: null };
   const choice = await showScenarioDialog({
     title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
     message: t("storyBundles.scenarioPickMessage", "Select a scenario to use as the first message."),
@@ -169,12 +176,16 @@ async function resolveStoryBundleOpeningGuideOverride(bundle: StoryBundle, t: TF
     customScenarioPlaceholder: t("storyBundles.customScenarioPlaceholder", "Describe how the story should begin…"),
     customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
   });
-  if (choice === SURPRISE_ME_CHOICE_KEY) return null;
+  if (!choice) return { cancelled: true };
+  if (choice === SURPRISE_ME_CHOICE_KEY) return { cancelled: false, override: null };
   if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
-    return buildGameStartOpeningGuideOverride(choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim());
+    return {
+      cancelled: false,
+      override: buildGameStartOpeningGuideOverride(choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim()),
+    };
   }
   const picked = bundle.scenarios.find((s) => s.id === choice);
-  return picked ? buildGameStartOpeningGuideOverride(picked.openingMessage) : null;
+  return { cancelled: false, override: picked ? buildGameStartOpeningGuideOverride(picked.openingMessage) : null };
 }
 
 /** Steps the DirectInject flow moves through, in order — drives the modal's progress bar. */
@@ -301,10 +312,13 @@ export function useStartStoryBundleAdventure() {
       if (!pendingBundle || isResolvingScenario) return null;
       setIsResolvingScenario(true);
       try {
-        // Click 1.5 — same scenario dialog (with its Surprise Me default) RP's
+        // Click 1.5 — same scenario dialog (with its Surprise Me card) RP's
         // Play flow uses, shown before DirectInject actually commits.
-        const openingGuideOverride = await resolveStoryBundleOpeningGuideOverride(pendingBundle, t);
-        return await start(pendingBundle, personaId, openingGuideOverride);
+        // Canceling here (like canceling the persona picker itself) aborts
+        // the whole flow — no game is created, back to where the player was.
+        const scenarioResolution = await resolveStoryBundleOpeningGuideOverride(pendingBundle, t);
+        if (scenarioResolution.cancelled) return null;
+        return await start(pendingBundle, personaId, scenarioResolution.override);
       } catch (err) {
         console.error("[directInjectStoryBundle]", err);
         toast.error(t("storyBundles.gmFailed", "Failed to start the game from this story bundle."));

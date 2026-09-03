@@ -532,6 +532,8 @@ smoke/regression tests:
 | `app-dialog-cancel-button` | Cancel button (prompt and confirm dialogs) |
 | `app-dialog-confirm-button` | Confirm button (prompt and confirm dialogs) |
 | `app-dialog-scenario-${scenario.key}` | Scenario choice card in the scenario dialog |
+| `app-dialog-scenario-surprise-me` | Always-present "Surprise Me" card (AI-improvised opening), rendered first |
+| `app-dialog-scenario-cancel-button` | Cancel button of the scenario dialog \u2014 aborts, starts nothing |
 | `app-dialog-custom-scenario-button` | "Custom Scenario" option button |
 | `app-dialog-custom-scenario-input` | Custom-scenario free-text input |
 | `app-dialog-custom-scenario-back-button` | Back button (custom-scenario view) |

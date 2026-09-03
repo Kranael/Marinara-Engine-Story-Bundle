@@ -33,12 +33,8 @@ export interface StoryBundleGameConfigFormProps {
 const FIELD_INPUT_CLASS =
   "w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 py-2 text-sm outline-none focus:border-[var(--primary)]/40 focus:ring-1 focus:ring-[var(--primary)]/20";
 
-function RequiredFieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="text-xs font-medium text-[var(--muted-foreground)]">
-      {children} <span className="text-[var(--destructive)]">*</span>
-    </span>
-  );
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return <span className="text-xs font-medium text-[var(--muted-foreground)]">{children}</span>;
 }
 
 export function StoryBundleGameConfigForm({
@@ -90,10 +86,7 @@ export function StoryBundleGameConfigForm({
             {t("storyBundles.gameConfig.title", "GM Settings")}
           </h4>
           <p className="text-[0.6875rem] text-[var(--muted-foreground)]">
-            {t(
-              "storyBundles.gameConfig.hint",
-              "Required before export \u2014 end-users won't be asked to fill these in.",
-            )}
+            {t("storyBundles.gameConfig.hint", "End-users won't be asked to fill these in.")}
           </p>
         </div>
         <button
@@ -122,7 +115,7 @@ export function StoryBundleGameConfigForm({
       )}
 
       <label className="space-y-1.5">
-        <RequiredFieldLabel>{t("storyBundles.gameConfig.genre", "Genre")}</RequiredFieldLabel>
+        <FieldLabel>{t("storyBundles.gameConfig.genre", "Genre")}</FieldLabel>
         <input
           data-testid="story-bundle-editor-gameconfig-genre-input"
           value={genre}
@@ -130,15 +123,10 @@ export function StoryBundleGameConfigForm({
           placeholder={t("storyBundles.gameConfig.genrePlaceholder", "e.g. Dark Fantasy")}
           className={FIELD_INPUT_CLASS}
         />
-        {!genre.trim() && (
-          <p className="text-[0.625rem] text-[var(--destructive)]">
-            {t("storyBundles.gameConfig.genreRequired", "Genre is required before this bundle can be exported.")}
-          </p>
-        )}
       </label>
 
       <label className="space-y-1.5">
-        <RequiredFieldLabel>{t("storyBundles.gameConfig.setting", "Setting")}</RequiredFieldLabel>
+        <FieldLabel>{t("storyBundles.gameConfig.setting", "Setting")}</FieldLabel>
         <input
           data-testid="story-bundle-editor-gameconfig-setting-input"
           value={setting}
@@ -146,15 +134,10 @@ export function StoryBundleGameConfigForm({
           placeholder={t("storyBundles.gameConfig.settingPlaceholder", "e.g. A war-torn kingdom of ancient ruins")}
           className={FIELD_INPUT_CLASS}
         />
-        {!setting.trim() && (
-          <p className="text-[0.625rem] text-[var(--destructive)]">
-            {t("storyBundles.gameConfig.settingRequired", "Setting is required before this bundle can be exported.")}
-          </p>
-        )}
       </label>
 
       <label className="space-y-1.5">
-        <RequiredFieldLabel>{t("storyBundles.gameConfig.tone", "Tone")}</RequiredFieldLabel>
+        <FieldLabel>{t("storyBundles.gameConfig.tone", "Tone")}</FieldLabel>
         <input
           data-testid="story-bundle-editor-gameconfig-tone-input"
           value={tone}
@@ -162,11 +145,6 @@ export function StoryBundleGameConfigForm({
           placeholder={t("storyBundles.gameConfig.tonePlaceholder", "e.g. Heroic and hopeful")}
           className={FIELD_INPUT_CLASS}
         />
-        {!tone.trim() && (
-          <p className="text-[0.625rem] text-[var(--destructive)]">
-            {t("storyBundles.gameConfig.toneRequired", "Tone is required before this bundle can be exported.")}
-          </p>
-        )}
       </label>
     </div>
   );
