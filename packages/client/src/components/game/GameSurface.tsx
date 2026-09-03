@@ -6632,13 +6632,22 @@ function GameSurfaceComponent({
   }, [activeChatId, generate]);
 
   const generateInitialGameTurn = useCallback(() => {
+    // Story Bundle DirectInject stores a one-shot override here when the
+    // player picked a saved or custom scenario in the "Choose a Scenario"
+    // dialog instead of "Surprise Me" — see story-bundle-gm-direct-inject.ts.
+    // Surprise Me needs no override: the default guide is already an
+    // AI-improvised opening.
+    const openingGuideOverride = chatMeta.gameOpeningGuideOverride;
     generate({
       chatId: activeChatId,
       connectionId: null,
-      generationGuide: GAME_START_GENERATION_GUIDE,
+      generationGuide:
+        typeof openingGuideOverride === "string" && openingGuideOverride.trim()
+          ? openingGuideOverride
+          : GAME_START_GENERATION_GUIDE,
       generationGuideSource: "game_start",
     });
-  }, [activeChatId, generate]);
+  }, [activeChatId, chatMeta.gameOpeningGuideOverride, generate]);
 
   const handleRetryTurn = useCallback(async () => {
     const msg = latestAssistantMsgRef.current;

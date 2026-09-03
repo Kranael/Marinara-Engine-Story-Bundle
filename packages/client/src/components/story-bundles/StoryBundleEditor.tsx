@@ -26,7 +26,7 @@ import { useCharacters, useCharacterGroups, usePersonas } from "../../hooks/use-
 import { useLorebooks, useEntriesAcrossLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
 import type { Lorebook, PromptPreset, StoryBundleGameConfig, StoryBundleScenario } from "@marinara-engine/shared";
-import { buildNarratorInstructionMessage } from "@marinara-engine/shared";
+import { buildNarratorInstructionMessage, SURPRISE_ME_OPENING_DIRECTION } from "@marinara-engine/shared";
 import { useCreateChat, useUpdateChatMetadata, chatKeys } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { getPreferredConnectionId } from "../../lib/connection-filters";
@@ -34,7 +34,12 @@ import { useGenerate } from "../../hooks/use-generate";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
 import { api } from "../../lib/api-client";
-import { showConfirmDialog, showScenarioDialog, CUSTOM_SCENARIO_CHOICE_PREFIX } from "../../lib/app-dialogs";
+import {
+  showConfirmDialog,
+  showScenarioDialog,
+  CUSTOM_SCENARIO_CHOICE_PREFIX,
+  SURPRISE_ME_CHOICE_KEY,
+} from "../../lib/app-dialogs";
 import { sanitizeStoryBundleDescription } from "../../lib/story-bundle-html";
 import { cn } from "../../lib/utils";
 import { EditorTabNavigation } from "../ui/EditorTabNavigation";
@@ -443,10 +448,13 @@ export function StoryBundleEditor() {
       const draftAgentIds = agentIds;
       const draftScenarios = scenarios;
 
-      // If the bundle has scenarios, let the user pick one — or describe a
-      // custom one — first.
+      // If the bundle has scenarios, let the user pick one — a saved one, a
+      // custom free-text one, or the default "Surprise Me" AI-improvised
+      // opening (no more "None"/cancel-to-nothing outcome). A bundle with no
+      // saved scenarios keeps the existing instant-Play behavior — nothing
+      // configured to choose from, so the dialog is skipped entirely.
       let selectedOpeningMessage: string | null = null;
-      let customScenarioText: string | null = null;
+      let openingGenerationDirection: string | null = null;
       if (draftScenarios.length > 0) {
         const choice = await showScenarioDialog({
           title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
@@ -466,19 +474,17 @@ export function StoryBundleEditor() {
           ),
           customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
         });
-        if (!choice) {
-          setPlaying(false);
-          return;
-        }
         if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
-          customScenarioText = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
+          openingGenerationDirection = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
+        } else if (choice === SURPRISE_ME_CHOICE_KEY) {
+          openingGenerationDirection = SURPRISE_ME_OPENING_DIRECTION;
         } else {
           const picked = draftScenarios.find((s) => s.id === choice);
           selectedOpeningMessage = picked?.openingMessage ?? null;
         }
       }
 
-      if (customScenarioText) {
+      if (openingGenerationDirection) {
         loadingToastId = toast.loading(
           t("storyBundles.customScenarioGenerating", "Starting your scenario… this may take a moment."),
         );
@@ -523,16 +529,17 @@ export function StoryBundleEditor() {
         } catch (err) {
           console.error("[playStoryBundle] Failed to insert scenario opening message:", err);
         }
-      } else if (customScenarioText) {
+      } else if (openingGenerationDirection) {
         // Generate the opening message from the user's free-text description
-        // using the same narrator-guided generation the "/narrator" command
-        // uses — no separate AI/preset system, just an unmounted (silent)
-        // run of the existing generation pipeline.
+        // (or the Surprise Me direction) using the same narrator-guided
+        // generation the "/narrator" command uses — no separate AI/preset
+        // system, just an unmounted (silent) run of the existing generation
+        // pipeline.
         try {
           await generate({
             chatId: chat.id,
             connectionId: null,
-            generationGuide: buildNarratorInstructionMessage(customScenarioText),
+            generationGuide: buildNarratorInstructionMessage(openingGenerationDirection),
             generationGuideSource: "narrator",
           });
         } catch (err) {

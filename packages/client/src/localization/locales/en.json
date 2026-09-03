@@ -1392,6 +1392,8 @@
   "storyBundles.scenarioSave": "Add",
   "storyBundles.scenarioSaveEdit": "Save",
   "storyBundles.scenariosEmpty": "No scenarios added yet.",
+  "storyBundles.scenarioSurpriseMe": "Surprise Me",
+  "storyBundles.scenarioSurpriseMeBadge": "Default",
   "storyBundles.scenarioTitlePlaceholder": "Scenario title…",
   "storyBundles.searchAgents": "Search agents…",
   "storyBundles.searchCharacters": "Search characters…",

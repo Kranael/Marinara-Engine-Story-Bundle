@@ -647,6 +647,14 @@ export interface ChatMetadata {
   gameImagePromptInstructions?: string | null;
   /** Per-game asset browser folder exclusions. Omitted/null means every asset folder is available. */
   gameAssetSelection?: { excludedFolders?: string[] } | null;
+  /**
+   * One-shot override for the very first GM turn's generation guide, set by
+   * Story Bundle DirectInject when the player picked a saved or custom
+   * scenario in the "Choose a Scenario" dialog instead of "Surprise Me".
+   * Read once by GameSurface's generateInitialGameTurn(); null/omitted falls
+   * back to the default AI-improvised opening.
+   */
+  gameOpeningGuideOverride?: string | null;
   /** When true, Game Mode uses Music DJ for Spotify music instead of local music assets. */
   gameUseSpotifyMusic?: boolean;
   /** Music source constraint for Music DJ in Game Mode. */

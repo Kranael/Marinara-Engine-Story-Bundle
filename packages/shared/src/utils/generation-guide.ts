@@ -1,5 +1,14 @@
 export type GenerationGuideSource = "narrator" | "guide" | "game_start";
 
+/**
+ * Direction fed to `buildNarratorInstructionMessage` for the Story Bundle
+ * scenario picker's "Surprise Me" option (see AppDialogRenderer.tsx) — an
+ * immersive AI-invented opening hook instead of a specific saved or
+ * user-described scenario.
+ */
+export const SURPRISE_ME_OPENING_DIRECTION =
+  "an immersive, unexpected opening scene that introduces the active characters and setting, without asking {{user}} anything or waiting for their input";
+
 export function buildNarratorInstructionMessage(direction: string): string {
   return `[Narrator instruction — do not include a reply from {{user}}. Instead, write the next part of the narrative steering it toward the following: ${direction.trim()}]`;
 }

@@ -13,14 +13,19 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { buildNarratorInstructionMessage } from "@marinara-engine/shared";
+import { buildNarratorInstructionMessage, SURPRISE_ME_OPENING_DIRECTION } from "@marinara-engine/shared";
 import { useCreateChat, useUpdateChatMetadata, chatKeys } from "./use-chats";
 import { useConnections } from "./use-connections";
 import { getPreferredConnectionId } from "../lib/connection-filters";
 import { useDeleteStoryBundle } from "./use-story-bundles";
 import { useGenerate } from "./use-generate";
 import { useChatStore } from "../stores/chat.store";
-import { showScenarioDialog, showConfirmDialog, CUSTOM_SCENARIO_CHOICE_PREFIX } from "../lib/app-dialogs";
+import {
+  showScenarioDialog,
+  showConfirmDialog,
+  CUSTOM_SCENARIO_CHOICE_PREFIX,
+  SURPRISE_ME_CHOICE_KEY,
+} from "../lib/app-dialogs";
 import { api } from "../lib/api-client";
 
 export interface PlayableStoryBundle {
@@ -63,10 +68,13 @@ export function useStoryBundleActions() {
       setPlayingId(bundle.id);
       let loadingToastId: string | number | undefined;
       try {
-        // If the bundle has scenarios, let the user pick one — or describe a
-        // custom one — first.
+        // If the bundle has scenarios, let the user pick one — a saved one, a
+        // custom free-text one, or the default "Surprise Me" AI-improvised
+        // opening (no more "None"/cancel-to-nothing outcome). A bundle with
+        // no saved scenarios keeps the existing instant-Play behavior —
+        // nothing configured to choose from, so the dialog is skipped.
         let selectedOpeningMessage: string | null = null;
-        let customScenarioText: string | null = null;
+        let openingGenerationDirection: string | null = null;
         const bundleScenarios = bundle.scenarios ?? [];
         if (bundleScenarios.length > 0) {
           const choice = await showScenarioDialog({
@@ -86,19 +94,17 @@ export function useStoryBundleActions() {
             ),
             customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
           });
-          if (!choice) {
-            setPlayingId(null);
-            return;
-          }
           if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
-            customScenarioText = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
+            openingGenerationDirection = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
+          } else if (choice === SURPRISE_ME_CHOICE_KEY) {
+            openingGenerationDirection = SURPRISE_ME_OPENING_DIRECTION;
           } else {
             const picked = bundleScenarios.find((s) => s.id === choice);
             selectedOpeningMessage = picked?.openingMessage ?? null;
           }
         }
 
-        if (customScenarioText) {
+        if (openingGenerationDirection) {
           loadingToastId = toast.loading(
             t("storyBundles.customScenarioGenerating", "Starting your scenario… this may take a moment."),
           );
@@ -145,16 +151,17 @@ export function useStoryBundleActions() {
           } catch (err) {
             console.error("[playStoryBundle] Failed to insert scenario opening message:", err);
           }
-        } else if (customScenarioText) {
+        } else if (openingGenerationDirection) {
           // Generate the opening message from the user's free-text description
-          // using the same narrator-guided generation the "/narrator" command
-          // uses — no separate AI/preset system, just an unmounted (silent)
-          // run of the existing generation pipeline.
+          // (or the Surprise Me direction) using the same narrator-guided
+          // generation the "/narrator" command uses — no separate AI/preset
+          // system, just an unmounted (silent) run of the existing generation
+          // pipeline.
           try {
             await generate({
               chatId: chat.id,
               connectionId: null,
-              generationGuide: buildNarratorInstructionMessage(customScenarioText),
+              generationGuide: buildNarratorInstructionMessage(openingGenerationDirection),
               generationGuideSource: "narrator",
             });
           } catch (err) {
