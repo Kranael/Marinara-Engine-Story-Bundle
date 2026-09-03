@@ -160,6 +160,15 @@ export interface GameNpc {
   notes: string[];
   /** Optional avatar URL (generated or uploaded) */
   avatarUrl?: string | null;
+  /**
+   * Links this tracked NPC to a full library Character so the GM prompt can
+   * inject the character's full card (personality, voice, system prompt)
+   * instead of the flat `description` line. Absent/null = a dynamically
+   * GM-invented NPC — legacy `buildTrackedNpcLines()` behavior, unchanged.
+   */
+  characterId?: string | null;
+  /** "library" when `characterId` is set and the full card should be used; omitted/"generated" for GM-invented NPCs. */
+  cardSource?: "generated" | "library";
 }
 
 // ── Sessions ──

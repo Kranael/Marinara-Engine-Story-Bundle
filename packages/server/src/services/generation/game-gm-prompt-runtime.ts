@@ -216,6 +216,32 @@ export async function injectGameGmPromptRuntime(args: {
     partyCards.push({ name, card: parts.join("\n") });
   }
 
+  // ── Library-linked NPCs (Option A) ── Split gameNpcs by characterId: entries
+  // with a resolvable characterId get the full library card (personality,
+  // voice, system prompt) instead of the flat tracked-NPC line, so a Story
+  // Bundle NPC's identity survives without becoming a party member. Absent or
+  // unresolvable characterId (the character was deleted) falls back to the
+  // legacy lightweight path unchanged.
+  const knownNpcCards: Array<{ name: string; card: string }> = [];
+  const dynamicNpcs: GameNpc[] = [];
+  for (const npc of gameNpcs) {
+    if (npc.characterId) {
+      try {
+        const linkedChar = await args.chars.getById(npc.characterId);
+        if (linkedChar) {
+          const linkedData = parseMaybeJson(linkedChar.data) as any;
+          const { name, parts } = buildLibraryCardParts(linkedData, npc.name);
+          appendGameCardDetails(parts, gameCardByName.get(normalizeTextForMatch(name)));
+          knownNpcCards.push({ name, card: parts.join("\n") });
+          continue;
+        }
+      } catch {
+        /* fall through to the lightweight tracked-NPC line below */
+      }
+    }
+    dynamicNpcs.push(npc);
+  }
+
   let playerCard: string | null = null;
   const playerPersonaId = (args.chat.personaId || setupConfig?.personaId) as string | null | undefined;
   if (playerPersonaId) {
@@ -308,7 +334,8 @@ export async function injectGameGmPromptRuntime(args: {
     storyArc,
     plotTwists,
     map: gameMap,
-    npcs: gameNpcs,
+    npcs: dynamicNpcs,
+    knownNpcCards,
     sessionSummaries,
     sessionNumber,
     partyNames,

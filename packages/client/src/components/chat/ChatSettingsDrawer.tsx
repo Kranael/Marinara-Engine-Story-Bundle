@@ -255,6 +255,7 @@ import type {
   Chat,
   CharacterGroup,
   GameCombatStyle,
+  GameNpc,
   Lorebook,
   SpriteCharacterVisualSettings,
 } from "@marinara-engine/shared";
@@ -1046,6 +1047,11 @@ export function ChatSettingsDrawer({
   const chatCharIds: string[] = useMemo(
     () => getChatCharacterIds({ characterIds: chat.characterIds }),
     [chat.characterIds],
+  );
+
+  const gameNpcs: GameNpc[] = useMemo(
+    () => (Array.isArray(metadata.gameNpcs) ? (metadata.gameNpcs as GameNpc[]) : []),
+    [metadata.gameNpcs],
   );
 
   const gameWidgetSource = useMemo<HudWidget[]>(() => {
@@ -4980,9 +4986,9 @@ export function ChatSettingsDrawer({
           {/* Party (game mode) */}
           {isGame && (
             <Section
-              id="game-party"
+              id="game-characters"
               style={{ order: CHAT_SETTINGS_ORDER.persona }}
-              label={localizeUi("ui.chat.chatsettingsdrawer.party")}
+              label={localizeUi("navigation.topbar.characters")}
               icon={<Users size="0.875rem" />}
               count={chatCharIds.length + (chat.personaId ? 1 : 0)}
               help={localizeUi("ui.chat.chatsettingsdrawer.yourInGamePartyPickAPersonaToPlay")}
@@ -5253,6 +5259,54 @@ export function ChatSettingsDrawer({
                     })}
                 </PickerDropdown>
               )}
+
+              {/* World Characters — tracked NPCs, dynamic or library-linked (Option A) */}
+              <div className="mt-4 space-y-1.5 border-t border-[var(--border)] pt-3">
+                <label className="text-[0.6875rem] font-medium text-[var(--muted-foreground)]">
+                  {localizeUi("ui.chat.chatsettingsdrawer.worldCharacters")}
+                </label>
+                {gameNpcs.length === 0 ? (
+                  <p className="text-[0.6875rem] text-[var(--muted-foreground)]">
+                    {localizeUi("ui.chat.chatsettingsdrawer.noWorldCharactersYet")}
+                  </p>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {gameNpcs.map((npc) => (
+                      <div
+                        key={npc.id}
+                        data-testid={`chat-settings-world-character-${npc.id}`}
+                        className="flex items-center gap-2.5 rounded-lg bg-[var(--secondary)] px-3 py-2"
+                      >
+                        <div className="mari-avatar-placeholder mari-avatar-placeholder--character flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[0.625rem] font-bold">
+                          {npc.name?.[0] ?? "?"}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className="block truncate text-xs">{npc.name}</span>
+                          <span className="block truncate text-[0.625rem] text-[var(--muted-foreground)]">
+                            {npc.characterId
+                              ? localizeUi("ui.chat.chatsettingsdrawer.worldCharacterLibraryBadge")
+                              : (npc.location ?? "")}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateMeta.mutate({
+                              id: chat.id,
+                              gameNpcs: gameNpcs.filter((candidate) => candidate.id !== npc.id),
+                            })
+                          }
+                          className={CHAT_RESOURCE_REMOVE_BUTTON_CLASS}
+                          data-chat-settings-remove-resource="world-character"
+                          title={localizeUi("ui.chat.chatsettingsdrawer.removeWorldCharacter")}
+                        >
+                          <Trash2 size="0.6875rem" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </Section>
           )}
 

@@ -12,9 +12,10 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import type { GameSetupConfig, StoryBundle } from "@marinara-engine/shared";
-import { getStoryBundlePartyCharacterIds } from "@marinara-engine/shared";
+import type { GameNpc, GameSetupConfig, StoryBundle } from "@marinara-engine/shared";
+import { getStoryBundleNpcCharacterIds, getStoryBundlePartyCharacterIds } from "@marinara-engine/shared";
 import { useCreateGame, useGameSetup } from "../hooks/use-game";
+import { useCharacters } from "../hooks/use-characters";
 import { useUpdateChatMetadata } from "../hooks/use-chats";
 import { useConnections } from "../hooks/use-connections";
 import { useChatStore } from "../stores/chat.store";
@@ -65,6 +66,59 @@ export function buildGameSetupConfigFromBundle(bundle: StoryBundle, personaId: s
   };
 }
 
+/** Character `data` is a JSON-string card payload on the wire; parse defensively. */
+function readCharacterCardNameAndDescription(raw: unknown): { name: string; description: string } {
+  const data =
+    typeof raw === "string"
+      ? (() => {
+          try {
+            return JSON.parse(raw) as Record<string, unknown>;
+          } catch {
+            return {};
+          }
+        })()
+      : ((raw as Record<string, unknown>) ?? {});
+  return {
+    name: typeof data.name === "string" && data.name.trim() ? data.name.trim() : "Unknown",
+    description: typeof data.description === "string" ? data.description.trim() : "",
+  };
+}
+
+/**
+ * Map every Story Bundle character assigned as an NPC (not party) into a
+ * library-linked `GameNpc` — the "Option A" NPC Fidelity Cliff fix. Only
+ * name/description are captured here as a flat fallback for consumers that
+ * don't know about `characterId` (journal, chat settings list); the full
+ * personality/voice/system-prompt card is resolved from `characterId` at
+ * prompt build time instead (see `<known_npcs>` in gm-prompts.ts) — never
+ * duplicated or regenerated here. Pure and synchronous, same rule as
+ * `buildGameSetupConfigFromBundle`: no AI generation during import.
+ */
+export function buildStoryBundleGameNpcs(
+  bundle: StoryBundle,
+  characters: ReadonlyArray<{ id: string; data: unknown }>,
+): GameNpc[] {
+  const charactersById = new Map(characters.map((character) => [character.id, character]));
+  return getStoryBundleNpcCharacterIds(bundle).map((characterId) => {
+    const { name, description } = readCharacterCardNameAndDescription(charactersById.get(characterId)?.data);
+    return {
+      id: characterId,
+      name,
+      emoji: "\uD83E\uDDD1",
+      description,
+      descriptionSource: "library",
+      gender: null,
+      pronouns: null,
+      location: "",
+      reputation: 0,
+      notes: [],
+      avatarUrl: null,
+      characterId,
+      cardSource: "library",
+    };
+  });
+}
+
 export interface DirectInjectResult {
   gameId: string;
   sessionChatId: string;
@@ -107,6 +161,7 @@ export function useDirectInjectStoryBundle() {
   const gameSetup = useGameSetup();
   const updateChatMetadata = useUpdateChatMetadata();
   const { data: connections } = useConnections();
+  const { data: characters } = useCharacters();
   const [step, setStep] = useState<DirectInjectStep | null>(null);
 
   const start = useCallback(
@@ -128,6 +183,7 @@ export function useDirectInjectStoryBundle() {
         id: sessionChat.id,
         storyBundleId: bundle.id,
         gameAssetSelection: bundle.gameAssetSelection,
+        gameNpcs: buildStoryBundleGameNpcs(bundle, (characters ?? []) as Array<{ id: string; data: unknown }>),
       });
 
       setStep("world-setup");
@@ -144,7 +200,7 @@ export function useDirectInjectStoryBundle() {
 
       return { gameId, sessionChatId: sessionChat.id };
     },
-    [createGame, gameSetup, updateChatMetadata, connections],
+    [createGame, gameSetup, updateChatMetadata, connections, characters],
   );
 
   const reset = useCallback(() => setStep(null), []);

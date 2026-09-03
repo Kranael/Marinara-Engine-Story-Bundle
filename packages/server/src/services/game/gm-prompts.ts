@@ -20,6 +20,8 @@ export interface GmPromptContext {
   campaignPlan?: GameCampaignPlan | null;
   map: GameMap | null;
   npcs: GameNpc[];
+  /** Library-linked NPCs (GameNpc.characterId set) resolved into full character cards — see `<known_npcs>`. */
+  knownNpcCards?: Array<{ name: string; card: string }>;
   sessionSummaries: SessionSummary[];
   sessionNumber: number;
   partyNames: string[];
@@ -559,6 +561,17 @@ export function buildGmSystemPrompt(ctx: GmPromptContext): string {
   // ── NPCs ──
   if (npcs.length > 0) {
     sections.push(`<tracked_npcs>`, ...buildTrackedNpcLines(npcs), `</tracked_npcs>`);
+  }
+
+  // ── Library-linked NPCs (Option A — full-fidelity, not party) ──
+  const knownNpcCards = Array.isArray(ctx.knownNpcCards) ? ctx.knownNpcCards : [];
+  if (knownNpcCards.length > 0) {
+    sections.push(
+      `<known_npcs>`,
+      `The following characters are fully realized individuals in the world. Portray their personalities and voices faithfully according to their cards. However, THEY ARE NOT PARTY MEMBERS. Do not assume player control over them, and do not expect them to take independent turns in combat unless explicitly engaged.`,
+      ...knownNpcCards.map((npc) => npc.card),
+      `</known_npcs>`,
+    );
   }
 
   // ── Previous Sessions (all summaries, latest session continuity in detail) ──
