@@ -20,6 +20,7 @@ import { useUpdateChatMetadata } from "../hooks/use-chats";
 import { useConnections } from "../hooks/use-connections";
 import { useChatStore } from "../stores/chat.store";
 import { useUIStore } from "../stores/ui.store";
+import { useGameModeStore } from "../stores/game-mode.store";
 
 /**
  * Map a bundle's frozen `gameConfig` + character/lorebook assignments into the
@@ -195,6 +196,12 @@ export function useDirectInjectStoryBundle() {
       });
 
       setStep("done");
+      // useCreateGame()'s onSuccess sets isSetupActive true — normally cleared
+      // by GameSetupWizard's own onComplete once it finishes. DirectInject
+      // never mounts that wizard, so it must clear this itself or GameSurface
+      // reopens the setup wizard on every load (shouldShowSetupWizard reads
+      // isSetupActive) until the user manually dismisses it.
+      useGameModeStore.getState().setSetupActive(false);
       useUIStore.getState().closeAllDetails();
       useChatStore.getState().setActiveChatId(sessionChat.id);
 

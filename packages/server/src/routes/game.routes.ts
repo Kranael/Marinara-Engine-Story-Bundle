@@ -6074,6 +6074,16 @@ export async function gameRoutes(app: FastifyInstance) {
         }
       }
 
+      // Option A: characterId-linked NPCs (Story Bundle NPCs seeded before this
+      // world-setup pass — see game-gm-prompt-runtime.ts <known_npcs>) carry a
+      // full library card and must survive the AI's own startingNpcs. Merge
+      // instead of replacing gameNpcs wholesale, dropping any freshly-generated
+      // NPC that collides by name with one already known.
+      const existingLibraryNpcs = Array.isArray(meta.gameNpcs)
+        ? (meta.gameNpcs as GameNpc[]).filter((npc): npc is GameNpc => !!npc.characterId)
+        : [];
+      const existingLibraryNames = new Set(existingLibraryNpcs.map((npc) => npc.name.trim().toLowerCase()));
+
       const usedNpcNames = new Set<string>();
       const uniqueNpcName = (rawName: string, fallbackName: string) => {
         const base = rawName.trim() || fallbackName;
@@ -6087,29 +6097,33 @@ export async function gameRoutes(app: FastifyInstance) {
         return candidate;
       };
 
-      const npcs = Array.from(setupData.startingNpcs as unknown[]).map((value, i) => {
-        const n = value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
-        const rawName = typeof n.name === "string" ? n.name : "";
-        const name = uniqueNpcName(rawName, `NPC ${i + 1}`);
-        const description = typeof n.description === "string" ? n.description : "";
-        return {
-          id: randomUUID(),
-          name,
-          emoji: typeof n.emoji === "string" && n.emoji ? n.emoji : "🧑",
-          description,
-          descriptionSource: description ? "model" : undefined,
-          gender: typeof n.gender === "string" ? n.gender : null,
-          pronouns: typeof n.pronouns === "string" ? n.pronouns : null,
-          location:
-            typeof n.location === "string" && n.location
-              ? resolveInitialMapLocationName(generatedStartingMap, n.location)
-              : "Unknown",
-          reputation: typeof n.reputation === "number" ? n.reputation : 0,
-          notes: [] as string[],
-          avatarUrl: findCharAvatarFuzzy(name, charAvatarByName) ?? undefined,
-        };
-      });
-      updates.gameNpcs = npcs;
+      const generatedNpcs = Array.from(setupData.startingNpcs as unknown[])
+        .map((value, i) => {
+          const n =
+            value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+          const rawName = typeof n.name === "string" ? n.name : "";
+          const name = uniqueNpcName(rawName, `NPC ${i + 1}`);
+          const description = typeof n.description === "string" ? n.description : "";
+          return {
+            id: randomUUID(),
+            name,
+            emoji: typeof n.emoji === "string" && n.emoji ? n.emoji : "🧑",
+            description,
+            descriptionSource: description ? "model" : undefined,
+            gender: typeof n.gender === "string" ? n.gender : null,
+            pronouns: typeof n.pronouns === "string" ? n.pronouns : null,
+            location:
+              typeof n.location === "string" && n.location
+                ? resolveInitialMapLocationName(generatedStartingMap, n.location)
+                : "Unknown",
+            reputation: typeof n.reputation === "number" ? n.reputation : 0,
+            notes: [] as string[],
+            avatarUrl: findCharAvatarFuzzy(name, charAvatarByName) ?? undefined,
+          };
+        })
+        .filter((npc) => !existingLibraryNames.has(npc.name.trim().toLowerCase()));
+
+      updates.gameNpcs = [...existingLibraryNpcs, ...generatedNpcs];
     }
 
     if (setupData.partyArcs && Array.isArray(setupData.partyArcs)) {
