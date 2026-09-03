@@ -2,12 +2,17 @@
  * Story Bundle GM (Game Mode) — Playwright E2E Tests
  *
  * Covers: the GM button and DirectInject bootstrapper in the Gallery and
- * the Editor (story-bundle-gm-direct-inject.ts)
+ * the Editor (story-bundle-gm-direct-inject.ts), driven through the single
+ * combined "Start Adventure" wizard (StoryBundleGmStartModal): a Persona
+ * step, then — only when the bundle has saved scenarios — a Scenario step.
  * - GM button is visible and enabled in the gallery detail card and the
  *   editor header (no longer "Coming soon")
- * - Clicking GM opens the "Who are you?" persona picker, defaulting to the
- *   bundle's own persona
- * - Canceling the picker closes it without creating anything
+ * - Clicking GM opens the wizard's Persona step, defaulting to the bundle's
+ *   own persona
+ * - Canceling the Persona step, or closing the modal (X) from either step,
+ *   aborts without creating anything
+ * - "Next" advances to the Scenario step (only when scenarios exist); "Back"
+ *   returns to Persona without canceling
  * - Confirming creates a game session chat tagged with the story bundle,
  *   using only party members as the chat's characters
  *
@@ -26,7 +31,7 @@ import { HomePage } from "../../pages/home.page.js";
 import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleGalleryPage } from "../pages/story-bundle-gallery.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
-import { StoryBundlePersonaPickerModalPage } from "../pages/story-bundle-persona-picker-modal.page.js";
+import { StoryBundleGmStartModalPage } from "../pages/story-bundle-gm-start-modal.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
 import {
@@ -116,7 +121,7 @@ test.describe("Story Bundle GM — Positive", () => {
     }
   });
 
-  test("clicking GM opens the persona picker, defaulting to the bundle's own persona", async ({ page }) => {
+  test("clicking GM opens the wizard's Persona step, defaulting to the bundle's own persona", async ({ page }) => {
     const suffix = entitySuffix(test.info().title);
     const api = new StoryBundleAPI(page);
     const persona = await createPersona(page.request, `GM Picker Persona ${suffix}`);
@@ -128,17 +133,21 @@ test.describe("Story Bundle GM — Positive", () => {
       const editor = await openEditorForBundle(page, bundle.name);
       await editor.gmButton.click();
 
-      const modal = new StoryBundlePersonaPickerModalPage(page);
+      const modal = new StoryBundleGmStartModalPage(page);
       await modal.waitFor();
 
-      await expect(modal.optionLocator(persona.id)).toBeVisible();
+      await expect(modal.personaOptionLocator(persona.id)).toBeVisible();
+      // No saved scenarios — the Persona step's primary button is Start
+      // Adventure directly, no "Next" to a second step.
+      await expect(modal.wizardNextButton).not.toBeVisible();
+      await expect(modal.startAdventureButton).toBeVisible();
     } finally {
       await api.delete(bundle.id);
       await deletePersona(page.request, persona.id);
     }
   });
 
-  test("canceling the persona picker closes it without creating a game", async ({ page }) => {
+  test("canceling the Persona step closes the wizard without creating a game", async ({ page }) => {
     const api = new StoryBundleAPI(page);
     const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
 
@@ -146,9 +155,9 @@ test.describe("Story Bundle GM — Positive", () => {
       const editor = await openEditorForBundle(page, bundle.name);
       await editor.gmButton.click();
 
-      const modal = new StoryBundlePersonaPickerModalPage(page);
+      const modal = new StoryBundleGmStartModalPage(page);
       await modal.waitFor();
-      await modal.cancel();
+      await modal.cancelOnPersonaStep();
 
       await expect(modal.modal).toBeHidden();
       expect(await findGameChatByName(page, bundle.name)).toBeNull();
@@ -157,33 +166,94 @@ test.describe("Story Bundle GM — Positive", () => {
     }
   });
 
-  test("confirming persona then canceling the scenario dialog aborts — no game is created", async ({ page }) => {
+  test("Next advances to the Scenario step; Back returns to Persona without canceling", async ({ page }) => {
     const api = new StoryBundleAPI(page);
     const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
 
     try {
       await page.request.patch(`/api/story-bundles/${bundle.id}`, {
-        data: { scenarios: [{ id: "gm-cancel-start", title: "GM Cancel Start", openingMessage: "Never used." }] },
+        data: { scenarios: [{ id: "gm-nav-start", title: "GM Nav Start", openingMessage: "Never used." }] },
       });
 
       const editor = await openEditorForBundle(page, bundle.name);
       await editor.gmButton.click();
 
-      const modal = new StoryBundlePersonaPickerModalPage(page);
+      const modal = new StoryBundleGmStartModalPage(page);
       await modal.waitFor();
-      await modal.confirm();
+      await expect(modal.wizardNextButton).toBeVisible();
+      await modal.goNext();
 
-      const scenarioCard = page.getByTestId("app-dialog-scenario-gm-cancel-start");
+      const scenarioCard = modal.scenarioCardLocator("gm-nav-start");
       await expect(scenarioCard).toBeVisible();
-      await page.getByTestId("app-dialog-scenario-cancel-button").click();
-      await expect(scenarioCard).not.toBeVisible();
+      await expect(modal.surpriseMeCard()).toBeVisible();
 
-      // Canceling here must abort the whole flow, same as canceling the
-      // persona picker — no game session chat, back to the editor.
+      await modal.goBack();
+      await expect(scenarioCard).not.toBeVisible();
+      await expect(modal.wizardNextButton).toBeVisible();
+
+      // Backing out must not have started anything.
+      expect(await findGameChatByName(page, bundle.name)).toBeNull();
+    } finally {
+      await api.delete(bundle.id);
+    }
+  });
+
+  test("closing the wizard (X) on the Scenario step aborts — no game is created", async ({ page }) => {
+    const api = new StoryBundleAPI(page);
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: { scenarios: [{ id: "gm-close-start", title: "GM Close Start", openingMessage: "Never used." }] },
+      });
+
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.gmButton.click();
+
+      const modal = new StoryBundleGmStartModalPage(page);
+      await modal.waitFor();
+      await modal.goNext();
+      await expect(modal.scenarioCardLocator("gm-close-start")).toBeVisible();
+
+      await modal.close();
+
       await expect(modal.modal).toBeHidden();
       expect(await findGameChatByName(page, bundle.name)).toBeNull();
       await expect(editor.gmButton).toBeVisible();
     } finally {
+      await api.delete(bundle.id);
+    }
+  });
+
+  test("picking a scenario card on the Scenario step commits DirectInject", async ({ page }) => {
+    const api = new StoryBundleAPI(page);
+    let chatId: string | null = null;
+    const bundle = await importStoryBundleFixture(page, path.join(DATA_DIR, "empty.json"), test.info().title);
+
+    try {
+      await page.request.patch(`/api/story-bundles/${bundle.id}`, {
+        data: { scenarios: [{ id: "gm-pick-start", title: "GM Pick Start", openingMessage: "A chosen beginning." }] },
+      });
+
+      const editor = await openEditorForBundle(page, bundle.name);
+      await editor.gmButton.click();
+
+      const modal = new StoryBundleGmStartModalPage(page);
+      await modal.waitFor();
+      await modal.goNext();
+      await modal.scenarioCardLocator("gm-pick-start").click();
+
+      // The AI-driven world-setup call always fails in this connection-less
+      // test environment, but the game session chat is already created.
+      await expect(page.getByText("Failed to start the game from this story bundle.")).toBeVisible({
+        timeout: 10_000,
+      });
+
+      const chat = await findGameChatByName(page, bundle.name);
+      expect(chat).not.toBeNull();
+      chatId = chat!.id;
+    } finally {
+      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
     }
   });
@@ -214,9 +284,9 @@ test.describe("Story Bundle GM — Positive", () => {
       const editor = await openEditorForBundle(page, bundle.name);
       await editor.gmButton.click();
 
-      const modal = new StoryBundlePersonaPickerModalPage(page);
+      const modal = new StoryBundleGmStartModalPage(page);
       await modal.waitFor();
-      await modal.confirm();
+      await modal.startAdventure();
 
       // The AI-driven world-setup call always fails in this connection-less
       // test environment, but the game session chat is already created.
@@ -264,9 +334,9 @@ test.describe("Story Bundle GM — Positive", () => {
       const editor = await openEditorForBundle(page, bundle.name);
       await editor.gmButton.click();
 
-      const modal = new StoryBundlePersonaPickerModalPage(page);
+      const modal = new StoryBundleGmStartModalPage(page);
       await modal.waitFor();
-      await modal.confirm();
+      await modal.startAdventure();
 
       // Tagging (which writes gameNpcs) runs before the world-setup AI call
       // that always fails in this connection-less test environment.
@@ -310,9 +380,9 @@ test.describe("Story Bundle GM — Positive", () => {
       const editor = await openEditorForBundle(page, bundle.name);
       await editor.gmButton.click();
 
-      const modal = new StoryBundlePersonaPickerModalPage(page);
+      const modal = new StoryBundleGmStartModalPage(page);
       await modal.waitFor();
-      await modal.confirm();
+      await modal.startAdventure();
 
       await expect(page.getByText("Failed to start the game from this story bundle.")).toBeVisible({
         timeout: 10_000,

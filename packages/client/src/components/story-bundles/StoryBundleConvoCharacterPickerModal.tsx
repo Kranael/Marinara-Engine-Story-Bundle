@@ -1,7 +1,7 @@
 // ──────────────────────────────────────────────
 // "Who do you want to message?" character picker — Click 2 of the CONVO DirectInject flow
 // ──────────────────────────────────────────────
-// Deliberately minimal, mirroring StoryBundlePersonaPickerModal.tsx: a
+// Deliberately minimal, mirroring the GM start modal's Persona step: a
 // single-purpose confirm step, shown only when the bundle has more than one
 // character (see getConvoCharacterCandidateIds). Every bundle character is
 // selectable; the first one is pre-selected as a sensible default.

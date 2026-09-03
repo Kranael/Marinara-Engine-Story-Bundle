@@ -1283,7 +1283,6 @@
   "storyBundles.editorTitle": "Edit Story Bundle",
   "storyBundles.empty": "No story bundles yet. Create your first one to get started.",
   "storyBundles.export": "Export",
-  "storyBundles.exportBlockedGameConfig": "Fill in Genre, Setting, and Tone in the Metadata tab before exporting.",
   "storyBundles.exportFailed": "Failed to export the story bundle.",
   "storyBundles.exportSuccess": "Story bundle exported.",
   "storyBundles.galleryHeading": "Browse your story bundles",

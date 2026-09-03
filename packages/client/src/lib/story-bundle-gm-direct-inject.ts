@@ -12,7 +12,6 @@
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import type { TFunction } from "i18next";
 import type { GameNpc, GameSetupConfig, StoryBundle } from "@marinara-engine/shared";
 import { getStoryBundleNpcCharacterIds, getStoryBundlePartyCharacterIds } from "@marinara-engine/shared";
 import { useCreateGame, useGameSetup } from "../hooks/use-game";
@@ -20,7 +19,6 @@ import { useCharacters } from "../hooks/use-characters";
 import { useUpdateChatMetadata } from "../hooks/use-chats";
 import { useConnections } from "../hooks/use-connections";
 import { getPreferredConnectionId } from "./connection-filters";
-import { showScenarioDialog, CUSTOM_SCENARIO_CHOICE_PREFIX, SURPRISE_ME_CHOICE_KEY } from "./app-dialogs";
 import { useChatStore } from "../stores/chat.store";
 import { useUIStore } from "../stores/ui.store";
 import { useGameModeStore } from "../stores/game-mode.store";
@@ -130,62 +128,14 @@ export interface DirectInjectResult {
 
 /**
  * Builds the one-shot override for GameSurface's generateInitialGameTurn()
- * when the player picked a saved or custom scenario instead of "Surprise Me"
- * (see resolveStoryBundleOpeningGuideOverride below). Mirrors the phrasing of
+ * when the player picked a saved or custom scenario in the "Start Adventure"
+ * wizard's Scenario step instead of "Surprise Me". Mirrors the phrasing of
  * GameSurface's own default GAME_START_GENERATION_GUIDE so the model treats
  * this the same way — an invisible startup trigger, not a player action —
  * while steering the very first GM turn toward the chosen situation.
  */
-function buildGameStartOpeningGuideOverride(direction: string): string {
+export function buildGameStartOpeningGuideOverride(direction: string): string {
   return `Begin the game now with the first visible GM VN narration/dialogue segment, opening with this exact situation: ${direction} This is an invisible startup trigger, not a player action. Do not mention a start command.`;
-}
-
-/**
- * Click 1.5 — shown between the persona picker and DirectInject's commit.
- * Reuses the same scenario dialog RP's Play flow uses (same Surprise Me
- * card, same Custom Scenario option), but maps the choice to a one-shot
- * `gameOpeningGuideOverride` instead of inserting a chat message: GM always
- * generates its first turn via an AI-guided instruction (see
- * GameSurface.tsx's generateInitialGameTurn), there is no static-message path
- * like RP has. "Surprise Me" needs no override at all — GAME_START_GENERATION_GUIDE
- * already is an AI-improvised opening by default. Canceling the dialog must
- * abort the whole "Start Adventure" flow — no game is created, distinct from
- * picking Surprise Me (which still starts the game, just uninstructed).
- */
-type OpeningGuideResolution = { cancelled: true } | { cancelled: false; override: string | null };
-
-async function resolveStoryBundleOpeningGuideOverride(
-  bundle: StoryBundle,
-  t: TFunction,
-): Promise<OpeningGuideResolution> {
-  // Nothing configured to choose from — keep the existing instant-confirm
-  // behavior and let the default GAME_START_GENERATION_GUIDE (already an
-  // AI-improvised opening) run unmodified.
-  if (bundle.scenarios.length === 0) return { cancelled: false, override: null };
-  const choice = await showScenarioDialog({
-    title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
-    message: t("storyBundles.scenarioPickMessage", "Select a scenario to use as the first message."),
-    scenarios: bundle.scenarios.map((scenario) => ({
-      key: scenario.id,
-      title: scenario.title,
-      imagePath: scenario.imagePath,
-      avatarCrop: scenario.avatarCrop,
-    })),
-    allowCustomScenario: true,
-    customScenarioLabel: t("storyBundles.customScenario", "Custom Scenario"),
-    customScenarioPlaceholder: t("storyBundles.customScenarioPlaceholder", "Describe how the story should begin…"),
-    customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
-  });
-  if (!choice) return { cancelled: true };
-  if (choice === SURPRISE_ME_CHOICE_KEY) return { cancelled: false, override: null };
-  if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
-    return {
-      cancelled: false,
-      override: buildGameStartOpeningGuideOverride(choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim()),
-    };
-  }
-  const picked = bundle.scenarios.find((s) => s.id === choice);
-  return { cancelled: false, override: picked ? buildGameStartOpeningGuideOverride(picked.openingMessage) : null };
 }
 
 /** Steps the DirectInject flow moves through, in order — drives the modal's progress bar. */
@@ -285,15 +235,15 @@ export function useDirectInjectStoryBundle() {
 
 /**
  * Orchestrates the full 2-click flow for a Bundle Card: Click 1 opens the
- * persona picker (pre-selected to the bundle's default persona); Click 2
- * commits DirectInject. Callers render `<StoryBundlePersonaPickerModal />`
- * bound to the returned state.
+ * combined persona + scenario wizard (pre-selected to the bundle's default
+ * persona and to "Surprise Me"); Click 2 (the wizard's final "Start
+ * Adventure" step) commits DirectInject. Callers render
+ * `<StoryBundleGmStartModal />` bound to the returned state.
  */
 export function useStartStoryBundleAdventure() {
   const { t } = useTranslation();
   const { start, reset, step, isStarting } = useDirectInjectStoryBundle();
   const [pendingBundle, setPendingBundle] = useState<StoryBundle | null>(null);
-  const [isResolvingScenario, setIsResolvingScenario] = useState(false);
 
   /** Click 1 — "Start Adventure" on the Bundle Card. */
   const requestStart = useCallback(
@@ -306,38 +256,27 @@ export function useStartStoryBundleAdventure() {
 
   const cancel = useCallback(() => setPendingBundle(null), []);
 
-  /** Click 2 — persona confirmed in the modal. */
+  /** Click 2 — the wizard's final Scenario step confirmed persona + opening-guide override. */
   const confirmPersona = useCallback(
-    async (personaId: string | null) => {
-      if (!pendingBundle || isResolvingScenario) return null;
-      setIsResolvingScenario(true);
+    async (personaId: string | null, openingGuideOverride: string | null) => {
+      if (!pendingBundle) return null;
       try {
-        // Click 1.5 — same scenario dialog (with its Surprise Me card) RP's
-        // Play flow uses, shown before DirectInject actually commits.
-        // Canceling here (like canceling the persona picker itself) aborts
-        // the whole flow — no game is created, back to where the player was.
-        const scenarioResolution = await resolveStoryBundleOpeningGuideOverride(pendingBundle, t);
-        if (scenarioResolution.cancelled) return null;
-        return await start(pendingBundle, personaId, scenarioResolution.override);
+        return await start(pendingBundle, personaId, openingGuideOverride);
       } catch (err) {
         console.error("[directInjectStoryBundle]", err);
         toast.error(t("storyBundles.gmFailed", "Failed to start the game from this story bundle."));
         return null;
       } finally {
-        setIsResolvingScenario(false);
         setPendingBundle(null);
       }
     },
-    [pendingBundle, isResolvingScenario, start, t],
+    [pendingBundle, start, t],
   );
 
   return {
-    /** Non-null while the persona picker modal should be open. */
+    /** Non-null while the wizard modal should be open. */
     pendingBundle,
-    // True while resolving the scenario dialog OR while DirectInject itself
-    // is running — the persona picker's Confirm button stays disabled/busy
-    // across both, since there's no distinct "step" for the scenario dialog.
-    isStarting: isStarting || isResolvingScenario,
+    isStarting,
     step,
     requestStart,
     cancel,

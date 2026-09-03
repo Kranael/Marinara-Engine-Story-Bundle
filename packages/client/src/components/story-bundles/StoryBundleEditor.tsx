@@ -55,7 +55,7 @@ import { StoryBundlePresets } from "./StoryBundlePresets";
 import { StoryBundleAgents } from "./StoryBundleAgents";
 import { StoryBundleAssets } from "./StoryBundleAssets";
 import { StoryBundleScenarios } from "./StoryBundleScenarios";
-import { StoryBundlePersonaPickerModal } from "./StoryBundlePersonaPickerModal";
+import { StoryBundleGmStartModal } from "./StoryBundleGmStartModal";
 import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";
 import { useStartStoryBundleAdventure } from "../../lib/story-bundle-gm-direct-inject";
 import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
@@ -848,7 +848,7 @@ export function StoryBundleEditor() {
         </div>
       </div>
 
-      <StoryBundlePersonaPickerModal
+      <StoryBundleGmStartModal
         bundle={pendingGmBundle}
         isConfirming={isStartingGm}
         step={gmStep}

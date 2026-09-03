@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import { BookMarked, Download, Loader2, Plus, Trash2, Upload } from "lucide-react";
 import { useStoryBundles, useCreateStoryBundle } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
-import { isStoryBundleGameConfigComplete } from "@marinara-engine/shared";
 import { useUIStore } from "../../stores/ui.store";
 import { showPromptDialog } from "../../lib/app-dialogs";
 import { cn } from "../../lib/utils";
@@ -166,16 +165,9 @@ export function StoryBundlesPanel() {
                         event.stopPropagation();
                         void exportBundle(bundle.id, bundle.name);
                       }}
-                      disabled={exportingId === bundle.id || !isStoryBundleGameConfigComplete(bundle)}
+                      disabled={exportingId === bundle.id}
                       className="rounded-md p-1 transition-transform hover:bg-[var(--sidebar-accent)] active:scale-90 disabled:cursor-not-allowed disabled:opacity-40"
-                      title={
-                        isStoryBundleGameConfigComplete(bundle)
-                          ? t("storyBundles.export", "Export")
-                          : t(
-                              "storyBundles.exportBlockedGameConfig",
-                              "Fill in Genre, Setting, and Tone in the Metadata tab before exporting.",
-                            )
-                      }
+                      title={t("storyBundles.export", "Export")}
                     >
                       {exportingId === bundle.id ? (
                         <Loader2 size="0.75rem" className="animate-spin" />
