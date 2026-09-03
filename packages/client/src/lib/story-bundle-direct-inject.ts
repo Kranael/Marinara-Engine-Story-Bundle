@@ -5,13 +5,20 @@
 // StoryBundle straight into a running Game Mode session chat without ever
 // mounting GameSetupWizard. Deliberately isolated from packages/client/src/
 // components/game/GameSetupWizard.tsx and hooks/use-game.ts — this only
-// *calls* useCreateGame(), it never edits the wizard or the game hooks.
+// *calls* useCreateGame()/useGameSetup(), it never edits the wizard or the
+// game hooks. Mirrors the create → setup sequence NewGameExperienceChooser.tsx
+// uses for package-driven games; the player still reaches GameSurface's own
+// "Start Game" confirmation screen once the setup call resolves.
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import type { GameSetupConfig, StoryBundle } from "@marinara-engine/shared";
 import { getStoryBundlePartyCharacterIds } from "@marinara-engine/shared";
-import { useCreateGame } from "../hooks/use-game";
+import { useCreateGame, useGameSetup } from "../hooks/use-game";
 import { useUpdateChatMetadata } from "../hooks/use-chats";
 import { useConnections } from "../hooks/use-connections";
+import { useChatStore } from "../stores/chat.store";
+import { useUIStore } from "../stores/ui.store";
 
 /**
  * Map a bundle's frozen `gameConfig` + character/lorebook assignments into the
@@ -75,9 +82,15 @@ export interface DirectInjectResult {
  * 3. Copies the bundle's asset-folder scope onto the new session chat and
  *    tags it with the bundle's id, mirroring how the RP play flow tags
  *    `storyBundleId` (see hooks/use-story-bundle-actions.ts).
+ * 4. Runs the same AI-driven world-setup pass every game needs (POST
+ *    /game/setup) — this is the game system's own bootstrap, not wizard UI,
+ *    so skipping it would leave the session without a world overview.
+ * 5. Navigates into the new session chat and closes any open gallery/editor
+ *    overlay, matching the CONVO flow's `closeAllDetails()`.
  */
 export function useDirectInjectStoryBundle() {
   const createGame = useCreateGame();
+  const gameSetup = useGameSetup();
   const updateChatMetadata = useUpdateChatMetadata();
   const { data: connections } = useConnections();
 
@@ -85,11 +98,12 @@ export function useDirectInjectStoryBundle() {
     async (bundle: StoryBundle, personaId: string | null): Promise<DirectInjectResult> => {
       const setupConfig = buildGameSetupConfigFromBundle(bundle, personaId);
       const conns = (connections ?? []) as Array<{ id: string }>;
+      const connectionId = conns[0]?.id;
 
       const { gameId, sessionChat } = await createGame.mutateAsync({
         name: bundle.name,
         setupConfig,
-        connectionId: conns[0]?.id,
+        connectionId,
         promptPresetId: setupConfig.promptPresetId ?? undefined,
       });
 
@@ -99,12 +113,22 @@ export function useDirectInjectStoryBundle() {
         gameAssetSelection: bundle.gameAssetSelection,
       });
 
+      await gameSetup.mutateAsync({
+        chatId: sessionChat.id,
+        connectionId,
+        promptPresetId: setupConfig.promptPresetId ?? null,
+        preferences: "",
+      });
+
+      useUIStore.getState().closeAllDetails();
+      useChatStore.getState().setActiveChatId(sessionChat.id);
+
       return { gameId, sessionChatId: sessionChat.id };
     },
-    [createGame, updateChatMetadata, connections],
+    [createGame, gameSetup, updateChatMetadata, connections],
   );
 
-  return { start, isStarting: createGame.isPending };
+  return { start, isStarting: createGame.isPending || gameSetup.isPending };
 }
 
 /**
@@ -114,6 +138,7 @@ export function useDirectInjectStoryBundle() {
  * bound to the returned state.
  */
 export function useStartStoryBundleAdventure() {
+  const { t } = useTranslation();
   const { start, isStarting } = useDirectInjectStoryBundle();
   const [pendingBundle, setPendingBundle] = useState<StoryBundle | null>(null);
 
@@ -130,11 +155,15 @@ export function useStartStoryBundleAdventure() {
       if (!pendingBundle) return null;
       try {
         return await start(pendingBundle, personaId);
+      } catch (err) {
+        console.error("[directInjectStoryBundle]", err);
+        toast.error(t("storyBundles.gmFailed", "Failed to start the game from this story bundle."));
+        return null;
       } finally {
         setPendingBundle(null);
       }
     },
-    [pendingBundle, start],
+    [pendingBundle, start, t],
   );
 
   return {

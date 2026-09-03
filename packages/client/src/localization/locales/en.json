@@ -1289,6 +1289,8 @@
   "storyBundles.gallerySearchPlaceholder": "Search story bundles…",
   "storyBundles.gallerySelectHint": "Pick a bundle from the grid to see its artwork, title, and description.",
   "storyBundles.galleryTitle": "Story Bundle Gallery",
+  "storyBundles.gmFailed": "Failed to start the game from this story bundle.",
+  "storyBundles.gmTitle": "Start a Game Mode session from this story bundle",
   "storyBundles.groups": "Groups",
   "storyBundles.imageRemoved": "Bundle picture removed.",
   "storyBundles.imageRemoveFailed": "Failed to remove the bundle picture.",

@@ -32,6 +32,8 @@ import { toast } from "sonner";
 import type { StoryBundle } from "@marinara-engine/shared";
 import { useCreateStoryBundle, useStoryBundles } from "../../hooks/use-story-bundles";
 import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
+import { useStartStoryBundleAdventure } from "../../lib/story-bundle-direct-inject";
+import { StoryBundlePersonaPickerModal } from "./StoryBundlePersonaPickerModal";
 import { ChatModeIcon } from "../chat/ChatModeIcon";
 import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 import { showPromptDialog } from "../../lib/app-dialogs";
@@ -69,7 +71,17 @@ function toSearchDocument(bundle: StoryBundle) {
   };
 }
 
-function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle; onEdit: (id: string) => void }) {
+function StoryBundleGalleryDetailCard({
+  bundle,
+  onEdit,
+  onStartGm,
+  startingGmId,
+}: {
+  bundle: StoryBundle;
+  onEdit: (id: string) => void;
+  onStartGm: (bundle: StoryBundle) => void;
+  startingGmId: string | null;
+}) {
   const { t } = useTranslation();
   const { play, startConversation, exportBundle, remove, playingId, startingConversationId, exportingId } =
     useStoryBundleActions();
@@ -166,12 +178,18 @@ function StoryBundleGalleryDetailCard({ bundle, onEdit }: { bundle: StoryBundle;
             </button>
             <button
               type="button"
-              disabled
+              onClick={() => onStartGm(bundle)}
+              disabled={startingGmId === bundle.id}
               data-testid={`story-bundle-gallery-mode-game-${bundle.id}`}
-              className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs sm:text-sm"
-              title={t("storyBundles.modeComingSoon", "Coming soon")}
+              style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}
+              className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)] sm:text-sm"
+              title={t("storyBundles.gmTitle", "Start a Game Mode session from this story bundle")}
             >
-              <ChatModeIcon mode="game" size="0.875rem" />
+              {startingGmId === bundle.id ? (
+                <Loader2 size="0.875rem" className="animate-spin" />
+              ) : (
+                <ChatModeIcon mode="game" size="0.875rem" style={{ color: HOME_CHAT_MODE_ACCENTS.game }} />
+              )}
               {t("storyBundles.modeGm", "GM")}
             </button>
           </div>
@@ -241,6 +259,14 @@ export function StoryBundleGalleryView() {
   const { data: bundles, isLoading } = useStoryBundles();
   const createMutation = useCreateStoryBundle();
   const { play, startConversation, playingId, startingConversationId } = useStoryBundleActions();
+  const {
+    pendingBundle: pendingGmBundle,
+    isStarting: isStartingGm,
+    requestStart,
+    cancel,
+    confirmPersona,
+  } = useStartStoryBundleAdventure();
+  const startingGmId = isStartingGm ? (pendingGmBundle?.id ?? null) : null;
   const galleryRootScrollRef = useRef<HTMLDivElement | null>(null);
   const galleryListScrollRef = useRef<HTMLElement | null>(null);
   const pendingGalleryScrollTopRef = useRef(0);
@@ -623,18 +649,26 @@ export function StoryBundleGalleryView() {
                           </button>
                           <button
                             type="button"
-                            disabled
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              requestStart(bundle);
+                            }}
+                            disabled={startingGmId === bundle.id}
                             data-testid={`story-bundle-gallery-card-mode-game-${bundle.id}`}
                             style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}
-                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))]"
-                            title={t("storyBundles.modeComingSoon", "Coming soon")}
+                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
+                            title={t("storyBundles.gmTitle", "Start a Game Mode session from this story bundle")}
                           >
-                            <ChatModeIcon
-                              mode="game"
-                              size="0.6875rem"
-                              className="shrink-0"
-                              style={{ color: HOME_CHAT_MODE_ACCENTS.game }}
-                            />
+                            {startingGmId === bundle.id ? (
+                              <Loader2 size="0.6875rem" className="shrink-0 animate-spin" />
+                            ) : (
+                              <ChatModeIcon
+                                mode="game"
+                                size="0.6875rem"
+                                className="shrink-0"
+                                style={{ color: HOME_CHAT_MODE_ACCENTS.game }}
+                              />
+                            )}
                             <span className="truncate">{t("storyBundles.modeGm", "GM")}</span>
                           </button>
                         </div>
@@ -643,7 +677,12 @@ export function StoryBundleGalleryView() {
 
                     {isSelected && (
                       <div data-testid="story-bundle-gallery-detail-mobile" className="col-span-full lg:hidden">
-                        <StoryBundleGalleryDetailCard bundle={bundle} onEdit={openEditorFromGallery} />
+                        <StoryBundleGalleryDetailCard
+                          bundle={bundle}
+                          onEdit={openEditorFromGallery}
+                          onStartGm={requestStart}
+                          startingGmId={startingGmId}
+                        />
                       </div>
                     )}
                   </Fragment>
@@ -656,7 +695,12 @@ export function StoryBundleGalleryView() {
         <aside className="hidden min-h-0 overflow-visible border-t border-[var(--marinara-chat-chrome-panel-divider)] bg-[var(--card)]/65 backdrop-blur-xl lg:block lg:overflow-y-auto lg:border-l lg:border-t-0">
           <div className="space-y-4 p-4 md:p-6">
             {selectedCard ? (
-              <StoryBundleGalleryDetailCard bundle={selectedCard.bundle} onEdit={openEditorFromGallery} />
+              <StoryBundleGalleryDetailCard
+                bundle={selectedCard.bundle}
+                onEdit={openEditorFromGallery}
+                onStartGm={requestStart}
+                startingGmId={startingGmId}
+              />
             ) : (
               <div className="flex min-h-[18rem] flex-col items-center justify-center gap-3 rounded-[2rem] border border-dashed border-[var(--marinara-chat-chrome-panel-border)] bg-[var(--background)]/65 p-6 text-center">
                 <div className="mari-panel-gradient-surface mari-panel-gradient--story-bundles flex h-14 w-14 items-center justify-center rounded-3xl text-white">
@@ -673,6 +717,13 @@ export function StoryBundleGalleryView() {
           </div>
         </aside>
       </div>
+
+      <StoryBundlePersonaPickerModal
+        bundle={pendingGmBundle}
+        isConfirming={isStartingGm}
+        onConfirm={confirmPersona}
+        onCancel={cancel}
+      />
     </div>
   );
 }

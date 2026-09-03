@@ -48,6 +48,8 @@ import { StoryBundlePresets } from "./StoryBundlePresets";
 import { StoryBundleAgents } from "./StoryBundleAgents";
 import { StoryBundleAssets } from "./StoryBundleAssets";
 import { StoryBundleScenarios } from "./StoryBundleScenarios";
+import { StoryBundlePersonaPickerModal } from "./StoryBundlePersonaPickerModal";
+import { useStartStoryBundleAdventure } from "../../lib/story-bundle-direct-inject";
 
 /** Parse a JSON string or array into a string[] of character IDs. */
 function parseCharacterFolderIds(value: unknown): string[] {
@@ -162,6 +164,13 @@ export function StoryBundleEditor() {
   const { data: connections } = useConnections();
   const { generate } = useGenerate();
   const qc = useQueryClient();
+  const {
+    pendingBundle: pendingGmBundle,
+    isStarting: isStartingGm,
+    requestStart: requestStartGm,
+    cancel: cancelGm,
+    confirmPersona: confirmGmPersona,
+  } = useStartStoryBundleAdventure();
 
   // Keep the local draft in sync with the loaded bundle. useLayoutEffect so
   // the draft is populated synchronously before paint — Play must never read
@@ -324,6 +333,36 @@ export function StoryBundleEditor() {
     excludedAssetFolders,
     scenarios,
     t,
+  ]);
+
+  // GM (Game Mode) uses the current editor draft, same as Play — an unsaved
+  // preset/party change should be honored, not silently dropped.
+  const handleStartGm = useCallback(() => {
+    if (!bundle) return;
+    requestStartGm({
+      ...bundle,
+      name: name.trim() || bundle.name,
+      characterIds,
+      partyCharacterIds,
+      personaIds,
+      lorebookIds,
+      presetIds,
+      agentIds,
+      scenarios,
+      gameAssetSelection: excludedAssetFolders.length > 0 ? { excludedFolders: excludedAssetFolders } : null,
+    });
+  }, [
+    bundle,
+    name,
+    characterIds,
+    partyCharacterIds,
+    personaIds,
+    lorebookIds,
+    presetIds,
+    agentIds,
+    scenarios,
+    excludedAssetFolders,
+    requestStartGm,
   ]);
 
   const handlePlay = useCallback(async () => {
@@ -664,12 +703,17 @@ export function StoryBundleEditor() {
           </button>
           <button
             type="button"
-            disabled
             data-testid="story-bundle-editor-mode-game"
+            onClick={handleStartGm}
+            disabled={isStartingGm}
             className="mari-editor-action inline-flex gap-1 px-2.5 text-[0.6875rem] font-semibold"
-            title={t("storyBundles.modeComingSoon", "Coming soon")}
+            title={t("storyBundles.gmTitle", "Start a Game Mode session from this story bundle")}
           >
-            <ChatModeIcon mode="game" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.game }} />
+            {isStartingGm ? (
+              <Loader2 size="0.75rem" className="animate-spin" />
+            ) : (
+              <ChatModeIcon mode="game" size="0.75rem" style={{ color: HOME_CHAT_MODE_ACCENTS.game }} />
+            )}
             {t("storyBundles.modeGm", "GM")}
           </button>
           <button
@@ -784,6 +828,13 @@ export function StoryBundleEditor() {
           </div>
         </div>
       </div>
+
+      <StoryBundlePersonaPickerModal
+        bundle={pendingGmBundle}
+        isConfirming={isStartingGm}
+        onConfirm={confirmGmPersona}
+        onCancel={cancelGm}
+      />
     </div>
   );
 }
