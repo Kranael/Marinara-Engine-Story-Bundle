@@ -6214,18 +6214,19 @@ export async function gameRoutes(app: FastifyInstance) {
       const sliceArray = (max: number) => (val: unknown) => (Array.isArray(val) ? val.slice(0, max) : val);
       const clampInt = (min: number, max: number) => (val: unknown) =>
         typeof val === "number" && Number.isFinite(val) ? Math.max(min, Math.min(max, Math.trunc(val))) : val;
+      const truncateString = (max: number) => (val: unknown) => (typeof val === "string" ? val.slice(0, max) : val);
       const campaignPlanSchema = z
         .object({
-          openingSituation: z.string().max(240).optional().default(""),
+          openingSituation: z.preprocess(truncateString(240), z.string().max(240).optional().default("")),
           pressureClocks: z.preprocess(
             sliceArray(2),
             z
               .array(
                 z.object({
-                  name: z.string().max(80),
+                  name: z.preprocess(truncateString(80), z.string().max(80)),
                   steps: z.preprocess(clampInt(1, 12), z.number().int().min(1).max(12).default(4)),
                   current: z.preprocess(clampInt(0, 12), z.number().int().min(0).max(12).default(0)),
-                  failure: z.string().max(180).default(""),
+                  failure: z.preprocess(truncateString(180), z.string().max(180).default("")),
                 }),
               )
               .default([]),
@@ -6235,15 +6236,21 @@ export async function gameRoutes(app: FastifyInstance) {
             z
               .array(
                 z.object({
-                  name: z.string().max(80),
-                  goal: z.string().max(160),
-                  method: z.string().max(160).optional(),
-                  secret: z.string().max(180).optional(),
+                  name: z.preprocess(truncateString(80), z.string().max(80)),
+                  goal: z.preprocess(truncateString(160), z.string().max(160)),
+                  method: z.preprocess(truncateString(160), z.string().max(160).optional()),
+                  secret: z.preprocess(truncateString(180), z.string().max(180).optional()),
                 }),
               )
               .default([]),
           ),
-          questSeeds: z.preprocess(sliceArray(3), z.array(z.string().max(180)).default([])),
+          questSeeds: z.preprocess(
+            (val) =>
+              Array.isArray(val)
+                ? val.slice(0, 3).map((item) => (typeof item === "string" ? item.slice(0, 180) : item))
+                : val,
+            z.array(z.string().max(180)).default([]),
+          ),
           encounterPrinciples: z.preprocess(
             (val) =>
               Array.isArray(val)
