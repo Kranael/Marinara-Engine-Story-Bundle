@@ -19,7 +19,8 @@ import { cn, getAvatarCropStyle } from "../../lib/utils";
 import { CUSTOM_SCENARIO_CHOICE_PREFIX, SURPRISE_ME_CHOICE_KEY } from "../../lib/app-dialogs";
 import {
   buildGameStartOpeningGuideOverride,
-  DIRECT_INJECT_STEP_PERCENT,
+  DIRECT_INJECT_STEP_INDEX,
+  DIRECT_INJECT_STEP_ORDER,
   type DirectInjectStep,
 } from "../../lib/story-bundle-gm-direct-inject";
 
@@ -91,7 +92,16 @@ export function StoryBundleGmStartModal({
     "world-setup": t("storyBundles.gmStepWorldSetup", "Generating the world…"),
     done: t("storyBundles.gmStepDone", "Ready!"),
   };
-  const stepPercent = step ? DIRECT_INJECT_STEP_PERCENT[step] : 0;
+  // Friendly, human-readable description of what each step is doing under the
+  // hood — shown on the right of the progress row instead of a raw percentage.
+  const stepDescriptions: Record<DirectInjectStep, string> = {
+    creating: t("storyBundles.gmStepCreatingDesc", "Setting up your game and chat…"),
+    tagging: t("storyBundles.gmStepTaggingDesc", "Linking characters, lorebooks and assets…"),
+    "world-setup": t("storyBundles.gmStepWorldSetupDesc", "Writing the world, NPCs and opening scene…"),
+    done: t("storyBundles.gmStepDoneDesc", "Opening your adventure…"),
+  };
+  const stepIndex = step ? DIRECT_INJECT_STEP_INDEX[step] : 0;
+  const stepTotal = DIRECT_INJECT_STEP_ORDER.length;
 
   /** Resolves a scenario grid choice (a scenario id, Surprise Me, or custom text) into the final commit. */
   const finalize = (choiceKey: string) => {
@@ -300,20 +310,29 @@ export function StoryBundleGmStartModal({
                 {stepLabels[step]}
               </span>
               <span className="shrink-0 tabular-nums text-[var(--muted-foreground)]">
-                {step === "world-setup"
-                  ? t("storyBundles.gmElapsedSeconds", "{{count}}s", { count: worldSetupElapsedSeconds })
-                  : t("storyBundles.gmStepPercent", "{{percent}}%", { percent: stepPercent })}
+                {t("storyBundles.gmStepCounter", "Step {{current}}/{{total}}", {
+                  current: stepIndex,
+                  total: stepTotal,
+                })}
               </span>
+            </div>
+            <div className="flex items-center justify-between gap-2 text-[0.6875rem] text-[var(--muted-foreground)]">
+              <span aria-live="polite">{stepDescriptions[step]}</span>
+              {step === "world-setup" && (
+                <span className="shrink-0 tabular-nums">
+                  {t("storyBundles.gmElapsedSeconds", "{{count}}s", { count: worldSetupElapsedSeconds })}
+                </span>
+              )}
             </div>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--border)]">
               <div
                 role="progressbar"
-                aria-valuenow={stepPercent}
-                aria-valuemin={0}
-                aria-valuemax={100}
+                aria-valuenow={stepIndex}
+                aria-valuemin={1}
+                aria-valuemax={stepTotal}
                 aria-label={stepLabels[step]}
                 className="h-full rounded-full bg-[var(--primary)] transition-all duration-300"
-                style={{ width: `${stepPercent}%` }}
+                style={{ width: `${(stepIndex / stepTotal) * 100}%` }}
               />
             </div>
           </div>

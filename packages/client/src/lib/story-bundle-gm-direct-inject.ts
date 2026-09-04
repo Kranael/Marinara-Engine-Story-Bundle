@@ -141,12 +141,20 @@ export function buildGameStartOpeningGuideOverride(direction: string): string {
 /** Steps the DirectInject flow moves through, in order — drives the modal's progress bar. */
 export type DirectInjectStep = "creating" | "tagging" | "world-setup" | "done";
 
-/** Progress-bar percentage for each step, so the modal never hardcodes its own numbers. */
-export const DIRECT_INJECT_STEP_PERCENT: Record<DirectInjectStep, number> = {
-  creating: 15,
-  tagging: 35,
-  "world-setup": 60,
-  done: 100,
+/** Ordered list of steps, so the modal can render a "step N of M" counter. */
+export const DIRECT_INJECT_STEP_ORDER: readonly DirectInjectStep[] = [
+  "creating",
+  "tagging",
+  "world-setup",
+  "done",
+];
+
+/** 1-based index of each step within {@link DIRECT_INJECT_STEP_ORDER}. */
+export const DIRECT_INJECT_STEP_INDEX: Record<DirectInjectStep, number> = {
+  creating: 1,
+  tagging: 2,
+  "world-setup": 3,
+  done: 4,
 };
 
 /**
