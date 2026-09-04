@@ -13,20 +13,16 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { buildNarratorInstructionMessage, SURPRISE_ME_OPENING_DIRECTION } from "@marinara-engine/shared";
+import { buildNarratorInstructionMessage } from "@marinara-engine/shared";
 import { useCreateChat, useUpdateChatMetadata, chatKeys } from "./use-chats";
 import { useConnections } from "./use-connections";
 import { getPreferredConnectionId } from "../lib/connection-filters";
 import { useDeleteStoryBundle } from "./use-story-bundles";
 import { useGenerate } from "./use-generate";
 import { useChatStore } from "../stores/chat.store";
-import {
-  showScenarioDialog,
-  showConfirmDialog,
-  CUSTOM_SCENARIO_CHOICE_PREFIX,
-  SURPRISE_ME_CHOICE_KEY,
-} from "../lib/app-dialogs";
+import { showConfirmDialog } from "../lib/app-dialogs";
 import { api } from "../lib/api-client";
+import type { StoryBundleRpStartBundle } from "../components/story-bundles/StoryBundleRpStartModal";
 
 export interface PlayableStoryBundle {
   id: string;
@@ -45,6 +41,15 @@ export interface PlayableStoryBundle {
   }>;
 }
 
+interface PendingPlayBundle extends StoryBundleRpStartBundle {
+  name: string;
+  characterIds: string[];
+  lorebookIds: string[];
+  presetId: string | null;
+  agentIds: string[];
+  onPlayed?: () => void;
+}
+
 /**
  * Shared Story Bundle action handlers with per-bundle busy state.
  * Callers keep their own confirmation UX; the delete handler includes
@@ -54,6 +59,7 @@ export function useStoryBundleActions() {
   const { t } = useTranslation();
   const [exportingId, setExportingId] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [pendingPlayBundle, setPendingPlayBundle] = useState<PendingPlayBundle | null>(null);
 
   const qc = useQueryClient();
   const createChat = useCreateChat();
@@ -62,53 +68,35 @@ export function useStoryBundleActions() {
   const deleteMutation = useDeleteStoryBundle();
   const { generate } = useGenerate();
 
-  const play = useCallback(
-    async (bundle: PlayableStoryBundle, options?: { onPlayed?: () => void }) => {
-      if (playingId) return;
+  /** Click 1 — opens the Persona/Scenario wizard for this bundle's current (saved) fields. */
+  const requestPlay = useCallback((bundle: PlayableStoryBundle, options?: { onPlayed?: () => void }) => {
+    setPendingPlayBundle({
+      id: bundle.id,
+      name: bundle.name,
+      characterIds: bundle.characterIds ?? [],
+      personaIds: bundle.personaIds ?? [],
+      lorebookIds: bundle.lorebookIds ?? [],
+      presetId: bundle.presetIds?.[0] ?? null,
+      agentIds: bundle.agentIds ?? [],
+      scenarios: bundle.scenarios ?? [],
+      onPlayed: options?.onPlayed,
+    });
+  }, []);
+
+  const cancelPlay = useCallback(() => setPendingPlayBundle(null), []);
+
+  /** Click 2 — the wizard confirmed a persona + scenario choice. */
+  const confirmPlay = useCallback(
+    async (
+      personaId: string | null,
+      selectedOpeningMessage: string | null,
+      openingGenerationDirection: string | null,
+    ) => {
+      if (!pendingPlayBundle) return;
+      const bundle = pendingPlayBundle;
       setPlayingId(bundle.id);
       let loadingToastId: string | number | undefined;
       try {
-        // If the bundle has scenarios, let the user pick one — a saved one, a
-        // custom free-text one, or the always-present "Surprise Me"
-        // AI-improvised opening. A bundle with no saved scenarios keeps the
-        // existing instant-Play behavior — nothing configured to choose
-        // from, so the dialog is skipped. Canceling the dialog aborts Play —
-        // it must always be possible to back out without starting anything.
-        let selectedOpeningMessage: string | null = null;
-        let openingGenerationDirection: string | null = null;
-        const bundleScenarios = bundle.scenarios ?? [];
-        if (bundleScenarios.length > 0) {
-          const choice = await showScenarioDialog({
-            title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
-            message: t("storyBundles.scenarioPickMessage", "Select a scenario to use as the first message."),
-            scenarios: bundleScenarios.map((scenario) => ({
-              key: scenario.id,
-              title: scenario.title,
-              imagePath: scenario.imagePath,
-              avatarCrop: scenario.avatarCrop,
-            })),
-            allowCustomScenario: true,
-            customScenarioLabel: t("storyBundles.customScenario", "Custom Scenario"),
-            customScenarioPlaceholder: t(
-              "storyBundles.customScenarioPlaceholder",
-              "Describe how the story should begin…",
-            ),
-            customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
-          });
-          if (!choice) {
-            setPlayingId(null);
-            return;
-          }
-          if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
-            openingGenerationDirection = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
-          } else if (choice === SURPRISE_ME_CHOICE_KEY) {
-            openingGenerationDirection = SURPRISE_ME_OPENING_DIRECTION;
-          } else {
-            const picked = bundleScenarios.find((s) => s.id === choice);
-            selectedOpeningMessage = picked?.openingMessage ?? null;
-          }
-        }
-
         if (openingGenerationDirection) {
           loadingToastId = toast.loading(
             t("storyBundles.customScenarioGenerating", "Starting your scenario… this may take a moment."),
@@ -120,24 +108,22 @@ export function useStoryBundleActions() {
         const chat = await createChat.mutateAsync({
           name: bundle.name,
           mode: "roleplay",
-          characterIds: bundle.characterIds ?? [],
-          personaId: bundle.personaIds?.[0] ?? null,
+          characterIds: bundle.characterIds,
+          personaId,
           connectionId: getPreferredConnectionId(conns) ?? undefined,
-          promptPresetId: bundle.presetIds?.[0] ?? null,
+          promptPresetId: bundle.presetId,
         });
 
         // Tag the chat with the story bundle it was started from (so the
         // chat sidebar can show the bundle's picture on this RP's row) and
         // activate its lorebooks/agents in the same call, routed through
         // useUpdateChatMetadata so the cache merge/rollback behavior applies.
-        const lorebookIds = bundle.lorebookIds ?? [];
-        const agentIds = bundle.agentIds ?? [];
         try {
           await updateChatMetadata.mutateAsync({
             id: chat.id,
             storyBundleId: bundle.id,
-            ...(lorebookIds.length > 0 ? { activeLorebookIds: lorebookIds } : {}),
-            ...(agentIds.length > 0 ? { enableAgents: true, activeAgentIds: agentIds } : {}),
+            ...(bundle.lorebookIds.length > 0 ? { activeLorebookIds: bundle.lorebookIds } : {}),
+            ...(bundle.agentIds.length > 0 ? { enableAgents: true, activeAgentIds: bundle.agentIds } : {}),
           });
         } catch (err) {
           console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
@@ -176,7 +162,7 @@ export function useStoryBundleActions() {
 
         // Check if the preset has configurable variables — if so, show
         // only the ChoiceSelectionModal instead of the full setup wizard.
-        const presetId = bundle.presetIds?.[0] ?? null;
+        const presetId = bundle.presetId;
         let hasPresetVariables = false;
         if (presetId) {
           try {
@@ -195,7 +181,7 @@ export function useStoryBundleActions() {
         // AI-generated) is ready — entering earlier is what left mobile on
         // an empty RP screen while the message was still in flight.
         useChatStore.getState().setActiveChatId(chat.id);
-        options?.onPlayed?.();
+        bundle.onPlayed?.();
         toast.success(t("storyBundles.playStarted", "Roleplay started!"));
       } catch (err) {
         console.error("[playStoryBundle]", err);
@@ -203,9 +189,10 @@ export function useStoryBundleActions() {
       } finally {
         if (loadingToastId !== undefined) toast.dismiss(loadingToastId);
         setPlayingId(null);
+        setPendingPlayBundle(null);
       }
     },
-    [playingId, connections, createChat, updateChatMetadata, generate, qc, t],
+    [pendingPlayBundle, connections, createChat, updateChatMetadata, generate, qc, t],
   );
 
   const exportBundle = useCallback(
@@ -248,5 +235,5 @@ export function useStoryBundleActions() {
     [deleteMutation, t],
   );
 
-  return { play, exportBundle, remove, playingId, exportingId };
+  return { pendingPlayBundle, requestPlay, confirmPlay, cancelPlay, exportBundle, remove, playingId, exportingId };
 }

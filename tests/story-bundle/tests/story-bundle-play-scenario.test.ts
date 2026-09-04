@@ -8,9 +8,12 @@
  * mobile Playwright projects (playwright.config.ts) so the mobile-chromium
  * project exercises the exact flow that was broken.
  *
- * Also covers the "Custom Scenario" free-text option added to the scenario
- * picker: the dialog can switch to a description textarea and back without
- * losing the ability to pick a normal scenario card.
+ * Play now opens the same Persona-then-Scenario wizard GM's "Start
+ * Adventure" uses (StoryBundleRpStartModal) instead of a standalone
+ * scenario dialog — these tests click through the Persona step's "Next"
+ * first. Also covers the "Custom Scenario" free-text option: the wizard
+ * can switch to a description textarea and back without losing the ability
+ * to pick a normal scenario card.
  *
  * Each test imports its own data and cleans up in a finally block.
  */
@@ -43,8 +46,9 @@ test.describe("Story Bundle Play — Scenario First Message", () => {
       await editor.waitFor();
 
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-next").click();
 
-      const scenarioCard = page.getByTestId("app-dialog-scenario-tavern-start");
+      const scenarioCard = page.getByTestId("story-bundle-rp-scenario-tavern-start");
       await expect(scenarioCard).toBeVisible();
       await scenarioCard.click();
 
@@ -77,25 +81,26 @@ test.describe("Story Bundle Play — Scenario First Message", () => {
       await editor.waitFor();
 
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-next").click();
 
-      const customButton = page.getByTestId("app-dialog-custom-scenario-button");
+      const customButton = page.getByTestId("story-bundle-rp-custom-scenario-button");
       await expect(customButton).toBeVisible();
       await customButton.click();
 
-      const customInput = page.getByTestId("app-dialog-custom-scenario-input");
+      const customInput = page.getByTestId("story-bundle-rp-custom-scenario-input");
       await expect(customInput).toBeVisible();
-      const confirmButton = page.getByTestId("app-dialog-custom-scenario-confirm-button");
+      const confirmButton = page.getByTestId("story-bundle-rp-custom-scenario-confirm");
       await expect(confirmButton).toBeDisabled();
 
       // Going back returns to the scenario grid without losing the flow.
-      await page.getByTestId("app-dialog-custom-scenario-back-button").click();
-      await expect(page.getByTestId("app-dialog-scenario-fixed-start")).toBeVisible();
+      await page.getByTestId("story-bundle-rp-custom-scenario-back").click();
+      await expect(page.getByTestId("story-bundle-rp-scenario-fixed-start")).toBeVisible();
     } finally {
       await page.request.delete(`/api/story-bundles/${bundle.id}`);
     }
   });
 
-  test("canceling the scenario dialog aborts Play — no chat is created", async ({ page }) => {
+  test("closing the wizard (X) on the Scenario step aborts Play — no chat is created", async ({ page }) => {
     const base = new BasePage(page);
     const home = new HomePage(page);
     const panel = new StoryBundlesPanelPage(page);
@@ -115,14 +120,44 @@ test.describe("Story Bundle Play — Scenario First Message", () => {
       await editor.waitFor();
 
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-next").click();
 
-      const scenarioCard = page.getByTestId("app-dialog-scenario-cancel-start");
+      const scenarioCard = page.getByTestId("story-bundle-rp-scenario-cancel-start");
       await expect(scenarioCard).toBeVisible();
-      await page.getByTestId("app-dialog-scenario-cancel-button").click();
+      await page.getByTestId("story-bundle-rp-start-modal-close-button").click();
       await expect(scenarioCard).not.toBeVisible();
 
       // The editor stays put — no chat was created for this bundle.
       await expect(editor.playButton).toBeVisible();
+      const chatsResp = await page.request.get("/api/chats");
+      const chats = (await chatsResp.json()) as Array<{ name: string }>;
+      expect(chats.some((chat) => chat.name === bundle.name)).toBe(false);
+    } finally {
+      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+    }
+  });
+
+  test("canceling the Persona step aborts Play — no chat is created", async ({ page }) => {
+    const base = new BasePage(page);
+    const home = new HomePage(page);
+    const panel = new StoryBundlesPanelPage(page);
+    const editor = new StoryBundleEditorPage(page);
+    const api = new StoryBundleAPI(page);
+
+    const bundle = await api.create({ name: `Cancel Persona Test ${test.info().title}` });
+    try {
+      await base.goto();
+      await home.openStoryBundlesPanel();
+      await panel.waitFor();
+      await panel.clickRow(bundle.name);
+      await editor.waitFor();
+
+      await editor.playButton.click();
+      const wizardCancel = page.getByTestId("story-bundle-rp-wizard-cancel");
+      await expect(wizardCancel).toBeVisible();
+      await wizardCancel.click();
+
+      await expect(page.getByTestId("story-bundle-rp-start-modal")).toBeHidden();
       const chatsResp = await page.request.get("/api/chats");
       const chats = (await chatsResp.json()) as Array<{ name: string }>;
       expect(chats.some((chat) => chat.name === bundle.name)).toBe(false);

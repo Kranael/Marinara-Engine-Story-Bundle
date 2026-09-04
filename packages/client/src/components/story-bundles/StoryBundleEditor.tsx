@@ -10,10 +10,10 @@ import {
   BookMarked,
   BookOpen,
   FileText,
+  FolderOpen,
   Info,
   Loader2,
   MessageSquare,
-  Music,
   Save,
   SlidersHorizontal,
   Sparkles,
@@ -26,7 +26,7 @@ import { useCharacters, useCharacterGroups, usePersonas } from "../../hooks/use-
 import { useLorebooks, useEntriesAcrossLorebooks } from "../../hooks/use-lorebooks";
 import { usePresets } from "../../hooks/use-presets";
 import type { Lorebook, PromptPreset, StoryBundleGameConfig, StoryBundleScenario } from "@marinara-engine/shared";
-import { buildNarratorInstructionMessage, SURPRISE_ME_OPENING_DIRECTION } from "@marinara-engine/shared";
+import { buildNarratorInstructionMessage } from "@marinara-engine/shared";
 import { useCreateChat, useUpdateChatMetadata, chatKeys } from "../../hooks/use-chats";
 import { useConnections } from "../../hooks/use-connections";
 import { getPreferredConnectionId } from "../../lib/connection-filters";
@@ -34,12 +34,7 @@ import { useGenerate } from "../../hooks/use-generate";
 import { useUIStore } from "../../stores/ui.store";
 import { useChatStore } from "../../stores/chat.store";
 import { api } from "../../lib/api-client";
-import {
-  showConfirmDialog,
-  showScenarioDialog,
-  CUSTOM_SCENARIO_CHOICE_PREFIX,
-  SURPRISE_ME_CHOICE_KEY,
-} from "../../lib/app-dialogs";
+import { showConfirmDialog } from "../../lib/app-dialogs";
 import { sanitizeStoryBundleDescription } from "../../lib/story-bundle-html";
 import { cn } from "../../lib/utils";
 import { EditorTabNavigation } from "../ui/EditorTabNavigation";
@@ -56,6 +51,7 @@ import { StoryBundleAgents } from "./StoryBundleAgents";
 import { StoryBundleAssets } from "./StoryBundleAssets";
 import { StoryBundleScenarios } from "./StoryBundleScenarios";
 import { StoryBundleGmStartModal } from "./StoryBundleGmStartModal";
+import { StoryBundleRpStartModal, type StoryBundleRpStartBundle } from "./StoryBundleRpStartModal";
 import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";
 import { useStartStoryBundleAdventure } from "../../lib/story-bundle-gm-direct-inject";
 import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
@@ -84,10 +80,19 @@ const TABS = [
   { id: "lorebooks", label: "Lorebooks", icon: BookOpen },
   { id: "presets", label: "Presets", icon: SlidersHorizontal },
   { id: "agents", label: "Agents", icon: Sparkles },
-  { id: "assets", label: "Assets", icon: Music },
+  { id: "assets", label: "Assets", icon: FolderOpen },
   { id: "scenarios", label: "Scenarios", icon: MessageSquare },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
+
+/** Draft snapshot captured when Play is clicked (Click 1), consumed once the wizard confirms (Click 2). */
+interface PendingPlayDraft extends StoryBundleRpStartBundle {
+  name: string;
+  characterIds: string[];
+  lorebookIds: string[];
+  presetId: string | null;
+  agentIds: string[];
+}
 
 export function StoryBundleEditor() {
   const { t } = useTranslation();
@@ -166,6 +171,7 @@ export function StoryBundleEditor() {
   const [activeTab, setActiveTab] = useState<TabId>("metadata");
   const [saving, setSaving] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [pendingPlayDraft, setPendingPlayDraft] = useState<PendingPlayDraft | null>(null);
 
   // RP chat creation hook for the Play button
   const createChat = useCreateChat();
@@ -431,175 +437,133 @@ export function StoryBundleEditor() {
     requestStartGm,
   ]);
 
-  const handlePlay = useCallback(async () => {
+  const handlePlay = useCallback(() => {
     if (!bundle || playing) return;
-    setPlaying(true);
-    let loadingToastId: string | number | undefined;
+    // Play what the user sees: use the current editor draft rather than the
+    // last saved server state, so unsaved changes (e.g. a freshly added
+    // preset) are honored when starting the roleplay. Snapshotted here so
+    // the wizard's later confirm can't race a live edit to these fields.
+    setPendingPlayDraft({
+      id: bundle.id,
+      name: name.trim() || bundle.name,
+      characterIds,
+      personaIds,
+      lorebookIds,
+      presetId: presetIds[0] ?? null,
+      agentIds,
+      scenarios,
+    });
+  }, [bundle, playing, name, characterIds, personaIds, lorebookIds, presetIds, agentIds, scenarios]);
 
-    try {
-      // Play what the user sees: use the current editor draft rather than the
-      // last saved server state, so unsaved changes (e.g. a freshly added
-      // preset) are honored when starting the roleplay.
-      const draftName = name.trim() || bundle.name;
-      const draftCharacterIds = characterIds;
-      const draftPersonaId = personaIds[0] ?? null;
-      const draftLorebookIds = lorebookIds;
-      const draftPresetId = presetIds[0] ?? null;
-      const draftAgentIds = agentIds;
-      const draftScenarios = scenarios;
+  const handleConfirmPlay = useCallback(
+    async (
+      personaId: string | null,
+      selectedOpeningMessage: string | null,
+      openingGenerationDirection: string | null,
+    ) => {
+      if (!pendingPlayDraft) return;
+      const draft = pendingPlayDraft;
+      setPlaying(true);
+      let loadingToastId: string | number | undefined;
 
-      // If the bundle has scenarios, let the user pick one — a saved one, a
-      // custom free-text one, or the always-present "Surprise Me" AI-improvised
-      // opening. A bundle with no saved scenarios keeps the existing
-      // instant-Play behavior — nothing configured to choose from, so the
-      // dialog is skipped entirely. Canceling the dialog aborts Play — it
-      // must always be possible to back out without starting anything.
-      let selectedOpeningMessage: string | null = null;
-      let openingGenerationDirection: string | null = null;
-      if (draftScenarios.length > 0) {
-        const choice = await showScenarioDialog({
-          title: t("storyBundles.scenarioPickTitle", "Choose a Scenario"),
-          message: t("storyBundles.scenarioPickMessage", "Select a scenario to use as the first message."),
-          scenarios: draftScenarios.map((scenario) => ({
-            key: scenario.id,
-            title: scenario.title,
-            imagePath: scenario.imagePath,
-            avatarCrop: scenario.avatarCrop,
-          })),
-          cancelLabel: t("storyBundles.cancel", "Cancel"),
-          allowCustomScenario: true,
-          customScenarioLabel: t("storyBundles.customScenario", "Custom Scenario"),
-          customScenarioPlaceholder: t(
-            "storyBundles.customScenarioPlaceholder",
-            "Describe how the story should begin…",
-          ),
-          customScenarioConfirmLabel: t("storyBundles.customScenarioStart", "Start Scenario"),
-        });
-        if (!choice) {
-          setPlaying(false);
-          return;
-        }
-        if (choice.startsWith(CUSTOM_SCENARIO_CHOICE_PREFIX)) {
-          openingGenerationDirection = choice.slice(CUSTOM_SCENARIO_CHOICE_PREFIX.length).trim();
-        } else if (choice === SURPRISE_ME_CHOICE_KEY) {
-          openingGenerationDirection = SURPRISE_ME_OPENING_DIRECTION;
-        } else {
-          const picked = draftScenarios.find((s) => s.id === choice);
-          selectedOpeningMessage = picked?.openingMessage ?? null;
-        }
-      }
-
-      if (openingGenerationDirection) {
-        loadingToastId = toast.loading(
-          t("storyBundles.customScenarioGenerating", "Starting your scenario… this may take a moment."),
-        );
-      }
-
-      const conns = (connections ?? []) as Array<{ id: string; isDefault?: boolean | string }>;
-      const chat = await createChat.mutateAsync({
-        name: draftName,
-        mode: "roleplay",
-        characterIds: draftCharacterIds,
-        personaId: draftPersonaId,
-        connectionId: getPreferredConnectionId(conns) ?? undefined,
-        promptPresetId: draftPresetId,
-      });
-
-      // Tag the chat with the story bundle it was started from (so the chat
-      // sidebar can show the bundle's picture on this RP's row) and activate
-      // its lorebooks/agents in the same call, routed through
-      // useUpdateChatMetadata so the cache merge/rollback behavior applies
-      // here too, not just to the initial tagging.
       try {
-        await updateChatMetadata.mutateAsync({
-          id: chat.id,
-          storyBundleId: bundle.id,
-          ...(draftLorebookIds.length > 0 ? { activeLorebookIds: draftLorebookIds } : {}),
-          ...(draftAgentIds.length > 0 ? { enableAgents: true, activeAgentIds: draftAgentIds } : {}),
+        if (openingGenerationDirection) {
+          loadingToastId = toast.loading(
+            t("storyBundles.customScenarioGenerating", "Starting your scenario… this may take a moment."),
+          );
+        }
+
+        const conns = (connections ?? []) as Array<{ id: string; isDefault?: boolean | string }>;
+        const chat = await createChat.mutateAsync({
+          name: draft.name,
+          mode: "roleplay",
+          characterIds: draft.characterIds,
+          personaId,
+          connectionId: getPreferredConnectionId(conns) ?? undefined,
+          promptPresetId: draft.presetId,
         });
+
+        // Tag the chat with the story bundle it was started from (so the chat
+        // sidebar can show the bundle's picture on this RP's row) and activate
+        // its lorebooks/agents in the same call, routed through
+        // useUpdateChatMetadata so the cache merge/rollback behavior applies
+        // here too, not just to the initial tagging.
+        try {
+          await updateChatMetadata.mutateAsync({
+            id: chat.id,
+            storyBundleId: draft.id,
+            ...(draft.lorebookIds.length > 0 ? { activeLorebookIds: draft.lorebookIds } : {}),
+            ...(draft.agentIds.length > 0 ? { enableAgents: true, activeAgentIds: draft.agentIds } : {}),
+          });
+        } catch (err) {
+          console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
+        }
+
+        // If a scenario was selected, insert its opening message as the first
+        // assistant message and refresh the messages cache so it is visible
+        // the moment we navigate in.
+        if (selectedOpeningMessage) {
+          try {
+            await api.post(`/chats/${chat.id}/messages`, {
+              role: "assistant",
+              content: selectedOpeningMessage,
+            });
+            await qc.invalidateQueries({ queryKey: chatKeys.messages(chat.id) });
+          } catch (err) {
+            console.error("[playStoryBundle] Failed to insert scenario opening message:", err);
+          }
+        } else if (openingGenerationDirection) {
+          // Generate the opening message from the user's free-text description
+          // (or the Surprise Me direction) using the same narrator-guided
+          // generation the "/narrator" command uses — no separate AI/preset
+          // system, just an unmounted (silent) run of the existing generation
+          // pipeline.
+          try {
+            await generate({
+              chatId: chat.id,
+              connectionId: null,
+              generationGuide: buildNarratorInstructionMessage(openingGenerationDirection),
+              generationGuideSource: "narrator",
+            });
+          } catch (err) {
+            console.error("[playStoryBundle] Failed to generate custom scenario opening message:", err);
+          }
+        }
+
+        // Check if the preset has configurable variables — if so, show
+        // only the ChoiceSelectionModal instead of the full setup wizard.
+        const presetId = draft.presetId;
+        let hasPresetVariables = false;
+        if (presetId) {
+          try {
+            const presetFull = await api.get<{ choiceBlocks?: Array<{ id: string }> }>(`/prompts/${presetId}/full`);
+            hasPresetVariables = (presetFull?.choiceBlocks?.length ?? 0) > 0;
+          } catch {
+            // If we can't fetch the preset, fall through to settings.
+          }
+        }
+
+        useChatStore.getState().setShouldOpenSettings(true);
+        if (hasPresetVariables && presetId) {
+          useChatStore.getState().setPresetVariablesPrompt({ chatId: chat.id, presetId });
+        }
+        // Navigate into the chat only once the first message (static or
+        // AI-generated) is ready — entering earlier is what left mobile on an
+        // empty RP screen while the message was still in flight.
+        useChatStore.getState().setActiveChatId(chat.id);
+        closeStoryBundleDetail();
+        toast.success(t("storyBundles.playStarted", "Roleplay started!"));
       } catch (err) {
-        console.error("[playStoryBundle] Failed to tag chat with story bundle:", err);
+        console.error("[playStoryBundle]", err);
+        toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
+      } finally {
+        if (loadingToastId !== undefined) toast.dismiss(loadingToastId);
+        setPlaying(false);
+        setPendingPlayDraft(null);
       }
-
-      // If a scenario was selected, insert its opening message as the first
-      // assistant message and refresh the messages cache so it is visible
-      // the moment we navigate in.
-      if (selectedOpeningMessage) {
-        try {
-          await api.post(`/chats/${chat.id}/messages`, {
-            role: "assistant",
-            content: selectedOpeningMessage,
-          });
-          await qc.invalidateQueries({ queryKey: chatKeys.messages(chat.id) });
-        } catch (err) {
-          console.error("[playStoryBundle] Failed to insert scenario opening message:", err);
-        }
-      } else if (openingGenerationDirection) {
-        // Generate the opening message from the user's free-text description
-        // (or the Surprise Me direction) using the same narrator-guided
-        // generation the "/narrator" command uses — no separate AI/preset
-        // system, just an unmounted (silent) run of the existing generation
-        // pipeline.
-        try {
-          await generate({
-            chatId: chat.id,
-            connectionId: null,
-            generationGuide: buildNarratorInstructionMessage(openingGenerationDirection),
-            generationGuideSource: "narrator",
-          });
-        } catch (err) {
-          console.error("[playStoryBundle] Failed to generate custom scenario opening message:", err);
-        }
-      }
-
-      // Check if the preset has configurable variables — if so, show
-      // only the ChoiceSelectionModal instead of the full setup wizard.
-      const presetId = draftPresetId;
-      let hasPresetVariables = false;
-      if (presetId) {
-        try {
-          const presetFull = await api.get<{ choiceBlocks?: Array<{ id: string }> }>(`/prompts/${presetId}/full`);
-          hasPresetVariables = (presetFull?.choiceBlocks?.length ?? 0) > 0;
-        } catch {
-          // If we can't fetch the preset, fall through to settings.
-        }
-      }
-
-      useChatStore.getState().setShouldOpenSettings(true);
-      if (hasPresetVariables && presetId) {
-        useChatStore.getState().setPresetVariablesPrompt({ chatId: chat.id, presetId });
-      }
-      // Navigate into the chat only once the first message (static or
-      // AI-generated) is ready — entering earlier is what left mobile on an
-      // empty RP screen while the message was still in flight.
-      useChatStore.getState().setActiveChatId(chat.id);
-      closeStoryBundleDetail();
-      toast.success(t("storyBundles.playStarted", "Roleplay started!"));
-    } catch (err) {
-      console.error("[playStoryBundle]", err);
-      toast.error(t("storyBundles.playFailed", "Failed to start roleplay."));
-    } finally {
-      if (loadingToastId !== undefined) toast.dismiss(loadingToastId);
-      setPlaying(false);
-    }
-  }, [
-    bundle,
-    playing,
-    connections,
-    createChat,
-    updateChatMetadata,
-    generate,
-    qc,
-    closeStoryBundleDetail,
-    t,
-    name,
-    characterIds,
-    personaIds,
-    lorebookIds,
-    presetIds,
-    agentIds,
-    scenarios,
-  ]);
+    },
+    [pendingPlayDraft, connections, createChat, updateChatMetadata, generate, qc, closeStoryBundleDetail, t],
+  );
 
   // Start a Conversation chat from this bundle's current draft: persona,
   // connection, preset, lorebooks, and agents are applied directly via
@@ -854,6 +818,12 @@ export function StoryBundleEditor() {
         step={gmStep}
         onConfirm={confirmGmPersona}
         onCancel={cancelGm}
+      />
+      <StoryBundleRpStartModal
+        bundle={pendingPlayDraft}
+        isConfirming={playing}
+        onConfirm={handleConfirmPlay}
+        onCancel={() => setPendingPlayDraft(null)}
       />
       <StoryBundleConvoCharacterPickerModal
         bundle={pendingConvoBundle}

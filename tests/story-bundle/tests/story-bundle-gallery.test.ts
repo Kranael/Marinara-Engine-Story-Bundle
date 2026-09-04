@@ -138,6 +138,7 @@ test.describe("Story Bundle Gallery — Actions", () => {
       const gallery = await openGallery(page);
       await gallery.clickCard(bundle.name);
       await gallery.playButton().click();
+      await page.getByTestId("story-bundle-rp-wizard-confirm").click();
 
       await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 

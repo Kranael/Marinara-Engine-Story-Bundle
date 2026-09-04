@@ -80,6 +80,7 @@ test.describe("Story Bundle Play — Positive", () => {
     await editor.waitFor();
 
     await editor.playButton.click();
+    await page.getByTestId("story-bundle-rp-wizard-confirm").click();
 
     await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 
@@ -119,6 +120,7 @@ test.describe("Story Bundle Play — Positive", () => {
     await editor.waitFor();
 
     await editor.playButton.click();
+    await page.getByTestId("story-bundle-rp-wizard-confirm").click();
     await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 
     // Find the chat that was just created (matches the bundle name).
@@ -194,6 +196,7 @@ test.describe("Story Bundle Play — Sidebar Image", () => {
       await panel.clickRow(bundle.name);
       await editor.waitFor();
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-confirm").click();
 
       await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 
@@ -306,6 +309,7 @@ test.describe("Story Bundle Play — Preset Loading", () => {
       await panel.clickRow(bundle.name);
       await editor.waitFor();
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-confirm").click();
 
       await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 
@@ -383,6 +387,7 @@ test.describe("Story Bundle Play — Preset Loading", () => {
       await editor.waitFor();
 
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-confirm").click();
       await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 
       const chatsResp = await page.request.get("/api/chats");
@@ -438,6 +443,7 @@ test.describe("Story Bundle Play — Preset Loading", () => {
 
       // Play directly from the editor — the unsaved draft must be honored.
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-confirm").click();
       await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 
       const chatsResp = await page.request.get("/api/chats");

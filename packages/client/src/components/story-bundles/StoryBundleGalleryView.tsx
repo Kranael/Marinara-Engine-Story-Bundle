@@ -35,6 +35,7 @@ import { useStoryBundleActions } from "../../hooks/use-story-bundle-actions";
 import { useStartStoryBundleAdventure } from "../../lib/story-bundle-gm-direct-inject";
 import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
 import { StoryBundleGmStartModal } from "./StoryBundleGmStartModal";
+import { StoryBundleRpStartModal } from "./StoryBundleRpStartModal";
 import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";
 import { ChatModeIcon } from "../chat/ChatModeIcon";
 import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
@@ -89,7 +90,8 @@ function StoryBundleGalleryDetailCard({
   startingConvoId: string | null;
 }) {
   const { t } = useTranslation();
-  const { play, exportBundle, remove, playingId, exportingId } = useStoryBundleActions();
+  const { pendingPlayBundle, requestPlay, confirmPlay, cancelPlay, exportBundle, remove, playingId, exportingId } =
+    useStoryBundleActions();
   const meta = formatCardLibraryMeta(bundle.creator, bundle.version);
   const sanitizedDescription = useMemo(
     () => (bundle.description ? sanitizeStoryBundleDescription(bundle.description) : ""),
@@ -173,7 +175,7 @@ function StoryBundleGalleryDetailCard({
             </button>
             <button
               data-testid={`story-bundle-gallery-play-${bundle.id}`}
-              onClick={() => void play(bundle)}
+              onClick={() => requestPlay(bundle)}
               disabled={playingId === bundle.id}
               style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.roleplay } as CSSProperties}
               className="mari-chrome-control mari-chrome-control--regular-label min-h-10 px-3 py-2 text-xs !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)] sm:text-sm"
@@ -250,6 +252,13 @@ function StoryBundleGalleryDetailCard({
           )}
         </div>
       </div>
+
+      <StoryBundleRpStartModal
+        bundle={pendingPlayBundle}
+        isConfirming={playingId === bundle.id}
+        onConfirm={confirmPlay}
+        onCancel={cancelPlay}
+      />
     </div>
   );
 }
@@ -268,7 +277,7 @@ export function StoryBundleGalleryView() {
   const [creating, setCreating] = useState(false);
   const { data: bundles, isLoading } = useStoryBundles();
   const createMutation = useCreateStoryBundle();
-  const { play, playingId } = useStoryBundleActions();
+  const { pendingPlayBundle, requestPlay, confirmPlay, cancelPlay, playingId } = useStoryBundleActions();
   const {
     pendingBundle: pendingGmBundle,
     isStarting: isStartingGm,
@@ -647,7 +656,7 @@ export function StoryBundleGalleryView() {
                             data-testid={`story-bundle-gallery-card-play-${bundle.id}`}
                             onClick={(event) => {
                               event.stopPropagation();
-                              void play(bundle);
+                              requestPlay(bundle);
                             }}
                             disabled={playingId === bundle.id}
                             style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.roleplay } as CSSProperties}
@@ -747,6 +756,12 @@ export function StoryBundleGalleryView() {
         step={gmStep}
         onConfirm={confirmPersona}
         onCancel={cancel}
+      />
+      <StoryBundleRpStartModal
+        bundle={pendingPlayBundle}
+        isConfirming={playingId === pendingPlayBundle?.id}
+        onConfirm={confirmPlay}
+        onCancel={cancelPlay}
       />
       <StoryBundleConvoCharacterPickerModal
         bundle={pendingConvoBundle}

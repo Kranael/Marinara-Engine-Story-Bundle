@@ -104,6 +104,7 @@ test.describe("Story Bundle Presets — Positive", () => {
     // (no full wizard). The modal uses a generic role="dialog" since
     // ChoiceSelectionModal does not expose dedicated data-testid attributes.
     await editor.playButton.click();
+    await page.getByTestId("story-bundle-rp-wizard-confirm").click();
 
     // The "Configure Preset Variables" dialog should appear directly
     const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
@@ -169,6 +170,7 @@ test.describe("Story Bundle Presets — Positive", () => {
       await panel.clickRow(bundle.name);
       await editor.waitFor();
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-confirm").click();
 
       // The "Configure Preset Variables" dialog should appear directly
       const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
@@ -230,6 +232,7 @@ test.describe("Story Bundle Presets — Positive", () => {
       await panel.clickRow(bundle.name);
       await editor.waitFor();
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-confirm").click();
 
       // The "Configure Preset Variables" dialog should appear directly
       const choiceDialog = page.getByRole("dialog", { name: "Configure Preset Variables" });
@@ -309,6 +312,7 @@ test.describe("Story Bundle Presets — Positive", () => {
       await panel.clickRow(bundle.name);
       await editor.waitFor();
       await editor.playButton.click();
+      await page.getByTestId("story-bundle-rp-wizard-next").click();
 
       // Step 1: the scenario pick dialog appears first.
       await page.getByRole("button", { name: scenarioTitle, exact: true }).click();
