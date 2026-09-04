@@ -115,7 +115,7 @@ export function StoryBundleGmStartModal({
       open={!!bundle}
       onClose={onCancel}
       title={t("storyBundles.startAdventure", "Start Adventure")}
-      width="max-w-sm"
+      width={wizardStep === "scenario" ? "max-w-2xl" : "max-w-sm"}
       testId="story-bundle-gm-start-modal"
       closeDisabled={isConfirming}
     >
@@ -227,7 +227,7 @@ export function StoryBundleGmStartModal({
               </p>
             </div>
 
-            <div className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto">
+            <div className="grid max-h-[60vh] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
               {/* Static first card — always the default, AI-improvised opening. */}
               {[{ id: SURPRISE_ME_CHOICE_KEY, title: "", imagePath: null, avatarCrop: null }, ...scenarios].map(
                 (scenario) => {
@@ -249,13 +249,13 @@ export function StoryBundleGmStartModal({
                       )}
                     >
                       {isSurpriseMe && (
-                        <span className="absolute right-1 top-1 rounded-full bg-white/15 px-1.5 py-0.5 text-[0.5rem] font-semibold uppercase tracking-wide text-white/90 backdrop-blur-sm">
+                        <span className="absolute right-1.5 top-1.5 rounded-full bg-white/15 px-1.5 py-0.5 text-[0.5625rem] font-semibold uppercase tracking-wide text-white/90 backdrop-blur-sm">
                           {t("storyBundles.scenarioSurpriseMeBadge", "Default")}
                         </span>
                       )}
                       {isSurpriseMe ? (
                         <div className="flex h-full w-full items-center justify-center text-violet-200">
-                          <Dices size="1.5rem" />
+                          <Dices size="1.75rem" />
                         </div>
                       ) : scenario.imagePath ? (
                         <img
@@ -266,11 +266,11 @@ export function StoryBundleGmStartModal({
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--primary)]/25 to-[var(--primary)]/5 text-[var(--muted-foreground)]">
-                          <BookOpen size="1.25rem" />
+                          <BookOpen size="1.5rem" />
                         </div>
                       )}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-1.5 pb-1.5 pt-4">
-                        <span className="line-clamp-2 text-[0.6875rem] font-semibold text-white drop-shadow">
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent px-2 pb-2 pt-6">
+                        <span className="line-clamp-2 text-xs font-semibold text-white drop-shadow">
                           {isSurpriseMe ? t("storyBundles.scenarioSurpriseMe", "Surprise Me") : scenario.title}
                         </span>
                       </div>
@@ -285,9 +285,9 @@ export function StoryBundleGmStartModal({
               data-testid="story-bundle-gm-custom-scenario-button"
               onClick={() => setCustomScenarioMode(true)}
               disabled={isConfirming}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--ring)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-3 py-2 text-sm font-medium text-[var(--muted-foreground)] transition-colors hover:border-[var(--ring)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Sparkles size="0.8125rem" />
+              <Sparkles size="0.875rem" />
               {t("storyBundles.customScenario", "Custom Scenario")}
             </button>
           </>
