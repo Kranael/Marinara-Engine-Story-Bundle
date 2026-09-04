@@ -278,14 +278,13 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
     changes are honored. If the selected preset has configurable variables,
     the ChoiceSelectionModal opens instead of the full setup wizard.
 14. **CONVO (Conversation)**: the gallery cards/detail and the editor header
-    expose a CONVO button. It creates a `mode: "conversation"` chat with
+    expose a CONVO button. It creates a `mode: "conversation"` group chat
+    (1:n) with every bundle character in `characterIds`, plus
     `personaId`/`connectionId`/`promptPresetId` pre-filled from the bundle,
     tags `metadata.storyBundleId` + `metadata.storyBundleCharacterIds` (the
     bundle's characterIds), patches `activeLorebookIds` from the bundle, and
-    opens the existing Conversation setup wizard restricted to the bundle's
-    characters (persona/connection/preset steps skipped). It also calls
-    `closeAllDetails()` so the wizard is visible over any open gallery/editor
-    overlay.
+    calls `closeAllDetails()`. No setup wizard mounts. A bundle with no
+    characters shows an error and creates nothing.
 15. Deleting goes through a destructive confirmation dialog.
 16. **Export**: `GET /api/story-bundles/:id/export` returns an `ExportEnvelope`
     with `type: "marinara_story_bundle"` as a JSON download (`.marinara.json`).

@@ -36,7 +36,6 @@ import { useStartStoryBundleAdventure } from "../../lib/story-bundle-gm-direct-i
 import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
 import { StoryBundleGmStartModal } from "./StoryBundleGmStartModal";
 import { StoryBundleRpStartModal } from "./StoryBundleRpStartModal";
-import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";
 import { ChatModeIcon } from "../chat/ChatModeIcon";
 import { HOME_CHAT_MODE_ACCENTS } from "../../lib/home-chat-mode-style";
 import { showPromptDialog } from "../../lib/app-dialogs";
@@ -286,14 +285,9 @@ export function StoryBundleGalleryView() {
     cancel,
     confirmPersona,
   } = useStartStoryBundleAdventure();
-  const {
-    pendingBundle: pendingConvoBundle,
-    isStarting: isStartingConvo,
-    requestStart: requestStartConvo,
-    cancel: cancelConvo,
-    confirmCharacter: confirmConvoCharacter,
-  } = useStartStoryBundleConversation();
-  const startingConvoId = isStartingConvo ? (pendingConvoBundle?.id ?? null) : null;
+  const { startingBundleId: startingConvoBundleId, requestStart: requestStartConvo } =
+    useStartStoryBundleConversation();
+  const startingConvoId = startingConvoBundleId;
   const startingGmId = isStartingGm ? (pendingGmBundle?.id ?? null) : null;
   const galleryRootScrollRef = useRef<HTMLDivElement | null>(null);
   const galleryListScrollRef = useRef<HTMLElement | null>(null);
@@ -762,12 +756,6 @@ export function StoryBundleGalleryView() {
         isConfirming={playingId === pendingPlayBundle?.id}
         onConfirm={confirmPlay}
         onCancel={cancelPlay}
-      />
-      <StoryBundleConvoCharacterPickerModal
-        bundle={pendingConvoBundle}
-        isConfirming={isStartingConvo}
-        onConfirm={confirmConvoCharacter}
-        onCancel={cancelConvo}
       />
     </div>
   );

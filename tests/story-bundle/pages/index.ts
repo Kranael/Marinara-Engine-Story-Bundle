@@ -16,4 +16,3 @@ export { StoryBundleAgentsTabPage } from "./story-bundle-agents-tab.page.js";
 export { StoryBundleAssetsTabPage } from "./story-bundle-assets-tab.page.js";
 export { StoryBundleScenariosTabPage } from "./story-bundle-scenarios-tab.page.js";
 export { StoryBundleGmStartModalPage } from "./story-bundle-gm-start-modal.page.js";
-export { StoryBundleConvoCharacterPickerModalPage } from "./story-bundle-convo-character-picker-modal.page.js";

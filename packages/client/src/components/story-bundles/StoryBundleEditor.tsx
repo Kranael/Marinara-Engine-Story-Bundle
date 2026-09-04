@@ -52,7 +52,6 @@ import { StoryBundleAssets } from "./StoryBundleAssets";
 import { StoryBundleScenarios } from "./StoryBundleScenarios";
 import { StoryBundleGmStartModal } from "./StoryBundleGmStartModal";
 import { StoryBundleRpStartModal, type StoryBundleRpStartBundle } from "./StoryBundleRpStartModal";
-import { StoryBundleConvoCharacterPickerModal } from "./StoryBundleConvoCharacterPickerModal";
 import { useStartStoryBundleAdventure } from "../../lib/story-bundle-gm-direct-inject";
 import { useStartStoryBundleConversation } from "../../lib/story-bundle-convo-direct-inject";
 
@@ -187,13 +186,7 @@ export function StoryBundleEditor() {
     cancel: cancelGm,
     confirmPersona: confirmGmPersona,
   } = useStartStoryBundleAdventure();
-  const {
-    pendingBundle: pendingConvoBundle,
-    isStarting: isStartingConvo,
-    requestStart: requestStartConvo,
-    cancel: cancelConvo,
-    confirmCharacter: confirmConvoCharacter,
-  } = useStartStoryBundleConversation();
+  const { isStarting: isStartingConvo, requestStart: requestStartConvo } = useStartStoryBundleConversation();
 
   // Keep the local draft in sync with the loaded bundle. useLayoutEffect so
   // the draft is populated synchronously before paint — Play must never read
@@ -824,12 +817,6 @@ export function StoryBundleEditor() {
         isConfirming={playing}
         onConfirm={handleConfirmPlay}
         onCancel={() => setPendingPlayDraft(null)}
-      />
-      <StoryBundleConvoCharacterPickerModal
-        bundle={pendingConvoBundle}
-        isConfirming={isStartingConvo}
-        onConfirm={confirmConvoCharacter}
-        onCancel={cancelConvo}
       />
     </div>
   );

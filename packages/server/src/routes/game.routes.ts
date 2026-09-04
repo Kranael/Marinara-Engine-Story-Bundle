@@ -6116,7 +6116,10 @@ export async function gameRoutes(app: FastifyInstance) {
         } else {
           location = "Unknown";
         }
-        return { ...npc, location };
+        // Resolve the node id to its human-readable label (e.g. "region_1" →
+        // "Old Quarter") so the journal/settings list show a real place name,
+        // matching how generated NPCs' locations are resolved.
+        return { ...npc, location: resolveInitialMapLocationName(generatedStartingMap, location) };
       });
 
       const usedNpcNames = new Set<string>();

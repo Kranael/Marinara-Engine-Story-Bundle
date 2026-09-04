@@ -1095,10 +1095,14 @@ export function ChatSidebar() {
         <div className="relative flex-shrink-0">
           {(() => {
             // Chats started from a Story Bundle show the bundle's picture
-            // instead of the character avatar(s). Chats started any other way
-            // never carry storyBundleId, so they keep the existing behavior.
+            // instead of the character avatar(s) — but only for RP and Game
+            // modes. Conversation mode keeps the character avatar(s) with
+            // their presence dots, matching the in-chat identity pill.
             const storyBundleId = chat.metadata?.storyBundleId;
-            const storyBundle = typeof storyBundleId === "string" ? bundleLookup.get(storyBundleId) : undefined;
+            const storyBundle =
+              chat.mode !== "conversation" && typeof storyBundleId === "string"
+                ? bundleLookup.get(storyBundleId)
+                : undefined;
             if (storyBundle?.imagePath) {
               return (
                 <div className="relative h-7 w-7 flex-shrink-0 transition-transform group-active:scale-90">
