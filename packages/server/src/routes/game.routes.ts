@@ -6244,7 +6244,13 @@ export async function gameRoutes(app: FastifyInstance) {
               .default([]),
           ),
           questSeeds: z.preprocess(sliceArray(3), z.array(z.string().max(180)).default([])),
-          encounterPrinciples: z.preprocess(sliceArray(2), z.array(z.string().max(160)).default([])),
+          encounterPrinciples: z.preprocess(
+            (val) =>
+              Array.isArray(val)
+                ? val.slice(0, 2).map((item) => (typeof item === "string" ? item.slice(0, 160) : item))
+                : val,
+            z.array(z.string().max(160)).default([]),
+          ),
         })
         .optional()
         .nullable()

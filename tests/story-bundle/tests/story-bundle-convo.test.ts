@@ -5,8 +5,9 @@
  * the Editor (story-bundle-convo-direct-inject.ts)
  * - CONVO button is visible and enabled in the gallery detail card and the
  *   editor header
- * - A bundle with 1+ characters starts a group conversation (1:n) with every
- *   assigned character immediately — no picker modal
+ * - A bundle with 1+ characters opens a multi-select character picker; the
+ *   player picks one or more characters and confirms to start a group
+ *   conversation (1:n)
  * - A bundle with no characters shows an error and creates nothing
  * - The Conversation setup wizard never mounts at any point (this is the
  *   whole point of DirectInject — no `ChatSetupWizard` UI coupling)
@@ -23,6 +24,7 @@ import { HomePage } from "../../pages/home.page.js";
 import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleGalleryPage } from "../pages/story-bundle-gallery.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
+import { StoryBundleConvoCharacterPickerModalPage } from "../pages/story-bundle-convo-character-picker-modal.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
 import { createCharacter, deleteCharacter, entitySuffix, type EntityRef } from "../helpers/story-bundle-entities.js";
@@ -105,7 +107,7 @@ test.describe("Story Bundle CONVO — Positive", () => {
     }
   });
 
-  test("clicking CONVO on a single-character bundle starts a group chat immediately, no picker modal", async ({
+  test("clicking CONVO on a single-character bundle opens the picker and starts a chat with that character", async ({
     page,
   }) => {
     const suffix = entitySuffix(test.info().title);
@@ -126,6 +128,13 @@ test.describe("Story Bundle CONVO — Positive", () => {
       const editor = await openEditorForBundle(page, bundle.name);
       await editor.convoButton.click();
 
+      // The picker modal appears (never auto-starts with all characters).
+      const picker = new StoryBundleConvoCharacterPickerModalPage(page);
+      await picker.waitFor();
+
+      // The single bundle character is pre-selected; confirm to start.
+      await picker.confirm();
+
       const chat = await findConvoChatByName(page, bundle.name);
       expect(chat).not.toBeNull();
       chatId = chat!.id;
@@ -139,7 +148,9 @@ test.describe("Story Bundle CONVO — Positive", () => {
     }
   });
 
-  test("clicking CONVO on a multi-character bundle starts a group chat with every character", async ({ page }) => {
+  test("clicking CONVO on a multi-character bundle opens the picker and starts a chat with the selected characters", async ({
+    page,
+  }) => {
     const suffix = entitySuffix(test.info().title);
     const seeded: EntityRef[] = [];
     const api = new StoryBundleAPI(page);
@@ -160,11 +171,19 @@ test.describe("Story Bundle CONVO — Positive", () => {
       const editor = await openEditorForBundle(page, bundle.name);
       await editor.convoButton.click();
 
+      const picker = new StoryBundleConvoCharacterPickerModalPage(page);
+      await picker.waitFor();
+
+      // The first bundle character is pre-selected; toggle the second on so
+      // both are chosen, then confirm.
+      await picker.toggleCharacter(second.id);
+      await picker.confirm();
+
       const chat = await findConvoChatByName(page, bundle.name);
       expect(chat).not.toBeNull();
       chatId = chat!.id;
 
-      // Group chat: every bundle character is included (1:n), not just one.
+      // Group chat: exactly the characters the player picked (1:n).
       expect(chat!.characterIds).toEqual([first.id, second.id]);
       expect(chat!.metadata?.storyBundleId).toBe(bundle.id);
       expect(chat!.metadata?.storyBundleCharacterIds).toEqual([first.id, second.id]);

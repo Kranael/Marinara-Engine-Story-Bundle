@@ -118,6 +118,14 @@ export function findCharAvatarFuzzy(npcName: string, charAvatarByName: Map<strin
     const charWords = normalizeAvatarLookupName(charName).split(/\s+/).filter(Boolean);
     const charIsSingleWord = charWords.length === 1;
 
+    // The lookup map is keyed by both full names and single-word aliases. A
+    // single-word key here is an alias (or a genuinely single-word character
+    // name that the exact phase above already resolved), so it must never take
+    // part in fuzzy matching: matching a shared word (e.g. "ichika") would
+    // wrongly link an NPC like "Ichika Nakano" to the unrelated "Ichika
+    // Matsuda". Full-name keys are compared below instead.
+    if (charIsSingleWord) continue;
+
     for (const npcAlias of npcPrimary) {
       for (const charAlias of charPrimary) {
         if (npcAlias === charAlias) {
@@ -130,13 +138,11 @@ export function findCharAvatarFuzzy(npcName: string, charAvatarByName: Map<strin
       }
     }
 
-    // Single-word name matching a word inside the other's full name.
-    if (npcIsSingleWord && !charIsSingleWord) {
+    // Single-word NPC name matching a word inside a multi-word character's
+    // full name (e.g. "Oak" → "Professor Oak").
+    if (npcIsSingleWord) {
       const word = npcWords[0]!;
       if (word.length >= 3 && charWords.includes(word)) fuzzyCandidates.add(avatar);
-    } else if (charIsSingleWord && !npcIsSingleWord) {
-      const word = charWords[0]!;
-      if (word.length >= 3 && npcWords.includes(word)) fuzzyCandidates.add(avatar);
     }
   }
   return fuzzyCandidates.size === 1 ? fuzzyCandidates.values().next().value : undefined;
