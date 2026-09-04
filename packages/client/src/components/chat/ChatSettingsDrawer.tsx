@@ -5283,11 +5283,14 @@ export function ChatSettingsDrawer({
                         <div className="min-w-0 flex-1">
                           <span className="block truncate text-xs">{npc.name}</span>
                           <span className="block truncate text-[0.625rem] text-[var(--muted-foreground)]">
-                            {npc.characterId
-                              ? localizeUi("ui.chat.chatsettingsdrawer.worldCharacterLibraryBadge")
-                              : (npc.location ?? "")}
+                            {npc.location ?? ""}
                           </span>
                         </div>
+                        {npc.characterId || npc.cardSource === "library" ? (
+                          <span className="shrink-0 rounded-full bg-[var(--accent)] px-1.5 py-0.5 text-[0.5625rem] font-semibold text-[var(--accent-foreground)]">
+                            {localizeUi("ui.chat.chatsettingsdrawer.worldCharacterLibraryBadge")}
+                          </span>
+                        ) : null}
                         <button
                           type="button"
                           onClick={() =>

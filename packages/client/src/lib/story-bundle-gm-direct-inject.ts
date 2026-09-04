@@ -202,6 +202,10 @@ export function useDirectInjectStoryBundle() {
         storyBundleId: bundle.id,
         gameAssetSelection: bundle.gameAssetSelection,
         gameNpcs: buildStoryBundleGameNpcs(bundle, (characters ?? []) as Array<{ id: string; data: unknown }>),
+        // /game/create persists gameSessionStatus "setup"; DirectInject must
+        // advance it to "ready" here so useSyncGameState() doesn't re-arm
+        // isSetupActive (which is what re-opens GameSetupWizard on navigation).
+        gameSessionStatus: "ready",
         ...(openingGuideOverride ? { gameOpeningGuideOverride: openingGuideOverride } : {}),
       });
 
