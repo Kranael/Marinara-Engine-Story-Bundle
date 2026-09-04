@@ -6084,6 +6084,41 @@ export async function gameRoutes(app: FastifyInstance) {
         : [];
       const existingLibraryNames = new Set(existingLibraryNpcs.map((npc) => npc.name.trim().toLowerCase()));
 
+      // Story Bundle NPCs are seeded with an empty location (see
+      // buildStoryBundleGameNpcs). Give each one a real starting position so
+      // they appear on the map instead of "unknown": NPCs named in the opening
+      // guide override (the chosen scenario / custom prompt) start at the
+      // party's position so they are immediately talkable; the rest are
+      // distributed round-robin across the other discovered nodes.
+      const partyStartPosition =
+        typeof generatedStartingMap?.partyPosition === "string" ? generatedStartingMap.partyPosition : null;
+      const openingGuide = typeof meta.gameOpeningGuideOverride === "string" ? meta.gameOpeningGuideOverride : "";
+      const openingGuideLower = openingGuide.toLowerCase();
+      const otherNodeIds =
+        generatedStartingMap?.type === "node"
+          ? (generatedStartingMap.nodes ?? [])
+              .filter((node) => node.discovered && node.id !== partyStartPosition)
+              .map((node) => node.id)
+          : [];
+      let otherNodeCursor = 0;
+      const positionedLibraryNpcs = existingLibraryNpcs.map((npc) => {
+        if (npc.location && npc.location.trim()) return npc;
+        const nameLower = npc.name.trim().toLowerCase();
+        const isPresent = nameLower.length > 0 && openingGuideLower.includes(nameLower);
+        let location: string;
+        if (isPresent && partyStartPosition) {
+          location = partyStartPosition;
+        } else if (otherNodeIds.length > 0) {
+          location = otherNodeIds[otherNodeCursor % otherNodeIds.length]!;
+          otherNodeCursor += 1;
+        } else if (partyStartPosition) {
+          location = partyStartPosition;
+        } else {
+          location = "Unknown";
+        }
+        return { ...npc, location };
+      });
+
       const usedNpcNames = new Set<string>();
       const uniqueNpcName = (rawName: string, fallbackName: string) => {
         const base = rawName.trim() || fallbackName;
@@ -6123,7 +6158,7 @@ export async function gameRoutes(app: FastifyInstance) {
         })
         .filter((npc) => !existingLibraryNames.has(npc.name.trim().toLowerCase()));
 
-      updates.gameNpcs = [...existingLibraryNpcs, ...generatedNpcs];
+      updates.gameNpcs = [...positionedLibraryNpcs, ...generatedNpcs];
     }
 
     if (setupData.partyArcs && Array.isArray(setupData.partyArcs)) {

@@ -90,7 +90,6 @@ function containsLookupPhrase(value: string, phrase: string): boolean {
 
 /** Resolve title and partial-name aliases before creating a replacement portrait. */
 export function findCharAvatarFuzzy(npcName: string, charAvatarByName: Map<string, string>): string | undefined {
-  const npcAliases = avatarLookupAliases(npcName);
   const exactCandidates = new Set<string>();
   const trackedCandidates = lookupCandidatesByMap.get(charAvatarByName);
   for (const alias of primaryAvatarLookupAliases(npcName)) {
@@ -104,15 +103,40 @@ export function findCharAvatarFuzzy(npcName: string, charAvatarByName: Map<strin
   }
   if (exactCandidates.size > 0) return exactCandidates.size === 1 ? exactCandidates.values().next().value : undefined;
 
+  // Fuzzy fallback: compare FULL names only, never single-word sub-aliases.
+  // Matching on a shared word (e.g. "Mizuki" in "Mizuki Hoshikawa" vs
+  // "Mizuki Kojima") wrongly links a generated NPC to an unrelated library
+  // character. Only a single-word name may match a word inside a multi-word
+  // name (e.g. "Oak" → "Professor Oak").
+  const npcPrimary = primaryAvatarLookupAliases(npcName);
+  const npcWords = normalizeAvatarLookupName(npcName).split(/\s+/).filter(Boolean);
+  const npcIsSingleWord = npcWords.length === 1;
+
   const fuzzyCandidates = new Set<string>();
   for (const [charName, avatar] of charAvatarByName) {
-    const charAliases = avatarLookupAliases(charName);
-    for (const npcAlias of npcAliases) {
-      for (const charAlias of charAliases) {
-        if (npcAlias === charAlias) fuzzyCandidates.add(avatar);
+    const charPrimary = primaryAvatarLookupAliases(charName);
+    const charWords = normalizeAvatarLookupName(charName).split(/\s+/).filter(Boolean);
+    const charIsSingleWord = charWords.length === 1;
+
+    for (const npcAlias of npcPrimary) {
+      for (const charAlias of charPrimary) {
+        if (npcAlias === charAlias) {
+          fuzzyCandidates.add(avatar);
+          continue;
+        }
+        // Full-name phrase containment (word-boundary aware).
         if (charAlias.length >= 3 && containsLookupPhrase(npcAlias, charAlias)) fuzzyCandidates.add(avatar);
         if (npcAlias.length >= 3 && containsLookupPhrase(charAlias, npcAlias)) fuzzyCandidates.add(avatar);
       }
+    }
+
+    // Single-word name matching a word inside the other's full name.
+    if (npcIsSingleWord && !charIsSingleWord) {
+      const word = npcWords[0]!;
+      if (word.length >= 3 && charWords.includes(word)) fuzzyCandidates.add(avatar);
+    } else if (charIsSingleWord && !npcIsSingleWord) {
+      const word = charWords[0]!;
+      if (word.length >= 3 && npcWords.includes(word)) fuzzyCandidates.add(avatar);
     }
   }
   return fuzzyCandidates.size === 1 ? fuzzyCandidates.values().next().value : undefined;
