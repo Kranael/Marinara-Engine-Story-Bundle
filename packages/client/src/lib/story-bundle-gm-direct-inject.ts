@@ -142,12 +142,7 @@ export function buildGameStartOpeningGuideOverride(direction: string): string {
 export type DirectInjectStep = "creating" | "tagging" | "world-setup" | "done";
 
 /** Ordered list of steps, so the modal can render a "step N of M" counter. */
-export const DIRECT_INJECT_STEP_ORDER: readonly DirectInjectStep[] = [
-  "creating",
-  "tagging",
-  "world-setup",
-  "done",
-];
+export const DIRECT_INJECT_STEP_ORDER: readonly DirectInjectStep[] = ["creating", "tagging", "world-setup", "done"];
 
 /** 1-based index of each step within {@link DIRECT_INJECT_STEP_ORDER}. */
 export const DIRECT_INJECT_STEP_INDEX: Record<DirectInjectStep, number> = {

@@ -2608,6 +2608,39 @@ export function HomeBrowserHub({
                       {t("home.hero.description")}
                     </p>
                   </div>
+                  <div className="mt-2 flex flex-col items-center gap-1.5">
+                    <p className="max-w-md text-[clamp(0.7rem,0.75vw,0.8125rem)] leading-snug text-[var(--muted-foreground)]">
+                      {t("home.hero.storyBundlesDescription")}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => useUIStore.getState().openStoryBundleGallery()}
+                      className="group flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-bold text-[var(--foreground)] shadow-sm transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--foreground)_30%,var(--border))] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transform-none"
+                      aria-label={t("home.hero.storyBundlesLabel")}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <span
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--sb-convo)_42%,var(--border))] bg-[color-mix(in_srgb,var(--sb-convo)_16%,var(--card))] text-[var(--sb-convo)]"
+                          style={{ "--sb-convo": HOME_CHAT_MODE_ACCENTS.conversation } as CSSProperties}
+                        >
+                          <ChatModeIcon mode="conversation" size="0.9rem" className="mari-rgb-static-icon" />
+                        </span>
+                        <span
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--sb-rp)_42%,var(--border))] bg-[color-mix(in_srgb,var(--sb-rp)_16%,var(--card))] text-[var(--sb-rp)]"
+                          style={{ "--sb-rp": HOME_CHAT_MODE_ACCENTS.roleplay } as CSSProperties}
+                        >
+                          <ChatModeIcon mode="roleplay" size="0.9rem" className="mari-rgb-static-icon" />
+                        </span>
+                        <span
+                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--sb-game)_42%,var(--border))] bg-[color-mix(in_srgb,var(--sb-game)_16%,var(--card))] text-[var(--sb-game)]"
+                          style={{ "--sb-game": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}
+                        >
+                          <ChatModeIcon mode="game" size="0.9rem" className="mari-rgb-static-icon" />
+                        </span>
+                      </span>
+                      <span>{t("home.hero.storyBundlesLabel")}</span>
+                    </button>
+                  </div>
                   <div className="grid w-full max-w-md grid-cols-3 gap-2" aria-label={t("home.shortcuts.label")}>
                     <HomeNewChatLauncher
                       mode="conversation"
