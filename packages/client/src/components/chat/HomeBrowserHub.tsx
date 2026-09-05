@@ -2615,10 +2615,10 @@ export function HomeBrowserHub({
                     <button
                       type="button"
                       onClick={() => useUIStore.getState().openStoryBundleGallery()}
-                      className="group flex items-center gap-2 rounded-full border border-white/30 bg-transparent px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:border-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transition-none"
+                      className="group flex items-center gap-2 rounded-full border border-white/40 bg-transparent px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:border-white hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transition-none"
                       aria-label={t("home.hero.storyBundlesLabel")}
                     >
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/30 transition-colors duration-200 group-hover:border-white">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/40 bg-white/10 transition-colors duration-200 group-hover:border-white">
                         <svg
                           width="1rem"
                           height="1rem"
