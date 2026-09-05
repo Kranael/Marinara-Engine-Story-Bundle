@@ -122,11 +122,11 @@ The Home screen shows a compact **Recent Chats** row with your three most recent
 
 ## Story Bundles
 
-A Story Bundle is a pre-packaged story kit that groups characters, personas, and lorebooks together. You can start a roleplay from a bundle with one click instead of picking everything by hand. See [Story Bundles](story-bundles.md) for the full guide.
+A Story Bundle is a pre-packaged story kit that groups characters, personas, and lorebooks together. You can start a roleplay from a bundle with one click instead of picking everything by hand. See [Story Bundles](../story-bundle/story-bundle-overview.md) for the full guide.
 
 ## Related guides
 
-- [Story Bundles](story-bundles.md)
+- [Story Bundles](../story-bundle/story-bundle-overview.md)
 - [Chat Branches](branches.md)
 - [Exporting and Importing Chats](export-import.md)
 - [Chat Settings Overview](chat-settings.md)

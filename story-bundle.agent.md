@@ -3,7 +3,7 @@
 > Agent context file for the **Story Bundle** feature. Contains all files and
 > conventions needed to understand and extend it — so you don't have to
 > re-search the repo every time.
-> Branch: `story-bundle-dev` · Feature doc: `docs/chats/story-bundles.md`
+> Branch: `story-bundle-dev` · Feature doc: `docs/story-bundle/story-bundle-overview.md`
 
 ## 1. Repo Architecture in 30 Seconds
 
@@ -172,7 +172,7 @@ PowerShell: chain commands with `;`, never with `&&`.
 2. `packages/server`: add columns to the `fileTable`, adjust storage methods (register new tables in `FILE_BACKED_TABLES` too).
 3. `packages/client`: create a new tab component (pattern: `StoryBundleCharacters.tsx` / `StoryBundlePresets.tsx`), import it in `StoryBundleEditor.tsx` and add it to the TABS array + rendering, add hooks for data loading.
 4. Add `en.json` keys (sort alphabetically).
-5. `pnpm check` green, assign new `data-testid`s, update `docs/chats/story-bundles.md` + this file.
+5. `pnpm check` green, assign new `data-testid`s, update `docs/story-bundle/story-bundle-overview.md` + this file.
 6. Commit on the feature branch.
 
 ## 9. Tab Component Pattern

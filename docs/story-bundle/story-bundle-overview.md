@@ -274,8 +274,8 @@ lorebooks, or agents inside it.
 
 ## Related guides
 
-- [Managing Your Chat List](managing-chats.md)
+- [Managing Your Chat List](../chats/managing-chats.md)
 - [Roleplay Mode: Getting Started](../roleplay/getting-started.md)
 - [Game Mode: Getting Started](../game/getting-started.md)
-- [Exporting and Importing Chats](export-import.md)
+- [Exporting and Importing Chats](../chats/export-import.md)
 - [Connecting to an AI Provider](../connections/connecting-to-a-provider.md)

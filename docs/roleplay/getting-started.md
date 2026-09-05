@@ -28,7 +28,7 @@ After you finish the wizard, your scene opens and you can send your first messag
 
 ### Quick-start with a Story Bundle
 
-If you have saved a [Story Bundle](../chats/story-bundles.md), you can skip the wizard entirely. Click the **Play** button on any bundle to create a new Roleplay chat with all its characters, persona, and lorebooks already set. The chat opens right away and you can start typing.
+If you have saved a [Story Bundle](../story-bundle/story-bundle-overview.md), you can skip the wizard entirely. Click the **Play** button on any bundle to create a new Roleplay chat with all its characters, persona, and lorebooks already set. The chat opens right away and you can start typing.
 
 ## The stage: background, sprites, and HUD
 
