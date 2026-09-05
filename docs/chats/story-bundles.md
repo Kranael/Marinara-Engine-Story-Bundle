@@ -236,7 +236,7 @@ members vs. NPCs), lorebooks, assets, and GM settings, and generates the world
 
 1. In the panel, hover over the bundle row and click **Export** — or use
    **Export** in the gallery detail view.
-2. A `.marinara.json` file downloads.
+2. A `.storybundle` file downloads.
 
 The export is fully self-contained: the bundle's characters, personas,
 lorebooks, and presets — including their pictures — are embedded in the file.
@@ -247,7 +247,7 @@ You can move it to another PC and import it there.
 ## Importing a bundle
 
 1. In the Story Bundles panel or the gallery, click **Import**.
-2. Select a `.marinara.json` story bundle file.
+2. Select a `.storybundle` story bundle file.
 3. If the file contains embedded content, a dialog shows what was found
    (characters, personas, lorebooks, presets, and how many agents are
    referenced) and asks whether to import it.

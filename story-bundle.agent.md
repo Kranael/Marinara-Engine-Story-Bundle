@@ -28,7 +28,10 @@ New field/feature = always touch all three layers + barrel exports + en.json.
 | `packages/server/src/db/file-backed-store.ts` | `"story_bundles"` in `FILE_BACKED_TABLES` (registration, else `Unsupported table`) |
 | `packages/server/src/db/story-bundle-scenario-migration.ts` | `migrateLegacyStoryBundleScenariosRow()` — converts legacy `intros` (`name`/`text`) rows to `scenarios` (`title`/`openingMessage`) on read |
 | `packages/server/src/services/storage/story-bundles.storage.ts` | `createStoryBundlesStorage(db)`: list/getById/create/update/remove |
-| `packages/server/src/routes/story-bundles.routes.ts` | REST under `/api/story-bundles` (GET/POST/PATCH/DELETE) + image endpoints (`POST/DELETE /:id/image`, `GET /images/file/:filename`) + `GET /:id/export` |
+| `packages/server/src/routes/story-bundles.routes.ts` | REST under `/api/story-bundles` (GET/POST/PATCH/DELETE) + image endpoints (`POST/DELETE /:id/image`, `GET /images/file/:filename`) + `GET /:id/export` (`.storybundle` ZIP) + `POST /import-archive` (multipart `.storybundle` upload) |
+| `packages/server/src/services/export/story-bundle-archive.ts` | `.storybundle` ZIP builder: `gatherBundleArchiveSources()` (DB/disk → plain description) + `packBundleArchive()` (streams description into a ZIP via `archiver`) + `buildBundleArchive()` (gather + optimize + pack) |
+| `packages/server/src/services/export/story-bundle-asset-optimizer.ts` | `optimizeArchiveImages()` — re-encodes large images (e.g. WebP) before packing |
+| `packages/server/src/services/import/story-bundle-archive-import.ts` | `.storybundle` ZIP unpacker + bootstrapper: `unpackBundleArchive()` (safe extract + read `manifest.json`) + `unpackAndBootstrapBundle()` (insert entities, map `isPartyMember` → `partyCharacterIds`, create the bundle row) |
 | `packages/client/src/hooks/use-story-bundles.ts` | `storyBundleKeys` + query/mutation hooks (incl. image upload/remove) |
 | `packages/client/src/hooks/use-story-bundle-actions.ts` | `useStoryBundleActions()` — shared `play` (RP), `exportBundle`, `remove` + busy state (`playingId`, `exportingId`); used by panel, gallery, and editor |
 | `packages/client/src/components/panels/StoryBundlesPanel.tsx` | List panel (right side) — toolbar with Gallery/Import/New buttons; rows have export + delete only (no Play) |
@@ -44,9 +47,9 @@ New field/feature = always touch all three layers + barrel exports + en.json.
 | `packages/client/src/components/story-bundles/StoryBundleScenarios.tsx` | Scenarios tab (inline scenarios: title + opening message + optional image, add/edit/delete) |
 | `packages/client/src/lib/app-dialogs.ts` | `showScenarioDialog(options)` + `CUSTOM_SCENARIO_CHOICE_PREFIX` — scenario picker with optional Custom Scenario free-text |
 | `packages/client/src/lib/story-bundle-html.ts` | `sanitizeStoryBundleDescription()` — DOMPurify sanitization for gallery/description HTML |
-| `packages/shared/src/types/export.ts` | `ExportType` extended with `"marinara_story_bundle"` |
-| `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — import handler + `case` in the switch (accepts `scenarios` and legacy `intros`) |
-| `packages/server/src/services/export/export-image-helpers.ts` | Shared image helpers: `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` |
+| `packages/shared/src/types/story-bundle-manifest.ts` | `.storybundle` ZIP manifest types: `BundleManifest`, `BundleManifestCharacter`, `BundleManifestScenario`, `BundleManifestAgentRef`, `BUNDLE_MANIFEST_FORMAT` (`"marinara-story-bundle-zip"`), `BUNDLE_MANIFEST_VERSION` (`1`) |
+| `packages/shared/src/types/story-bundle-game.ts` | Game Mode extension: `StoryBundleGameModeFields { partyCharacterIds, gameConfig, gameAssetSelection }`, `StoryBundleGameConfig`, `StoryBundleAssetSelection`, party/NPC helpers, `extractStoryBundleGameConfigFromSetupExport()` |
+| `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — dead legacy `.marinara.json` import handler (never released; the UI no longer routes here) |
 | `tests/story-bundle/helpers/story-bundle-fixture.ts` | Test helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
 | `tests/story-bundle/helpers/story-bundle-api.ts` | Test helper: `StoryBundleAPI` class (create/delete/import/export) |
 | `tests/story-bundle/helpers/fresh-client.ts` | Test helper: `prepareFreshClient()` (client state before each test) |
@@ -74,6 +77,9 @@ export interface StoryBundle {
   presetIds: string[];       // Prompt-Presets (max 1)
   agentIds: string[];
   scenarios: StoryBundleScenario[]; // renamed from `intros`; auto-migrated on read
+  partyCharacterIds: string[];      // subset of characterIds who join the party; rest are NPCs
+  gameConfig: StoryBundleGameConfig | null;         // frozen Game Mode setup metadata
+  gameAssetSelection: StoryBundleAssetSelection | null; // game-asset folder scope
   createdAt: string;
   updatedAt: string;
 }
@@ -82,7 +88,7 @@ export interface StoryBundleScenario {
   id: string;
   title: string;
   openingMessage: string;
-  imagePath?: string | null;   // base64 data URL, scenario thumbnail/card art
+  imagePath?: string | null;   // served image URL, scenario thumbnail/card art
   avatarCrop?: AvatarCrop | null;
 }
 ```
@@ -182,12 +188,99 @@ Every new tab in the StoryBundleEditor follows this pattern (see `StoryBundleCha
 - **Personas tab**: single-select — picking a persona replaces the previous one.
 - **Scenarios tab** (`StoryBundleScenarios.tsx`): inline 1:n data, no references to other entities. Pattern: "Add Scenario" button opens an inline form (title input + opening-message textarea + optional image upload with crop), saving creates/updates a scenario in the draft's `scenarios` array; the selected list shows title + message preview + optional image with edit/delete buttons. No search/random/pagination.
 
-## 10. Import/Export Pattern
+## 10. Import/Export Pattern (`.storybundle` ZIP)
 
-Story Bundles follow the established Marinara export/import pattern:
+Story Bundles export and import as a **`.storybundle` ZIP archive** — not the
+legacy `.marinara.json` base64 JSON envelope. The old single-JSON format
+embedded every avatar/sprite/gallery image as base64 inside one JSON string
+(~33% size penalty) and crashed on large bundles (Node's ~512 MB max string
+length). The ZIP format stores every binary as a raw, unencoded archive entry
+and keeps `manifest.json` text-only.
 
-- **Export**: `GET /api/story-bundles/:id/export` → `ExportEnvelope` with `type: "marinara_story_bundle"`, `version: 1`, `data: { name, description, characterIds, personaIds, lorebookIds, presetIds, agentIds, scenarios, embeddedCharacters, embeddedPersonas, embeddedLorebooks, embeddedPresets }`. Characters and personas are embedded with avatars, sprites, and gallery as base64 data URLs — the JSON is fully self-contained for PC-to-PC transfer. Served as a `.marinara.json` download.
-- **Import**: `POST /api/import/marinara` with the envelope → dispatcher in `importMarinara()` routes to `importStoryBundle()`. Validates `name` (required), filters ID arrays to strings, creates the bundle via `createStoryBundlesStorage`. Import deduplicates by name (case-insensitive): existing characters/personas/lorebooks/presets are skipped, only new ones are created. Binary data (avatars, sprites, gallery) is restored from the base64 data URLs. Scenarios are inline data — parsed and validated with new IDs generated for each; older exports carrying the legacy `intros` field (`name`/`text`) are accepted and migrated. Referenced agents that are not installed are surfaced in the import dialog with an install option for the providing capability package.
-- **Image helpers**: `packages/server/src/services/export/export-image-helpers.ts` — `readAvatarDataUrl()`, `readSpritesForId()`, `readGalleryForCharacter()` read binary data from disk and return base64 data URLs. Shared by character export and story-bundle export.
-- **Test helpers**: `importStoryBundleFixture(page, filePath)` in `tests/story-bundle/helpers/story-bundle-fixture.ts` reads a fixture JSON, POSTs it to `/api/import/marinara`, and returns the created `StoryBundle`. `buildStoryBundleEnvelope(input)` builds an envelope inline (for programmatic tests). `StoryBundleAPI` in `tests/story-bundle/helpers/story-bundle-api.ts` offers create/delete/import/export.
-- **Fixtures**: `tests/story-bundle/data/` contains JSON files in various states (empty, with-description, with-characters, with-personas, with-lorebooks, full).
+### Archive layout
+
+```
+manifest.json                 — metadata, game config, isPartyMember flags (text only)
+cover.<ext>                   — optional bundle picture
+characters/<id>/card.json     — character card data (text)
+characters/<id>/avatar.<ext>  — optional
+characters/<id>/sprites/*     — optional
+characters/<id>/gallery/*     — optional images + gallery.json metadata
+personas/<id>/persona.json, avatar.<ext>, sprites/*, gallery/*
+lorebooks/<id>/lorebook.json  — { lorebook, entries, folders }
+presets/<id>/preset.json      — { preset, sections, groups, choiceBlocks }
+scenarios/<id>.<ext>          — optional scenario images
+```
+
+`manifest.json` is the only JSON read into memory up front on import; every
+binary is a raw zip entry read one at a time. `format` is
+`"marinara-story-bundle-zip"`, `version` is `1`.
+
+### Export
+
+- **Route**: `GET /api/story-bundles/:id/export` → streams a ZIP via
+  `reply.hijack()`, `Content-Type: application/octet-stream`,
+  `Content-Disposition: attachment; filename="<name>.storybundle"`.
+- **Builder** (`services/export/story-bundle-archive.ts`), split in two layers:
+  - `gatherBundleArchiveSources(bundleId, db)` — the only part that touches the
+    DB/filesystem; returns a plain `BundleArchiveSources { manifest, files, texts }`.
+  - `packBundleArchive(sources, destination)` — streams that description into a
+    ZIP via `archiver` (zlib level 9); binary files are STOREd verbatim (no
+    benefit re-deflating already-compressed images), text/JSON entries are
+    DEFLATEd at max compression. Never touches the DB.
+  - `buildBundleArchive()` = gather + `optimizeArchiveImages()` (asset optimizer
+    re-encodes large images, e.g. WebP) + pack.
+- **Agents** are referenced by id only (never embedded) — they ship via
+  capability packages. The manifest carries `{ id, name }` pairs resolved from
+  built-in agent manifests or the installed agent config.
+- **Presets** strip `parameters` and `systemKey` before export (same fields the
+  repo's own preset exporter strips) so a re-import can't claim Engine-owned
+  stock presets or carry sampler/API-key-shaped overrides.
+
+### Import
+
+- **Route**: `POST /api/story-bundles/import-archive` (multipart upload). The
+  upload streams straight to a temp file (never buffered as one JS value), then
+  unpacks + bootstraps it.
+- **Unpacker** (`services/import/story-bundle-archive-import.ts`), split in two
+  layers:
+  - `unpackBundleArchive(zipFilePath)` — safely extracts the ZIP to a temp dir
+    (zip-slip guard rejects `..`/absolute/symlink entries; zip-bomb guard caps
+    entry count at 20 000 and expanded size at 4 GB) and reads only
+    `manifest.json` into memory.
+  - `unpackAndBootstrapBundle(archivePath, db)` — inserts
+    characters/personas/lorebooks/presets, maps `isPartyMember` →
+    `partyCharacterIds`, and creates the `StoryBundle` row.
+- **Deduplication**: import deduplicates by name (case-insensitive) — existing
+  characters/personas/lorebooks/presets are skipped, only new ones are created.
+- **Binary restore**: avatars/sprites/gallery are read one small, size-bounded
+  file at a time and bridged into the existing restore pipeline via
+  `fileToDataUrl()` (never the whole archive at once).
+- **Scenarios** are inline data in the manifest — parsed and validated with new
+  IDs generated for each; older exports carrying the legacy `intros` field
+  (`name`/`text`) are accepted and migrated.
+- **Referenced agents** that are not installed are surfaced in the import dialog
+  with an install option for the providing capability package.
+
+### Legacy format (never released — no backward compatibility)
+
+The old `.marinara.json` envelope (`type: "marinara_story_bundle"`, base64 JSON)
+was never released — it was only used during development. There is **no
+backward compatibility** for it. Import accepts **only** `.storybundle` ZIP
+archives via `POST /api/story-bundles/import-archive`; the import dialog
+rejects anything else. The dead `importStoryBundle()` handler in
+`services/import/marinara.importer.ts` and the `"marinara_story_bundle"` value
+in `ExportType` are leftovers and should not be treated as a supported path.
+
+### Test helpers
+
+- `importStoryBundleFixture(page, filePath)` in
+  `tests/story-bundle/helpers/story-bundle-fixture.ts` imports a fixture and
+  returns the created `StoryBundle`.
+- `buildStoryBundleEnvelope(input)` builds an envelope inline (for programmatic
+  tests).
+- `StoryBundleAPI` in `tests/story-bundle/helpers/story-bundle-api.ts` offers
+  create/delete/import/export.
+- Fixtures: `tests/story-bundle/data/` contains JSON files in various states
+  (empty, with-description, with-characters, with-personas, with-lorebooks,
+  full).
