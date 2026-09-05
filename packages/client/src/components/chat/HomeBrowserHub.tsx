@@ -2615,10 +2615,10 @@ export function HomeBrowserHub({
                     <button
                       type="button"
                       onClick={() => useUIStore.getState().openStoryBundleGallery()}
-                      className="group flex items-center gap-2 rounded-full border border-white bg-transparent px-4 py-2 text-sm font-bold text-white transition-all duration-150 hover:bg-white hover:text-[var(--background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transition-none"
+                      className="group flex items-center gap-2 rounded-full border border-white/30 bg-transparent px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:border-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transition-none"
                       aria-label={t("home.hero.storyBundlesLabel")}
                     >
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white transition-colors duration-150 group-hover:border-[var(--background)]">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/30 transition-colors duration-200 group-hover:border-white">
                         <svg
                           width="1rem"
                           height="1rem"
@@ -2630,9 +2630,9 @@ export function HomeBrowserHub({
                           strokeLinejoin="round"
                           aria-hidden="true"
                         >
-                          <path d="M12 2 2 7l10 5 10-5-10-5Z" stroke={HOME_CHAT_MODE_ACCENTS.conversation} />
-                          <path d="m2 17 10 5 10-5" stroke={HOME_CHAT_MODE_ACCENTS.roleplay} />
-                          <path d="m2 12 10 5 10-5" stroke={HOME_CHAT_MODE_ACCENTS.game} />
+                          <path d="M12 2 2 7l10 5 10-5-10-5Z" stroke="#00B5C6" />
+                          <path d="m2 17 10 5 10-5" stroke="#DC7616" />
+                          <path d="m2 12 10 5 10-5" stroke="#C05197" />
                         </svg>
                       </span>
                       <span>{t("home.hero.storyBundlesLabel")}</span>
