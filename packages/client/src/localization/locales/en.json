@@ -555,7 +555,7 @@
   "home.hero.description": "Create a new chat with one of the buttons below or wander through your existing ones and other tools that make Marinara yours.",
   "home.hero.eyebrow": "Marinara Engine v{{version}}",
   "home.hero.openLibrary": "Character library",
-  "home.hero.storyBundlesDescription": "Ready-to-play story kits that bundle characters, lorebooks, and settings into one click.",
+  "home.hero.storyBundlesDescription": "Ready-to-play story kits that bundle characters, lorebooks, and settings into one click with the button below.",
   "home.hero.storyBundlesLabel": "Story Bundles",
   "home.hero.title": "What shall we cook tonight?",
   "home.learn.docsDescription": "Search official documentation and guides without leaving Marinara.",

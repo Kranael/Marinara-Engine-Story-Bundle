@@ -2604,9 +2604,6 @@ export function HomeBrowserHub({
                     <h1 className="mt-1.5 text-[clamp(1.15rem,1.6vw,1.7rem)] font-black tracking-tight text-[var(--foreground)]">
                       {t("home.hero.title")}
                     </h1>
-                    <p className="mx-auto mt-1 text-[clamp(0.75rem,0.8vw,0.875rem)] leading-snug text-[var(--muted-foreground)]">
-                      {t("home.hero.description")}
-                    </p>
                   </div>
                   <div className="mt-2 flex flex-col items-center gap-1.5">
                     <p className="max-w-md text-[clamp(0.7rem,0.75vw,0.8125rem)] leading-snug text-[var(--muted-foreground)]">
@@ -2638,6 +2635,9 @@ export function HomeBrowserHub({
                       <span>{t("home.hero.storyBundlesLabel")}</span>
                     </button>
                   </div>
+                  <p className="mx-auto mt-1 text-[clamp(0.75rem,0.8vw,0.875rem)] leading-snug text-[var(--muted-foreground)]">
+                    {t("home.hero.description")}
+                  </p>
                   <div className="grid w-full max-w-md grid-cols-3 gap-2" aria-label={t("home.shortcuts.label")}>
                     <HomeNewChatLauncher
                       mode="conversation"
