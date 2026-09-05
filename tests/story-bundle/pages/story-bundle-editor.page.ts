@@ -68,7 +68,10 @@ export class StoryBundleEditorPage {
 
   /** Wait for the editor to become visible. */
   async waitFor(): Promise<void> {
-    await this.editor.waitFor({ state: "visible", timeout: 10_000 });
+    // The editor renders a loading spinner (`story-bundle-editor-loading`)
+    // until the bundle data is fetched. Under parallel-worker load that fetch
+    // can exceed 10s, so use a generous timeout (matching the panel's 30s).
+    await this.editor.waitFor({ state: "visible", timeout: 30_000 });
   }
 
   /** Switch to the Metadata tab. */

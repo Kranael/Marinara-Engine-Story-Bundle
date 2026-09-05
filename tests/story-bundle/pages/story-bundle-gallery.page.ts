@@ -56,6 +56,16 @@ export class StoryBundleGalleryPage {
     return this.gallery.locator(`[data-testid^="${prefix}"]`).locator("visible=true");
   }
 
+  /**
+   * The visible detail card, regardless of viewport. The detail card renders
+   * twice (mobile inline slot + desktop aside) with exactly one visible per
+   * viewport; `detail` is scoped to the desktop aside, so mobile tests must
+   * use this instead.
+   */
+  visibleDetail(): Locator {
+    return this.gallery.getByTestId("story-bundle-gallery-detail").locator("visible=true");
+  }
+
   /** Locate the Play button inside the visible detail card. */
   playButton(): Locator {
     return this.visibleDetailAction("story-bundle-gallery-play-");

@@ -95,13 +95,14 @@ test.describe("Story Bundle Gallery — Loading & Cards", () => {
     try {
       const gallery = await openGallery(page);
       await gallery.clickCard(bundle.name);
-      const description = gallery.detail.locator("[data-story-bundle-gallery-detail-description]");
+      const detail = gallery.visibleDetail();
+      const description = detail.locator("[data-story-bundle-gallery-detail-description]");
       await expect(description).toBeVisible();
 
       // The HTML is rendered: the heading text is visible as a real element…
       await expect(description.getByRole("heading", { name: "Chapter One" })).toBeVisible();
       // …and the raw markup is NOT shown as text.
-      await expect(gallery.detail.getByText("<h1>Chapter One</h1>")).toHaveCount(0);
+      await expect(detail.getByText("<h1>Chapter One</h1>")).toHaveCount(0);
     } finally {
       await api.delete(bundle.id);
     }

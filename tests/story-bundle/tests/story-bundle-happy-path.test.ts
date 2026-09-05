@@ -118,6 +118,26 @@ async function findChatByName(page: Page, name: string, mode: string): Promise<C
   return chats.find((chat) => chat.name === name && chat.mode === mode) ?? null;
 }
 
+/**
+ * Poll until a chat with the given name/mode exists AND its bundle tagging has
+ * landed. The CONVO/RP/GM DirectInject flows create the chat first, then tag
+ * `metadata.storyBundleId` in a follow-up request — under parallel load the
+ * chat can be visible before the tag, so a single read races.
+ */
+async function waitForTaggedChat(page: Page, name: string, mode: string): Promise<CreatedChat> {
+  let chat: CreatedChat | null = null;
+  await expect
+    .poll(
+      async () => {
+        chat = await findChatByName(page, name, mode);
+        return chat?.metadata?.storyBundleId ?? null;
+      },
+      { timeout: 10_000 },
+    )
+    .toBeTruthy();
+  return chat!;
+}
+
 /** Delete the chat, bundle and every seeded entity created by assembleStoryBundle. */
 async function cleanupAssembled(page: Page, assembled: AssembledBundle, chatId: string | null): Promise<void> {
   if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
@@ -145,12 +165,11 @@ test.describe("Story Bundle Happy Path", () => {
       // The single bundle character is pre-selected; confirm to start.
       await picker.confirm();
 
-      const chat = await findChatByName(page, assembled.bundle.name, "conversation");
-      expect(chat).not.toBeNull();
-      chatId = chat!.id;
-      expect(chat!.characterIds).toEqual([assembled.character.id]);
-      expect(chat!.metadata?.storyBundleId).toBe(assembled.bundle.id);
-      expect(chat!.metadata?.storyBundleCharacterIds).toEqual([assembled.character.id]);
+      const chat = await waitForTaggedChat(page, assembled.bundle.name, "conversation");
+      chatId = chat.id;
+      expect(chat.characterIds).toEqual([assembled.character.id]);
+      expect(chat.metadata?.storyBundleId).toBe(assembled.bundle.id);
+      expect(chat.metadata?.storyBundleCharacterIds).toEqual([assembled.character.id]);
     } finally {
       await cleanupAssembled(page, assembled, chatId);
     }
@@ -170,12 +189,11 @@ test.describe("Story Bundle Happy Path", () => {
 
       await expect(page.getByText("Roleplay started!")).toBeVisible({ timeout: 10_000 });
 
-      const chat = await findChatByName(page, assembled.bundle.name, "roleplay");
-      expect(chat).not.toBeNull();
-      chatId = chat!.id;
-      expect(chat!.characterIds).toEqual([assembled.character.id]);
-      expect(chat!.personaId).toBe(assembled.persona.id);
-      expect(chat!.metadata?.storyBundleId).toBe(assembled.bundle.id);
+      const chat = await waitForTaggedChat(page, assembled.bundle.name, "roleplay");
+      chatId = chat.id;
+      expect(chat.characterIds).toEqual([assembled.character.id]);
+      expect(chat.personaId).toBe(assembled.persona.id);
+      expect(chat.metadata?.storyBundleId).toBe(assembled.bundle.id);
     } finally {
       await cleanupAssembled(page, assembled, chatId);
     }
@@ -200,17 +218,16 @@ test.describe("Story Bundle Happy Path", () => {
         timeout: 10_000,
       });
 
-      const chat = await findChatByName(page, assembled.bundle.name, "game");
-      expect(chat).not.toBeNull();
-      chatId = chat!.id;
-      expect(chat!.personaId).toBe(assembled.persona.id);
-      expect(chat!.metadata?.storyBundleId).toBe(assembled.bundle.id);
+      const chat = await waitForTaggedChat(page, assembled.bundle.name, "game");
+      chatId = chat.id;
+      expect(chat.personaId).toBe(assembled.persona.id);
+      expect(chat.metadata?.storyBundleId).toBe(assembled.bundle.id);
 
       // The single bundle character is assigned as an NPC (not a party member),
       // so it lands in gameNpcs as a library-linked known NPC — never in
       // characterIds (which only holds party members).
-      expect(chat!.characterIds).toEqual([]);
-      const gameNpcs = (chat!.metadata?.gameNpcs ?? []) as Array<{
+      expect(chat.characterIds).toEqual([]);
+      const gameNpcs = (chat.metadata?.gameNpcs ?? []) as Array<{
         name: string;
         characterId?: string | null;
         cardSource?: string;
