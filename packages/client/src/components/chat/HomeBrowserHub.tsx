@@ -28,7 +28,6 @@ import {
   ExternalLink,
   GripVertical,
   Heart,
-  Layers,
   LibraryBig,
   MessageCircle,
   NotebookPen,
@@ -2616,31 +2615,26 @@ export function HomeBrowserHub({
                     <button
                       type="button"
                       onClick={() => useUIStore.getState().openStoryBundleGallery()}
-                      className="group relative flex items-center gap-2 overflow-hidden rounded-xl px-4 py-2 text-sm font-bold text-white shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transform-none"
-                      style={
-                        {
-                          "--sb-convo": HOME_CHAT_MODE_ACCENTS.conversation,
-                          "--sb-rp": HOME_CHAT_MODE_ACCENTS.roleplay,
-                          "--sb-game": HOME_CHAT_MODE_ACCENTS.game,
-                          background:
-                            "linear-gradient(90deg, color-mix(in_srgb, var(--sb-convo) 14%, transparent), color-mix(in_srgb, var(--sb-rp) 14%, transparent) 50%, color-mix(in_srgb, var(--sb-game) 14%, transparent))",
-                        } as CSSProperties
-                      }
+                      className="group flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.08] px-4 py-2 text-sm font-bold text-white shadow-sm backdrop-blur-sm transition-[transform,box-shadow,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-white hover:bg-white/[0.15] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transform-none"
                       aria-label={t("home.hero.storyBundlesLabel")}
                     >
-                      <span
+                      <svg
+                        width="1rem"
+                        height="1rem"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="shrink-0"
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 rounded-xl p-px"
-                        style={{
-                          background:
-                            "linear-gradient(90deg, color-mix(in_srgb, var(--sb-convo) 55%, transparent), color-mix(in_srgb, var(--sb-rp) 55%, transparent) 50%, color-mix(in_srgb, var(--sb-game) 55%, transparent))",
-                          WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-                          WebkitMaskComposite: "xor",
-                          maskComposite: "exclude",
-                        }}
-                      />
-                      <Layers size="1rem" className="relative shrink-0" aria-hidden="true" />
-                      <span className="relative">{t("home.hero.storyBundlesLabel")}</span>
+                      >
+                        <path d="M12 2 2 7l10 5 10-5-10-5Z" stroke={HOME_CHAT_MODE_ACCENTS.conversation} />
+                        <path d="m2 17 10 5 10-5" stroke={HOME_CHAT_MODE_ACCENTS.roleplay} />
+                        <path d="m2 12 10 5 10-5" stroke={HOME_CHAT_MODE_ACCENTS.game} />
+                      </svg>
+                      <span>{t("home.hero.storyBundlesLabel")}</span>
                     </button>
                   </div>
                   <div className="grid w-full max-w-md grid-cols-3 gap-2" aria-label={t("home.shortcuts.label")}>
