@@ -10,7 +10,6 @@
  *   [data-story-bundle-gallery-card="{id}"]
  *   [data-story-bundle-gallery-card-artwork]
  *   [data-story-bundle-gallery-card-title]
- *   [data-story-bundle-gallery-card-description]
  *   story-bundle-gallery-detail
  *   story-bundle-gallery-play-{id}
  *   story-bundle-gallery-edit-{id}

@@ -307,10 +307,7 @@ export function StoryBundleGalleryView() {
       sort,
       (bundle) => bundle.name,
       (bundle) => bundle.createdAt,
-    ).map((bundle) => ({
-      bundle,
-      sanitizedDescription: bundle.description ? sanitizeStoryBundleDescription(bundle.description) : "",
-    }));
+    ).map((bundle) => ({ bundle }));
   }, [bundles, sort]);
 
   const filteredCards = useMemo(() => {
@@ -512,7 +509,7 @@ export function StoryBundleGalleryView() {
         </div>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-0 xl:grid-cols-[minmax(0,1.1fr)_28rem]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_28.8rem] lg:gap-0 xl:grid-cols-[minmax(0,1.1fr)_33.6rem]">
         <section
           ref={galleryListScrollRef}
           onScroll={handleGalleryScroll}
@@ -602,13 +599,6 @@ export function StoryBundleGalleryView() {
                             </div>
                           )}
                         </div>
-                        {card.sanitizedDescription ? (
-                          <div
-                            data-story-bundle-gallery-card-description
-                            className="mari-prose prose-sm pointer-events-none max-h-20 overflow-hidden text-[0.6875rem] leading-4 text-[var(--marinara-chat-chrome-panel-muted)] sm:max-h-24 sm:text-xs sm:leading-5"
-                            dangerouslySetInnerHTML={{ __html: card.sanitizedDescription }}
-                          />
-                        ) : null}
                         {bundle.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 sm:gap-1.5">
                             {bundle.tags.slice(0, 2).map((tag) => (
@@ -637,7 +627,7 @@ export function StoryBundleGalleryView() {
                             }}
                             disabled={startingConvoId === bundle.id}
                             style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.conversation } as CSSProperties}
-                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
+                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold sm:text-[0.625rem] !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
                             title={t("storyBundles.convoTitle", "Start a conversation from this story bundle")}
                           >
                             {startingConvoId === bundle.id ? (
@@ -660,7 +650,7 @@ export function StoryBundleGalleryView() {
                             }}
                             disabled={playingId === bundle.id}
                             style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.roleplay } as CSSProperties}
-                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
+                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold sm:text-[0.625rem] !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
                             title={t("storyBundles.playTitle", "Start roleplay from this story bundle")}
                           >
                             {playingId === bundle.id ? (
@@ -684,7 +674,7 @@ export function StoryBundleGalleryView() {
                             disabled={startingGmId === bundle.id}
                             data-testid={`story-bundle-gallery-card-mode-game-${bundle.id}`}
                             style={{ "--home-chat-mode-accent": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}
-                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
+                            className="mari-chrome-control mari-chrome-control--small justify-center gap-1 px-1 py-1 text-[0.5625rem] font-bold sm:text-[0.625rem] !border-[color-mix(in_srgb,var(--home-chat-mode-accent)_35%,var(--border))] !bg-[color-mix(in_srgb,var(--home-chat-mode-accent)_7%,var(--card))] hover:!border-[color-mix(in_srgb,var(--home-chat-mode-accent)_66%,var(--border))] hover:!shadow-[0_10px_24px_-16px_var(--home-chat-mode-accent)] focus-visible:!ring-[var(--home-chat-mode-accent)] active:!border-[var(--home-chat-mode-accent)]"
                             title={t("storyBundles.gmTitle", "Start a Game Mode session from this story bundle")}
                           >
                             {startingGmId === bundle.id ? (

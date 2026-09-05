@@ -84,7 +84,7 @@ test.describe("Story Bundle Gallery — Loading & Cards", () => {
     }
   });
 
-  test("card shows the description rendered as safe HTML", async ({ page }) => {
+  test("detail card shows the description rendered as safe HTML", async ({ page }) => {
     const api = new StoryBundleAPI(page);
     const bundle = await importStoryBundleFixture(
       page,
@@ -94,14 +94,14 @@ test.describe("Story Bundle Gallery — Loading & Cards", () => {
 
     try {
       const gallery = await openGallery(page);
-      const card = gallery.cardLocator(bundle.name);
-      const description = card.locator("[data-story-bundle-gallery-card-description]");
+      await gallery.clickCard(bundle.name);
+      const description = gallery.detail.locator("[data-story-bundle-gallery-detail-description]");
       await expect(description).toBeVisible();
 
       // The HTML is rendered: the heading text is visible as a real element…
       await expect(description.getByRole("heading", { name: "Chapter One" })).toBeVisible();
       // …and the raw markup is NOT shown as text.
-      await expect(card.getByText("<h1>Chapter One</h1>")).toHaveCount(0);
+      await expect(gallery.detail.getByText("<h1>Chapter One</h1>")).toHaveCount(0);
     } finally {
       await api.delete(bundle.id);
     }
