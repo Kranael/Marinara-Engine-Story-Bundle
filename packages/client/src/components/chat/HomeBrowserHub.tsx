@@ -28,6 +28,7 @@ import {
   ExternalLink,
   GripVertical,
   Heart,
+  Layers,
   LibraryBig,
   MessageCircle,
   NotebookPen,
@@ -2615,30 +2616,31 @@ export function HomeBrowserHub({
                     <button
                       type="button"
                       onClick={() => useUIStore.getState().openStoryBundleGallery()}
-                      className="group flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-bold text-[var(--foreground)] shadow-sm transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--foreground)_30%,var(--border))] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transform-none"
+                      className="group relative flex items-center gap-2 overflow-hidden rounded-xl px-4 py-2 text-sm font-bold text-white shadow-sm transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] motion-reduce:transform-none"
+                      style={
+                        {
+                          "--sb-convo": HOME_CHAT_MODE_ACCENTS.conversation,
+                          "--sb-rp": HOME_CHAT_MODE_ACCENTS.roleplay,
+                          "--sb-game": HOME_CHAT_MODE_ACCENTS.game,
+                          background:
+                            "linear-gradient(90deg, color-mix(in_srgb, var(--sb-convo) 14%, transparent), color-mix(in_srgb, var(--sb-rp) 14%, transparent) 50%, color-mix(in_srgb, var(--sb-game) 14%, transparent))",
+                        } as CSSProperties
+                      }
                       aria-label={t("home.hero.storyBundlesLabel")}
                     >
-                      <span className="flex items-center gap-1.5">
-                        <span
-                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--sb-convo)_42%,var(--border))] bg-[color-mix(in_srgb,var(--sb-convo)_16%,var(--card))] text-[var(--sb-convo)]"
-                          style={{ "--sb-convo": HOME_CHAT_MODE_ACCENTS.conversation } as CSSProperties}
-                        >
-                          <ChatModeIcon mode="conversation" size="0.9rem" className="mari-rgb-static-icon" />
-                        </span>
-                        <span
-                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--sb-rp)_42%,var(--border))] bg-[color-mix(in_srgb,var(--sb-rp)_16%,var(--card))] text-[var(--sb-rp)]"
-                          style={{ "--sb-rp": HOME_CHAT_MODE_ACCENTS.roleplay } as CSSProperties}
-                        >
-                          <ChatModeIcon mode="roleplay" size="0.9rem" className="mari-rgb-static-icon" />
-                        </span>
-                        <span
-                          className="flex h-6 w-6 items-center justify-center rounded-md border border-[color-mix(in_srgb,var(--sb-game)_42%,var(--border))] bg-[color-mix(in_srgb,var(--sb-game)_16%,var(--card))] text-[var(--sb-game)]"
-                          style={{ "--sb-game": HOME_CHAT_MODE_ACCENTS.game } as CSSProperties}
-                        >
-                          <ChatModeIcon mode="game" size="0.9rem" className="mari-rgb-static-icon" />
-                        </span>
-                      </span>
-                      <span>{t("home.hero.storyBundlesLabel")}</span>
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 rounded-xl p-px"
+                        style={{
+                          background:
+                            "linear-gradient(90deg, color-mix(in_srgb, var(--sb-convo) 55%, transparent), color-mix(in_srgb, var(--sb-rp) 55%, transparent) 50%, color-mix(in_srgb, var(--sb-game) 55%, transparent))",
+                          WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                          WebkitMaskComposite: "xor",
+                          maskComposite: "exclude",
+                        }}
+                      />
+                      <Layers size="1rem" className="relative shrink-0" aria-hidden="true" />
+                      <span className="relative">{t("home.hero.storyBundlesLabel")}</span>
                     </button>
                   </div>
                   <div className="grid w-full max-w-md grid-cols-3 gap-2" aria-label={t("home.shortcuts.label")}>
