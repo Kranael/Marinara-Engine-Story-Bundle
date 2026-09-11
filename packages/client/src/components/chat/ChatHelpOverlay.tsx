@@ -13,6 +13,7 @@ import {
   Pencil,
   Play,
   RefreshCw,
+  Reply,
   ScrollText,
   Search,
   Shield,
@@ -274,10 +275,20 @@ const TARGETS_BY_MODE: Record<ChatMode, HelpTargetDefinition[]> = {
 const TARGET_PADDING = 5;
 const HIGHLIGHT_GAP = 5;
 const MOBILE_TOOLBAR_HIGHLIGHT_SIZE = 32;
+const PADDED_TARGET_IDS = new Set<HelpTargetId>([
+  "agents",
+  "messages",
+  "composer",
+  "map",
+  "party",
+  "widgets",
+  "dialogue",
+]);
 
 const ACTIONS_BY_MODE: Record<ChatMode, HelpActionDefinition[]> = {
   conversation: [
     { icon: Copy, labelKey: "chat.help.actions.copy" },
+    { icon: Reply, labelKey: "chat.help.actions.reply" },
     { icon: SmilePlus, labelKey: "chat.help.actions.react" },
     { icon: Languages, labelKey: "chat.help.actions.translate" },
     { icon: Pencil, labelKey: "chat.help.actions.edit" },
@@ -331,13 +342,45 @@ function unionRects(rects: Rect[]): Rect | null {
   return { top, left, width: right - left, height: bottom - top };
 }
 
+function querySelectorAllDeep(root: Document | ShadowRoot | Element, selector: string): Element[] {
+  const matches = Array.from(root.querySelectorAll(selector));
+  if (root instanceof Element && root.shadowRoot) {
+    matches.push(...querySelectorAllDeep(root.shadowRoot, selector));
+  }
+  for (const element of root.querySelectorAll("*")) {
+    const shadowRoot = (element as HTMLElement).shadowRoot;
+    if (shadowRoot) matches.push(...querySelectorAllDeep(shadowRoot, selector));
+  }
+  return matches;
+}
+
+function closestDeep(element: Element, selector: string): Element | null {
+  let current: Element | null = element;
+  while (current) {
+    const match = current.closest(selector);
+    if (match) return match;
+    const root = current.getRootNode();
+    current = root instanceof ShadowRoot ? root.host : null;
+  }
+  return null;
+}
+
+function visibleInteractiveElements(element: Element): HTMLElement[] {
+  const descendants = querySelectorAllDeep(element, "button, [role='button'], input, textarea") as HTMLElement[];
+  const candidates = element.matches("button, [role='button'], input, textarea")
+    ? [element as HTMLElement, ...descendants]
+    : descendants;
+  return candidates.filter((candidate) => {
+    const rect = candidate.getBoundingClientRect();
+    return rect.width > 1 && rect.height > 1;
+  });
+}
+
 function readVisibleRect(element: Element, preferInteractive = false): Rect | null {
   const ownRect = rectFromDomRect((element as HTMLElement).getBoundingClientRect());
   if (!preferInteractive && ownRect.width > 1 && ownRect.height > 1) return ownRect;
 
-  const interactive = element.matches("button, [role='button'], input, textarea")
-    ? [element as HTMLElement]
-    : Array.from(element.querySelectorAll<HTMLElement>("button, [role='button'], input, textarea"));
+  const interactive = visibleInteractiveElements(element);
   const interactiveRects = interactive
     .map((child) => rectFromDomRect(child.getBoundingClientRect()))
     .filter((rect) => rect.width > 1 && rect.height > 1);
@@ -350,12 +393,10 @@ function readVisibleRect(element: Element, preferInteractive = false): Rect | nu
 
 function normalizeMobileToolbarRect(element: Element, rect: Rect): Rect {
   if (window.innerWidth >= 768) return rect;
-  const interactive = element.matches("button, [role='button']")
-    ? (element as HTMLElement)
-    : Array.from(element.querySelectorAll<HTMLElement>("button, [role='button']")).find(
-        (candidate) => candidate.getBoundingClientRect().width > 1,
-      );
-  if (!interactive?.closest("[data-chat-toolbar-overflow-menu]")) return rect;
+  const interactive = visibleInteractiveElements(element).find((candidate) =>
+    candidate.matches("button, [role='button']"),
+  );
+  if (!interactive || !closestDeep(interactive, "[data-chat-toolbar-overflow-menu]")) return rect;
 
   const interactiveRect = rectFromDomRect(interactive.getBoundingClientRect());
   return {
@@ -389,11 +430,7 @@ function findTargetRect(definition: HelpTargetDefinition, root: HTMLElement, mod
     const composer = root.querySelector<HTMLElement>("[data-chat-composer]");
     const composerShell = composer?.closest<HTMLElement>("[data-chat-resource-drop-exclude]") ?? composer;
     const composerRect = composerShell ? readVisibleRect(composerShell) : null;
-    const topControls = Array.from(
-      root.querySelectorAll<HTMLElement>(
-        '[data-chat-help="identity"], [data-roleplay-top-controls="right"], [data-chat-help="agents"]',
-      ),
-    )
+    const topControls = Array.from(root.querySelectorAll<HTMLElement>("[data-chat-help]"))
       .map((element) => readVisibleRect(element, true))
       .filter((rect): rect is Rect => rect !== null);
     const top = Math.max(scrollRect.top + 8, ...topControls.map((rect) => rect.top + rect.height + 8));
@@ -413,7 +450,13 @@ function findTargetRect(definition: HelpTargetDefinition, root: HTMLElement, mod
 
   if (!definition.selector) return null;
   const preferInteractive = definition.selector.startsWith("[data-chat-help=");
-  const rects = Array.from(document.querySelectorAll(definition.selector))
+  const elements = [
+    ...new Set([
+      ...querySelectorAllDeep(root, definition.selector),
+      ...querySelectorAllDeep(document, definition.selector),
+    ]),
+  ];
+  const rects = elements
     .map((element) => {
       const rect = readVisibleRect(element, preferInteractive);
       return rect ? normalizeMobileToolbarRect(element, rect) : null;
@@ -431,7 +474,10 @@ function expandRectWithin(rect: Rect, bounds: Rect, padding: number): Rect {
 }
 
 function separateHighlightRects(targets: MeasuredTarget[], bounds: Rect, padding = TARGET_PADDING): MeasuredTarget[] {
-  const separated = targets.map((target) => ({ ...target, rect: expandRectWithin(target.rect, bounds, padding) }));
+  const separated = targets.map((target) => ({
+    ...target,
+    rect: expandRectWithin(target.rect, bounds, PADDED_TARGET_IDS.has(target.id) ? padding : 0),
+  }));
   for (let firstIndex = 0; firstIndex < separated.length; firstIndex += 1) {
     for (let secondIndex = firstIndex + 1; secondIndex < separated.length; secondIndex += 1) {
       const first = separated[firstIndex]!;
@@ -501,7 +547,7 @@ function measureTargets(mode: ChatMode) {
   });
   const mobileOverflowRect =
     window.innerWidth < 768
-      ? Array.from(document.querySelectorAll<HTMLElement>("[data-chat-toolbar-overflow-menu]"))
+      ? querySelectorAllDeep(document, "[data-chat-toolbar-overflow-menu]")
           .map((element) => readVisibleRect(element))
           .find((rect): rect is Rect => rect !== null)
       : null;
@@ -518,7 +564,34 @@ function measureTargets(mode: ChatMode) {
     });
   }
   const highlightPadding = window.innerWidth < 768 ? 0 : TARGET_PADDING;
-  return { rootRect, targets: rootRect ? separateHighlightRects(targets, rootRect, highlightPadding) : targets };
+  if (!rootRect) return { rootRect, targets };
+
+  const fixedMobileToolbarRects = new Map(
+    mobileOverflowRect
+      ? targets
+          .filter((target) => {
+            const centerX = target.rect.left + target.rect.width / 2;
+            const centerY = target.rect.top + target.rect.height / 2;
+            return (
+              centerX >= mobileOverflowRect.left &&
+              centerX <= mobileOverflowRect.left + mobileOverflowRect.width &&
+              centerY >= mobileOverflowRect.top &&
+              centerY <= mobileOverflowRect.top + mobileOverflowRect.height &&
+              target.rect.width === MOBILE_TOOLBAR_HIGHLIGHT_SIZE &&
+              target.rect.height === MOBILE_TOOLBAR_HIGHLIGHT_SIZE
+            );
+          })
+          .map((target) => [target.id, target.rect] as const)
+      : [],
+  );
+  const separated = separateHighlightRects(targets, rootRect, highlightPadding);
+  return {
+    rootRect,
+    targets: separated.map((target) => ({
+      ...target,
+      rect: fixedMobileToolbarRects.get(target.id) ?? target.rect,
+    })),
+  };
 }
 
 function getLegendStyle(rootRect: Rect): CSSProperties {
@@ -769,7 +842,7 @@ export function ChatHelpOverlay({
           <mask id={maskId} maskUnits="userSpaceOnUse">
             <rect x={rootRect.left} y={rootRect.top} width={rootRect.width} height={rootRect.height} fill="white" />
             {targets.map(({ id, rect }) => (
-              <rect key={id} x={rect.left} y={rect.top} width={rect.width} height={rect.height} rx="10" fill="black" />
+              <rect key={id} x={rect.left} y={rect.top} width={rect.width} height={rect.height} rx="8" fill="black" />
             ))}
           </mask>
         </defs>
@@ -790,7 +863,7 @@ export function ChatHelpOverlay({
           key={target.id}
           data-chat-help-highlight={target.id}
           className={cn(
-            "fixed rounded-[0.625rem] bg-transparent ring-2 ring-[var(--marinara-chat-chrome-focus-ring)] shadow-[0_0_18px_color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_45%,transparent)] outline-none transition-[box-shadow,background-color] duration-150 focus-visible:bg-[color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_9%,transparent)] focus-visible:shadow-[0_0_30px_color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_72%,transparent)]",
+            "fixed rounded-lg bg-transparent ring-2 ring-[var(--marinara-chat-chrome-focus-ring)] shadow-[0_0_18px_color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_45%,transparent)] outline-none transition-[box-shadow,background-color] duration-150 focus-visible:bg-[color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_9%,transparent)] focus-visible:shadow-[0_0_30px_color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_72%,transparent)]",
             mobile
               ? "cursor-pointer"
               : "cursor-help hover:bg-[color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_9%,transparent)] hover:shadow-[0_0_30px_color-mix(in_srgb,var(--marinara-chat-chrome-focus-ring)_72%,transparent)]",

@@ -19,12 +19,15 @@ import {
   inferImageSource,
   inferVideoSource,
   isLocalAuthProvider,
+  isOpenAIGpt6AstraModel,
   localAuthProviderBaseUrl,
   normalizeVideoGenerationProfile,
 } from "@marinara-engine/shared";
 import { createConnectionsStorage } from "../services/storage/connections.storage.js";
+import { canRefreshLocalContext, fetchLocalContextLimit } from "../services/llm/local-context-limit.js";
 import { resetMemoryRecallVectorizerCache } from "../services/memory-recall-embedding.js";
 import { createLLMProvider } from "../services/llm/provider-registry.js";
+import { resolveStoredChatOptions, resolveStoredMaxTokens } from "../services/generation/generation-parameters.js";
 import { fetchOpenAIChatGPTModels, getOpenAIChatGPTAuth } from "../services/llm/openai-chatgpt-auth.js";
 import { fetchGrokCliModels } from "../services/llm/providers/grok-subscription.provider.js";
 import {
@@ -134,6 +137,7 @@ function usesResponsesEndpointForTestMessage(provider: string, model: string): b
   if (!isOpenAICompatibleProvider(provider) || provider === "custom") return false;
   const normalized = model.toLowerCase();
   return (
+    isOpenAIGpt6AstraModel(normalized) ||
     normalized.startsWith("gpt-5.6") ||
     normalized.startsWith("gpt-5.5") ||
     normalized.startsWith("gpt-5.4") ||
@@ -402,6 +406,26 @@ export async function connectionsRoutes(app: FastifyInstance) {
 
   app.get("/", async () => {
     return storage.list();
+  });
+
+  app.post("/refresh-local-context", async () => {
+    const candidates = (await storage.list()).filter(canRefreshLocalContext);
+    const updated: string[] = [];
+    // Each connection makes four bounded metadata probes; keep only three connections active at once.
+    for (let index = 0; index < candidates.length; index += 3) {
+      await Promise.all(
+        candidates.slice(index, index + 3).map(async (candidate) => {
+          const connection = await storage.getWithKey(candidate.id);
+          if (!connection) return;
+          const maxContext = await fetchLocalContextLimit(connection);
+          if (maxContext === null || maxContext === connection.maxContext) return;
+          if (await storage.updateContextIfUnchanged(connection, maxContext)) {
+            updated.push(connection.id);
+          }
+        }),
+      );
+    }
+    return { updated };
   });
 
   app.get<{ Params: { filename: string } }>("/images/file/:filename", async (req, reply) => {
@@ -1519,11 +1543,13 @@ export async function connectionsRoutes(app: FastifyInstance) {
         conn.id,
       );
 
+      const storedOptions = resolveStoredChatOptions(conn.defaultParameters, conn.provider, model);
       let fullResponse = "";
       for await (const chunk of provider.chat([{ role: "user", content: "hi" }], {
         model,
-        temperature: 0.7,
-        maxTokens: 200,
+        ...storedOptions,
+        temperature: storedOptions.temperature ?? 0.7,
+        maxTokens: resolveStoredMaxTokens(conn.defaultParameters, 200),
         stream: false,
       })) {
         fullResponse += chunk;

@@ -84,3 +84,6 @@ docker-compose.override.yaml
 
 # Test Data for Story Bundle
 !tests/story-bundle/*
+
+# MCP
+.playwright-mcp

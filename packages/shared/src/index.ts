@@ -5,11 +5,14 @@
 // Types
 export * from "./types/tts.js";
 export * from "./types/chat.js";
+export * from "./types/roleplay-command.js";
 export * from "./types/spotify.js";
 export * from "./types/character.js";
+export * from "./types/character-catalog.js";
 export * from "./types/lorebook.js";
 export * from "./types/prompt.js";
 export * from "./types/connection.js";
+export * from "./utils/openai-image.js";
 export * from "./types/agent.js";
 export * from "./types/game-state.js";
 export * from "./types/combat-encounter.js";
@@ -23,6 +26,7 @@ export * from "./types/theme.js";
 export * from "./types/chat-preset.js";
 export * from "./types/game.js";
 export * from "./types/sidecar.js";
+export * from "./types/utility-sidecar.js";
 export * from "./types/image-generation-defaults.js";
 export * from "./types/video-generation-defaults.js";
 export * from "./types/video-generation-settings.js";
@@ -61,6 +65,7 @@ export * from "./schemas/noodle.schema.js";
 export * from "./schemas/avatar-crop.schema.js";
 export * from "./schemas/spatial-context.schema.js";
 export * from "./schemas/capability-package.schema.js";
+export * from "./schemas/gm-verb-table.schema.js";
 export * from "./schemas/personal-extension.schema.js";
 export * from "./schemas/folder.schema.js";
 export * from "./schemas/scene-analysis.schema.js";
@@ -92,6 +97,7 @@ export * from "./constants/achievements.js";
 export * from "./constants/tracker-custom-field-icons.js";
 export * from "./constants/stat-icons.js";
 export * from "./constants/docs-languages.js";
+export * from "./constants/mari-permissions-mode.js";
 
 // Feature registries
 export * from "./features/agents/agent-manifest.types.js";
@@ -119,14 +125,18 @@ export * from "./features/tactical-combat/index.js";
 
 // Utils
 export * from "./utils/macro-engine.js";
+export * from "./utils/ui-locales.js";
 export * from "./utils/xml-wrapper.js";
 export * from "./utils/music-score.js";
 export * from "./utils/agent-cost.js";
 export * from "./utils/regex-replacement.js";
 export * from "./utils/skill-check-format.js";
+export * from "./utils/skill-check-tag.js";
+export * from "./utils/agent-output.js";
 export * from "./utils/generation-guide.js";
 export * from "./utils/lorebook-keyword-matching.js";
 export * from "./utils/regex-safety.js";
+export * from "./utils/regex-scoping.js";
 export * from "./utils/game-state-text.js";
 export * from "./utils/custom-tracker-fields.js";
 export * from "./utils/illustrator-generation-count.js";
@@ -156,3 +166,4 @@ export * from "./utils/noodle-interactions.js";
 export * from "./utils/noodle-unseen.js";
 export * from "./utils/spatial-context.js";
 export * from "./utils/inventory-tracker-rows.js";
+export * from "./utils/dice-notation.js";

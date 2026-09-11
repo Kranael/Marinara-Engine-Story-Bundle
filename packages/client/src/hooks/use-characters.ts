@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { api } from "../lib/api-client";
+import { chatKeys } from "./use-chats";
 import type { ChatGalleryIndex } from "../lib/card-asset-links";
 import { useUIStore } from "../stores/ui.store";
 import {
@@ -26,6 +27,8 @@ import { personaCacheKeys, syncCachedPersona } from "../lib/persona-cache";
 import {
   PROFESSOR_MARI_ID,
   type CharacterData,
+  type CharacterCatalogEntry,
+  type CharacterCatalogPage,
   type CharacterCardVersion,
   type Persona,
   type PersonaCardVersion,
@@ -123,7 +126,7 @@ export function useCharacterPages(options: {
   return useInfiniteQuery({
     queryKey: characterKeys.page(includeBuiltIn, search, sort, favoriteFilter),
     initialPageParam: 0,
-    queryFn: ({ pageParam }) => {
+    queryFn: ({ pageParam, signal }) => {
       const params = new URLSearchParams({
         limit: String(LIBRARY_PAGE_SIZE),
         offset: String(Number(pageParam) || 0),
@@ -132,9 +135,37 @@ export function useCharacterPages(options: {
       if (search) params.set("search", search);
       if (sort) params.set("sort", sort);
       if (favoriteFilter) params.set("favoriteFilter", favoriteFilter);
-      return api.get<PaginatedList<Record<string, unknown>>>(`/characters?${params.toString()}`);
+      return api.get<CharacterCatalogPage>(`/characters/catalog?${params.toString()}`, { signal });
     },
     getNextPageParam: getNextPageOffset,
+    placeholderData: (previousData) => previousData,
+    enabled,
+    staleTime: 5 * 60_000,
+  });
+}
+
+/** Compact character rows for surfaces that need search and navigation only. */
+export function useAllCharacterCatalog(enabled = true) {
+  return useQuery({
+    queryKey: [...characterKeys.list(), "catalog", "all"] as const,
+    queryFn: async ({ signal }) => {
+      const items: CharacterCatalogEntry[] = [];
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        items.length = 0;
+        let offset = 0;
+        let generation: number | undefined;
+        while (true) {
+          const params = new URLSearchParams({ limit: String(LIBRARY_PAGE_SIZE), offset: String(offset) });
+          const page = await api.get<CharacterCatalogPage>(`/characters/catalog?${params.toString()}`, { signal });
+          generation ??= page.catalogGeneration;
+          if (page.catalogGeneration !== generation) break;
+          items.push(...page.items);
+          if (!page.hasMore) return items;
+          offset += page.limit;
+        }
+      }
+      throw new Error("Character catalog changed repeatedly while loading.");
+    },
     enabled,
     staleTime: 5 * 60_000,
   });
@@ -250,6 +281,59 @@ export function useUpdateCharacter() {
   });
 }
 
+export interface CharacterSummaryDraft {
+  name?: string;
+  description?: string;
+  personality?: string;
+  scenario?: string;
+  backstory?: string;
+}
+
+/** Shared by the editor's single Generate action and the library's bulk run. */
+export function generateCharacterSummary(id: string, draft?: CharacterSummaryDraft) {
+  return api.post<{ summary: string }>(`/characters/${encodeURIComponent(id)}/summary/generate`, {
+    debugMode: useUIStore.getState().debugMode,
+    draft,
+  });
+}
+
+export function useGenerateCharacterSummary() {
+  return useMutation({
+    mutationFn: ({ id, draft }: { id: string; draft?: CharacterSummaryDraft }) => generateCharacterSummary(id, draft),
+  });
+}
+
+export type CharacterConvoProfileTarget = "aboutMe" | "behavior";
+
+export interface CharacterConvoProfileDraft {
+  name?: string;
+  description?: string;
+  personality?: string;
+  scenario?: string;
+  backstory?: string;
+  appearance?: string;
+}
+
+/** Generates one Conversation profile field from the current character card draft. */
+export function useGenerateCharacterConvoProfile() {
+  return useMutation({
+    mutationFn: ({
+      id,
+      target,
+      draft,
+    }: {
+      id: string;
+      target: CharacterConvoProfileTarget;
+      draft: CharacterConvoProfileDraft;
+    }) =>
+      api.post<{ text: string }>(`/characters/${encodeURIComponent(id)}/convo-profile/generate`, {
+        target,
+        draft,
+        debugMode: useUIStore.getState().debugMode,
+      }),
+  });
+}
+
 export function useCharacterVersions(id: string | null) {
   return useQuery({
     queryKey: characterKeys.versions(id ?? ""),
@@ -338,6 +422,8 @@ export function useDeleteCharacter() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: characterKeys.list() });
       qc.invalidateQueries({ queryKey: characterKeys.summariesRoot() });
+      qc.invalidateQueries({ queryKey: characterKeys.groups });
+      qc.invalidateQueries({ queryKey: chatKeys.all });
     },
   });
 }
@@ -523,6 +609,27 @@ export function useDeleteSprite() {
   return useMutation({
     mutationFn: ({ characterId, expression }: { characterId: string; expression: string }) =>
       api.delete(`/sprites/${characterId}/${expression}`),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: spriteKeys.list(variables.characterId) });
+    },
+  });
+}
+
+export function useRenameSprite() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      characterId,
+      expression,
+      nextExpression,
+    }: {
+      characterId: string;
+      expression: string;
+      nextExpression: string;
+    }) =>
+      api.patch<SpriteInfo>(`/sprites/${characterId}/${encodeURIComponent(expression)}`, {
+        expression: nextExpression,
+      }),
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: spriteKeys.list(variables.characterId) });
     },

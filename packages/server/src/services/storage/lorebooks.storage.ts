@@ -208,7 +208,15 @@ function parseEntryRow(row: Record<string, unknown>) {
     dynamicState: JSON.parse((row.dynamicState as string) || "{}"),
     activationConditions: JSON.parse((row.activationConditions as string) || "[]"),
     schedule: row.schedule ? JSON.parse(row.schedule as string) : null,
-    embedding: row.embedding ? JSON.parse(row.embedding as string) : null,
+    // Unprojected selects receive the original JSON string; a projected
+    // select would surface the store's packed Float64Array (#5592) — accept
+    // both so no read path depends on which shape it got.
+    embedding:
+      row.embedding instanceof Float64Array
+        ? Array.from(row.embedding)
+        : row.embedding
+          ? JSON.parse(row.embedding as string)
+          : null,
     embeddingSpaceId: (row.embeddingSpaceId as string | null | undefined) ?? null,
   };
 }
@@ -648,9 +656,10 @@ export function createLorebooksStorage(db: DB) {
      */
     async listEligibleEntriesByIds(
       entryIds: string[],
-      filters?: { excludedLorebookIds?: string[]; excludedSourceAgentIds?: string[] },
+      filters?: { excludedLorebookIds?: string[]; excludedSourceAgentIds?: string[]; unlimited?: boolean },
     ): Promise<LorebookEntry[]> {
-      const requestedIds = uniqueStrings(entryIds).slice(0, LIMITS.MAX_LOREBOOK_ENTRIES);
+      const ids = uniqueStrings(entryIds);
+      const requestedIds = filters?.unlimited ? ids : ids.slice(0, LIMITS.MAX_LOREBOOK_ENTRIES);
       if (requestedIds.length === 0) return [];
 
       const entryRows = await db

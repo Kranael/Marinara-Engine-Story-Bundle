@@ -44,7 +44,7 @@ import {
   getWorldTimeDisplay,
   type WorldWeatherFamily,
 } from "../../lib/world-state-helpers";
-import { TrackerLockProvider } from "../../features/tracker-panel/components/TrackerLockContext";
+import { TrackerLockProvider, useTrackerLockContext } from "../../features/tracker-panel/components/TrackerLockContext";
 import { buildInventoryTrackerEditPatch } from "../../features/tracker-panel/lib/inventory-tracker-edit";
 import { useTrackerFieldLockUpdater } from "../../features/tracker-panel/hooks/use-tracker-field-lock-updater";
 import { NEUTRAL_PANEL_SCROLL_AREA, NEUTRAL_PANEL_SHELL } from "../ui/neutral-surface-styles";
@@ -316,6 +316,8 @@ export function RoleplayHUD({
             packageId={item.id}
             chatId={chatId}
             compact={mobileCompact}
+            onRerunSingleTracker={onRerunSingleTracker}
+            isTrackerRetryBusy={isTrackerBusy}
           />
         ))}
 
@@ -406,6 +408,8 @@ export function RoleplayHUD({
                 packageId={item.id}
                 chatId={chatId}
                 compact
+                onRerunSingleTracker={onRerunSingleTracker}
+                isTrackerRetryBusy={isTrackerBusy}
               />
             ))}
 
@@ -496,7 +500,13 @@ export function RoleplayHUD({
             )}
 
             {memoryNagTrackerPackages.map((item) => (
-              <RoleplayTrackerCapability key={`${item.id}-roleplay-tracker`} packageId={item.id} chatId={chatId} />
+              <RoleplayTrackerCapability
+                key={`${item.id}-roleplay-tracker`}
+                packageId={item.id}
+                chatId={chatId}
+                onRerunSingleTracker={onRerunSingleTracker}
+                isTrackerRetryBusy={isTrackerBusy}
+              />
             ))}
 
             {enabledAgentTypes.has("custom-tracker") && (
@@ -509,7 +519,13 @@ export function RoleplayHUD({
             )}
 
             {otherRoleplayTrackerPackages.map((item) => (
-              <RoleplayTrackerCapability key={`${item.id}-roleplay-tracker`} packageId={item.id} chatId={chatId} />
+              <RoleplayTrackerCapability
+                key={`${item.id}-roleplay-tracker`}
+                packageId={item.id}
+                chatId={chatId}
+                onRerunSingleTracker={onRerunSingleTracker}
+                isTrackerRetryBusy={isTrackerBusy}
+              />
             ))}
 
             {/* Manual tracker trigger button (desktop) */}
@@ -549,26 +565,37 @@ function RoleplayTrackerCapability({
   packageId,
   chatId,
   compact = false,
+  onRerunSingleTracker,
+  isTrackerRetryBusy,
 }: {
   packageId: string;
   chatId: string;
   compact?: boolean;
+  onRerunSingleTracker?: (agentType: string) => void;
+  isTrackerRetryBusy?: boolean;
 }) {
+  const { lockMode, onSetLockMode } = useTrackerLockContext();
   return (
-    <CapabilityElement
-      packageId={packageId}
-      view="toolbar"
-      capabilityProps={{
-        chatId,
-        chatMode: "roleplay",
-        mobileCompact: compact,
-        toolbarButtonClass: getChatToolbarButtonClass({
-          compact,
-          className: compact ? CHAT_TOOLBAR_MOBILE_OVERFLOW_HEIGHT_CLASS : undefined,
-        }),
-      }}
-      className="contents"
-    />
+    <span className="contents [&_button>svg]:!text-inherit">
+      <CapabilityElement
+        packageId={packageId}
+        view="toolbar"
+        capabilityProps={{
+          chatId,
+          chatMode: "roleplay",
+          mobileCompact: compact,
+          onRerunTracker: onRerunSingleTracker ? () => onRerunSingleTracker(packageId) : undefined,
+          trackerRetryBusy: isTrackerRetryBusy,
+          lockMode,
+          onToggleLockMode: onSetLockMode ? () => onSetLockMode(!lockMode) : undefined,
+          toolbarButtonClass: getChatToolbarButtonClass({
+            compact,
+            className: compact ? CHAT_TOOLBAR_MOBILE_OVERFLOW_HEIGHT_CLASS : undefined,
+          }),
+        }}
+        className="contents"
+      />
+    </span>
   );
 }
 
@@ -601,10 +628,7 @@ function TrackerPanelToggleButton({ onToggle }: { onToggle: () => void }) {
       title={localizeUi("ui.chat.trackerpaneltogglebutton.showTrackerPanel")}
       aria-label={localizeUi("ui.chat.trackerpaneltogglebutton.showTrackerPanel")}
     >
-      <TrackerPanelIcon
-        size="1.05rem"
-        className="mari-accent-animated shrink-0 text-[var(--marinara-app-accent-solid)]"
-      />
+      <TrackerPanelIcon size="1.05rem" className="shrink-0" />
       <span className="sr-only">{localizeUi("ui.panels.trackerpanelappearancedrawer.trackerPanel")}</span>
     </button>
   );
@@ -666,8 +690,11 @@ function ActionsGroup({
     const aboveTop = rect.top - dropdownHeight - 4;
     const preferredTop = belowTop + dropdownHeight > window.innerHeight - 8 ? aboveTop : belowTop;
     const top = Math.max(8, Math.min(preferredTop, window.innerHeight - dropdownHeight - 8));
-    const preferredLeft = window.innerWidth < 768 ? Math.round((window.innerWidth - dropdownWidth) / 2) : rect.left;
-    const left = Math.max(8, Math.min(preferredLeft, window.innerWidth - dropdownWidth - 8));
+    // Center with layout coordinates: the panel's entrance animation owns transform.
+    const left =
+      window.innerWidth < 768
+        ? Math.max(8, Math.round((window.innerWidth - dropdownWidth) / 2))
+        : Math.max(8, Math.min(rect.left, window.innerWidth - dropdownWidth - 8));
     return { top, left };
   }, []);
 
@@ -1270,11 +1297,11 @@ function InventoryTrackerWidget({
         className={WIDGET}
         title={localizeUi("ui.chat.inventoryTracker.title")}
       >
-        <Backpack
-          size="0.875rem"
-          className="mari-accent-animated text-[var(--marinara-app-accent-solid)] max-md:h-3 max-md:w-3"
-        />
-        {total > 0 && <span className="text-[0.5rem] font-semibold tabular-nums">{total}</span>}
+        {total > 0 ? (
+          <span className="text-[0.625rem] font-semibold tabular-nums">{total}</span>
+        ) : (
+          <Backpack size="0.875rem" className="max-md:h-3 max-md:w-3" />
+        )}
       </button>
       <WidgetPopover
         open={open}
@@ -1445,14 +1472,11 @@ function CombinedWorldWidget({
         title={localizeUi("ui.panels.appearancesettings.worldState")}
       >
         {!hasWorldState ? (
-          <MapPin
-            size="0.875rem"
-            className="mari-accent-animated shrink-0 text-[var(--marinara-app-accent-solid)] max-md:h-3.5 max-md:w-3.5"
-          />
+          <MapPin size="0.875rem" className="shrink-0 max-md:h-3.5 max-md:w-3.5" />
         ) : (
           <>
             {/* Location pin */}
-            <MapPin size="0.9375rem" className={cn("shrink-0 drop-shadow-sm", pinColor)} />
+            <MapPin size="0.9375rem" className="shrink-0 drop-shadow-sm" />
 
             {/* Mini calendar with day number */}
             <WorldCalendarIcon

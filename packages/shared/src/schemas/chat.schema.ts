@@ -8,12 +8,19 @@ export const chatModeSchema = z.enum(["conversation", "roleplay", "game"]);
 
 export const messageRoleSchema = z.enum(["user", "assistant", "system", "narrator"]);
 
+export const messageReplySchema = z.object({
+  messageId: z.string().min(1).max(200),
+  name: z.string().min(1).max(200),
+  content: z.string().min(1).max(16000),
+});
+
 export const createChatSchema = z.object({
   name: z.string().min(1).max(200),
   mode: chatModeSchema,
   characterIds: z.array(z.string()).default([]),
   groupId: z.string().nullable().default(null),
   personaId: z.string().nullable().default(null),
+  personaCharacterId: z.string().nullable().default(null),
   promptPresetId: z.string().nullable().default(null),
   connectionId: z.string().nullable().default(null),
 });
@@ -29,6 +36,7 @@ export const createMessageSchema = z.object({
 export const generateRequestSchema = z.object({
   chatId: z.string(),
   userMessage: z.string().nullable().default(null),
+  replyTo: messageReplySchema.optional(),
   submissionId: z.string().min(1).max(100).nullable().optional().default(null),
   regenerateMessageId: z.string().nullable().default(null),
   continueMessageId: z.string().nullable().default(null),

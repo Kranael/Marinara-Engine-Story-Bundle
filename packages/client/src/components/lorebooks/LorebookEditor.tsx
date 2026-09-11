@@ -101,6 +101,9 @@ import { LorebookFolderRow } from "./LorebookFolderRow";
 import { ExpandableTextarea, estimateTokens } from "./LorebookFormFields";
 import { ExportFormatDialog, type ExportFormatChoice } from "../ui/ExportFormatDialog";
 import { EditorTabNavigation } from "../ui/EditorTabNavigation";
+import { useEditorSections } from "../../hooks/use-editor-sections";
+import { useEditorLeaveSave } from "../../hooks/use-editor-leave-save";
+import { leaveWithoutSaving } from "../../lib/editor-leave";
 import { Modal } from "../ui/Modal";
 
 // ──────────────────────────────────────────────
@@ -493,6 +496,13 @@ export function LorebookEditor() {
     () => (useUIStore.getState().lorebookDetailInitialTab as TabId | null) ?? "overview",
   );
   const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null);
+  const newlyCreatedEntryRef = useRef<string | null>(null);
+  const { contentRef, scrollToSection } = useEditorSections(
+    lorebookId,
+    !isLoading,
+    (useUIStore.getState().lorebookDetailInitialTab as TabId | null) ?? "overview",
+    setActiveTab,
+  );
   const [lorebookDirty, setLorebookDirty] = useState(false);
   const formRevisionRef = useRef(0);
   const saveInFlightRef = useRef<Promise<boolean> | null>(null);
@@ -503,7 +513,16 @@ export function LorebookEditor() {
   }, [lorebookDirty, setEditorDirty]);
   const [saving, setSaving] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+
   const [entrySearch, setEntrySearch] = useState("");
+  useEffect(() => {
+    const id = newlyCreatedEntryRef.current;
+    if (!id) return;
+    const row = contentRef.current?.querySelector<HTMLElement>(`[data-lorebook-entry-row-id="${CSS.escape(id)}"]`);
+    if (!row) return;
+    row.scrollIntoView({ block: "start" });
+    newlyCreatedEntryRef.current = null;
+  }, [entries, expandedEntryId, contentRef]);
   const [entrySort, setEntrySort] = useState<EntrySortKey>("order");
   // Keyword-test panel state. The panel is collapsed by default so it doesn't
   // crowd the editor for users who don't need it. We debounce the text input
@@ -1562,6 +1581,8 @@ export function LorebookEditor() {
     localizeUi,
   ]);
 
+  useEditorLeaveSave(`lorebookDetailId:${lorebookId}`, lorebookDirty, handleSaveLorebook, saving);
+
   const handleAddEntry = useCallback(async () => {
     if (!lorebookId) return;
     const result = await createEntry.mutateAsync({
@@ -1573,8 +1594,9 @@ export function LorebookEditor() {
     });
     if (result && typeof result === "object" && "id" in result) {
       // Auto-expand the new entry's drawer so the user can fill it in.
+      newlyCreatedEntryRef.current = (result as LorebookEntry).id;
+      setEntrySearch("");
       setExpandedEntryId((result as LorebookEntry).id);
-      setActiveTab("entries");
     }
   }, [lorebookId, createEntry]);
 
@@ -1597,7 +1619,7 @@ export function LorebookEditor() {
     if (!lorebookId) return;
     if (isError) {
       toast.error(localizeUi("ui.lorebooks.lorebookeditor.lorebookNotFoundItMayHaveBeenDeleted"));
-      closeDetail();
+      leaveWithoutSaving(closeDetail);
     }
   }, [lorebookId, isError, closeDetail, localizeUi]);
 
@@ -1616,7 +1638,7 @@ export function LorebookEditor() {
       return;
     }
     await deleteLorebook.mutateAsync(lorebookId);
-    closeDetail();
+    leaveWithoutSaving(closeDetail);
   }, [closeDetail, deleteLorebook, lorebook?.name, lorebookId, localizeUi]);
 
   // ── Loading ──
@@ -1965,7 +1987,7 @@ export function LorebookEditor() {
         <EditorTabNavigation
           tabs={TABS}
           activeId={activeTab}
-          onChange={setActiveTab}
+          onChange={scrollToSection}
           getBadge={(tabId) => (tabId === "entries" ? entries.length : null)}
           tabTestId="lorebook-editor-tab"
         />
@@ -2017,9 +2039,9 @@ export function LorebookEditor() {
       {/* Body */}
       <div className="mari-editor-body">
         {/* Tab Content */}
-        <div className="mari-editor-content @max-5xl:p-4">
+        <div ref={contentRef} className="mari-editor-content @max-5xl:p-4">
           <div className="mari-editor-content-inner mari-editor-content-inner--wide">
-            {activeTab === "overview" && (
+            <section data-editor-section="overview">
               <div className="space-y-4">
                 {/* Name */}
                 <div className="mari-editor-panel p-3">
@@ -2489,9 +2511,8 @@ export function LorebookEditor() {
                   }}
                 />
               </div>
-            )}
-
-            {activeTab === "entries" && (
+            </section>
+            <section data-editor-section="entries">
               <div className="space-y-3">
                 {/* Keyword test — collapsible authoring aid (issue #816).
                     Paste sample chat text or a paragraph and the editor
@@ -2977,7 +2998,7 @@ export function LorebookEditor() {
                   </div>
                 )}
               </div>
-            )}
+            </section>
           </div>
         </div>
       </div>
