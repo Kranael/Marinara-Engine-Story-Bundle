@@ -1,3 +1,5 @@
+import { parseChoiceOptions, resolveChoiceVariableValue } from "@marinara-engine/shared";
+export { resolveChoiceVariableValue, type ChoiceOptionValue } from "@marinara-engine/shared";
 // ──────────────────────────────────────────────
 // Prompt Assembler — Orchestrator
 // Builds the final ChatML message array from a
@@ -21,6 +23,15 @@ import { sanitizePromptLeaf } from "./prompt-escaping.js";
 import { ensureLorebookScan, expandMarker, type MarkerContext } from "./marker-expander.js";
 import { hasSamePromptAudience, mergeAdjacentMessages, squashLeadingSystemMessages } from "./merger.js";
 import { injectAtDepth } from "../lorebook/prompt-injector.js";
+import {
+  ADVANCED_MEMORY_MARKER_TYPES,
+  createAdvancedMemoryPlacement,
+  guardAdvancedMemoryGroup,
+  isAdvancedMemoryMarker,
+  resolveAdvancedMemoryPrompt,
+  type AdvancedMemoryPlacement,
+  type AdvancedMemoryPromptParts,
+} from "./advanced-memory-prompt.js";
 import type { LorebookScanResult } from "../lorebook/index.js";
 import {
   buildReferencedCharacterContext,
@@ -38,82 +49,6 @@ interface RuntimeAgentData {
   text: string;
   startToken?: string;
   endToken?: string;
-}
-
-export interface ChoiceOptionValue {
-  value: string;
-}
-
-function parseChoiceOptions(options: string): ChoiceOptionValue[] {
-  try {
-    const parsed = JSON.parse(options) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.flatMap((option) =>
-      option && typeof option === "object" && typeof (option as { value?: unknown }).value === "string"
-        ? [{ value: (option as { value: string }).value }]
-        : [],
-    );
-  } catch {
-    return [];
-  }
-}
-
-function sanitizeChoiceSelection(
-  selected: string | string[] | undefined,
-  options: ChoiceOptionValue[],
-  isMulti: boolean,
-): string | string[] | undefined {
-  if (selected === undefined) return undefined;
-  const validValues = new Set(options.map((option) => option.value));
-  const candidates = Array.isArray(selected) ? selected : [selected];
-
-  if (isMulti) {
-    return candidates.filter((value, index) => validValues.has(value) && candidates.indexOf(value) === index);
-  }
-
-  return candidates.find((value) => validValues.has(value));
-}
-
-function readChoiceFlag(value: unknown): boolean {
-  return value === true || value === "true" || value === 1 || value === "1";
-}
-
-export function resolveChoiceVariableValue(input: {
-  selected: string | string[] | undefined;
-  options: ChoiceOptionValue[];
-  multiSelect: unknown;
-  randomPick: unknown;
-  separator?: string | null;
-  random?: () => number;
-}): string {
-  const isRandom = readChoiceFlag(input.randomPick);
-  // Imported or legacy presets can carry Boolean/number flags, and a Random
-  // Pick selection is necessarily multi-valued even if its companion flag was
-  // normalized incorrectly during an older migration.
-  const isMulti = readChoiceFlag(input.multiSelect) || (isRandom && Array.isArray(input.selected));
-
-  // An explicit empty selection is the user's OFF value. Only a missing value
-  // should fall back to the first option for legacy presets.
-  if (input.selected === "" || (Array.isArray(input.selected) && input.selected.length === 0)) return "";
-
-  const selected = sanitizeChoiceSelection(input.selected, input.options, isMulti);
-
-  if (isMulti && Array.isArray(selected)) {
-    if (selected.length === 0) return "";
-    if (isRandom) {
-      const random = input.random ?? Math.random;
-      const roll = random();
-      const unit = Number.isFinite(roll) ? Math.min(1, Math.max(0, roll)) : 0;
-      const index = Math.min(selected.length - 1, Math.floor(unit * selected.length));
-      return selected[index] ?? "";
-    }
-    return selected.join(input.separator || ", ");
-  }
-
-  if (selected !== undefined) {
-    return Array.isArray(selected) ? (selected[0] ?? "") : selected;
-  }
-  return input.options[0]?.value ?? "";
 }
 
 // ═══════════════════════════════════════════════
@@ -209,6 +144,10 @@ export interface AssemblerInput {
   lorebookScanMessages?: ChatMLMessage[];
   /** Current chat summary text (if any) */
   chatSummary?: string | null;
+  /** Presence enables advanced memory placement; values must already be audience-scoped. */
+  advancedMemory?: AdvancedMemoryPromptParts;
+  /** Leave opaque slots for per-responder finalization without repeating lorebook/macro side effects. */
+  deferAdvancedMemory?: boolean;
   /** Whether agents are enabled for this chat */
   enableAgents?: boolean;
   /** Per-chat list of active agent type IDs (empty = use global enabled state) */
@@ -285,9 +224,10 @@ export interface AssemblerOutput {
   lorebookScanResult?: LorebookScanResult;
   /** Agent types whose runtime data was consumed by enabled agent_data sections. */
   runtimeAgentTypesUsed?: string[];
+  advancedMemoryPlacements?: AdvancedMemoryPlacement[];
 }
 
-function parsePresetParameters(raw: string): GenerationParameters {
+export function parsePresetParameters(raw: string): GenerationParameters {
   let parsed: unknown = null;
   try {
     parsed = JSON.parse(raw) as unknown;
@@ -319,6 +259,8 @@ function parsePresetParameters(raw: string): GenerationParameters {
 
 export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOutput> {
   const wrapFormat = (input.preset.wrapFormat || "xml") as WrapFormat;
+  const chatSummary = input.advancedMemory ? null : (input.chatSummary ?? null);
+  const advancedMemoryPlacements: AdvancedMemoryPlacement[] = [];
   const parameters = parsePresetParameters(input.preset.parameters);
   const sectionOrder = JSON.parse(input.preset.sectionOrder) as string[];
   const variableValues = JSON.parse(input.preset.variableValues) as Record<string, string>;
@@ -389,7 +331,7 @@ export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOu
     timeZone: input.timeZone,
     macroSources: [
       ...enabledSectionContents,
-      input.chatSummary ?? "",
+      chatSummary ?? "",
       ...input.chatMessages.map((message) => message.content),
     ],
   });
@@ -402,7 +344,7 @@ export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOu
   const cardReferenceSources = [
     ...enabledSectionContents,
     ...Object.values(variableValues),
-    input.chatSummary ?? "",
+    chatSummary ?? "",
     input.personaDescription,
     ...personaReferenceSources,
     ...activeCharacterReferenceSources,
@@ -537,7 +479,8 @@ export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOu
     personaStats: input.personaStats,
     chatMessages: input.chatMessages,
     lorebookScanMessages: input.lorebookScanMessages,
-    chatSummary: input.chatSummary ?? null,
+    chatSummary,
+    advancedMemory: input.advancedMemory,
     wrapFormat,
     enableAgents: input.enableAgents ?? true,
     activeAgentIds: input.activeAgentIds ?? [],
@@ -588,6 +531,31 @@ export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOu
     if (section.groupId) {
       const group = groupMap.get(section.groupId);
       if (group && group.enabled !== "true") continue;
+    }
+
+    if (input.advancedMemory && section.isMarker === "true" && section.markerConfig) {
+      let markerType: MarkerConfig["type"] | undefined;
+      try {
+        markerType = (JSON.parse(section.markerConfig) as MarkerConfig).type;
+      } catch {
+        // Invalid sections follow the ordinary expansion error path below.
+      }
+      if (markerType && isAdvancedMemoryMarker(markerType)) {
+        if (advancedMemoryPlacements.some((placement) => placement.markerType === markerType)) continue;
+        const placement = createAdvancedMemoryPlacement(markerType, wrapFormat, section);
+        advancedMemoryPlacements.push(placement);
+        const resolved: ResolvedSection = {
+          id: section.id,
+          groupId: section.groupId,
+          role: placement.role,
+          depth: section.injectionDepth,
+          messages: [{ role: placement.role, content: placement.token, contextKind: "prompt" }],
+        };
+        (section.injectionPosition === "depth" && section.injectionDepth >= 0 ? depthSections : orderedSections).push(
+          resolved,
+        );
+        continue;
+      }
     }
 
     // Outlet macros can appear before a lorebook marker, or without one. Scan
@@ -674,7 +642,9 @@ export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOu
       const group = groupMap.get(section.groupId);
       if (group) {
         const groupMessages = buildGroupMessages(groupSections, group, wrapFormat);
-        messages.push(...groupMessages);
+        messages.push(
+          ...(input.advancedMemory ? guardAdvancedMemoryGroup(groupMessages, advancedMemoryPlacements) : groupMessages),
+        );
       } else {
         // Group not found — just add sections directly
         for (const gs of groupSections) {
@@ -698,12 +668,25 @@ export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOu
     });
   }
 
+  if (input.advancedMemory) {
+    const fallbackMessages = ADVANCED_MEMORY_MARKER_TYPES.filter(
+      (type) => !advancedMemoryPlacements.some((placement) => placement.markerType === type),
+    ).map((type) => {
+      const placement = createAdvancedMemoryPlacement(type, wrapFormat);
+      advancedMemoryPlacements.push(placement);
+      return { role: placement.role, content: placement.token, contextKind: "prompt" as const };
+    });
+    // Place fallbacks while history is still distinct: strict roles can merge it with an authored user section.
+    const historyIndex = messages.findIndex((message) => message.contextKind === "history");
+    messages.splice(historyIndex >= 0 ? historyIndex : messages.length, 0, ...fallbackMessages);
+  }
+
   // ── Phase 3: Adjacent same-role merging ──
   let finalMessages =
     input.deferMessagePostProcessing || !parameters.strictRoleFormatting ? messages : mergeAdjacentMessages(messages);
 
   // ── Phase 4: Squash leading system messages if enabled ──
-  if (parameters.squashSystemMessages) {
+  if (parameters.squashSystemMessages && !input.deferMessagePostProcessing) {
     finalMessages = squashLeadingSystemMessages(finalMessages);
   }
 
@@ -760,7 +743,11 @@ export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOu
   // ── Phase 7: Fallback chat summary injection ──
   // A chat_summary marker owns placement when present. Without one, enabled
   // summaries belong at the end of the system prompt block, before history.
-  if (!hasChatSummaryMarker) {
+  if (input.advancedMemory) {
+    if (!input.deferAdvancedMemory) {
+      finalMessages = resolveAdvancedMemoryPrompt(finalMessages, advancedMemoryPlacements, input.advancedMemory);
+    }
+  } else if (!hasChatSummaryMarker) {
     finalMessages = appendFallbackChatSummaryToSystemPrompt(
       finalMessages,
       markerCtx.chatSummary,
@@ -805,6 +792,7 @@ export async function assemblePrompt(input: AssemblerInput): Promise<AssemblerOu
         }
       : {}),
     ...(runtimeAgentTypesUsed.size > 0 ? { runtimeAgentTypesUsed: Array.from(runtimeAgentTypesUsed) } : {}),
+    ...(input.advancedMemory ? { advancedMemoryPlacements } : {}),
   };
 }
 

@@ -1,6 +1,8 @@
+import type { EffectiveGenerationParameters } from "../../hooks/use-effective-generation-parameters";
 import { useEffect, useRef, useState } from "react";
 import {
   GENERATION_PARAMETER_SEND_KEYS,
+  isZaiMaxReasoningEffortModel,
   customRequestHeadersSchema,
   normalizeThinkingTagPairs,
   type GenerationParameterSendKey,
@@ -235,15 +237,48 @@ export function GenerationParametersFields({
   onChange,
   showServiceTier = false,
   showCustomHeaders = false,
+  effectiveParameters,
+  provider,
+  model,
   enabledParametersFallback = LEGACY_PARAMETER_SEND_DEFAULTS,
 }: {
   value: EditableGenerationParameters;
   onChange: (next: EditableGenerationParameters) => void;
   showServiceTier?: boolean;
   showCustomHeaders?: boolean;
+  effectiveParameters?: EffectiveGenerationParameters;
+  provider?: string;
+  model?: string;
   enabledParametersFallback?: GenerationParameterSendMap;
 }) {
   const { t: localizeUi } = useUiTranslation();
+  const effectiveHint = (key: string, displayValue?: string) => {
+    const entry = effectiveParameters?.[key];
+    if (!entry) return undefined;
+    const value =
+      displayValue ??
+      (!entry.enabled
+        ? localizeUi("generationParameters.effective.notSent")
+        : entry.value === null
+          ? localizeUi("generationParameters.effective.providerDefault")
+          : typeof entry.value === "object"
+            ? JSON.stringify(entry.value)
+            : String(entry.value));
+    return localizeUi("generationParameters.effective.value", {
+      value,
+      source: localizeUi(`generationParameters.source.${entry.source}`),
+    });
+  };
+  const effectiveLine = (key: string, displayValue?: string) =>
+    effectiveParameters?.[key] ? (
+      <p className="mt-1 break-words text-[0.625rem] text-[var(--muted-foreground)]" data-effective-parameter={key}>
+        {effectiveHint(key, displayValue)}
+      </p>
+    ) : null;
+  const reasoningLevels =
+    provider === "zai" && isZaiMaxReasoningEffortModel(model ?? "")
+      ? (["low", "high", "maximum"] as const)
+      : REASONING_LEVELS;
   const { data: managedDefinitions = [] } = useCustomGenerationParameters();
   const set = <K extends keyof EditableGenerationParameters>(key: K, nextValue: EditableGenerationParameters[K]) => {
     onChange({ ...value, [key]: nextValue });
@@ -278,6 +313,7 @@ export function GenerationParametersFields({
           help={localizeUi("ui.ui.generationparametersfields.controlsRandomnessLowerValuesMakeOutputMoreFocusedAnd")}
           value={value.temperature}
           onChange={(nextValue) => set("temperature", nextValue)}
+          effective={effectiveHint("temperature")}
           sendEnabled={isSendEnabled("temperature")}
           onSendChange={(enabled) => setSend("temperature", enabled)}
           min={0}
@@ -289,6 +325,7 @@ export function GenerationParametersFields({
           help={localizeUi("ui.ui.generationparametersfields.theMaximumNumberOfTokensTheModelCanGenerate")}
           value={value.maxTokens}
           onChange={(nextValue) => set("maxTokens", nextValue)}
+          effective={effectiveHint("maxTokens")}
           sendEnabled={isSendEnabled("maxTokens")}
           onSendChange={(enabled) => setSend("maxTokens", enabled)}
           min={1}
@@ -301,6 +338,7 @@ export function GenerationParametersFields({
           )}
           value={value.topP}
           onChange={(nextValue) => set("topP", nextValue)}
+          effective={effectiveHint("topP")}
           sendEnabled={isSendEnabled("topP")}
           onSendChange={(enabled) => setSend("topP", enabled)}
           min={0}
@@ -312,6 +350,7 @@ export function GenerationParametersFields({
           help={localizeUi("ui.ui.generationparametersfields.limitsTheModelToOnlyConsiderTheTopK")}
           value={value.topK}
           onChange={(nextValue) => set("topK", nextValue)}
+          effective={effectiveHint("topK")}
           sendEnabled={isSendEnabled("topK")}
           onSendChange={(enabled) => setSend("topK", enabled)}
           min={0}
@@ -325,6 +364,7 @@ export function GenerationParametersFields({
           help={localizeUi("ui.ui.generationparametersfields.penalizesTokensBasedOnHowOftenTheyVeAlready")}
           value={value.frequencyPenalty}
           onChange={(nextValue) => set("frequencyPenalty", nextValue)}
+          effective={effectiveHint("frequencyPenalty")}
           sendEnabled={isSendEnabled("frequencyPenalty")}
           onSendChange={(enabled) => setSend("frequencyPenalty", enabled)}
           min={-2}
@@ -336,6 +376,7 @@ export function GenerationParametersFields({
           help={localizeUi("ui.ui.generationparametersfields.penalizesTokensThatHaveAppearedAtAllRegardlessOf")}
           value={value.presencePenalty}
           onChange={(nextValue) => set("presencePenalty", nextValue)}
+          effective={effectiveHint("presencePenalty")}
           sendEnabled={isSendEnabled("presencePenalty")}
           onSendChange={(enabled) => setSend("presencePenalty", enabled)}
           min={-2}
@@ -386,6 +427,16 @@ export function GenerationParametersFields({
             <option value="none">{localizeUi("settings.generation.postProcessing.none")}</option>
             <option value="single">{localizeUi("settings.generation.postProcessing.single")}</option>
           </select>
+          {effectiveLine(
+            effectiveParameters?.singleUserMessage?.value ? "singleUserMessage" : "strictRoleFormatting",
+            localizeUi(
+              effectiveParameters?.singleUserMessage?.value
+                ? "settings.generation.postProcessing.single"
+                : effectiveParameters?.strictRoleFormatting?.value
+                  ? "settings.generation.postProcessing.apply"
+                  : "settings.generation.postProcessing.none",
+            ),
+          )}
         </div>
         <div>
           <span className="inline-flex items-center gap-1 text-[0.625rem] font-medium text-[var(--muted-foreground)]">
@@ -406,6 +457,7 @@ export function GenerationParametersFields({
               value2: ">",
             }).trimStart()}
           />
+          {effectiveLine("assistantPrefill")}
         </div>
         <div>
           <span className="inline-flex items-center gap-1 text-[0.625rem] font-medium text-[var(--muted-foreground)]">
@@ -423,15 +475,18 @@ export function GenerationParametersFields({
             className={PARAM_TEXTAREA_CLASS}
             placeholder={localizeUi("generationParameters.assistantReasoningPrefill.placeholder")}
           />
+          {effectiveLine("assistantReasoningPrefill")}
         </div>
         <ThinkingTagsInput
           value={value.customThinkingTags}
           onChange={(nextValue) => set("customThinkingTags", nextValue)}
         />
+        {effectiveLine("customThinkingTags")}
         <CustomParametersInput
           value={value.customParameters}
           onChange={(nextValue) => set("customParameters", nextValue)}
         />
+        {effectiveLine("customParameters")}
         {showCustomHeaders && (
           <CustomParametersInput
             headers
@@ -461,17 +516,19 @@ export function GenerationParametersFields({
                 </button>
               ))}
             </div>
+            {effectiveLine("serviceTier")}
           </div>
         )}
         <div>
           <ParameterHeader
             label={localizeUi("ui.ui.generationparametersfields.reasoningEffort")}
             help={localizeUi("ui.ui.generationparametersfields.howMuchReasoningWorkTheProviderShouldSpendBefore")}
+            effective={effectiveHint("reasoningEffort")}
             sendEnabled={isSendEnabled("reasoningEffort")}
             onSendChange={(enabled) => setSend("reasoningEffort", enabled)}
           />
           <div className="mt-1 flex flex-wrap gap-1.5">
-            {REASONING_LEVELS.map((level) => (
+            {reasoningLevels.map((level) => (
               <button
                 key={level ?? "none"}
                 type="button"
@@ -493,6 +550,7 @@ export function GenerationParametersFields({
           <ParameterHeader
             label={localizeUi("ui.ui.generationparametersfields.verbosity")}
             help={localizeUi("ui.ui.generationparametersfields.controlsHowLongAndDetailedResponsesShouldBeLow")}
+            effective={effectiveHint("verbosity")}
             sendEnabled={isSendEnabled("verbosity")}
             onSendChange={(enabled) => setSend("verbosity", enabled)}
           />
@@ -692,14 +750,18 @@ function parseThinkingTagsDraft(draft: string): { ok: true; value: ThinkingTagPa
   return { ok: true, value: normalizeThinkingTagPairs(pairs) };
 }
 
-function CustomParametersInput({
+export function CustomParametersInput({
   value,
   onChange,
   headers = false,
+  help,
+  placeholder,
 }: {
   value: Record<string, unknown>;
   onChange: (next: Record<string, unknown>) => void;
   headers?: boolean;
+  help?: string;
+  placeholder?: string;
 }) {
   const { t: localizeUi } = useUiTranslation();
   const serialized = stringifyCustomParameters(value);
@@ -736,11 +798,14 @@ function CustomParametersInput({
       <span className="inline-flex items-center gap-1 text-[0.625rem] font-medium text-[var(--muted-foreground)]">
         {label}
         <HelpTooltip
-          text={localizeUi(
-            headers
-              ? "settings.connection.customHeaders.help"
-              : "ui.ui.customparametersinput.optionalRawJsonObjectMergedIntoTheProviderRequest",
-          )}
+          text={
+            help ??
+            localizeUi(
+              headers
+                ? "settings.connection.customHeaders.help"
+                : "ui.ui.customparametersinput.optionalRawJsonObjectMergedIntoTheProviderRequest",
+            )
+          }
           size="0.625rem"
         />
       </span>
@@ -770,22 +835,24 @@ function CustomParametersInput({
         placeholder={
           focused
             ? ""
-            : localizeUi(
+            : (placeholder ??
+              localizeUi(
                 headers
                   ? "settings.connection.customHeaders.example"
                   : "ui.ui.customparametersinput.reasoningEffortHigh",
-              )
+              ))
         }
       />
       {error ? (
         <p className="mt-1 text-[0.5625rem] text-amber-500">{error}</p>
       ) : (
         <p className="mt-1 text-[0.5625rem] text-[var(--muted-foreground)]/70">
-          {localizeUi(
-            headers
-              ? "settings.connection.customHeaders.help"
-              : "ui.ui.customparametersinput.acceptsStringsNumbersBooleansNullArraysAndNestedObjects",
-          )}
+          {help ??
+            localizeUi(
+              headers
+                ? "settings.connection.customHeaders.help"
+                : "ui.ui.customparametersinput.acceptsStringsNumbersBooleansNullArraysAndNestedObjects",
+            )}
         </p>
       )}
     </div>
@@ -807,6 +874,7 @@ function ParamInput({
   max,
   step,
   help,
+  effective,
 }: {
   label: string;
   value: number;
@@ -817,6 +885,7 @@ function ParamInput({
   max?: number;
   step: number;
   help?: string;
+  effective?: string;
 }) {
   const [draft, setDraft] = useState(String(value));
   const [error, setError] = useState<string | null>(null);
@@ -844,7 +913,13 @@ function ParamInput({
 
   return (
     <div>
-      <ParameterHeader label={label} help={help} sendEnabled={sendEnabled} onSendChange={onSendChange} />
+      <ParameterHeader
+        label={label}
+        help={help}
+        effective={effective}
+        sendEnabled={sendEnabled}
+        onSendChange={onSendChange}
+      />
       <input
         type="text"
         inputMode="decimal"
@@ -873,33 +948,42 @@ function ParamInput({
 function ParameterHeader({
   label,
   help,
+  effective,
   sendEnabled,
   onSendChange,
 }: {
   label: string;
   help?: string;
+  effective?: string;
   sendEnabled: boolean;
   onSendChange: (enabled: boolean) => void;
 }) {
   const { t: localizeUi } = useUiTranslation();
   return (
-    <div className="flex min-w-0 items-center justify-between gap-2">
-      <span className="inline-flex min-w-0 items-center gap-1 text-[0.625rem] font-medium text-[var(--muted-foreground)]">
-        <span className="truncate">{label}</span>
-        {help && <HelpTooltip text={help} size="0.625rem" />}
-      </span>
-      <SettingsSwitch
-        ariaLabel={`Send ${label} parameter`}
-        checked={sendEnabled}
-        onChange={onSendChange}
-        labelPosition="start"
-        className="!gap-0 !rounded-md !p-0 hover:!bg-transparent"
-        title={
-          sendEnabled
-            ? localizeUi("ui.ui.parameterheader.thisParameterIsSentToTheModel")
-            : localizeUi("ui.ui.parameterheader.thisParameterIsNotSentToTheModel")
-        }
-      />
-    </div>
+    <>
+      <div className="flex min-w-0 items-center justify-between gap-2">
+        <span className="inline-flex min-w-0 items-center gap-1 text-[0.625rem] font-medium text-[var(--muted-foreground)]">
+          <span className="truncate">{label}</span>
+          {help && <HelpTooltip text={help} size="0.625rem" />}
+        </span>
+        <SettingsSwitch
+          ariaLabel={`Send ${label} parameter`}
+          checked={sendEnabled}
+          onChange={onSendChange}
+          labelPosition="start"
+          className="!gap-0 !rounded-md !p-0 hover:!bg-transparent"
+          title={
+            sendEnabled
+              ? localizeUi("ui.ui.parameterheader.thisParameterIsSentToTheModel")
+              : localizeUi("ui.ui.parameterheader.thisParameterIsNotSentToTheModel")
+          }
+        />
+      </div>
+      {effective && (
+        <p className="mt-1 break-words text-[0.625rem] text-[var(--muted-foreground)]" data-effective-parameter={label}>
+          {effective}
+        </p>
+      )}
+    </>
   );
 }
