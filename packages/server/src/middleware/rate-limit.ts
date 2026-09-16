@@ -61,6 +61,19 @@ export const BACKUP_RATE_LIMIT = {
 } as const satisfies MarinaraRouteRateLimit;
 
 /**
+ * Story Bundle image upload/serve and ZIP import.
+ *
+ * Image writes are bounded by the same magic-byte whitelist as every other
+ * image route, and ZIP import is the heaviest story-bundle verb (temp-file
+ * stream + archive unpack + DB bootstrap), so keep all three out of the
+ * permissive 600/min default bucket.
+ */
+export const STORY_BUNDLE_RATE_LIMIT = {
+  max: 60,
+  timeWindow: 60_000,
+} as const satisfies MarinaraRouteRateLimit;
+
+/**
  * The utility model slot's API.
  *
  * Generous enough for the UI to poll status and routing while a page is open, tight
@@ -145,6 +158,32 @@ const ROUTE_RULES: Array<{ pattern: RegExp; rule: RateLimitRule }> = [
   {
     pattern: /^\/api\/capability-packages\/[^/]+\/(?:client|assets)(?:\/|\?|$)/,
     rule: { key: "capability-package-files", limit: 240, windowMs: 60_000 },
+  },
+  // Story Bundle image upload/serve and ZIP import: filesystem writes/reads and
+  // archive unpacking, kept in a dedicated bucket instead of the 600/min default.
+  {
+    pattern: /^\/api\/story-bundles\/[^/]+\/image(?:\?|$)/,
+    rule: {
+      key: "story-bundle-image",
+      limit: STORY_BUNDLE_RATE_LIMIT.max,
+      windowMs: STORY_BUNDLE_RATE_LIMIT.timeWindow,
+    },
+  },
+  {
+    pattern: /^\/api\/story-bundles\/images\/file\/[^/]+(?:\?|$)/,
+    rule: {
+      key: "story-bundle-image",
+      limit: STORY_BUNDLE_RATE_LIMIT.max,
+      windowMs: STORY_BUNDLE_RATE_LIMIT.timeWindow,
+    },
+  },
+  {
+    pattern: /^\/api\/story-bundles\/import-archive(?:\?|$)/,
+    rule: {
+      key: "story-bundle-import",
+      limit: STORY_BUNDLE_RATE_LIMIT.max,
+      windowMs: STORY_BUNDLE_RATE_LIMIT.timeWindow,
+    },
   },
 ];
 

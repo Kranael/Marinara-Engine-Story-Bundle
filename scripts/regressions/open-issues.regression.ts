@@ -519,6 +519,10 @@ const characterRoutesSource = readFileSync(
   join(REPOSITORY_ROOT, "packages/server/src/routes/characters.routes.ts"),
   "utf8",
 );
+const exportImageHelpersSource = readFileSync(
+  join(REPOSITORY_ROOT, "packages/server/src/services/export/export-image-helpers.ts"),
+  "utf8",
+);
 const stCharacterImporterSource = readFileSync(
   join(REPOSITORY_ROOT, "packages/server/src/services/import/st-character.importer.ts"),
   "utf8",
@@ -602,7 +606,7 @@ assert.match(
   "PNG export must reject sprite collections that cannot round-trip before building the card envelope",
 );
 assert.match(
-  characterRoutesSource,
+  exportImageHelpersSource,
   /if \(enforcePortableLimits\)[\s\S]*await stat[\s\S]*embeddedSpriteSizesAreWithinLimits[\s\S]*return null;[\s\S]*readImageAsDataUrl/u,
   "compatible PNG export must stop reading sprites as soon as a portable size limit is exceeded",
 );

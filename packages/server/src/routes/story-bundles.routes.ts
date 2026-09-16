@@ -14,6 +14,7 @@ import { createConnectionsStorage } from "../services/storage/connections.storag
 import { createLLMProvider } from "../services/llm/provider-registry.js";
 import { resolveBaseUrl } from "../services/generation/connection-base-url.js";
 import { logger } from "../lib/logger.js";
+import { STORY_BUNDLE_RATE_LIMIT } from "../middleware/rate-limit.js";
 import { DATA_DIR } from "../utils/data-dir.js";
 import { assertInsideDir, extensionFromImageMime, isAllowedImageBuffer } from "../utils/security.js";
 import { buildBundleArchive } from "../services/export/story-bundle-archive.js";
@@ -35,7 +36,7 @@ function parseImageUpload(image: string): { buffer: Buffer; hintedExt: string } 
 }
 
 function getSafeStoryBundleImagePath(filename: string): string | null {
-  if (!filename || filename.includes("..") || filename.includes("/") || filename.includes("\\")) return null;
+  if (!filename || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(filename) || filename.includes("..")) return null;
   try {
     return assertInsideDir(STORY_BUNDLE_IMAGES_DIR, join(STORY_BUNDLE_IMAGES_DIR, filename));
   } catch {
@@ -180,28 +181,32 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
   });
 
   // ── Upload a story bundle image ──
-  app.post<{ Params: { id: string } }>("/:id/image", async (req, reply) => {
-    const bundle = await storage.getById(req.params.id);
-    if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
+  app.post<{ Params: { id: string } }>(
+    "/:id/image",
+    { config: { rateLimit: STORY_BUNDLE_RATE_LIMIT } },
+    async (req, reply) => {
+      const bundle = await storage.getById(req.params.id);
+      if (!bundle) return reply.status(404).send({ error: "Story bundle not found" });
 
-    const body = req.body as { image?: string };
-    if (!body.image) return reply.status(400).send({ error: "No image data provided" });
+      const body = req.body as { image?: string };
+      if (!body.image) return reply.status(400).send({ error: "No image data provided" });
 
-    const { buffer, hintedExt } = parseImageUpload(body.image);
-    const imageInfo = isAllowedImageBuffer(buffer, `.${hintedExt}`);
-    if (!imageInfo) return reply.status(400).send({ error: "Unsupported or invalid story bundle image" });
+      const { buffer, hintedExt } = parseImageUpload(body.image);
+      const imageInfo = isAllowedImageBuffer(buffer, `.${hintedExt}`);
+      if (!imageInfo) return reply.status(400).send({ error: "Unsupported or invalid story bundle image" });
 
-    const ext = extensionFromImageMime(imageInfo.mimeType);
-    await mkdir(STORY_BUNDLE_IMAGES_DIR, { recursive: true });
-    const filename = `story-bundle-${req.params.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const filepath = assertInsideDir(STORY_BUNDLE_IMAGES_DIR, join(STORY_BUNDLE_IMAGES_DIR, filename));
-    await writeFile(filepath, buffer);
+      const ext = extensionFromImageMime(imageInfo.mimeType);
+      await mkdir(STORY_BUNDLE_IMAGES_DIR, { recursive: true });
+      const filename = `story-bundle-${req.params.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const filepath = assertInsideDir(STORY_BUNDLE_IMAGES_DIR, join(STORY_BUNDLE_IMAGES_DIR, filename));
+      await writeFile(filepath, buffer);
 
-    const updated = await storage.update(req.params.id, { imagePath: `/api/story-bundles/images/file/${filename}` });
-    if (!updated) return reply.status(404).send({ error: "Story bundle not found" });
-    await deleteStoryBundleImageFile(bundle.imagePath as string | null);
-    return reply.send(serializeBundle(updated));
-  });
+      const updated = await storage.update(req.params.id, { imagePath: `/api/story-bundles/images/file/${filename}` });
+      if (!updated) return reply.status(404).send({ error: "Story bundle not found" });
+      await deleteStoryBundleImageFile(bundle.imagePath as string | null);
+      return reply.send(serializeBundle(updated));
+    },
+  );
 
   // ── Remove a story bundle image ──
   app.delete<{ Params: { id: string } }>("/:id/image", async (req, reply) => {
@@ -216,19 +221,23 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
   });
 
   // ── Serve a story bundle image file ──
-  app.get<{ Params: { filename: string } }>("/images/file/:filename", async (req, reply) => {
-    const filepath = getSafeStoryBundleImagePath(req.params.filename);
-    if (!filepath || !existsSync(filepath)) return reply.status(404).send({ error: "Image not found" });
+  app.get<{ Params: { filename: string } }>(
+    "/images/file/:filename",
+    { config: { rateLimit: STORY_BUNDLE_RATE_LIMIT } },
+    async (req, reply) => {
+      const filepath = getSafeStoryBundleImagePath(req.params.filename);
+      if (!filepath || !existsSync(filepath)) return reply.status(404).send({ error: "Image not found" });
 
-    const buffer = await readFile(filepath);
-    const imageInfo = isAllowedImageBuffer(buffer, extname(req.params.filename));
-    if (!imageInfo) return reply.status(404).send({ error: "Image not found" });
+      const buffer = await readFile(filepath);
+      const imageInfo = isAllowedImageBuffer(buffer, extname(req.params.filename));
+      if (!imageInfo) return reply.status(404).send({ error: "Image not found" });
 
-    return reply
-      .header("Content-Type", imageInfo.mimeType)
-      .header("Cache-Control", "public, max-age=31536000, immutable")
-      .send(buffer);
-  });
+      return reply
+        .header("Content-Type", imageInfo.mimeType)
+        .header("Cache-Control", "public, max-age=31536000, immutable")
+        .send(buffer);
+    },
+  );
 
   // ── Bundle Builder: generate genre/setting/tone from the bundle's attached
   // characters/lorebooks ── One-off, non-streaming completion; no chat or
@@ -297,7 +306,7 @@ export async function storyBundlesRoutes(app: FastifyInstance) {
   // Streams the upload straight to a temp file (never buffered as one JS
   // string/value), then unpacks + bootstraps it. See
   // services/import/story-bundle-archive-import.ts.
-  app.post("/import-archive", async (req, reply) => {
+  app.post("/import-archive", { config: { rateLimit: STORY_BUNDLE_RATE_LIMIT } }, async (req, reply) => {
     const uploadDir = await mkdtemp(join(tmpdir(), "marinara-storybundle-upload-"));
     const archivePath = join(uploadDir, "bundle.storybundle");
     try {
