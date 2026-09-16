@@ -20,6 +20,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleLorebooksTabPage } from "../pages/story-bundle-lorebooks-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 import { createLorebook, deleteLorebook, entitySuffix, type EntityRef } from "../helpers/story-bundle-entities.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
@@ -72,7 +73,7 @@ test.describe("Story Bundle Lorebooks Picker — Positive", () => {
       await expect(lorebooksTab.removeButtonLocator(lorebook.id)).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteLorebook(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -103,7 +104,7 @@ test.describe("Story Bundle Lorebooks Picker — Positive", () => {
       await expect(lorebooksTab.addButtonLocator(lorebook.id)).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteLorebook(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -131,7 +132,7 @@ test.describe("Story Bundle Lorebooks Picker — Positive", () => {
       await expect(lorebooksTab.addButtonLocator(lorebook.id)).toBeHidden();
     } finally {
       for (const entity of seeded) await deleteLorebook(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -167,7 +168,7 @@ test.describe("Story Bundle Lorebooks Picker — Positive", () => {
       await expect(lorebooksTab.loadMoreButton).toBeHidden();
     } finally {
       for (const entity of seeded) await deleteLorebook(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });
@@ -198,7 +199,7 @@ test.describe("Story Bundle Lorebooks Picker — Negative", () => {
       await expect(lorebooksTab.emptyState).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteLorebook(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });

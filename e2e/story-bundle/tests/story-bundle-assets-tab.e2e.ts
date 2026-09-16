@@ -17,6 +17,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleAssetsTabPage } from "../pages/story-bundle-assets-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
@@ -52,7 +53,7 @@ test.describe("Story Bundle Assets Tab — Positive", () => {
       await expect(assetsTab.folderStatusButton("music")).toHaveText("Included");
       await expect(assetsTab.resetButton).toBeHidden();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -72,7 +73,7 @@ test.describe("Story Bundle Assets Tab — Positive", () => {
       await expect(page.getByText("1 folder(s) excluded")).toBeVisible();
       await expect(editor.saveButton).toBeEnabled();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -93,7 +94,7 @@ test.describe("Story Bundle Assets Tab — Positive", () => {
       await expect(assetsTab.resetButton).toBeHidden();
       await expect(editor.saveButton).toBeDisabled();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -114,7 +115,7 @@ test.describe("Story Bundle Assets Tab — Positive", () => {
       const saved = (await response.json()) as { gameAssetSelection?: { excludedFolders?: string[] } | null };
       expect(saved.gameAssetSelection?.excludedFolders).toContain("music");
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 });

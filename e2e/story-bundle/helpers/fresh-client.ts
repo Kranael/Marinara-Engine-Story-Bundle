@@ -26,6 +26,15 @@ if (!Number.isInteger(UI_STORE_VERSION)) {
  * need the first-run experience instead can opt back in via sessionStorage.
  */
 export async function prepareFreshClient(page: Page) {
+  // Neutralize the cross-device settings sync (use-settings-sync.ts). The
+  // server blob persists across tests within a run and — because this seed
+  // leaves no trusted local timestamp — its startup merge overwrites the
+  // local UI store with whatever an earlier test pushed, including
+  // `sidebarOpen`. Under multi-worker load that merge lands after a test has
+  // already opened the mobile sidebar overlay and slams it shut mid-test.
+  // Answering "no blob" makes the sync seed the server from local state
+  // instead, so local state always wins. Same pattern as accent-pulse.e2e.ts.
+  await page.route("**/api/app-settings/ui", (route) => route.fulfill({ json: { value: null } }));
   await page.addInitScript(
     ({ appVersion, uiStoreVersion }) => {
       if (sessionStorage.getItem("marinara:e2e:show-whats-new") !== "true") {

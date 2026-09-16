@@ -20,6 +20,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleCharactersTabPage } from "../pages/story-bundle-characters-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 import { createCharacter, deleteCharacter, entitySuffix, type EntityRef } from "../helpers/story-bundle-entities.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
@@ -66,13 +67,11 @@ test.describe("Story Bundle Party Toggle — Positive", () => {
       await expect(charsTab.partyToggleLocator(hero.id)).toHaveText(/NPC/);
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
-  test("clicking the toggle marks a character as a party member, clicking again reverts to NPC", async ({
-    page,
-  }) => {
+  test("clicking the toggle marks a character as a party member, clicking again reverts to NPC", async ({ page }) => {
     const suffix = entitySuffix(test.info().title);
     const seeded: EntityRef[] = [];
     let bundleId: string | null = null;
@@ -98,7 +97,7 @@ test.describe("Story Bundle Party Toggle — Positive", () => {
       await expect(charsTab.partyToggleLocator(hero.id)).toHaveText(/NPC/);
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -129,7 +128,7 @@ test.describe("Story Bundle Party Toggle — Positive", () => {
       await expect(charsTab.partyToggleLocator(hero.id)).toHaveText(/NPC/);
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -160,7 +159,7 @@ test.describe("Story Bundle Party Toggle — Positive", () => {
       expect(saved.partyCharacterIds).toContain(hero.id);
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });

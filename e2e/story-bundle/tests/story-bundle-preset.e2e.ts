@@ -17,6 +17,7 @@ import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundlePresetsTabPage } from "../pages/story-bundle-presets-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
@@ -117,7 +118,7 @@ test.describe("Story Bundle Presets — Positive", () => {
 
     // Cleanup
     await api.delete(bundle.id);
-    await request.delete(`/api/prompts/${preset.id}`);
+    await bestEffortDelete(request, `/api/prompts/${preset.id}`);
   });
 
   test("playing a bundle with a preset that has variables from the panel shows the choice dialog", async ({
@@ -185,9 +186,9 @@ test.describe("Story Bundle Presets — Positive", () => {
       const chats = (await chatsResp.json()) as Array<{ id: string; name: string }>;
       chatId = chats.find((c) => c.name === bundle.name)?.id ?? null;
     } finally {
-      if (chatId) await request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
-      await request.delete(`/api/prompts/${preset.id}`);
+      await bestEffortDelete(request, `/api/prompts/${preset.id}`);
     }
   });
 
@@ -254,7 +255,7 @@ test.describe("Story Bundle Presets — Positive", () => {
       chatId = chat!.id;
       expect(chat!.promptPresetId).toBe(marinaraPreset!.id);
     } finally {
-      if (chatId) await request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
     }
   });
@@ -329,9 +330,9 @@ test.describe("Story Bundle Presets — Positive", () => {
       const chats = (await chatsResp.json()) as Array<{ id: string; name: string }>;
       chatId = chats.find((c) => c.name === bundle.name)?.id ?? null;
     } finally {
-      if (chatId) await request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
-      await request.delete(`/api/prompts/${preset.id}`);
+      await bestEffortDelete(request, `/api/prompts/${preset.id}`);
     }
   });
 });

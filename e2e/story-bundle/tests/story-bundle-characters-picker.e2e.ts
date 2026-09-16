@@ -22,6 +22,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleCharactersTabPage } from "../pages/story-bundle-characters-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 import {
   createCharacter,
   createCharacterGroup,
@@ -81,7 +82,7 @@ test.describe("Story Bundle Characters Picker — Positive", () => {
       await expect(charsTab.removeButtonLocator(hero.id)).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -112,7 +113,7 @@ test.describe("Story Bundle Characters Picker — Positive", () => {
       await expect(charsTab.addButtonLocator(hero.id)).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -140,7 +141,7 @@ test.describe("Story Bundle Characters Picker — Positive", () => {
       await expect(charsTab.addButtonLocator(hero.id)).toBeHidden();
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -174,7 +175,7 @@ test.describe("Story Bundle Characters Picker — Positive", () => {
     } finally {
       for (const group of seededGroups) await deleteCharacterGroup(page.request, group.id);
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -210,7 +211,7 @@ test.describe("Story Bundle Characters Picker — Positive", () => {
       await expect(charsTab.loadMoreButton).toBeHidden();
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });
@@ -241,7 +242,7 @@ test.describe("Story Bundle Characters Picker — Negative", () => {
     } finally {
       for (const group of seededGroups) await deleteCharacterGroup(page.request, group.id);
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -270,7 +271,7 @@ test.describe("Story Bundle Characters Picker — Negative", () => {
       await expect(charsTab.emptyState).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });

@@ -18,6 +18,7 @@ import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundlePresetsTabPage } from "../pages/story-bundle-presets-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
@@ -137,8 +138,8 @@ test.describe("Story Bundle Play — Positive", () => {
 
     // Cleanup.
     await api.delete(bundle.id);
-    await page.request.delete(`/api/lorebooks/${lore1Data.id}`);
-    await page.request.delete(`/api/lorebooks/${lore2Data.id}`);
+    await bestEffortDelete(page.request, `/api/lorebooks/${lore1Data.id}`);
+    await bestEffortDelete(page.request, `/api/lorebooks/${lore2Data.id}`);
   });
 });
 
@@ -217,7 +218,7 @@ test.describe("Story Bundle Play — Sidebar Image", () => {
       // Bundles right panel is a full-screen overlay, so close it first —
       // otherwise it intercepts every sidebar click.
       await page.evaluate(async () => {
-        const { useUIStore } = await import("/src/stores/ui.store.ts");
+        const { useUIStore } = (await import("/src/stores/ui.store.ts" as string)) as PageUiStoreModule;
         const ui = useUIStore.getState();
         ui.closeRightPanel();
         ui.setSidebarOpen(true);
@@ -236,7 +237,7 @@ test.describe("Story Bundle Play — Sidebar Image", () => {
       const bundleAvatar = chatRow.locator('img[src*="/api/story-bundles/images/file/"]');
       await expect(bundleAvatar).toBeVisible();
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
     }
   });
@@ -254,12 +255,14 @@ test.describe("Story Bundle Play — Sidebar Image", () => {
     try {
       await base.goto();
 
-      // Open the chat sidebar via the UI store (same pattern as core-flows)
-      // and switch to the Roleplay tab.
-      await page.evaluate(async () => {
-        const { useUIStore } = await import("/src/stores/ui.store.ts");
-        useUIStore.getState().setSidebarOpen(true);
-      });
+      // Open the chat sidebar via the TopBar Chats button (the UI-native path
+      // core-flows uses) and switch to the Roleplay tab. Poking the UI store
+      // directly is unreliable on mobile-chromium: the overlay panel only
+      // mounts through the TopBar toggle flow, and a raw setSidebarOpen right
+      // after goto loses to the shell's startup state there.
+      const topbar = page.locator('[data-component="TopBar"]');
+      await expect(topbar).toBeVisible();
+      await topbar.locator('[data-tour="sidebar-toggle"]').click();
       const sidebar = page.locator('[data-component="ChatSidebar"]');
       await expect(sidebar).toBeVisible();
       const roleplayTab = page.locator('[data-chat-mode-tab="roleplay"]');
@@ -272,7 +275,7 @@ test.describe("Story Bundle Play — Sidebar Image", () => {
       await expect(chatRow.locator('img[src*="story-bundles"]')).toHaveCount(0);
       expect((chat.metadata ?? {}).storyBundleId).toBeFalsy();
     } finally {
-      await page.request.delete(`/api/chats/${chat.id}?force=true`);
+      await bestEffortDelete(page.request, `/api/chats/${chat.id}?force=true`);
     }
   });
 });
@@ -351,9 +354,9 @@ test.describe("Story Bundle Play — Preset Loading", () => {
       await expect(presetSelect).toBeVisible({ timeout: 10_000 });
       await expect(presetSelect).toHaveValue(preset.id);
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
-      await page.request.delete(`/api/prompts/${preset.id}`);
+      await bestEffortDelete(page.request, `/api/prompts/${preset.id}`);
     }
   });
 
@@ -401,9 +404,9 @@ test.describe("Story Bundle Play — Preset Loading", () => {
       chatId = chat!.id;
       expect(chat!.promptPresetId).toBe(preset.id);
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
-      await page.request.delete(`/api/prompts/${preset.id}`);
+      await bestEffortDelete(page.request, `/api/prompts/${preset.id}`);
     }
   });
 
@@ -457,9 +460,9 @@ test.describe("Story Bundle Play — Preset Loading", () => {
       chatId = chat!.id;
       expect(chat!.promptPresetId).toBe(preset.id);
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
-      await page.request.delete(`/api/prompts/${preset.id}`);
+      await bestEffortDelete(page.request, `/api/prompts/${preset.id}`);
     }
   });
 });

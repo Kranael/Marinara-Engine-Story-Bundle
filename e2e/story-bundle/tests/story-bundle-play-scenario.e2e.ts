@@ -23,6 +23,7 @@ import { HomePage } from "../../pages/home.page.js";
 import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 test.describe("Story Bundle Play — Scenario First Message", () => {
   test("picking a scenario shows its opening message in the chat after Play", async ({ page }) => {
@@ -57,7 +58,7 @@ test.describe("Story Bundle Play — Scenario First Message", () => {
       // not just implied by the success toast.
       await expect(page.getByText(openingMessage)).toBeVisible({ timeout: 10_000 });
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -96,7 +97,7 @@ test.describe("Story Bundle Play — Scenario First Message", () => {
       await page.getByTestId("story-bundle-rp-custom-scenario-back").click();
       await expect(page.getByTestId("story-bundle-rp-scenario-fixed-start")).toBeVisible();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -133,7 +134,7 @@ test.describe("Story Bundle Play — Scenario First Message", () => {
       const chats = (await chatsResp.json()) as Array<{ name: string }>;
       expect(chats.some((chat) => chat.name === bundle.name)).toBe(false);
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -162,7 +163,7 @@ test.describe("Story Bundle Play — Scenario First Message", () => {
       const chats = (await chatsResp.json()) as Array<{ name: string }>;
       expect(chats.some((chat) => chat.name === bundle.name)).toBe(false);
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 });

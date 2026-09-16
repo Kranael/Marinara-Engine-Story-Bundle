@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { bestEffortDelete } from "./cleanup.js";
 
 export interface StoryBundle {
   id: string;
@@ -36,12 +37,15 @@ export class StoryBundleAPI {
     return (await response.json()) as StoryBundle;
   }
 
-  /** Delete a story bundle via DELETE /api/story-bundles/:id. */
+  /**
+   * Delete a story bundle via DELETE /api/story-bundles/:id.
+   *
+   * Every call site uses this in cleanup (finally blocks or end-of-test), so
+   * the delete is bounded and best-effort: a saturated dev server must not be
+   * able to eat the test timeout after the functional assertions already ran.
+   */
   async delete(id: string): Promise<void> {
-    const response = await this.page.request.delete(`/api/story-bundles/${id}`);
-    if (!response.ok()) {
-      throw new Error(`Failed to delete story bundle ${id}: ${response.status()} ${await response.text()}`);
-    }
+    await bestEffortDelete(this.page.request, `/api/story-bundles/${id}`);
   }
 
   /** Import a story bundle from a Marinara export envelope via POST /api/import/marinara. */

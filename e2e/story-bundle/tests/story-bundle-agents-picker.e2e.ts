@@ -24,6 +24,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleAgentsTabPage } from "../pages/story-bundle-agents-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 import { createCustomAgent, deleteAgent, entitySuffix, type AgentRef } from "../helpers/story-bundle-entities.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
@@ -76,7 +77,7 @@ test.describe("Story Bundle Agents Picker — Positive", () => {
       await expect(agentsTab.removeButtonLocator(agent.type)).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteAgent(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -107,7 +108,7 @@ test.describe("Story Bundle Agents Picker — Positive", () => {
       await expect(agentsTab.addButtonLocator(agent.type)).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteAgent(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -135,7 +136,7 @@ test.describe("Story Bundle Agents Picker — Positive", () => {
       await expect(agentsTab.addButtonLocator(agent.type)).toBeHidden();
     } finally {
       for (const entity of seeded) await deleteAgent(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -171,7 +172,7 @@ test.describe("Story Bundle Agents Picker — Positive", () => {
       await expect(agentsTab.loadMoreButton).toBeHidden();
     } finally {
       for (const entity of seeded) await deleteAgent(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });
@@ -202,7 +203,7 @@ test.describe("Story Bundle Agents Picker — Negative", () => {
       await expect(agentsTab.emptyState).toBeVisible();
     } finally {
       for (const entity of seeded) await deleteAgent(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });

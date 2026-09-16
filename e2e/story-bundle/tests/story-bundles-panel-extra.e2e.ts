@@ -16,6 +16,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { CreateStoryBundleDialogPage } from "../pages/create-story-bundle-dialog.page.js";
 import { DeleteStoryBundleDialogPage } from "../pages/delete-story-bundle-dialog.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
@@ -66,7 +67,7 @@ test.describe("Story Bundles Panel Extra — Negative", () => {
       await expect(deleteDialog.dialog).toBeHidden();
       await expect(panel.rowLocator(bundle.name)).toBeVisible();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 });

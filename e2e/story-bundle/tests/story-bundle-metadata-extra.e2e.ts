@@ -20,6 +20,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleMetadataTabPage } from "../pages/story-bundle-metadata-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
@@ -69,7 +70,7 @@ test.describe("Story Bundle Metadata Extra — Positive", () => {
       await expect(metadataTab.avatarPreview.locator("img")).toBeVisible();
       await expect(metadataTab.uploadButton).toContainText("Change Image");
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -114,7 +115,7 @@ test.describe("Story Bundle Metadata Extra — Positive", () => {
       expect(after.imagePath).toBeNull();
       expect(after.avatarCrop).toBeNull();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -144,7 +145,7 @@ test.describe("Story Bundle Metadata Extra — Positive", () => {
       await expect(metadataTab.avatarCropRemoveButton).toBeVisible();
       await expect(metadataTab.uploadButton).toContainText("Change Image");
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -171,7 +172,7 @@ test.describe("Story Bundle Metadata Extra — Positive", () => {
       await expect(metadataTab.tagChip("beta-tag")).toBeHidden();
       await expect(metadataTab.tagsRemoveAll).toBeHidden();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 });
@@ -195,7 +196,7 @@ test.describe("Story Bundle Metadata Extra — Negative", () => {
       await expect(metadataTab.avatarPreview.locator("img")).toHaveCount(0);
       await expect(metadataTab.uploadButton).toContainText("Upload Image");
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 });

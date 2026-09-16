@@ -18,6 +18,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleMetadataTabPage } from "../pages/story-bundle-metadata-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
@@ -65,7 +66,7 @@ test.describe("Story Bundle Editor Save — Positive", () => {
       // After the refetch syncs the draft, the save button disables again.
       await expect(editor.saveButton).toBeDisabled({ timeout: 10_000 });
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 });

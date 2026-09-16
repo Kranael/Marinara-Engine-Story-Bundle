@@ -34,6 +34,7 @@ import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleGmStartModalPage } from "../pages/story-bundle-gm-start-modal.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 import {
   createCharacter,
   createPersona,
@@ -253,7 +254,7 @@ test.describe("Story Bundle GM — Positive", () => {
       expect(chat).not.toBeNull();
       chatId = chat!.id;
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
     }
   });
@@ -303,7 +304,7 @@ test.describe("Story Bundle GM — Positive", () => {
       expect(chat!.personaId).toBe(persona.id);
       expect(chat!.metadata?.storyBundleId).toBe(bundle.id);
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
       await deletePersona(page.request, persona.id);
@@ -360,7 +361,7 @@ test.describe("Story Bundle GM — Positive", () => {
       // The party member is never written into gameNpcs — only assigned NPCs are.
       expect(gameNpcs.find((candidate) => candidate.name === partyMember.name)).toBeUndefined();
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
     }
@@ -396,7 +397,7 @@ test.describe("Story Bundle GM — Positive", () => {
         ?.excludedFolders;
       expect(excludedFolders).toContain("music");
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
     }
   });

@@ -27,6 +27,7 @@ import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleConvoCharacterPickerModalPage } from "../pages/story-bundle-convo-character-picker-modal.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 import { createCharacter, deleteCharacter, entitySuffix, type EntityRef } from "../helpers/story-bundle-entities.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
@@ -75,6 +76,17 @@ async function findConvoChatByName(page: Page, name: string): Promise<CreatedCha
   const response = await page.request.get("/api/chats");
   const chats = (await response.json()) as CreatedChat[];
   return chats.find((chat) => chat.name === name && chat.mode === "conversation") ?? null;
+}
+
+/**
+ * DirectInject creates the chat first, then tags it with story-bundle metadata
+ * in a second request. A raw read between the two sees the chat without
+ * storyBundleId, so poll until the metadata is persisted before asserting.
+ */
+async function waitForConvoChatMetadata(page: Page, name: string, bundleId: string): Promise<void> {
+  await expect
+    .poll(async () => (await findConvoChatByName(page, name))?.metadata?.storyBundleId, { timeout: 10_000 })
+    .toBe(bundleId);
 }
 
 test.describe("Story Bundle CONVO — Positive", () => {
@@ -135,6 +147,9 @@ test.describe("Story Bundle CONVO — Positive", () => {
       // The single bundle character is pre-selected; confirm to start.
       await picker.confirm();
 
+      // Wait for the second DirectInject request (metadata tag) to persist.
+      await waitForConvoChatMetadata(page, bundle.name, bundle.id);
+
       const chat = await findConvoChatByName(page, bundle.name);
       expect(chat).not.toBeNull();
       chatId = chat!.id;
@@ -142,7 +157,7 @@ test.describe("Story Bundle CONVO — Positive", () => {
       expect(chat!.metadata?.storyBundleId).toBe(bundle.id);
       expect(chat!.metadata?.storyBundleCharacterIds).toEqual([onlyCharacter.id]);
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
     }
@@ -179,6 +194,9 @@ test.describe("Story Bundle CONVO — Positive", () => {
       await picker.toggleCharacter(second.id);
       await picker.confirm();
 
+      // Wait for the second DirectInject request (metadata tag) to persist.
+      await waitForConvoChatMetadata(page, bundle.name, bundle.id);
+
       const chat = await findConvoChatByName(page, bundle.name);
       expect(chat).not.toBeNull();
       chatId = chat!.id;
@@ -191,7 +209,7 @@ test.describe("Story Bundle CONVO — Positive", () => {
       // The whole point of DirectInject: the Conversation setup wizard never mounts.
       await expect(page.getByRole("dialog", { name: "New Conversation" })).toHaveCount(0);
     } finally {
-      if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+      if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       await api.delete(bundle.id);
       for (const entity of seeded) await deleteCharacter(page.request, entity.id);
     }

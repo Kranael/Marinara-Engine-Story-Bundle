@@ -17,6 +17,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleScenariosTabPage } from "../pages/story-bundle-scenarios-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
@@ -54,7 +55,7 @@ test.describe("Story Bundle Scenarios Extra — Negative", () => {
 
       await expect(scenariosTab.saveButton).toBeDisabled();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -71,7 +72,7 @@ test.describe("Story Bundle Scenarios Extra — Negative", () => {
 
       await expect(scenariosTab.saveButton).toBeDisabled();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 
@@ -95,7 +96,7 @@ test.describe("Story Bundle Scenarios Extra — Negative", () => {
       await expect(page.getByText("Discarded Title", { exact: true })).toBeHidden();
       await expect(page.getByText("Discarded text.")).toBeHidden();
     } finally {
-      await page.request.delete(`/api/story-bundles/${bundle.id}`);
+      await bestEffortDelete(page.request, `/api/story-bundles/${bundle.id}`);
     }
   });
 });

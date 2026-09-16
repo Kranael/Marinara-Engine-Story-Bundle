@@ -20,6 +20,7 @@ import { StoryBundlesPanelPage } from "../pages/story-bundles-panel.page.js";
 import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundlePresetsTabPage } from "../pages/story-bundle-presets-tab.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 import { createPreset, deletePreset, entitySuffix, type EntityRef } from "../helpers/story-bundle-entities.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
@@ -72,7 +73,7 @@ test.describe("Story Bundle Presets Picker — Positive", () => {
       await expect(presetsTab.removeButtonLocator(preset.id)).toBeVisible();
     } finally {
       for (const entity of seeded) await deletePreset(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -103,7 +104,7 @@ test.describe("Story Bundle Presets Picker — Positive", () => {
       await expect(presetsTab.addButtonLocator(preset.id)).toBeVisible();
     } finally {
       for (const entity of seeded) await deletePreset(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -131,7 +132,7 @@ test.describe("Story Bundle Presets Picker — Positive", () => {
       await expect(presetsTab.addButtonLocator(preset.id)).toBeHidden();
     } finally {
       for (const entity of seeded) await deletePreset(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 
@@ -167,7 +168,7 @@ test.describe("Story Bundle Presets Picker — Positive", () => {
       await expect(presetsTab.loadMoreButton).toBeHidden();
     } finally {
       for (const entity of seeded) await deletePreset(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });
@@ -198,7 +199,7 @@ test.describe("Story Bundle Presets Picker — Negative", () => {
       await expect(presetsTab.emptyState).toBeVisible();
     } finally {
       for (const entity of seeded) await deletePreset(page.request, entity.id);
-      if (bundleId) await page.request.delete(`/api/story-bundles/${bundleId}`);
+      if (bundleId) await bestEffortDelete(page.request, `/api/story-bundles/${bundleId}`);
     }
   });
 });

@@ -1,4 +1,5 @@
 import type { APIRequestContext } from "@playwright/test";
+import { bestEffortDelete } from "./cleanup.js";
 
 /**
  * Deterministic API seeding helpers for Story Bundle picker tests.
@@ -25,9 +26,9 @@ export async function createCharacter(request: APIRequestContext, name: string):
   return { id: body.id, name };
 }
 
-/** Delete a character via DELETE /api/characters/:id. */
+/** Delete a character via DELETE /api/characters/:id (cleanup-only, best-effort). */
 export async function deleteCharacter(request: APIRequestContext, id: string): Promise<void> {
-  await request.delete(`/api/characters/${id}`);
+  await bestEffortDelete(request, `/api/characters/${id}`);
 }
 
 /** Create a persona via POST /api/characters/personas. */
@@ -42,9 +43,9 @@ export async function createPersona(request: APIRequestContext, name: string): P
   return { id: body.id, name };
 }
 
-/** Delete a persona via DELETE /api/characters/personas/:id. */
+/** Delete a persona via DELETE /api/characters/personas/:id (cleanup-only, best-effort). */
 export async function deletePersona(request: APIRequestContext, id: string): Promise<void> {
-  await request.delete(`/api/characters/personas/${id}`);
+  await bestEffortDelete(request, `/api/characters/personas/${id}`);
 }
 
 /** Create a character group via POST /api/characters/groups. */
@@ -63,9 +64,9 @@ export async function createCharacterGroup(
   return { id: body.id, name };
 }
 
-/** Delete a character group via DELETE /api/characters/groups/:id. */
+/** Delete a character group via DELETE /api/characters/groups/:id (cleanup-only, best-effort). */
 export async function deleteCharacterGroup(request: APIRequestContext, id: string): Promise<void> {
-  await request.delete(`/api/characters/groups/${id}`);
+  await bestEffortDelete(request, `/api/characters/groups/${id}`);
 }
 
 /** Create a persona group via POST /api/characters/persona-groups. */
@@ -84,9 +85,9 @@ export async function createPersonaGroup(
   return { id: body.id, name };
 }
 
-/** Delete a persona group via DELETE /api/characters/persona-groups/:id. */
+/** Delete a persona group via DELETE /api/characters/persona-groups/:id (cleanup-only, best-effort). */
 export async function deletePersonaGroup(request: APIRequestContext, id: string): Promise<void> {
-  await request.delete(`/api/characters/persona-groups/${id}`);
+  await bestEffortDelete(request, `/api/characters/persona-groups/${id}`);
 }
 
 /** Create a lorebook via POST /api/lorebooks. */
@@ -101,9 +102,9 @@ export async function createLorebook(request: APIRequestContext, name: string): 
   return { id: body.id, name };
 }
 
-/** Delete a lorebook via DELETE /api/lorebooks/:id. */
+/** Delete a lorebook via DELETE /api/lorebooks/:id (cleanup-only, best-effort). */
 export async function deleteLorebook(request: APIRequestContext, id: string): Promise<void> {
-  await request.delete(`/api/lorebooks/${id}`);
+  await bestEffortDelete(request, `/api/lorebooks/${id}`);
 }
 
 /** Create a prompt preset via POST /api/prompts. */
@@ -122,9 +123,9 @@ export async function createPreset(
   return { id: body.id, name };
 }
 
-/** Delete a prompt preset via DELETE /api/prompts/:id. */
+/** Delete a prompt preset via DELETE /api/prompts/:id (cleanup-only, best-effort). */
 export async function deletePreset(request: APIRequestContext, id: string): Promise<void> {
-  await request.delete(`/api/prompts/${id}`);
+  await bestEffortDelete(request, `/api/prompts/${id}`);
 }
 
 export interface AgentRef {
@@ -161,9 +162,9 @@ export async function createCustomAgent(request: APIRequestContext, name: string
   return { id: body.id, type: agentType, name };
 }
 
-/** Delete an agent config via DELETE /api/agents/:id. */
+/** Delete an agent config via DELETE /api/agents/:id (cleanup-only, best-effort). */
 export async function deleteAgent(request: APIRequestContext, id: string): Promise<void> {
-  await request.delete(`/api/agents/${id}`);
+  await bestEffortDelete(request, `/api/agents/${id}`);
 }
 
 /**

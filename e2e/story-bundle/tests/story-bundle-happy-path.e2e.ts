@@ -6,6 +6,7 @@ import { StoryBundleEditorPage } from "../pages/story-bundle-editor.page.js";
 import { StoryBundleConvoCharacterPickerModalPage } from "../pages/story-bundle-convo-character-picker-modal.page.js";
 import { StoryBundleGmStartModalPage } from "../pages/story-bundle-gm-start-modal.page.js";
 import { StoryBundleAPI, type StoryBundle } from "../helpers/story-bundle-api.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 import {
   createCharacter,
   createPersona,
@@ -140,7 +141,7 @@ async function waitForTaggedChat(page: Page, name: string, mode: string): Promis
 
 /** Delete the chat, bundle and every seeded entity created by assembleStoryBundle. */
 async function cleanupAssembled(page: Page, assembled: AssembledBundle, chatId: string | null): Promise<void> {
-  if (chatId) await page.request.delete(`/api/chats/${chatId}?force=true`);
+  if (chatId) await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
   await new StoryBundleAPI(page).delete(assembled.bundle.id);
   await deleteCharacter(page.request, assembled.character.id);
   await deletePersona(page.request, assembled.persona.id);

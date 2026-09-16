@@ -19,6 +19,7 @@ import { StoryBundleGalleryPage } from "../pages/story-bundle-gallery.page.js";
 import { DeleteStoryBundleDialogPage } from "../pages/delete-story-bundle-dialog.page.js";
 import { importStoryBundleFixture } from "../helpers/story-bundle-fixture.js";
 import { StoryBundleAPI } from "../helpers/story-bundle-api.js";
+import { bestEffortDelete } from "../helpers/cleanup.js";
 
 const DATA_DIR = path.resolve(import.meta.dirname, "..", "data");
 
@@ -149,7 +150,7 @@ test.describe("Story Bundle Gallery — Actions", () => {
       chatId = chats.find((chat) => chat.name === bundle.name)?.id ?? null;
     } finally {
       if (chatId) {
-        await page.request.delete(`/api/chats/${chatId}?force=true`);
+        await bestEffortDelete(page.request, `/api/chats/${chatId}?force=true`);
       }
       await api.delete(bundle.id);
     }
@@ -219,7 +220,7 @@ test.describe("Story Bundle Gallery — Isolation & Responsive", () => {
       // Open the Character Library via the UI store and verify it renders
       // while the Story Bundle Gallery disappears (mutual exclusion).
       await page.evaluate(async () => {
-        const { useUIStore } = await import("/src/stores/ui.store.ts");
+        const { useUIStore } = (await import("/src/stores/ui.store.ts" as string)) as PageUiStoreModule;
         useUIStore.getState().openCharacterLibrary();
       });
 
