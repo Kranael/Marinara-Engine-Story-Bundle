@@ -20,8 +20,6 @@ function parsePort(name: string, fallback: number) {
   return Number.isInteger(parsed) && parsed >= 1 && parsed <= 65535 ? parsed : fallback;
 }
 
-const slowMo = parsePort("PLAYWRIGHT_SLOW_MO", 100);
-
 const clientPort = parsePort("PLAYWRIGHT_CLIENT_PORT", 5178);
 const serverPort = parsePort("PLAYWRIGHT_SERVER_PORT", 7971);
 const mobileClientPort = parsePort("PLAYWRIGHT_MOBILE_CLIENT_PORT", 5179);
@@ -45,9 +43,6 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
-    launchOptions: {
-      slowMo,
-    },
   },
   webServer:
     process.env.PLAYWRIGHT_SKIP_WEBSERVER === "true"

@@ -4,6 +4,139 @@ import { seedUIState } from "./ui-state-fixture";
 
 const version = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
 
+test("Roleplay agents can omit chat summaries without changing other modes", async ({ page, request }, info) => {
+  const resources: string[] = [];
+  const create = async (path: string, data: unknown) => {
+    const response = await request.post(path, { data });
+    expect(response.ok(), await response.text()).toBeTruthy();
+    const value = (await response.json()) as { id: string };
+    resources.unshift(`${path}/${value.id}`);
+    return value;
+  };
+  try {
+    await create("/api/agents", {
+      type: "summary-browser-fixture",
+      name: "Summary fixture agent",
+      phase: "parallel",
+      promptTemplate: "Return a short note.",
+      settings: { resultType: "context_injection", customCapabilities: {} },
+    });
+    const chat = await create("/api/chats", { name: "Agent summary setting", mode: "roleplay", characterIds: [] });
+    await create(`/api/chats/${chat.id}/messages`, { role: "assistant", content: "The laboratory is quiet." });
+    expect(
+      (await request.patch(`/api/chats/${chat.id}/metadata`, { data: { enableAgents: false } })).ok(),
+    ).toBeTruthy();
+    await page.route("**/api/app-settings/ui", (route) => route.fulfill({ json: { value: "" } }));
+    await seedUIState(page, {
+      hasCompletedOnboarding: true,
+      sidebarOpen: false,
+      rightPanelOpen: false,
+      chatHelpSeenModes: ["conversation", "roleplay", "game"],
+      trackerPanelEnabled: false,
+      chibiProfessorMariEnabled: false,
+      appAccentPulseMode: false,
+      chatSettingsExpandedSections: { "roleplay-agents": true, "game-agents": true, "conversation-agents": true },
+      gameInstantTextReveal: true,
+      theme: info.project.name === "desktop-chromium" ? "light" : "dark",
+    });
+    await page.addInitScript(
+      ({ id, version }) => {
+        localStorage.setItem("marinara-active-chat-id", id);
+        localStorage.setItem("marinara:whats-new:seen-version", version);
+      },
+      { id: chat.id, version },
+    );
+    const openSettings = async () => {
+      await page.evaluate(async () => {
+        const { useChatStore } = await import("/src/stores/chat.store.ts" as string);
+        useChatStore.getState().setShouldOpenSettings(true);
+      });
+    };
+    const savedSetting = async () => {
+      const saved = await (await request.get(`/api/chats/${chat.id}`)).json();
+      const metadata = typeof saved.metadata === "string" ? JSON.parse(saved.metadata) : saved.metadata;
+      return metadata.attachSummariesToAgents;
+    };
+    await page.goto("/");
+    await expect(page.locator("textarea[data-chat-composer]")).toBeVisible();
+    await openSettings();
+    const section = page.locator('[data-chat-settings-section="roleplay-agents"]');
+    const toggle = section.getByLabel("Attach chat summaries", { exact: true });
+    await expect(toggle).not.toBeChecked();
+    const label = section.getByText("Attach chat summaries", { exact: true });
+    await label.evaluate((element) => element.scrollIntoView({ block: "center" }));
+    await expect(section.getByLabel("Enable Agents", { exact: true })).not.toBeChecked();
+    await page.screenshot({ path: info.outputPath("agent-summary-settings-off.png") });
+    await label.click();
+    await expect.poll(savedSetting).toBe(true);
+    await page.reload();
+    await expect(page.locator("textarea[data-chat-composer]")).toBeVisible();
+    await openSettings();
+    await expect(toggle).toBeChecked();
+    await label.evaluate((element) => element.scrollIntoView({ block: "center" }));
+    await page.screenshot({ path: info.outputPath("agent-summary-settings-on.png") });
+    await label.click();
+    await expect.poll(savedSetting).toBe(false);
+    await page.reload();
+    await expect(page.locator("textarea[data-chat-composer]")).toBeVisible();
+    await openSettings();
+    await expect(toggle).not.toBeChecked();
+
+    await section.getByText("Enable Agents", { exact: true }).click();
+    const cost = section.getByText(/tokens of agent instructions/u).locator("../..");
+    const helpButton = cost.getByRole("button", { name: "Show help", exact: true });
+    const toggleHelp = () => (info.project.name === "desktop-chromium" ? helpButton.click() : helpButton.tap());
+    await toggleHelp();
+    const help = page.getByText(/^Approximate\. Each call also carries chat context/u);
+    await expect(help).toBeVisible();
+    await expect(help).toContainText("Smaller models may slow down or fail past");
+    await expect(helpButton).toHaveAttribute("aria-expanded", "true");
+    const bounds = await help.boundingBox();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.y).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+    if (info.project.name !== "desktop-chromium") {
+      const buttonBounds = await helpButton.boundingBox();
+      expect(buttonBounds!.width).toBeGreaterThanOrEqual(44);
+      expect(buttonBounds!.height).toBeGreaterThanOrEqual(44);
+    }
+    await page.screenshot({ path: info.outputPath("agent-cost-help.png") });
+    await toggleHelp();
+    await expect(help).toBeHidden();
+    await toggleHelp();
+    await expect(help).toBeVisible();
+    await section.getByText(/tokens of agent instructions/u).click();
+    await expect(help).toBeHidden();
+
+    for (const mode of ["conversation", "game"] as const) {
+      const other = await create("/api/chats", { name: `Summary control ${mode}`, mode, characterIds: [] });
+      if (mode === "game") {
+        expect(
+          (
+            await request.patch(`/api/chats/${other.id}/metadata`, {
+              data: { gameId: other.id, gameSessionStatus: "active", gameIntroPresented: true, enableAgents: false },
+            })
+          ).ok(),
+        ).toBeTruthy();
+      }
+      await create(`/api/chats/${other.id}/messages`, { role: "assistant", content: `Ready for ${mode} mode.` });
+      await page.evaluate(async (id) => {
+        const { useChatStore } = await import("/src/stores/chat.store.ts" as string);
+        useChatStore.getState().setShouldOpenSettings(false);
+        useChatStore.getState().setActiveChatId(id);
+      }, other.id);
+      await expect(page.getByText(`Ready for ${mode} mode.`, { exact: true })).toBeVisible();
+      await openSettings();
+      const otherSection = page.locator(`[data-chat-settings-section="${mode}-agents"]`);
+      await expect(otherSection.locator('[role="button"][aria-expanded]').first()).toBeVisible();
+      await expect(page.getByLabel("Attach chat summaries", { exact: true })).toHaveCount(0);
+    }
+  } finally {
+    for (const path of resources) await request.delete(path).catch(() => undefined);
+  }
+});
+
 test("Personas are chosen per chat and Conversation names match that choice", async ({ page, request }, info) => {
   const resources: string[] = [];
   const create = async (path: string, data: unknown) => {
@@ -1012,4 +1145,108 @@ test("Notification position is selectable, moves errors, and survives reload", a
   await expect(page.locator('[data-sonner-toaster][data-y-position="bottom"] [data-sonner-toast]')).toBeVisible();
   await selector.selectOption("top");
   await expect(page.locator('[data-sonner-toaster][data-y-position="top"] [data-sonner-toast]')).toBeVisible();
+});
+
+test("Conversation reactions stay beside their message when actions reveal", async ({ page, request }, info) => {
+  let chatId = "";
+  let characterId = "";
+  try {
+    const character = await request.post("/api/characters", { data: { data: { name: "Visitor" } } });
+    expect(character.ok()).toBeTruthy();
+    characterId = (await character.json()).id;
+    const response = await request.post("/api/chats", {
+      data: { name: "Stable conversation reactions", mode: "conversation", characterIds: [characterId] },
+    });
+    expect(response.ok()).toBeTruthy();
+    chatId = (await response.json()).id;
+    const messages: { id: string; role: string; content: string; emoji: string }[] = [];
+    for (const [role, emoji] of [
+      ["user", "🧪"],
+      ["assistant", "📚"],
+    ] as const) {
+      const content = `A short ${role} message about the laboratory.`;
+      const created = await request.post(`/api/chats/${chatId}/messages`, {
+        data: { role, content, extra: { reactions: [{ emoji, by: ["user"] }] } },
+      });
+      expect(created.ok()).toBeTruthy();
+      messages.push({ id: (await created.json()).id, role, content, emoji });
+    }
+    const grouped = await request.post(`/api/chats/${chatId}/messages`, {
+      data: {
+        role: "assistant",
+        characterId,
+        content: '<speaker="Visitor">A grouped laboratory reply.</speaker>',
+        extra: { reactions: [{ emoji: "🔬", by: ["user"] }] },
+      },
+    });
+    expect(grouped.ok()).toBeTruthy();
+    messages.push({
+      id: (await grouped.json()).id,
+      role: "grouped",
+      content: "A grouped laboratory reply.",
+      emoji: "🔬",
+    });
+    await page.route("**/api/app-settings/ui", (route) => route.fulfill({ json: { value: "" } }));
+    await seedUIState(page, {
+      hasCompletedOnboarding: true,
+      sidebarOpen: false,
+      rightPanelOpen: false,
+      chatHelpSeenModes: ["conversation"],
+      trackerPanelEnabled: false,
+      chibiProfessorMariEnabled: false,
+      appAccentPulseMode: false,
+      theme: info.project.name === "desktop-chromium" ? "light" : "dark",
+    });
+    await page.addInitScript(
+      ({ id, version }) => {
+        localStorage.setItem("marinara-active-chat-id", id);
+        localStorage.setItem("marinara:whats-new:seen-version", version);
+      },
+      { id: chatId, version },
+    );
+    await page.goto("/");
+    await expect(page.locator("textarea[data-chat-composer]")).toBeVisible();
+    for (const style of ["classic", "bubble"] as const) {
+      await page.evaluate(async (value) => {
+        const { useUIStore } = await import("/src/stores/ui.store.ts" as string);
+        useUIStore.getState().setConversationMessageStyle(value);
+      }, style);
+      for (const message of messages) {
+        const row = page.locator(`[data-message-id="${message.id}"]`).first();
+        const text = row.getByText(message.content, { exact: true });
+        const reactions = page.locator(".mari-message-reactions-row").filter({ hasText: message.emoji });
+        await text.scrollIntoViewIfNeeded();
+        await page.locator("textarea[data-chat-composer]").focus();
+        await page.mouse.move(1, 1);
+        const measure = () =>
+          reactions.evaluate((element, id) => {
+            const message = document.querySelector(`[data-message-id="${id}"]`)!;
+            const content =
+              message.querySelector('[data-component="ConversationMessage.Content"]') ??
+              message.querySelector("[data-card-css]")!;
+            const contentBox = content.getBoundingClientRect();
+            const swipes = message.querySelector(".mari-message-swipes")?.getBoundingClientRect();
+            const reactionBox = element.getBoundingClientRect();
+            return { gap: reactionBox.top - Math.max(contentBox.bottom, swipes?.bottom ?? 0), x: reactionBox.x };
+          }, message.id);
+        const before = await measure();
+        await page.screenshot({ path: info.outputPath(`reactions-${style}-${message.role}-hidden.png`) });
+        expect(before.gap).toBeLessThanOrEqual(12);
+        if (info.project.name === "desktop-chromium") await text.hover();
+        else await text.tap();
+        await expect(row.getByRole("button", { name: "Copy", exact: true })).toBeVisible();
+        await expect.poll(async () => Math.abs((await measure()).gap - before.gap)).toBeLessThanOrEqual(1);
+        expect(Math.abs((await measure()).x - before.x)).toBeLessThanOrEqual(1);
+        await page.screenshot({ path: info.outputPath(`reactions-${style}-${message.role}-shown.png`) });
+        if (info.project.name !== "desktop-chromium") {
+          await text.tap();
+          await page.locator("textarea[data-chat-composer]").tap();
+          await expect(row.getByRole("button", { name: "Copy", exact: true })).toBeHidden();
+        }
+      }
+    }
+  } finally {
+    if (chatId) await request.delete(`/api/chats/${chatId}`).catch(() => undefined);
+    if (characterId) await request.delete(`/api/characters/${characterId}`).catch(() => undefined);
+  }
 });

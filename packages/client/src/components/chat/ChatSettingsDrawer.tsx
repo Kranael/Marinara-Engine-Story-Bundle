@@ -91,7 +91,13 @@ import { SceneInstructionsSection } from "../../features/chat-settings/sections/
 import { TranslationSection } from "../../features/chat-settings/sections/TranslationSection";
 import { CapabilityElement } from "../capabilities/CapabilityElement";
 import type { AvatarCrop } from "@marinara-engine/shared";
-import { estimateTextTokens, isRoleplayCommandEnabled, resolveScopedRegexMode } from "@marinara-engine/shared";
+import {
+  DEFAULT_GAME_DICE_POOL_AGE_TURNS as DEFAULT_DICE_POOL_AGE_TURNS,
+  DEFAULT_GAME_DICE_POOL_WINDOW as DEFAULT_DICE_POOL_WINDOW,
+  estimateTextTokens,
+  isRoleplayCommandEnabled,
+  resolveScopedRegexMode,
+} from "@marinara-engine/shared";
 import { cn, getAvatarCropStyle } from "../../lib/utils";
 import { showAlertDialog, showConfirmDialog, showPromptDialog } from "../../lib/app-dialogs";
 import { HelpTooltip } from "../ui/HelpTooltip";
@@ -952,22 +958,50 @@ export function ChatSettingsDrawer({
     () => (typeof chat.metadata === "string" ? JSON.parse(chat.metadata) : (chat.metadata ?? {})),
     [chat.metadata],
   );
+  // Package integrations only show while their package is installed and active.
+  const noodleInstalled = installedCapabilities.some(
+    (capability) => capability.id === "noodle" && capability.status === "active",
+  );
+  const slurp2Installed = installedCapabilities.some(
+    (capability) => capability.id === "slurp2" && capability.status === "active",
+  );
   const noodleTimelineContextEnabled = metadata.noodleTimelineContextEnabled === true;
-  const renderNoodleTimelineContextToggle = () => (
-    <SettingsSwitch
-      label={localizeUi("ui.chat.chatsettingsdrawer.allowNoodleReferences")}
-      description={localizeUi("ui.chat.chatsettingsdrawer.timelineRefreshesMayIncludeRecentMessagesFromThisChat")}
-      checked={noodleTimelineContextEnabled}
-      onChange={(checked) => updateMeta.mutate({ id: chat.id, noodleTimelineContextEnabled: checked })}
-      labelPosition="start"
-      className={cn(
-        "justify-between rounded-md px-3 py-2.5 text-left",
-        noodleTimelineContextEnabled
-          ? "bg-[var(--primary)]/10 ring-1 ring-[var(--primary)]/30"
-          : "bg-[var(--secondary)] hover:bg-[var(--accent)]",
+  const slurp2ActivityContextEnabled = metadata.slurp2ActivityContextEnabled === true;
+  const renderPackageContextToggles = () => (
+    <>
+      {noodleInstalled && (
+        <SettingsSwitch
+          label={localizeUi("ui.chat.chatsettingsdrawer.allowNoodleReferences")}
+          description={localizeUi("ui.chat.chatsettingsdrawer.timelineRefreshesMayIncludeRecentMessagesFromThisChat")}
+          checked={noodleTimelineContextEnabled}
+          onChange={(checked) => updateMeta.mutate({ id: chat.id, noodleTimelineContextEnabled: checked })}
+          labelPosition="start"
+          className={cn(
+            "justify-between rounded-md px-3 py-2.5 text-left",
+            noodleTimelineContextEnabled
+              ? "bg-[var(--primary)]/10 ring-1 ring-[var(--primary)]/30"
+              : "bg-[var(--secondary)] hover:bg-[var(--accent)]",
+          )}
+          labelClassName="text-[0.6875rem] font-medium"
+        />
       )}
-      labelClassName="text-[0.6875rem] font-medium"
-    />
+      {slurp2Installed && (
+        <SettingsSwitch
+          label={localizeUi("ui.chat.chatsettingsdrawer.allowSlurpActivity")}
+          description={localizeUi("ui.chat.chatsettingsdrawer.allowSlurpActivityDescription")}
+          checked={slurp2ActivityContextEnabled}
+          onChange={(checked) => updateMeta.mutate({ id: chat.id, slurp2ActivityContextEnabled: checked })}
+          labelPosition="start"
+          className={cn(
+            "justify-between rounded-md px-3 py-2.5 text-left",
+            slurp2ActivityContextEnabled
+              ? "bg-[var(--primary)]/10 ring-1 ring-[var(--primary)]/30"
+              : "bg-[var(--secondary)] hover:bg-[var(--accent)]",
+          )}
+          labelClassName="text-[0.6875rem] font-medium"
+        />
+      )}
+    </>
   );
   const { data: currentPromptPresetFull } = usePresetFull(isRoleplayMode ? (chat.promptPresetId ?? null) : null);
   const promptPresetOptionsLoaded = Array.isArray(presets);
@@ -7074,7 +7108,7 @@ export function ChatSettingsDrawer({
                       ))}
                   </PickerDropdown>
                 )}
-                {renderNoodleTimelineContextToggle()}
+                {renderPackageContextToggles()}
                 <DiscordMirrorControls
                   webhookUrl={(metadata.discordWebhookUrl as string) ?? ""}
                   onWebhookUrlChange={(discordWebhookUrl) => updateMeta.mutate({ id: chat.id, discordWebhookUrl })}
@@ -7140,7 +7174,7 @@ export function ChatSettingsDrawer({
                   </p>
                 )}
 
-                {renderNoodleTimelineContextToggle()}
+                {renderPackageContextToggles()}
 
                 <DiscordMirrorControls
                   className="space-y-2"
@@ -7186,7 +7220,7 @@ export function ChatSettingsDrawer({
                     </div>
                   );
                 })()}
-                {renderNoodleTimelineContextToggle()}
+                {renderPackageContextToggles()}
                 <DiscordMirrorControls
                   webhookUrl={(metadata.discordWebhookUrl as string) ?? ""}
                   onWebhookUrlChange={(discordWebhookUrl) => updateMeta.mutate({ id: chat.id, discordWebhookUrl })}
@@ -7256,7 +7290,7 @@ export function ChatSettingsDrawer({
                       ))}
                   </PickerDropdown>
                 )}
-                {renderNoodleTimelineContextToggle()}
+                {renderPackageContextToggles()}
                 <DiscordMirrorControls
                   webhookUrl={(metadata.discordWebhookUrl as string) ?? ""}
                   onWebhookUrlChange={(discordWebhookUrl) => updateMeta.mutate({ id: chat.id, discordWebhookUrl })}
@@ -7422,6 +7456,20 @@ export function ChatSettingsDrawer({
                     )}
                     labelClassName="text-xs font-medium"
                   />
+                  {isRoleplayMode && (
+                    <AgentSettingsToggle
+                      label={localizeUi("chat.settings.agents.attachSummaries")}
+                      description={localizeUi("chat.settings.agents.attachSummariesHelp")}
+                      enabled={metadata.attachSummariesToAgents === true}
+                      surface="secondary"
+                      onToggle={() =>
+                        updateMeta.mutate({
+                          id: chat.id,
+                          attachSummariesToAgents: metadata.attachSummariesToAgents !== true,
+                        })
+                      }
+                    />
+                  )}
                   <AgentSettingsToggle
                     label={localizeUi("ui.chat.chatsettingsdrawer.reviewAgentOutputs")}
                     description={
@@ -9031,10 +9079,6 @@ export function ChatSettingsDrawer({
                                 ? "bg-[var(--primary)]/10 text-[var(--primary)] ring-[var(--primary)]/30"
                                 : "bg-[var(--secondary)]/60 text-[var(--primary)] ring-[var(--border)]",
                             )}
-                            title={localizeUi(
-                              "ui.chat.chatsettingsdrawer.approximateEachCallAlsoCarriesChatContextRecentMessages",
-                              { value1: AGENT_COST_HIGH_CALLS, value2: AGENT_COST_HIGH_TOKENS.toLocaleString() },
-                            )}
                           >
                             <span className="flex min-w-0 items-center gap-1.5">
                               {agentLoadCost.cost.level === "high" && (
@@ -9049,7 +9093,15 @@ export function ChatSettingsDrawer({
                                 {localizeUi("ui.chat.chatsettingsdrawer.turn")}
                               </span>
                             </span>
-                            <span className="shrink-0 cursor-help text-[0.625rem] opacity-70">ⓘ</span>
+                            <HelpTooltip
+                              text={localizeUi(
+                                "ui.chat.chatsettingsdrawer.approximateEachCallAlsoCarriesChatContextRecentMessages",
+                                { value1: AGENT_COST_HIGH_CALLS, value2: AGENT_COST_HIGH_TOKENS.toLocaleString() },
+                              )}
+                              className="-my-2 -mr-2 shrink-0"
+                              buttonClassName="h-11 w-11 justify-center"
+                              wide
+                            />
                           </div>
 
                           {visibleActiveAgentIds.length === 0 && (
@@ -9492,6 +9544,26 @@ export function ChatSettingsDrawer({
               gameDiceOutcomeNarration={metadata.gameDiceOutcomeNarration !== false}
               onGameDiceOutcomeNarrationChange={(gameDiceOutcomeNarration) =>
                 updateMeta.mutate({ id: chat.id, gameDiceOutcomeNarration })
+              }
+              gameOneRequestDice={metadata.gameOneRequestDice === true}
+              onGameOneRequestDiceChange={(gameOneRequestDice) =>
+                updateMeta.mutate({ id: chat.id, gameOneRequestDice })
+              }
+              gameDicePoolMode={metadata.gameDicePoolMode === true}
+              onGameDicePoolModeChange={(gameDicePoolMode) => updateMeta.mutate({ id: chat.id, gameDicePoolMode })}
+              gameDicePoolWindow={
+                typeof metadata.gameDicePoolWindow === "number" ? metadata.gameDicePoolWindow : DEFAULT_DICE_POOL_WINDOW
+              }
+              onGameDicePoolWindowChange={(gameDicePoolWindow) =>
+                updateMeta.mutate({ id: chat.id, gameDicePoolWindow })
+              }
+              gameDicePoolAgeTurns={
+                typeof metadata.gameDicePoolAgeTurns === "number"
+                  ? metadata.gameDicePoolAgeTurns
+                  : DEFAULT_DICE_POOL_AGE_TURNS
+              }
+              onGameDicePoolAgeTurnsChange={(gameDicePoolAgeTurns) =>
+                updateMeta.mutate({ id: chat.id, gameDicePoolAgeTurns })
               }
               enableTools={metadata.enableTools as boolean | undefined}
               forceToolCall={metadata.forceToolCall as boolean | undefined}

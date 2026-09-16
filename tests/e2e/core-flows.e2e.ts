@@ -2284,7 +2284,7 @@ test("mobile Conversation editing exposes the final line before text changes", a
     await page.goto("/");
 
     const messageRow = page.locator(`[data-message-id="${message.id}"]`);
-    const content = messageRow.locator(':scope > [data-component="ConversationMessage.Content"]');
+    const content = messageRow.locator('[data-component="ConversationMessage.Content"]');
     await messageRow.scrollIntoViewIfNeeded();
     await expect(async () => {
       await activateControl(content, testInfo);
@@ -2486,8 +2486,8 @@ test("Conversation message actions follow their messages on desktop and mobile",
 
       for (const message of messages) {
         const messageRow = page.locator(`[data-message-id="${message.id}"]`);
-        const content = messageRow.locator(':scope > [data-component="ConversationMessage.Content"]');
-        const actions = messageRow.locator(':scope > [data-component="ConversationMessage.Actions"]');
+        const content = messageRow.locator('[data-component="ConversationMessage.Content"]');
+        const actions = messageRow.locator('[data-component="ConversationMessage.Actions"]');
         const bubble = content.locator(".texting-bubble").first();
         if (style === "bubble") await expect(bubble).toBeVisible();
         else await expect(bubble).toHaveCount(0);
@@ -2508,16 +2508,12 @@ test("Conversation message actions follow their messages on desktop and mobile",
         await expect(actions.locator('[title="Copy"]')).toHaveCSS("color", expectedActionColor);
 
         const metrics = await messageRow.evaluate((element) => {
-          const contentElement = element.querySelector<HTMLElement>(
-            ':scope > [data-component="ConversationMessage.Content"]',
-          );
-          const actionElement = element.querySelector<HTMLElement>(
-            ':scope > [data-component="ConversationMessage.Actions"]',
-          );
+          const contentElement = element.querySelector<HTMLElement>('[data-component="ConversationMessage.Content"]');
+          const actionElement = element.querySelector<HTMLElement>('[data-component="ConversationMessage.Actions"]');
           const firstButton = actionElement?.querySelector<HTMLElement>("button");
           if (!contentElement || !actionElement || !firstButton) return null;
           const contentBox = contentElement.getBoundingClientRect();
-          const swipeBox = element.querySelector<HTMLElement>(":scope > .mari-message-swipes")?.getBoundingClientRect();
+          const swipeBox = element.querySelector<HTMLElement>(".mari-message-swipes")?.getBoundingClientRect();
           const actionBox = actionElement.getBoundingClientRect();
           const buttonBox = firstButton.getBoundingClientRect();
           return {
@@ -5991,13 +5987,15 @@ test("Conversation swipe controls match Roleplay sizing and chat-chrome colors",
           const control = row.locator(".mari-message-swipes");
           await expect(control).toBeVisible();
           if (layout !== "roleplay") {
-            const start = await row.evaluate(
-              (element) =>
-                element.getBoundingClientRect().left + Number.parseFloat(getComputedStyle(element).paddingLeft),
-            );
-            expect
-              .soft(Math.abs((await control.boundingBox())!.x - start), `${layout} swipes align with the message row`)
-              .toBeLessThan(1);
+            const offset = await row.evaluate((element) => {
+              // The message owner also contains reactions/actions; measure its actual content edge.
+              const content = element.querySelector('[data-component="ConversationMessage.Content"]');
+              const start = content
+                ? content.getBoundingClientRect().left
+                : element.getBoundingClientRect().left + Number.parseFloat(getComputedStyle(element).paddingLeft);
+              return Math.abs(element.querySelector(".mari-message-swipes")!.getBoundingClientRect().left - start);
+            });
+            expect.soft(offset, `${layout} swipes align with the message row`).toBeLessThan(1);
           }
           const input = control.getByRole("textbox");
           await expect(input).toHaveValue("1");
@@ -7659,7 +7657,35 @@ test("Roleplay Tracker preserves named characters with missing or malformed card
     await page.addInitScript((id) => localStorage.setItem("marinara-active-chat-id", id), chatId);
     const renderErrors: string[] = [];
     page.on("pageerror", (error) => renderErrors.push(error.message));
-    for (let pass = 0; pass < 2; pass++) {
+    const paintCases = [
+      { name: "default", paint: null },
+      { name: "default-reloaded", paint: null },
+      {
+        name: "custom",
+        paint: { mode: "custom", nameColor: "#60a5fa", dialogueColor: "#f97316", boxColor: "#334155" },
+      },
+      ...[0, 100].map((materialBrightness) => ({
+        name: `custom-partial-brightness-${materialBrightness}`,
+        paint: {
+          mode: "custom",
+          nameColor: "#60a5fa",
+          dialogueColor: "#f97316",
+          boxColor: "#334155",
+          nameColorOpacity: 50,
+          dialogueColorOpacity: 35,
+          boxColorOpacity: 65,
+          materialBrightness,
+          contrastIntensity: 100,
+        },
+      })),
+    ];
+    for (const [pass, paintCase] of paintCases.entries()) {
+      if (paintCase.paint) {
+        const savedPaint = await request.patch(`/api/characters/${characterId}/tracker-card-colors`, {
+          data: { paint: paintCase.paint },
+        });
+        expect(savedPaint.ok(), await savedPaint.text()).toBeTruthy();
+      }
       if (pass === 0) await page.goto("/");
       else await page.reload();
       const toggle = page.locator('[data-tracker-panel-toggle="roleplay-hud"]:visible').first();
@@ -7676,9 +7702,30 @@ test("Roleplay Tracker preserves named characters with missing or malformed card
           .poll(() => avatar.evaluate((image) => (image as HTMLImageElement).naturalWidth))
           .toBeGreaterThan(0);
       }
+      if (paintCase.paint) {
+        const paintedCard = tracker
+          .getByRole("button", { name: "Named visitor", exact: true })
+          .locator("xpath=ancestor::article[1]");
+        await expect(paintedCard).toHaveAttribute("style", /--tracker-profile-accent-solid:[^;]*#f97316/i);
+        const nameColors = await tracker
+          .getByRole("button", { name: "Named visitor", exact: true })
+          .evaluate((button) => {
+            const probe = document.createElement("span");
+            probe.style.color = "var(--tracker-profile-nameplate-text)";
+            button.append(probe);
+            const expected = getComputedStyle(probe).color;
+            probe.remove();
+            const text = [...button.querySelectorAll("span")].find(
+              (span) =>
+                span.textContent === "Named visitor" && span.children.length === 0 && span.getClientRects().length > 0,
+            );
+            return { expected, actual: text ? getComputedStyle(text).color : null };
+          });
+        expect(nameColors.actual).toBe(nameColors.expected);
+      }
       expect(await readCharacters()).toEqual(originalCharacters);
       expect(renderErrors).toEqual([]);
-      if (pass === 1) await page.screenshot({ path: testInfo.outputPath("tracker-missing-card-ids.png") });
+      await page.screenshot({ path: testInfo.outputPath(`tracker-${paintCase.name}.png`), animations: "disabled" });
     }
   } catch (error) {
     await page.screenshot({ path: testInfo.outputPath("tracker-opening-failure.png") }).catch(() => undefined);
@@ -17125,6 +17172,8 @@ test("Professor Mari chat fills the mobile home viewport and keeps its composer 
       );
     })
     .toBe(true);
+  await expect(window.locator(".mari-suggestion-chips")).toHaveCSS("opacity", "1");
+  await page.screenshot({ path: testInfo.outputPath("professor-chat-mobile.png") });
 });
 
 test("Professor Mari follows an open conversation across chats and mobile navigation", async ({ page }, testInfo) => {
@@ -19750,6 +19799,13 @@ test("Home widgets lift and brighten on fine-pointer hover", async ({ page }, te
 
 test("Home lifecycle stays bounded across repeated tab and chat navigation", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("desktop"), "Chromium lifecycle counters are sampled on desktop.");
+  // Earlier workspace-command fixtures leave approved history behind. Replaying
+  // its cache invalidations on every mount samples request deadlines, not leaks.
+  await page.route("**/api/professor-mari/workspace/status**", async (route) => {
+    const response = await route.fetch();
+    const status = await response.json();
+    await route.fulfill({ response, json: { ...status, history: [] } });
+  });
   await page.addInitScript(() => {
     const activeIntervals = new Set<number>();
     const activeTimeouts = new Map<number, { delay: number; homeSurface: boolean }>();
@@ -21923,11 +21979,7 @@ test("mobile topbar remains reachable while sidebars switch", async ({ page }, t
         getComputedStyle(element).getPropertyValue("--mari-panel-gradient-start").trim(),
       ),
     )
-    .toBe(
-      await page
-        .locator("html")
-        .evaluate((element) => getComputedStyle(element).getPropertyValue("--marinara-app-accent-solid").trim()),
-    );
+    .toBe("#f472b6");
 
   await chatsButton.click();
   await expect(mobileChatSidebar).toBeVisible();
@@ -21956,19 +22008,30 @@ test("mobile topbar remains reachable while sidebars switch", async ({ page }, t
   expect(errors).toEqual([]);
 });
 
-test("Characters topbar underline follows the selected accent", async ({ page }) => {
-  await page.goto("/");
-  await setAppAccentColor(page, "#1e90ff");
-  await page.locator('[data-tour="panel-characters"]').click();
+for (const theme of ["dark", "light"] as const) {
+  test(`Characters section keeps its pink gradient with a custom accent (${theme})`, async ({ page }, testInfo) => {
+    await seedUIState(page, { theme }, "merge");
+    await page.goto("/");
+    await setAppAccentColor(page, "#1e90ff");
+    await page.locator('[data-tour="panel-characters"]').click();
 
-  const underline = page.locator('[data-component="CharactersTopbarUnderline"]');
-  await expect(underline).toBeVisible();
-  await expect
-    .poll(() =>
-      underline.evaluate((element) => getComputedStyle(element).getPropertyValue("--mari-panel-gradient-start").trim()),
-    )
-    .toBe("#1e90ff");
-});
+    const panel = page.locator('[data-component="RightPanel"]');
+    const newButton = panel.getByTitle("New", { exact: true });
+    for (const surface of [
+      page.locator('[data-component="CharactersTopbarUnderline"]'),
+      panel.locator('[data-component="RightPanelHeaderIcon"]'),
+      newButton,
+    ]) {
+      await expect(surface).toBeVisible();
+      await expect(surface).toHaveCSS(
+        "background-image",
+        /linear-gradient\(135deg, rgb\(244, 114, 182\), rgb\(244, 63, 94\)\)/,
+      );
+    }
+    await expect(newButton).toHaveCSS("color", "rgb(255, 247, 251)");
+    await testInfo.attach("Characters pink gradient", { body: await page.screenshot(), contentType: "image/png" });
+  });
+}
 
 test("Updates shows the installed channel before checks and after a failed check", async ({ page }) => {
   await page.route("**/api/updates/channel", (route) => route.fulfill({ json: { channel: "staging" } }));

@@ -11,12 +11,12 @@ const APP_VERSION = (
 // silently drift with every update and eventually run migrations against a
 // minimal state they were never designed for.
 const UI_STORE_VERSION = Number(
-  readFileSync(new URL("../../../packages/client/src/stores/ui.store.ts", import.meta.url), "utf8").match(
-    /name:\s*"marinara-engine-ui",[\s\S]*?version:\s*(\d+)/u,
+  readFileSync(new URL("../../../packages/client/src/lib/ui-persistence.ts", import.meta.url), "utf8").match(
+    /name:\s*"marinara-engine-ui",\s*version:\s*(\d+)/u,
   )?.[1],
 );
 if (!Number.isInteger(UI_STORE_VERSION)) {
-  throw new Error("Could not read the persisted UI store version from ui.store.ts");
+  throw new Error("Could not read the persisted UI store version from ui-persistence.ts");
 }
 
 /**
