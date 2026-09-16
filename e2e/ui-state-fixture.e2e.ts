@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { UI_PERSISTENCE } from "../../packages/client/src/lib/ui-persistence.js";
+import { UI_PERSISTENCE } from "../packages/client/src/lib/ui-persistence.js";
 import { seedUIState } from "./ui-state-fixture.js";
 
 test("UI fixtures use the live persistence contract and preserve existing preferences", async ({ page }) => {

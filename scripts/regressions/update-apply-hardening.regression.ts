@@ -102,7 +102,7 @@ assert.match(
   /process\.env\.UPDATES_APPLY_DISABLED = "true"/u,
   "pnpm dev must hard-disable server-side update application (#5646)",
 );
-const e2eLauncherSource = readFileSync(join(repositoryRoot, "tests/e2e/start-servers.mjs"), "utf8").replace(/\r\n/gu, "\n");
+const e2eLauncherSource = readFileSync(join(repositoryRoot, "e2e/start-servers.mjs"), "utf8").replace(/\r\n/gu, "\n");
 assert.match(
   e2eLauncherSource,
   /UPDATES_APPLY_DISABLED: "true"/u,

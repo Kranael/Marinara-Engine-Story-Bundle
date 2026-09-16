@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { seedUIState } from "./ui-state-fixture.js";
-import { MARINARA_GRADIENT_PRESET } from "../../packages/client/src/lib/css-colors.js";
-import { UI_PERSISTENCE } from "../../packages/client/src/lib/ui-persistence.js";
+import { MARINARA_GRADIENT_PRESET } from "../packages/client/src/lib/css-colors.js";
+import { UI_PERSISTENCE } from "../packages/client/src/lib/ui-persistence.js";
 
 const version = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
 

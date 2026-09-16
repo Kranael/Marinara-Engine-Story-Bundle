@@ -22,5 +22,5 @@
       "@/*": ["./packages/client/src/*"]
     }
   },
-  "include": ["tests/e2e/**/*.ts", "tests/story-bundle/helpers/**/*.ts", "playwright.config.ts", "tests/story-bundle/tests/story-bundle.test.ts"]
+  "include": ["e2e/**/*.ts", "playwright.config.ts"]
 }

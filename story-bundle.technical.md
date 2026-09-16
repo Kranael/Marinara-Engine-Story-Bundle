@@ -194,12 +194,12 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
 | `packages/shared/src/types/story-bundle-manifest.ts` | `.storybundle` ZIP manifest types (`BundleManifest`, `BUNDLE_MANIFEST_FORMAT`, `BUNDLE_MANIFEST_VERSION`) |
 | `packages/shared/src/types/story-bundle-game.ts` | Game Mode extension types (`StoryBundleGameConfig`, `StoryBundleAssetSelection`, party/NPC helpers) |
 | `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — dead legacy `.marinara.json` import handler (never released; the UI no longer routes here) |
-| `tests/story-bundle/helpers/story-bundle-fixture.ts` | Test helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
-| `tests/story-bundle/helpers/story-bundle-api.ts` | Test helper: `StoryBundleAPI` class (create/delete/import/export) |
-| `tests/story-bundle/helpers/fresh-client.ts` | Test helper: `prepareFreshClient()` (client state before each test) |
-| `tests/story-bundle/data/*.json` | Fixture files in various states (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
-| `tests/story-bundle/data/test-data.html` | HTML test data for the description preview |
-| `tests/story-bundle/tests/*.test.ts` | Playwright e2e tests |
+| `e2e/story-bundle/helpers/story-bundle-fixture.ts` | Test helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
+| `e2e/story-bundle/helpers/story-bundle-api.ts` | Test helper: `StoryBundleAPI` class (create/delete/import/export) |
+| `e2e/story-bundle/helpers/fresh-client.ts` | Test helper: `prepareFreshClient()` (client state before each test) |
+| `e2e/story-bundle/data/*.json` | Fixture files in various states (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
+| `e2e/story-bundle/data/test-data.html` | HTML test data for the description preview |
+| `e2e/story-bundle/tests/*.e2e.ts` | Playwright e2e tests |
 
 **UI workflow:**
 1. The TopBar button "Story Bundles" opens the right panel.
@@ -352,7 +352,7 @@ internal errors → `500` with `logger.error(err, …)` (Pino, never `console.*`
     never released. For tests there are the helpers
     `importStoryBundleFixture(page, filePath)` and
     `buildStoryBundleEnvelope(input)` in
-    `tests/story-bundle/helpers/story-bundle-fixture.ts`.
+    `e2e/story-bundle/helpers/story-bundle-fixture.ts`.
 
 ### Localization (`src/localization/locales/en.json`)
 

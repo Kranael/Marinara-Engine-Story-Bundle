@@ -50,13 +50,13 @@ New field/feature = always touch all three layers + barrel exports + en.json.
 | `packages/shared/src/types/story-bundle-manifest.ts` | `.storybundle` ZIP manifest types: `BundleManifest`, `BundleManifestCharacter`, `BundleManifestScenario`, `BundleManifestAgentRef`, `BUNDLE_MANIFEST_FORMAT` (`"marinara-story-bundle-zip"`), `BUNDLE_MANIFEST_VERSION` (`1`) |
 | `packages/shared/src/types/story-bundle-game.ts` | Game Mode extension: `StoryBundleGameModeFields { partyCharacterIds, gameConfig, gameAssetSelection }`, `StoryBundleGameConfig`, `StoryBundleAssetSelection`, party/NPC helpers, `extractStoryBundleGameConfigFromSetupExport()` |
 | `packages/server/src/services/import/marinara.importer.ts` | `importStoryBundle()` — dead legacy `.marinara.json` import handler (never released; the UI no longer routes here) |
-| `tests/story-bundle/helpers/story-bundle-fixture.ts` | Test helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
-| `tests/story-bundle/helpers/story-bundle-api.ts` | Test helper: `StoryBundleAPI` class (create/delete/import/export) |
-| `tests/story-bundle/helpers/fresh-client.ts` | Test helper: `prepareFreshClient()` (client state before each test) |
-| `tests/story-bundle/data/*.json` | Fixture files (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
-| `tests/story-bundle/data/test-data.html` | HTML test data for the description preview |
-| `tests/story-bundle/tests/*.test.ts` | Playwright e2e tests (panel, editor, metadata, description, pickers, scenarios, play, gallery, import/export) |
-| `tests/story-bundle/pages/*.page.ts` | Page objects for panel, dialogs, editor shell, gallery, and each tab |
+| `e2e/story-bundle/helpers/story-bundle-fixture.ts` | Test helper: `importStoryBundleFixture()`, `buildStoryBundleEnvelope()` |
+| `e2e/story-bundle/helpers/story-bundle-api.ts` | Test helper: `StoryBundleAPI` class (create/delete/import/export) |
+| `e2e/story-bundle/helpers/fresh-client.ts` | Test helper: `prepareFreshClient()` (client state before each test) |
+| `e2e/story-bundle/data/*.json` | Fixture files (empty, with-description, with-characters, with-personas, with-lorebooks, full) |
+| `e2e/story-bundle/data/test-data.html` | HTML test data for the description preview |
+| `e2e/story-bundle/tests/*.e2e.ts` | Playwright e2e tests (panel, editor, metadata, description, pickers, scenarios, play, gallery, import/export) |
+| `e2e/story-bundle/pages/*.page.ts` | Page objects for panel, dialogs, editor shell, gallery, and each tab |
 
 Interfaces:
 
@@ -148,7 +148,7 @@ For extensions, read these neighbors as templates:
 - **Cascade rules:** when a table references another via FK, a cascade rule must be added to `CASCADES` (`file-backed-store.ts`) so deleting the parent also deletes child rows.
 - **Styling:** only CSS variables (`var(--border)`, `var(--card)`, `var(--destructive)` …) + `mari-panel-gradient-surface mari-panel-gradient--<name>`; no hard-coded hex colors outside `globals.css`.
 - **data-testid:** every new component/interactive element gets one; catalog in `story-bundle.technical.md` § 5.
-- **Test files:** Playwright e2e tests live in `tests/story-bundle/tests/` and are versioned via a `.gitignore` exception (`!tests/**/*.test.ts`). Page objects in `tests/story-bundle/pages/`. New tests follow the existing pattern (page object + data-testid + `prepareFreshClient`).
+- **Test files:** Playwright e2e tests live in `e2e/story-bundle/tests/`. Page objects in `e2e/story-bundle/pages/`. New tests follow the existing pattern (page object + data-testid + `prepareFreshClient`).
 - **Editor draft state:** the editor keeps a local draft (`presetIds`, `characterIds`, …) synced from the loaded bundle via `useLayoutEffect`. Play reads the draft, not the server state — keep it that way so unsaved changes are honored when playing.
 - **Branches:** changes against `staging`, not `main` (currently working on `story-bundle-dev`).
 - **Never check PR checkboxes**; list manual verification explicitly.
@@ -274,12 +274,12 @@ in `ExportType` are leftovers and should not be treated as a supported path.
 ### Test helpers
 
 - `importStoryBundleFixture(page, filePath)` in
-  `tests/story-bundle/helpers/story-bundle-fixture.ts` imports a fixture and
+  `e2e/story-bundle/helpers/story-bundle-fixture.ts` imports a fixture and
   returns the created `StoryBundle`.
 - `buildStoryBundleEnvelope(input)` builds an envelope inline (for programmatic
   tests).
-- `StoryBundleAPI` in `tests/story-bundle/helpers/story-bundle-api.ts` offers
+- `StoryBundleAPI` in `e2e/story-bundle/helpers/story-bundle-api.ts` offers
   create/delete/import/export.
-- Fixtures: `tests/story-bundle/data/` contains JSON files in various states
+- Fixtures: `e2e/story-bundle/data/` contains JSON files in various states
   (empty, with-description, with-characters, with-personas, with-lorebooks,
   full).

@@ -1,6 +1,6 @@
 import type { BrowserContext, Page } from "@playwright/test";
-import type { pickPersistedUIState } from "../../packages/client/src/stores/ui.store.js";
-import { UI_PERSISTENCE } from "../../packages/client/src/lib/ui-persistence.js";
+import type { pickPersistedUIState } from "../packages/client/src/stores/ui.store.js";
+import { UI_PERSISTENCE } from "../packages/client/src/lib/ui-persistence.js";
 
 type PersistedUIState = ReturnType<typeof pickPersistedUIState>;
 

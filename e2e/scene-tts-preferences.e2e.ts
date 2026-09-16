@@ -79,7 +79,7 @@ for (const theme of ["light", "dark"] as const) {
           const { useChatStore } = await import("/src/stores/chat.store.ts" as string);
           const scene = (await import(
             "/src/lib/scene-generation.ts" as string
-          )) as typeof import("../../packages/client/src/lib/scene-generation");
+          )) as typeof import("../packages/client/src/lib/scene-generation");
           useChatStore.getState().setActiveChatId(chatId);
           const result = { settled: false, created: false, chatId: null as string | null };
           Object.assign(window, { sceneCreationResult: result });
@@ -243,7 +243,7 @@ test("Scene setup remembers the selected preset and handles a deleted selection"
     await page.evaluate(async (chatId) => {
       const scene = (await import(
         "/src/lib/scene-generation.ts" as string
-      )) as typeof import("../../packages/client/src/lib/scene-generation");
+      )) as typeof import("../packages/client/src/lib/scene-generation");
       void scene.startSceneWithPromptPreferences({ chatId, prompt: "A quiet moment" });
     }, origin.id);
     const dialog = page.getByRole("dialog", { name: "Scene Prompt Setup", exact: true });
@@ -265,7 +265,7 @@ test("Scene setup remembers the selected preset and handles a deleted selection"
       page.evaluate(async () => {
         const scene = (await import(
           "/src/lib/scene-generation.ts" as string
-        )) as typeof import("../../packages/client/src/lib/scene-generation");
+        )) as typeof import("../packages/client/src/lib/scene-generation");
         void scene.requestScenePromptPreferences();
       });
     await reopen();
@@ -318,7 +318,7 @@ test("Scene setup retries a failed preset load without discarding the saved sele
     await page.evaluate(async () => {
       const scene = (await import(
         "/src/lib/scene-generation.ts" as string
-      )) as typeof import("../../packages/client/src/lib/scene-generation");
+      )) as typeof import("../packages/client/src/lib/scene-generation");
       void scene.requestScenePromptPreferences();
     });
     const dialog = page.getByRole("dialog", { name: "Scene Prompt Setup", exact: true });
@@ -336,7 +336,7 @@ test("Scene setup retries a failed preset load without discarding the saved sele
     await page.evaluate(async () => {
       const scene = (await import(
         "/src/lib/scene-generation.ts" as string
-      )) as typeof import("../../packages/client/src/lib/scene-generation");
+      )) as typeof import("../packages/client/src/lib/scene-generation");
       void scene.requestScenePromptPreferences();
     });
     await expect(dialog.getByRole("button", { name: "Retry loading presets", exact: true })).toBeVisible();
@@ -368,7 +368,7 @@ test("Scene setup can continue with None while the preset list is loading", asyn
     await page.evaluate(async () => {
       const scene = (await import(
         "/src/lib/scene-generation.ts" as string
-      )) as typeof import("../../packages/client/src/lib/scene-generation");
+      )) as typeof import("../packages/client/src/lib/scene-generation");
       void scene.requestScenePromptPreferences();
     });
     const dialog = page.getByRole("dialog", { name: "Scene Prompt Setup", exact: true });

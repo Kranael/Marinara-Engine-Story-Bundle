@@ -1,12 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 import { fileURLToPath } from "node:url";
-import { forceColorValueEnablesColor } from "./tests/e2e/playwright-color-environment.js";
+import { forceColorValueEnablesColor } from "./e2e/playwright-color-environment.js";
 
 const callerDisabledColors = process.env.NO_COLOR !== undefined && process.env.NO_COLOR !== "";
 const shouldPreventPlaywrightColorOverride =
   callerDisabledColors && !forceColorValueEnablesColor(process.env.FORCE_COLOR);
 if (shouldPreventPlaywrightColorOverride) {
-  const noColorPreload = `--require=${JSON.stringify(fileURLToPath(new URL("./tests/e2e/respect-no-color.cjs", import.meta.url)))}`;
+  const noColorPreload = `--require=${JSON.stringify(fileURLToPath(new URL("./e2e/respect-no-color.cjs", import.meta.url)))}`;
   const nodeOptions = process.env.NODE_OPTIONS?.trim();
   if (!nodeOptions?.includes(noColorPreload)) {
     process.env.NODE_OPTIONS = nodeOptions ? `${nodeOptions} ${noColorPreload}` : noColorPreload;
@@ -28,15 +28,15 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${clientPor
 const mobileBaseURL = process.env.PLAYWRIGHT_MOBILE_BASE_URL ?? `http://127.0.0.1:${mobileClientPort}`;
 
 export default defineConfig({
-  testDir: "./tests",
-  testMatch: ["**/*.e2e.ts", "**/*.test.ts"],
+  testDir: "./e2e",
+  testMatch: "**/*.e2e.ts",
   timeout: 60_000,
   expect: {
     timeout: 10_000,
   },
   fullyParallel: false,
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
-  globalSetup: "./tests/e2e/global-setup.mjs",
+  globalSetup: "./e2e/global-setup.mjs",
   workers: process.env.CI ? 4 : 8,
   use: {
     baseURL,
@@ -48,7 +48,7 @@ export default defineConfig({
     process.env.PLAYWRIGHT_SKIP_WEBSERVER === "true"
       ? undefined
       : {
-          command: "node ./tests/e2e/start-servers.mjs",
+          command: "node ./e2e/start-servers.mjs",
           // The readiness check must target a server that actually boots:
           // when a CI shard gates the boot to one project pair (#5637), the
           // desktop URL would never come up on a mobile-only shard.

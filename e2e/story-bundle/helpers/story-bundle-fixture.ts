@@ -28,7 +28,7 @@ let _importCounter = 0;
  *
  * @example
  * ```ts
- * const bundle = await importStoryBundleFixture(page, './tests/data/story-bundles/empty.json');
+ * const bundle = await importStoryBundleFixture(page, './e2e/story-bundle/data/empty.json');
  * ```
  */
 export async function importStoryBundleFixture(

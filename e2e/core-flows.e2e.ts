@@ -14,7 +14,7 @@ import type { HomeCustomWidgetCatalog } from "@marinara-engine/shared";
 import { forceColorValueEnablesColor } from "./playwright-color-environment.js";
 import { mockUILanguagePacks } from "./ui-language-fixtures.js";
 import { seedUIState } from "./ui-state-fixture.js";
-import { UI_PERSISTENCE } from "../../packages/client/src/lib/ui-persistence.js";
+import { UI_PERSISTENCE } from "../packages/client/src/lib/ui-persistence.js";
 
 const TRANSPARENT_GIF_BASE64 = "R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 const TRANSPARENT_PNG_BASE64 =
@@ -22,7 +22,7 @@ const TRANSPARENT_PNG_BASE64 =
 const WHATS_NEW_SEEN_VERSION_KEY = "marinara:whats-new:seen-version";
 const WHATS_NEW_E2E_BYPASS_KEY = "marinara:e2e:show-whats-new";
 const APP_VERSION = (
-  JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as { version: string }
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string }
 ).version;
 
 function createDeferred() {
@@ -3060,7 +3060,7 @@ test("NovelAI style plate upload keeps the connection editor mounted", async ({ 
     await editor.locator('input[type="file"][accept*="image/png"]').setInputFiles({
       name: "style-plate.png",
       mimeType: "image/png",
-      buffer: readFileSync(new URL("../../../packages/client/public/sprites/mari/Mari_wave.png", import.meta.url)),
+      buffer: readFileSync(new URL("../packages/client/public/sprites/mari/Mari_wave.png", import.meta.url)),
     });
 
     await expect(editor).toBeVisible();

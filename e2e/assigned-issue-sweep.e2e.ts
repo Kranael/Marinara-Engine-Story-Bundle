@@ -1,11 +1,11 @@
-import Fastify from "../../packages/server/node_modules/fastify/fastify.js";
+import Fastify from "../packages/server/node_modules/fastify/fastify.js";
 import {
   androidLocalAuthHook,
   androidLocalAuthRoutes,
   androidLocalLoginRoute,
   androidLocalAuthTesting,
-} from "../../packages/server/src/middleware/android-local-auth.js";
-import { securityHeadersHook } from "../../packages/server/src/middleware/security-headers.js";
+} from "../packages/server/src/middleware/android-local-auth.js";
+import { securityHeadersHook } from "../packages/server/src/middleware/security-headers.js";
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
@@ -418,7 +418,7 @@ test("Android browser handoff signs in without typing a secret and clears the on
   request,
 }, testInfo) => {
   // Keep server-only dependency types in the server TypeScript project.
-  const { csrfProtectionHook } = await import("../../packages/server/src/middleware/csrf-protection.js" as string);
+  const { csrfProtectionHook } = await import("../packages/server/src/middleware/csrf-protection.js" as string);
   const previousSecret = process.env.MARINARA_ANDROID_SECRET;
   const secret = "11".repeat(32);
   process.env.MARINARA_ANDROID_SECRET = secret;
